@@ -57,12 +57,6 @@ jobs:
       - name: Apply the fourteen-day rule
         run: python bench/gate_viability.py --today "$(date -u +%F)"
 
-      # Look for endpoints nobody has added yet. In CI it only READS the public catalogues and triages
-      # them - the live probing runs where the radar runs, because forty unauthenticated POSTs a day
-      # to hosts out of a third-party file should come from a machine we own, not from shared CI IPs.
-      - name: Hunt for providers we do not track
-        run: python bench/crawl.py --date "$(date -u +%F)" --out data/crawl --no-probe
-
       - name: Published numbers must exist in the data
         run: python bench/gate_claims.py
 

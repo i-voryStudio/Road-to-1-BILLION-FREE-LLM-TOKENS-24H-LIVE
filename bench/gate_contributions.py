@@ -50,6 +50,7 @@ ALLOWED_HOSTS = {
     "dashscope-intl.aliyuncs.com",
     "api.xkiro.com",
     "api.siliconflow.com",
+    "api.z.ai",              # judge, not a benchmarked provider: see bench/judges.json
 }
 
 # The only environment variables allowed to be interpolated into a URL. Anything else would let a
@@ -224,6 +225,48 @@ def check_language(path, problems):
                                 "name to build the agent ranking"))
 
 
+def check_judges(path, problems):
+    """A judge receives an API key too, so it gets the same treatment as a provider.
+
+    Plus one rule of its own: at least one judge must be reachable by API. A jury made only of judges
+    that run through our private tooling cannot be reproduced by anyone, which would make half of every
+    quality score an assertion rather than a measurement.
+    """
+    if not path.exists():
+        return
+    d = json.loads(path.read_text(encoding="utf-8"))
+    judges = d.get("judges", [])
+    if not judges:
+        problems.append((path.name, "no judges defined"))
+        return
+    families, api_judges = set(), 0
+    for j in judges:
+        where = "%s: judge %r" % (path.name, j.get("name", "<unnamed>"))
+        if j.get("via") not in ("api", "agent"):
+            problems.append((where, "via must be 'api' or 'agent', got %r" % j.get("via")))
+        if j.get("via") == "api":
+            api_judges += 1
+            host = host_of(j.get("url", ""))
+            if urlparse(j.get("url", "")).scheme != "https":
+                problems.append((where, "url must be https"))
+            if host not in ALLOWED_HOSTS:
+                problems.append((where, "host %r is not in ALLOWED_HOSTS. A judge gets an API key in an "
+                                        "Authorization header just like a provider does." % host))
+            if not j.get("key_env"):
+                problems.append((where, "an api judge needs key_env"))
+        if not j.get("family"):
+            problems.append((where, "every judge must declare its model family, so a reader can see "
+                                    "whether it is scoring a relative"))
+        families.add(j.get("family"))
+    if api_judges == 0:
+        problems.append((path.name, "no judge is reachable by API. At least one must be, or nobody "
+                                    "outside this house can reproduce any part of the jury half."))
+    if len(families) < 2:
+        problems.append((path.name, "all judges are from the same family (%s). Agreement between judges "
+                                    "of one family measures consistency, not correctness."
+                         % ", ".join(sorted(str(f) for f in families))))
+
+
 def check_limits(path, problems):
     d = json.loads(path.read_text(encoding="utf-8"))
     for name, p in (d.get("providers") or {}).items():
@@ -247,6 +290,7 @@ def main():
     problems = []
     try:
         check_providers(root / "providers.json", problems)
+        check_judges(root / "judges.json", problems)
         check_limits(root / "limits.json", problems)
         langs = sorted((root / "languages").glob("*.json"))
         if not langs:
@@ -260,7 +304,7 @@ def main():
         print("gate could not run: %s: %s" % (type(e).__name__, e))
         return 2
 
-    print("checked providers.json, limits.json and %d language pack(s)" % len(langs))
+    print("checked providers.json, judges.json, limits.json and %d language pack(s)" % len(langs))
     if not problems:
         print("CLEAN - contributions are safe to merge.")
         return 0

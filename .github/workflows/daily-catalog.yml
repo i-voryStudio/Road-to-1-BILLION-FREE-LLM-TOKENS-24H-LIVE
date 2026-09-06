@@ -31,6 +31,9 @@ jobs:
       - name: Probe checkers must still pass
         run: python bench/test_probes.py
 
+      - name: Jury maths
+        run: python bench/test_jury.py
+
       - name: The publication gate must still catch what it claims to
         run: python bench/test_gate.py
 

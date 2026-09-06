@@ -30,6 +30,12 @@ jobs:
         run: python bench/test_gate.py
 
       # Blocks a key, an account balance or a private path from ever reaching a commit.
+      # Agreement between judges is half the credibility of every quality score. The maths that
+      # reports it is tested in both directions: perfect agreement must read as perfect, a split
+      # jury as split, and "one judge is harsher" must not be flattened into "they disagree".
+      - name: Jury maths
+        run: python bench/test_jury.py
+
       - name: Publication gate
         run: python bench/gate_publish.py .
 

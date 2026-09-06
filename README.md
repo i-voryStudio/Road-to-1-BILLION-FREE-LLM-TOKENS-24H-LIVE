@@ -15,11 +15,17 @@ tells you whether the model can produce a paragraph you would actually publish. 
 | JSON extraction, right keys and types | **23 / 28** |
 | A paragraph usable at all (checker allows 70-140 words) | **23 / 30** |
 | A paragraph inside the 90-110 words actually asked for | **14 / 30** |
-| Scored above 7/10 on *"sounds like a person wrote it"* | **1 / 23** |
+| Best score any model reached on *"sounds like a person wrote it"* | **5.5 / 10** |
 
-The curve falls the moment the task stops being mechanical. On the blind jury's "sounds human" lens the
-mean across 23 models is **3.5 out of 10**, and exactly one model clears 7. That is the number no
-rate-limit table can show you.
+The curve falls the moment the task stops being mechanical. Two judges from different model families
+scored the paragraphs blind: the mean on "sounds human" is **3.1 out of 10**, and not one model of
+the 23 reached 6. That is the number no rate-limit table can show you.
+
+And a warning about our own method, up front rather than buried: **the two judges barely agree on that
+lens** — they correlate at −0.07 on "sounds human" while agreeing at 0.93 on whether the Romanian is
+correct. So treat the language and instruction columns as measurements, and the human-sounding column
+as two opinions that happen to point the same way. The full breakdown, including the paragraphs they
+split hardest on, is in [agreement.md](results/2026-09-06/agreement.md).
 
 Run on **6 September 2026**. Script, prompts, raw answers and every jury score are in this repo. Nothing here is
 copied from a provider's documentation without being labelled `DECLARED`.
@@ -68,37 +74,28 @@ Machine-readable: [`data/models.json`](data/models.json), [`data/models.csv`](da
 
 | # | Model | Provider | Quality | Probes | human / language / brief | Req/day | Evidence | Speed |
 |---|---|---|---|---|---|---|---|---|
-| 1 | `gemini-3.5-flash-lite` | google | **9.2** | 4/4 | 6 / 9 / 10 | 500 | DECLARED | 0.8 s |
-| 2 | `qwen3.5-flash` | alibaba | **9.0** | 4/4 | 5 / 9 / 10 | ? | UNKNOWN | 1.5 s |
-| 3 | `minimax/minimax-m3:free` | openrouter | **8.5** | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
-| 4 | `minimax/minimax-m2.7:free` | xkiro | **8.5** | 4/4 | 3 / 8 / 10 | ? | UNKNOWN | 16.4 s |
-| 5 | `minimax/minimax-m2.7:free` | openrouter | **8.5** | 4/4 | 3 / 8 / 10 | 50 | DECLARED | 20.4 s |
-| 6 | `openai/gpt-oss-20b` | groq | **8.3** | 4/4 | 3 / 7 / 10 | 1,000 | PAID-PLAN | 0.4 s |
-| 7 | `@cf/openai/gpt-oss-120b` | cloudflare | **8.3** | 4/4 | 2 / 8 / 10 | ? | UNKNOWN | 5.2 s |
-| 8 | `openai/gpt-oss-120b` | groq | **8.2** | 4/4 | 3 / 7 / 9 | 1,000 | PAID-PLAN | 0.5 s |
-| 9 | `gemma-4-31b` | cerebras | **7.8** | 4/4 | 3 / 5 / 9 | 2,400 | MEASURED | 0.4 s |
-| 10 | `gemma4:31b` | ollama | **7.8** | 4/4 | 3 / 5 / 9 | ? | UNKNOWN | 0.8 s |
+| 1 | `gemini-3.5-flash-lite` | google | **8.8** | 4/4 | 4.0 / 9.0 / 10.0 | 500 | DECLARED | 0.8 s |
+| 2 | `qwen3.5-flash` | alibaba | **8.8** | 4/4 | 3.5 / 9.5 / 10.0 | ? | UNKNOWN | 1.5 s |
+| 3 | `@cf/openai/gpt-oss-120b` | cloudflare | **8.6** | 4/4 | 2.5 / 9.0 / 10.0 | ? | UNKNOWN | 5.2 s |
+| 4 | `minimax/minimax-m2.7:free` | xkiro | **8.6** | 4/4 | 3.0 / 8.5 / 10.0 | ? | UNKNOWN | 16.4 s |
+| 5 | `minimax/minimax-m2.7:free` | openrouter | **8.5** | 4/4 | 3.0 / 8.0 / 10.0 | 50 | DECLARED | 20.4 s |
+| 6 | `openai/gpt-oss-20b` | groq | **8.3** | 4/4 | 2.5 / 7.5 / 10.0 | 1,000 | PAID-PLAN | 0.4 s |
+| 7 | `minimax/minimax-m3:free` | openrouter | **8.3**<br><sub>7.1-8.3</sub> | 4/4 | 5.0 / 10.0 / 5.0 | 50 | DECLARED | 3.5 s |
+| 8 | `openai/gpt-oss-120b` | groq | **8.1**<br><sub>6.8-8.1</sub> | 4/4 | 2.0 / 7.0 / 9.5 | 1,000 | PAID-PLAN | 0.5 s |
+| 9 | `gemma4:31b` | ollama | **8.1** | 4/4 | 2.5 / 6.5 / 9.5 | ? | UNKNOWN | 0.8 s |
+| 10 | `gemma-4-31b` | cerebras | **8.0** | 4/4 | 3.0 / 5.5 / 9.5 | 2,400 | MEASURED | 0.4 s |
 
-*Jury columns are 0-10 on three separate lenses. `Evidence` says how we know the requests-per-day figure: MEASURED by us, DECLARED by the provider, **PAID-PLAN** when the only published number belongs to a paid tier rather than the free one, UNKNOWN when nobody publishes it. Most free tiers fall in that last bucket — which is itself the finding.*
+*Jury columns are the mean of TWO judges from different model families, 0-10 on three separate
+lenses. Read [agreement.md](results/2026-09-06/agreement.md) before trusting them: the judges
+correlate at 0.93 on language correctness and at **-0.07** on whether a text sounds human.*
 
-All 30 ranked models, the 7 that never reached the jury, and the 3 that never answered: **[RESULTS.md](RESULTS.md)**.
+*`Evidence` says how we know the requests-per-day figure: MEASURED by us, DECLARED by the
+provider, **PAID-PLAN** when the only published number belongs to a paid tier rather than the free
+one, UNKNOWN when nobody publishes it — which is **19 of 30 models**, and is itself the finding.
+A smaller number under a score is the range across repeated attempts.*
 
----|---|---|---|---|---|---|---|---|
-| 1 | `gemini-3.5-flash-lite` | google | **9.2** | 4/4 | 6 / 9 / 10 | 500 | DECLARED | 0.8 s |
-| 2 | `qwen3.5-flash` | alibaba | **9.0** | 4/4 | 5 / 9 / 10 | ? | UNKNOWN | 1.5 s |
-| 3 | `minimax/minimax-m3:free` | openrouter | **8.5** | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
-| 4 | `minimax/minimax-m2.7:free` | xkiro | **8.5** | 4/4 | 3 / 8 / 10 | ? | UNKNOWN | 16.4 s |
-| 5 | `minimax/minimax-m2.7:free` | openrouter | **8.5** | 4/4 | 3 / 8 / 10 | 50 | DECLARED | 20.4 s |
-| 6 | `openai/gpt-oss-20b` | groq | **8.3** | 4/4 | 3 / 7 / 10 | 1,000 | DECLARED | 0.4 s |
-| 7 | `@cf/openai/gpt-oss-120b` | cloudflare | **8.3** | 4/4 | 2 / 8 / 10 | ? | UNKNOWN | 5.2 s |
-| 8 | `openai/gpt-oss-120b` | groq | **8.2** | 4/4 | 3 / 7 / 9 | 1,000 | DECLARED | 0.5 s |
-| 9 | `gemma-4-31b` | cerebras | **7.8** | 4/4 | 3 / 5 / 9 | 2,400 | MEASURED | 0.4 s |
-| 10 | `gemma4:31b` | ollama | **7.8** | 4/4 | 3 / 5 / 9 | ? | UNKNOWN | 0.8 s |
-
-*Jury columns are 0-10 on three separate lenses. `Evidence` is how we know the requests-per-day figure — MEASURED by us, DECLARED by the provider, UNKNOWN if nobody publishes it. **19 of 30 models have no published daily limit at all**, which is itself the finding: most free tiers do not tell you what you get.*
-
-All 30, plus the three that never answered and why: **[RESULTS.md](RESULTS.md)**.
-
+All 30 ranked models, the 7 that never reached the jury, and the 3 that never answered:
+**[RESULTS.md](RESULTS.md)**.
 ---
 
 ## Three things we found that no list prints

@@ -1,34 +1,52 @@
 # Free LLM APIs, Ranked by What You Can Actually Get Done
 
-**Every other list ranks free LLM APIs by rate limit. This one ranks them by quality times volume —
-because a brilliant model you may call 20 times a day is worth less than a decent one you may call
-2,400 times.**
+## What is on the table right now
 
-Measured on **2026-09-06**. Quality is imported from official benchmarks; everything else we measure ourselves.
+| | |
+|---|---|
+| **Requests per 24h**, across providers with a confirmed quota | **3,950** |
+| **Tokens per 24h**, confirmed | **1,200,000** |
+| Endpoints answering today | **28 of 33** |
+| Providers whose daily quota nobody publishes | **6 of 10** |
 
-## The ranking
+Those totals are the **confirmed minimum**, not a marketing number: six of the ten providers publish no
+daily quota at all, so their capacity is real but uncounted. We would rather understate than invent.
 
-<!--RANKING-->
-| # | Model | Provider | Value | Auth | Coding | Req/day | Note |
-|---|---|---|---|---|---|---|---|
-| 1 | `qwen-3.8-27b` | cerebras | **211.1** | key | 68.1 | 2,400 | returns empty 200s |
-| 2 | `qwen/qwen3.8-27b` | groq | **178.8** | key | 68.1 | 1,000 | 88% answered |
-| 3 | `qwen/qwen3.6-27b` | groq | **141.0** | key | 53.7 | 1,000 | 88% answered |
-| 4 | `gemma-4-31b` | cerebras | **134.5** | key | 43.4 | 2,400 | 92% answered |
-| 5 | `gpt-oss-120b` | cerebras | **94.2** | key | 30.4 | 2,400 | 92% answered |
-| 6 | `minimax/minimax-m3:free` | openrouter | **91.8** | key | 58.6 | 50 | 92% answered |
-| 7 | `gemini-3.5-flash-lite` | google | **88.8** | key | 49.3 | 500 | **trains on your prompts** |
-| 8 | `minimax/minimax-m2.7:free` | openrouter | **82.4** | key | 52.6 | 50 | 92% answered |
-| 9 | `openai/gpt-oss-120b` | groq | **79.8** | key | 30.4 | 1,000 | 88% answered |
-| 10 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **77.2** | key | 49.3 | 50 | 92% answered |
-<!--/RANKING-->
+### The five best free endpoints today
 
-**Read the first two rows against row 7.** `gemini-3.8-flash` has the best coding score in the whole list — **76.3** —
-and sits at number 7, because Google gives you **20 requests a day**. The model at number 1 scores
-lower and wins anyway. That is the entire argument for ranking this way.
+| # | Model | Provider | Value | Coding | Req/day |
+|---|---|---|---|---|---|
+| 1 | `qwen-3.8-27b` | cerebras | **211.1** | 68.1 | 2,400 |
+| 2 | `qwen/qwen3.8-27b` | groq | **178.8** | 68.1 | 1,000 |
+| 3 | `qwen/qwen3.6-27b` | groq | **141.0** | 53.7 | 1,000 |
+| 4 | `gemma-4-31b` | cerebras | **134.5** | 43.4 | 2,400 |
+| 5 | `gpt-oss-120b` | cerebras | **94.2** | 30.4 | 2,400 |
 
-Full tables, all five filters: **[RESULTS.md](RESULTS.md)** · machine-readable:
-[`data/ranking.json`](data/ranking.json), [`data/ranking.csv`](data/ranking.csv)
+**Value = quality x volume**, and that is the whole point. `gemini-3.8-flash` has the best coding score
+in the entire list — **76.3** — and does not appear above, because Google gives you **20 requests a
+day**. A weaker model you can call 2,400 times beats a brilliant one you can call twenty.
+
+Every other list ranks these by rate limit alone. Full tables and all six filters:
+**[RESULTS.md](RESULTS.md)**.
+
+---
+
+## How this list is built, and why you can check every number
+
+**We read every free-LLM list on GitHub before writing ours** — all eight of them, plus the
+[OmniRoute](https://github.com/diegosouzapw/OmniRoute) catalogue of 351 providers, every provider's own
+rate-limit and terms pages, and two benchmark suites we evaluated and rejected. What we took from each,
+and what we deliberately refused to take, is written down: **[SOURCES.md](SOURCES.md)**.
+
+**A research loop runs continuously — on these same free APIs — looking for new ones.** Free endpoints
+appear weekly and die in months, usually with no announcement. The catalogue we cross-check against lost
+six providers between March and August 2026. A list nobody re-reads becomes fiction; this one is
+re-measured every day, and what dies gets a date and a headstone in
+**[GRAVEYARD.md](GRAVEYARD.md)** rather than quietly disappearing.
+
+**Quality is imported, never run by us.** Scores come from official benchmarks (Artificial Analysis,
+Design Arena). We measure only what nobody else can tell you: the real quota, whether it answers today,
+whether it needs a key, and what the free tier costs you in things that are not money.
 
 ---
 

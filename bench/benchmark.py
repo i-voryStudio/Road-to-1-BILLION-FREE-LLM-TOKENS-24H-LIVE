@@ -17,8 +17,11 @@ Providers with no key set are skipped and listed at the end. Nothing here writes
 """
 import argparse, json, os, re, sys, threading, time, urllib.error, urllib.request
 from pathlib import Path
+from urllib.parse import urlparse
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+from gate_contributions import ALLOWED_HOSTS, ALLOWED_URL_PLACEHOLDERS  # single source of truth
 UA = "free-llm-benchmark/1.0 (+https://github.com/i-voryStudio)"
 
 
@@ -107,14 +110,40 @@ def check(probe, spec, text, lang):
 
 # ---------------------------------------------------------------- calling
 
+class NoCrossHostRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse a redirect that changes host.
+
+    urllib keeps the Authorization header across a 302, so a provider (or anyone who can answer for one)
+    could bounce the request to a server of their choosing and receive the API key. The host allowlist
+    would be useless without this: it checks where we aim, this checks where we land.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if urlparse(newurl).hostname != urlparse(req.full_url).hostname:
+            raise urllib.error.URLError(
+                "refused redirect to a different host (%s -> %s): the API key travels in the header"
+                % (urlparse(req.full_url).hostname, urlparse(newurl).hostname))
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+OPENER = urllib.request.build_opener(NoCrossHostRedirect)
+
+
 def call(url, key, model, prompt, extra_body, max_tokens, timeout):
+    host = urlparse(url).hostname or ""
+    if host not in ALLOWED_HOSTS:
+        # Belt and braces: gate_contributions.py blocks this in CI, and this blocks it at request time,
+        # for anyone running a modified providers.json on their own machine.
+        return {"http": 0, "seconds": 0.0, "text": "",
+                "error": "refused: %r is not in ALLOWED_HOSTS. This sends a real API key in a header, "
+                         "so destinations are declared in code." % host}
     body = {"model": model, "messages": [{"role": "user", "content": prompt}],
             "max_tokens": max_tokens, **(extra_body or {})}
     headers = {"Content-Type": "application/json", "User-Agent": UA, "Authorization": "Bearer " + key}
     started = time.time()
     try:
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
-        with urllib.request.urlopen(req, timeout=timeout) as f:
+        with OPENER.open(req, timeout=timeout) as f:
             data = json.load(f)
         msg = (data.get("choices") or [{}])[0].get("message", {}) if isinstance(data, dict) else {}
         text = msg.get("content") or ""
@@ -134,8 +163,16 @@ def call(url, key, model, prompt, extra_body, max_tokens, timeout):
 
 def run_provider(prov, lang, rows, lock, repeat_paragraph):
     url, key = prov["url"], os.environ[prov["key_env"]]
-    for placeholder in re.findall(r"\{([A-Z_]+)\}", url):
-        url = url.replace("{%s}" % placeholder, os.environ.get(placeholder, ""))
+    # Only declared placeholders may be substituted. Without this, a contributed URL such as
+    # https://evil.example/{OPENROUTER_API_KEY}/ would put a second key straight into the request path.
+    for placeholder in re.findall(r"\{([A-Za-z_][A-Za-z0-9_]*)\}", url):
+        if placeholder not in ALLOWED_URL_PLACEHOLDERS:
+            raise ValueError("provider %r interpolates {%s} into its URL; only %s is allowed"
+                             % (prov["name"], placeholder, ", ".join(sorted(ALLOWED_URL_PLACEHOLDERS))))
+        value = os.environ.get(placeholder, "")
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", value or ""):
+            raise ValueError("environment variable %s is empty or has an unexpected shape" % placeholder)
+        url = url.replace("{%s}" % placeholder, value)
     timeout = prov.get("timeout_seconds", 120)
     for model in prov["models"]:
         for name, spec in lang["probes"].items():
@@ -229,6 +266,9 @@ def main():
                          "The other three probes are deterministic enough to run once.")
     a = ap.parse_args()
 
+    if not re.fullmatch(r"[a-z]{2,8}", a.language or ""):
+        print("refusing language code %r: expected two to eight lowercase letters" % a.language)
+        return 2
     lang = json.loads((HERE / "languages" / (a.language + ".json")).read_text(encoding="utf-8"))
     if a.recheck:
         return recheck(a.recheck, lang, a.out)

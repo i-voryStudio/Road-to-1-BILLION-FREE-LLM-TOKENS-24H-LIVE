@@ -13,7 +13,8 @@ tells you whether the model can produce a paragraph you would actually publish. 
 | Arithmetic with one correct answer | **29 / 29** |
 | Rewrite with correct diacritics | **27 / 29** |
 | JSON extraction, right keys and types | **22 / 27** |
-| A publishable 90-110 word paragraph | **23 / 30** |
+| A paragraph usable at all (checker allows 70-140 words) | **23 / 30** |
+| A paragraph inside the 90-110 words actually asked for | **14 / 30** |
 | Scored above 7/10 on *"sounds like a person wrote it"* | **1 / 23** |
 
 The curve falls the moment the task stops being mechanical. On the blind jury's "sounds human" lens the
@@ -40,7 +41,7 @@ quality scores appear at all, they are links to somebody else's leaderboard, or 
 out of the provider's own launch post.
 
 That is the gap. A rate limit tells you how often you may call a model. It does not tell you that the
-model will answer in cedillas, return `89.9` when the text said `89.900`, or hand you 995 words when you
+model will answer in cedillas, return `89.9` when the text said `89.900`, or hand you 381 words when you
 asked for 100. All three happened during this run.
 
 ### Why Romanian
@@ -71,6 +72,22 @@ Method and its weaknesses: **[METHOD.md](METHOD.md)** · Machine-readable:
 | 3 | `minimax/minimax-m3:free` | openrouter | **8.5** | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
 | 4 | `minimax/minimax-m2.7:free` | xkiro | **8.5** | 4/4 | 3 / 8 / 10 | ? | UNKNOWN | 16.4 s |
 | 5 | `minimax/minimax-m2.7:free` | openrouter | **8.5** | 4/4 | 3 / 8 / 10 | 50 | DECLARED | 20.4 s |
+| 6 | `openai/gpt-oss-20b` | groq | **8.3** | 4/4 | 3 / 7 / 10 | 1,000 | PAID-PLAN | 0.4 s |
+| 7 | `@cf/openai/gpt-oss-120b` | cloudflare | **8.3** | 4/4 | 2 / 8 / 10 | ? | UNKNOWN | 5.2 s |
+| 8 | `openai/gpt-oss-120b` | groq | **8.2** | 4/4 | 3 / 7 / 9 | 1,000 | PAID-PLAN | 0.5 s |
+| 9 | `gemma-4-31b` | cerebras | **7.8** | 4/4 | 3 / 5 / 9 | 2,400 | MEASURED | 0.4 s |
+| 10 | `gemma4:31b` | ollama | **7.8** | 4/4 | 3 / 5 / 9 | ? | UNKNOWN | 0.8 s |
+
+*Jury columns are 0-10 on three separate lenses. `Evidence` says how we know the requests-per-day figure: MEASURED by us, DECLARED by the provider, **PAID-PLAN** when the only published number belongs to a paid tier rather than the free one, UNKNOWN when nobody publishes it. Most free tiers fall in that last bucket — which is itself the finding.*
+
+All 30 ranked models, the 7 that never reached the jury, and the 3 that never answered: **[RESULTS.md](RESULTS.md)**.
+
+---|---|---|---|---|---|---|---|---|
+| 1 | `gemini-3.5-flash-lite` | google | **9.2** | 4/4 | 6 / 9 / 10 | 500 | DECLARED | 0.8 s |
+| 2 | `qwen3.5-flash` | alibaba | **9.0** | 4/4 | 5 / 9 / 10 | ? | UNKNOWN | 1.5 s |
+| 3 | `minimax/minimax-m3:free` | openrouter | **8.5** | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
+| 4 | `minimax/minimax-m2.7:free` | xkiro | **8.5** | 4/4 | 3 / 8 / 10 | ? | UNKNOWN | 16.4 s |
+| 5 | `minimax/minimax-m2.7:free` | openrouter | **8.5** | 4/4 | 3 / 8 / 10 | 50 | DECLARED | 20.4 s |
 | 6 | `openai/gpt-oss-20b` | groq | **8.3** | 4/4 | 3 / 7 / 10 | 1,000 | DECLARED | 0.4 s |
 | 7 | `@cf/openai/gpt-oss-120b` | cloudflare | **8.3** | 4/4 | 2 / 8 / 10 | ? | UNKNOWN | 5.2 s |
 | 8 | `openai/gpt-oss-120b` | groq | **8.2** | 4/4 | 3 / 7 / 9 | 1,000 | DECLARED | 0.5 s |
@@ -95,10 +112,12 @@ requests per day. An article-length prompt returns 413 long before request count
 docs make the point — *"you can hit any limit type depending on which threshold you reach first"* — and
 the token column is the one the lists leave out.
 
-**3. Catalogues rot in hours, not months.** We read OpenRouter's public model list twice on the same
-afternoon, 40 minutes apart. `z-ai/glm-5.2:free` was in the first read and gone from the second. Both
-files are in this repo. This is why [`data/catalog.json`](data/catalog.json) is regenerated daily by CI
-and the diff is committed — a table hand-written in August is fiction by October.
+**3. Catalogues rot in hours, not months.** We read OpenRouter's public model list twice on one
+afternoon. Between the two readings `z-ai/glm-5.2:free` disappeared: 431 models and 19 free became 430
+and 18. Both readings, with every model id, are in
+[`results/2026-09-06/openrouter-catalogue-drift.md`](results/2026-09-06/openrouter-catalogue-drift.md),
+and you can reproduce it with one `curl`. This is why [`data/catalog.json`](data/catalog.json) is
+regenerated daily by CI — a table hand-written in August is fiction by October.
 
 A fourth, about our own numbers: **rate limits are per organization or per project at most providers.**
 Groq's docs: *"Rate limits apply at the organization level, not individual users."* Google's are per
@@ -116,7 +135,7 @@ Full text in [`bench/languages/ro.json`](bench/languages/ro.json), exactly as se
 | **A. Arithmetic** | code | A percentage, and whether "answer with only the numbers" is obeyed. Every model that answered got it right, 29/29 — which is exactly why the probe earns its place: it establishes that what fails later is not competence. |
 | **B. Rewrite with diacritics** | code | The writing-system trap. At least four correct diacritics, and **zero** cedillas. Separates models trained on edited Romanian from models trained on scraped Romanian. |
 | **C. JSON extraction** | code, via a real parser | Right keys, right types. One model returned `"unitati": 89.9` for **89.900** — valid JSON, wrong by a factor of a thousand. |
-| **D. Paragraph, 90–110 words** | code, then a blind jury | Whether it can write publishable prose to a length. Run three times, majority verdict. |
+| **D. Paragraph, 90–110 words** | code, then a blind jury | Whether it can write publishable prose to a length. The prompt asks for 90-110 words; the checker allows 70-140, so the score is generous about length and the README reports both numbers. Run three times, majority verdict. |
 
 ```
 quality            = 50% × (probes passed / 4 × 10)  +  50% × (jury mean over 3 lenses)
@@ -154,8 +173,11 @@ The long version, with the failure modes of the method itself, is in [METHOD.md]
 ```bash
 export GROQ_API_KEY=...          # any subset — providers with no key are skipped, not failed
 python bench/benchmark.py --out results.json --language ro
-python bench/judge.py results.json --export judged/
-python bench/rank.py results.json --jury jury.json --date $(date -u +%F) --out .
+python bench/judge.py results.json --export judged/    # writes the anonymised paragraphs + prompts
+#   ...judge them with any model, save the scores as jury.json in the shape of results/2026-09-06/jury.json
+#   or skip the jury entirely and let rank.py score the mechanical half alone:
+python bench/rank.py results.json --date $(date -u +%F) --out .          # no jury
+python bench/rank.py results.json --jury jury.json --date $(date -u +%F) --out .   # with one
 ```
 
 20–60 minutes, mostly waiting on the slowest providers. Each runs in its own thread with its own pacing.

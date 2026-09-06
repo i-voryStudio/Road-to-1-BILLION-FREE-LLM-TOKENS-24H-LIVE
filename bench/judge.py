@@ -86,7 +86,14 @@ def main():
     a = ap.parse_args()
 
     lang_code, paragraphs = load_paragraphs(a.results)
-    lang = json.loads((HERE / "languages" / ((a.language or lang_code) + ".json")).read_text(encoding="utf-8"))
+    code = a.language or lang_code
+    # `lang_code` comes out of the results file, which may have been sent by a stranger. Pathlib replaces
+    # the base when a segment is absolute, so an unchecked value picks which file this script reads - and
+    # its contents end up in judge-prompts.md, which gets published, or sent to JUDGE_URL in --api mode.
+    if not re.fullmatch(r"[a-z]{2,8}", code or ""):
+        print("refusing language code %r: expected two to eight lowercase letters" % code)
+        return 2
+    lang = json.loads((HERE / "languages" / (code + ".json")).read_text(encoding="utf-8"))
     lenses = lang["jury"]
     key, anon = anonymise(paragraphs)
     print("%d paragraphs passed the mechanical check and go to the jury, on %d lenses"

@@ -24,7 +24,9 @@
     "thinkingmachines/inkling-small:free",
     "thinkingmachines/inkling:free"
    ],
-   "source": "https://openrouter.ai/api/v1/models"
+   "source": "https://openrouter.ai/api/v1/models",
+   "fetched_on": "2026-09-06",
+   "stale": false
   }
  },
  "changes_since_last_check": [],

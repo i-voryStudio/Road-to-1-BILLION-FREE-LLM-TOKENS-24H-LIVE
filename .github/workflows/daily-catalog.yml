@@ -26,6 +26,12 @@ jobs:
       - name: Probe checkers must still pass
         run: python bench/test_probes.py
 
+      - name: The publication gate must still catch what it claims to
+        run: python bench/test_gate.py
+
+      - name: Contribution data must still be sane
+        run: python bench/gate_contributions.py
+
       - name: Nothing private may ship
         run: python bench/gate_publish.py .
 

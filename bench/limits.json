@@ -5,6 +5,8 @@
   "Every entry carries how we know it. The three values of `confidence` are not decoration:",
   "  MEASURED  - we saw it ourselves: a response header, or a 429 we walked into. `measured_on` says when.",
   "  DECLARED  - the provider says so on a page we read. `source` and `read_on` say where and when.",
+  "  PAID-PLAN - the only published number belongs to a PAID tier, not the free one. Publishing it",
+  "              as a free-tier figure is the mistake this repo calls out in its own README.",
   "  UNKNOWN   - nobody publishes it and we have not measured it. This stays UNKNOWN. We do not guess,",
   "              and we do not copy a number out of another list to fill the hole.",
   "",
@@ -24,13 +26,45 @@
    "read_on": "2026-09-06",
    "caveat": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number.",
    "models": {
-    "openai/gpt-oss-120b": {"rpm": 30, "rpd": 1000, "tpm": 8000, "tpd": 200000},
-    "openai/gpt-oss-20b": {"rpm": 30, "rpd": 1000, "tpm": 8000, "tpd": 200000},
-    "qwen/qwen3.8-27b": {"rpm": 30, "rpd": 1000, "tpm": 8000, "tpd": 200000},
-    "qwen/qwen3.6-27b": {"rpm": 30, "rpd": 1000, "tpm": 8000, "tpd": 200000}
+    "openai/gpt-oss-120b": {
+     "rpm": 30,
+     "rpd": 1000,
+     "tpm": 8000,
+     "tpd": 200000,
+     "rpd_confidence": "DECLARED",
+     "rpd_is_paid_plan": true
+    },
+    "openai/gpt-oss-20b": {
+     "rpm": 30,
+     "rpd": 1000,
+     "tpm": 8000,
+     "tpd": 200000,
+     "rpd_confidence": "DECLARED",
+     "rpd_is_paid_plan": true
+    },
+    "qwen/qwen3.8-27b": {
+     "rpm": 30,
+     "rpd": 1000,
+     "tpm": 8000,
+     "tpd": 200000,
+     "rpd_confidence": "DECLARED",
+     "rpd_is_paid_plan": true
+    },
+    "qwen/qwen3.6-27b": {
+     "rpm": 30,
+     "rpd": 1000,
+     "tpm": 8000,
+     "tpd": 200000,
+     "rpd_confidence": "DECLARED",
+     "rpd_is_paid_plan": true
+    }
    },
    "binding_limit": "TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt.",
-   "measured": {"note": "413 Request too large on a long prompt", "measured_on": "2026-09-02"}
+   "measured": {
+    "note": "413 Request too large on a long prompt",
+    "measured_on": "2026-09-02"
+   },
+   "rpd_plan": "Developer"
   },
   "cerebras": {
    "scope": "account",
@@ -40,7 +74,12 @@
    "volatile": true,
    "caveat": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them.",
    "source": "https://inference-docs.cerebras.ai/support/pricing",
-   "all_models": {"rpm": 5, "rph": 150, "rpd": 2400, "tpd": 1000000},
+   "all_models": {
+    "rpm": 5,
+    "rph": 150,
+    "rpd": 2400,
+    "tpd": 1000000
+   },
    "binding_limit": "5 requests per minute. Two calls inside the same minute need roughly 13 s between them."
   },
   "google": {
@@ -50,9 +89,22 @@
    "read_on": "2026-09-06",
    "caveat": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing.",
    "models": {
-    "gemini-3.8-flash": {"rpm": 5, "rpd": 20, "note": "The 20/day figure was read for 3.7 Flash on the same screen and is assumed to carry over to 3.8. Not separately confirmed. The 5/min WAS measured: our sixth call inside six seconds returned 429 with 'limit: 5'.", "rpm_confidence": "MEASURED", "rpd_confidence": "DECLARED"},
-    "gemini-3.5-flash-lite": {"rpm": 15, "rpd": 500, "tpm": 250000},
-    "gemma-4-31b-it": {"rpd": null, "note": "Not published on the screen we read, and not measured."}
+    "gemini-3.8-flash": {
+     "rpm": 5,
+     "rpd": 20,
+     "note": "The 20/day figure was read for 3.7 Flash on the same screen and is assumed to carry over to 3.8. Not separately confirmed. The 5/min WAS measured: our sixth call inside six seconds returned 429 with 'limit: 5'.",
+     "rpm_confidence": "MEASURED",
+     "rpd_confidence": "DECLARED"
+    },
+    "gemini-3.5-flash-lite": {
+     "rpm": 15,
+     "rpd": 500,
+     "tpm": 250000
+    },
+    "gemma-4-31b-it": {
+     "rpd": null,
+     "note": "Not published on the screen we read, and not measured."
+    }
    },
    "binding_limit": "Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload."
   },
@@ -63,10 +115,19 @@
    "read_on": "2026-09-06",
    "caveat": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty.",
    "free_models_combined": {
-    "under_10_dollars_lifetime": {"rpm": 20, "rpd": 50},
-    "at_least_10_dollars_lifetime": {"rpm": 20, "rpd": 1000}
+    "under_10_dollars_lifetime": {
+     "rpm": 20,
+     "rpd": 50
+    },
+    "at_least_10_dollars_lifetime": {
+     "rpm": 20,
+     "rpd": 1000
+    }
    },
-   "measured": {"note": "431 models listed on the public /models endpoint, of which 19 end in :free (4.4%)", "measured_on": "2026-09-06"}
+   "measured": {
+    "note": "431 models listed on the public /models endpoint, of which 19 end in :free (4.4%)",
+    "measured_on": "2026-09-06"
+   }
   },
   "cloudflare": {
    "scope": "account",
@@ -74,17 +135,28 @@
    "source": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
    "read_on": "2026-09-06",
    "caveat": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it.",
-   "free_allocation": {"neurons_per_day": 10000},
+   "free_allocation": {
+    "neurons_per_day": 10000
+   },
    "neuron_cost_examples": {
-    "@cf/meta/llama-3.3-70b-instruct-fp8-fast": {"input_per_million": 26668, "output_per_million": 204805},
-    "@cf/meta/llama-3.2-1b-instruct": {"input_per_million": 2457, "output_per_million": 18252}
+    "@cf/meta/llama-3.3-70b-instruct-fp8-fast": {
+     "input_per_million": 26668,
+     "output_per_million": 204805
+    },
+    "@cf/meta/llama-3.2-1b-instruct": {
+     "input_per_million": 2457,
+     "output_per_million": 18252
+    }
    }
   },
   "nvidia": {
    "scope": "key",
-   "confidence": "DECLARED",
-   "caveat": "40 requests per minute per key, shared across every model you call with that key, with no daily ceiling declared. Concurrency is the real constraint and it differs per model, which is why we measured it separately.",
-   "all_models": {"rpm": 40, "rpd": null},
+   "confidence": "UNKNOWN",
+   "caveat": "We carried a figure of 40 requests per minute per key in our own notes, but we could not find it on a public NVIDIA page when we went looking, so it is NOT published here as a rate limit. Unknown, not 40. What we do have is our own concurrency measurement below, which is worth more anyway: it says how many calls the model takes in parallel, which no rate-limit table tells you. If you find the published figure, the source URL is a one-line pull request.",
+   "all_models": {
+    "rpm": null,
+    "rpd": null
+   },
    "measured_concurrency": {
     "measured_on": "2026-09-05",
     "nvidia/nemotron-3-super-120b-a12b": "8 concurrent calls, all returned 200",
@@ -97,26 +169,34 @@
    "source": "https://ollama.com/pricing",
    "read_on": "2026-09-06",
    "caveat": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial.",
-   "all_models": {"rpd": null},
+   "all_models": {
+    "rpd": null
+   },
    "concurrency": "assume 1 - concurrent execution is sold as a paid-plan feature"
   },
   "alibaba": {
    "scope": "account",
    "confidence": "UNKNOWN",
    "caveat": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited.",
-   "all_models": {"rpd": null}
+   "all_models": {
+    "rpd": null
+   }
   },
   "xkiro": {
    "scope": "account",
    "confidence": "UNKNOWN",
    "caveat": "No rate-limit headers returned and no published quota.",
-   "all_models": {"rpd": null}
+   "all_models": {
+    "rpd": null
+   }
   },
   "siliconflow": {
    "scope": "account",
    "confidence": "UNKNOWN",
    "caveat": "NOT TESTED, and this is about the caller, not about them: the key was answered with 402, so every call returned 402. That says nothing about the provider's free tier and SiliconFlow is therefore excluded from the quality ranking rather than scored zero.",
-   "all_models": {"rpd": null}
+   "all_models": {
+    "rpd": null
+   }
   }
  }
 }

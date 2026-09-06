@@ -7,13 +7,16 @@ Every number in this repo comes from here. If you think a score is wrong, this p
 Each model gets four probes. Three are decided by code, one by a blind jury.
 
 ```
-quality            = 50% * (probes passed / 4 * 10)  +  50% * (mean jury score across 3 lenses)
+quality            = 50% * (probes passed / answered * 10)  +  50% * (mean jury score across 3 lenses)
 quality_for_agents = the same, with the "sounds human" lens removed from the jury mean
 ```
 
-A model whose paragraph failed the mechanical check never reaches the jury. It is scored on the
-mechanical half alone and flagged `judged: false` in the data, rather than being given a silent zero
-for prose it was never asked to defend.
+A model whose paragraph failed the mechanical check never reaches the jury, so it has no second half.
+It does **not** get half a score on this scale — that would be a silent zero on the jury half. It gets
+its mechanical score out of 10, is flagged `scale: "probes only"`, and is listed in its own section of
+RESULTS.md. A probes-only number and a probes-plus-jury number are two different measurements, and
+averaging them into one ranking would be exactly the sort of quiet dishonesty this method is built to
+avoid.
 
 ## The four probes
 
@@ -56,6 +59,12 @@ Romanian thousands separator as a decimal point. It produced perfectly valid JSO
 a factor of a thousand — exactly the kind of error that survives a schema check and reaches production.
 
 ### D. Paragraph, 90 to 110 words
+
+The prompt asks for 90 to 110 words. The checker accepts **70 to 140**, deliberately: a model that
+writes 88 words of good Romanian has not failed at writing, it has failed at counting, and those are
+worth separating. The consequence is that "23 of 30 produced a usable paragraph" is a generous
+reading — only 14 of those 23 landed inside the 90-110 the prompt asked for. Both numbers are in the
+README, because publishing only the generous one would be the kind of thing this repo exists to catch.
 
 Mechanically: word count in range, at least ten diacritics, zero cedillas, no markdown. Then, if it
 passes, it goes to the jury.
@@ -142,8 +151,9 @@ Read this before quoting a number from here.
 ```bash
 export GROQ_API_KEY=...          # any subset; providers with no key are skipped, not failed
 python bench/benchmark.py --out results.json --language ro
-python bench/judge.py results.json --export judged/    # or --api to judge automatically
-python bench/rank.py results.json --jury jury.json --date 2026-09-06 --out .
+python bench/judge.py results.json --export judged/    # writes paragraphs + prompts for you to judge
+python bench/rank.py results.json --date 2026-09-06 --out .                    # mechanical half only
+python bench/rank.py results.json --jury jury.json --date 2026-09-06 --out .   # once you have a jury.json
 ```
 
 The battery takes 20 to 60 minutes, most of it waiting on the slowest providers. Each provider runs in

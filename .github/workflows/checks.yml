@@ -19,9 +19,20 @@ jobs:
       - name: Probe checkers
         run: python bench/test_probes.py
 
+      # The gate itself is tested, in both directions. A gate that has never caught anything is a
+      # green light, not a gate: every case in here slipped through a real version of it.
+      - name: Publication gate, tested
+        run: python bench/test_gate.py
+
       # Blocks a key, an account balance or a private path from ever reaching a commit.
       - name: Publication gate
         run: python bench/gate_publish.py .
+
+      # The sharpest edge in the repo: benchmark.py reads BOTH the endpoint and the key variable out of
+      # providers.json, and CONTRIBUTING.md invites strangers to edit it. This refuses any pull request
+      # that would point an existing key variable at a new host.
+      - name: Contribution gate
+        run: python bench/gate_contributions.py
 
       - name: Language packs are valid JSON with the required fields
         run: |

@@ -12,8 +12,10 @@ Scoring, stated once so it is arguable:
 
 Why two numbers: a model that writes stiff but correct prose is useless for a blog post and perfectly
 good for an extraction step. One number would hide that, so we publish both and say which is which.
-A model with no jury score (its paragraph failed the mechanical check, so it never reached the jury)
-scores the mechanical half only, and the table says so - it is not silently treated as a zero.
+A model whose paragraph failed the mechanical check never reached the jury. It is NOT given half a
+score on the same scale - that would silently be a zero on the jury half. It gets its mechanical score
+out of 10, is marked `scale: probes only`, and is listed in its own section, because a probes-only
+number and a probes-plus-jury number are two different measurements.
 """
 import argparse, csv, json, sys
 from pathlib import Path
@@ -43,6 +45,12 @@ def volume_for(provider, model, limits):
                         "LIMITS.md are met. Shared across all free models, not per model." % best)
     if rpd is None:
         conf = "UNKNOWN"  # no number means no number, whatever the provider declares about other things
+    # If the published figure belongs to a PAID plan, saying "DECLARED" next to it in a free-tier table
+    # would repeat the exact mistake this repo calls out in its own README.
+    if entry.get("rpd_is_paid_plan"):
+        conf = "PAID-PLAN"
+        bits.append("This requests-per-day figure is the provider's %s plan, not its free tier. The free "
+                    "figure is not published anywhere public." % (p.get("rpd_plan") or "paid"))
     if entry.get("note"):
         bits.append(entry["note"])
     if p.get("binding_limit"):
@@ -119,10 +127,14 @@ def main():
         jury_mean = sum(scored) / len(scored) if scored else None
         jury_agent = sum(scored_agent) / len(scored_agent) if scored_agent else None
         rpd, tier, conf, evidence = volume_for(provider, model, limits)
+        # A model whose paragraph failed the mechanical check never reached the jury. Giving it half a
+        # score would put it on the same 0-10 scale as models that were judged, which is comparing two
+        # different measurements. It gets its mechanical score out of 10 and is ranked separately.
         models.append({
             "provider": provider, "model": model,
-            "quality": round(0.5 * mech + 0.5 * jury_mean, 1) if judged else round(mech / 2, 1),
-            "quality_for_agents": round(0.5 * mech + 0.5 * jury_agent, 1) if jury_agent is not None else round(mech / 2, 1),
+            "quality": round(0.5 * mech + 0.5 * jury_mean, 1) if judged else round(mech, 1),
+            "quality_for_agents": round(0.5 * mech + 0.5 * jury_agent, 1) if jury_agent is not None else round(mech, 1),
+            "scale": "probes+jury" if judged else "probes only",
             "judged": judged,
             "probes_passed": d["passed"], "probes_total": d["of"], "probes_answered": d["of"] - blocked,
             "http_failures": blocked, "http_codes": d["http"],
@@ -132,6 +144,11 @@ def main():
             "probe_detail": {p: v["note"] for p, v in d["probes"].items()},
         })
     models.sort(key=lambda m: (-m["quality"], m["avg_seconds"]))
+    # With no jury file at all, every model is on the mechanical scale and that IS the main ranking.
+    # With one, the main ranking is the judged models and the rest get their own section.
+    have_jury = bool(lenses)
+    judged_models = [m for m in models if m["judged"]] if have_jury else models
+    mech_only = [m for m in models if not m["judged"]] if have_jury else []
 
     (out / "data").mkdir(parents=True, exist_ok=True)
     (out / "data" / "models.json").write_text(json.dumps({
@@ -146,7 +163,10 @@ def main():
         "models": models,
     }, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
 
-    cols = ["provider", "model", "quality", "quality_for_agents", "judged", "probes_passed", "probes_total",
+    # probes_answered is in here on purpose: without it the CSV says "1/4" where RESULTS.md says "1/2",
+    # because probes that got no answer are excluded from the score but still counted in the total.
+    cols = ["provider", "model", "quality", "scale", "quality_for_agents", "judged",
+            "probes_passed", "probes_answered", "probes_total", "http_failures",
             "avg_seconds", "requests_per_day", "volume_tier", "volume_confidence"]
     with open(out / "data" / "models.csv", "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
@@ -175,7 +195,7 @@ def main():
                     "probes actually answered; the HTTP codes are in `data/models.json`.\n")
         return head + body + note
 
-    known = [m for m in models if m["requests_per_day"]]
+    known = [m for m in judged_models if m["requests_per_day"]]
     lines = [
         "# Full results",
         "",
@@ -186,17 +206,28 @@ def main():
            else "Every probe was run once."),
         "Judge model: `%s`. Generated by `bench/rank.py` - do not edit by hand." % (jury.get("judge_model") or "none"),
         "",
-        "`Evidence` is how we know the requests-per-day figure: MEASURED by us, DECLARED by the provider, or "
-        "UNKNOWN. See [LIMITS.md](LIMITS.md) for the per-provider detail and the caveats, which matter more "
-        "than the numbers.",
+        "`Evidence` is how we know the requests-per-day figure: MEASURED by us, DECLARED by the provider, "
+        "PAID-PLAN when the only published number belongs to a paid tier rather than the free one, or "
+        "UNKNOWN when nobody publishes it. See [LIMITS.md](LIMITS.md) for the per-provider detail and the "
+        "caveats, which matter more than the numbers.",
         "",
-        "## 1. Quality (all models)", "", table(models),
+        ("## 1. Quality (models that reached the jury)" if have_jury
+         else "## 1. Mechanical score (no jury was run)"), "",
+        ("Only models whose paragraph passed the mechanical check are here: they are the ones with both "
+         "halves of the score. The rest are in section 5, on a different scale, because a mechanical "
+         "score and a mechanical-plus-jury score are two different measurements and averaging them into "
+         "one column would be a quiet lie."
+         if have_jury else
+         "No jury file was supplied, so every score here is the mechanical half alone, out of 10. These "
+         "numbers are reproducible with no model in the loop at all - which is their point - but they "
+         "say nothing about whether the prose is any good."), "",
+        table(judged_models),
         "", "## 2. Quality x volume (only models whose daily limit is known)", "", table(known),
         "", "## 3. Quality for agent work (drops the 'sounds human' lens)",
         "",
         "For extraction, classification and tool calls, prose voice is irrelevant and correctness is not. "
         "This ranking is the one to use when the model is a component, not a writer.",
-        "", table(sorted(models, key=lambda m: (-m["quality_for_agents"], m["avg_seconds"])), "quality_for_agents"),
+        "", table(sorted(judged_models, key=lambda m: (-m["quality_for_agents"], m["avg_seconds"])), "quality_for_agents"),
         "", "## 4. What each model actually did on each probe", "",
         "| Model | " + " | ".join(sorted({p for m in models for p in m["probe_detail"]})) + " |",
         "|---|" + "---|" * len(sorted({p for m in models for p in m["probe_detail"]})),
@@ -205,6 +236,20 @@ def main():
     for m in models:
         cells = [" ".join(m["probe_detail"].get(p, "-").replace("|", "/").split())[:70] for p in probes]
         lines.append("| `%s` | %s |" % (m["model"], " | ".join(cells)))
+    if mech_only:
+        lines += ["", "## 5. Mechanical score only (never reached the jury)", "",
+                  "These models answered, but their paragraph failed the mechanical check, so there was",
+                  "nothing to judge. The number below is the mechanical score out of 10 and is NOT",
+                  "comparable with the tables above, which carry a jury half as well. Ranking them",
+                  "together would be averaging two different measurements into one column.", "",
+                  "| Model | Provider | Probes | Mechanical /10 | Why no paragraph | Speed |",
+                  "|---|---|---|---|---|---|"]
+        for m in sorted(mech_only, key=lambda x: -x["quality"]):
+            why = " ".join((m["probe_detail"].get("D") or "-").replace("|", "/").split())[:60]
+            lines.append("| `%s` | %s | %d/%d | **%s** | %s | %.1f s |"
+                         % (m["model"], m["provider"], m["probes_passed"], m["probes_answered"],
+                            m["quality"], why, m["avg_seconds"]))
+
     if unreachable or excluded:
         lines += ["", "## Not ranked", "",
                   "Scoring a model that never answered would be publishing a lie about it. These are listed "

@@ -82,12 +82,10 @@ Free allocation: {"neurons_per_day": 10000}
 
 ## nvidia
 
-- **Confidence:** DECLARED
+- **Confidence:** UNKNOWN
 - **Limit applies per:** KEY
 
-40 requests per minute per key, shared across every model you call with that key, with no daily ceiling declared. Concurrency is the real constraint and it differs per model, which is why we measured it separately.
-
-All models: RPM 40
+We carried a figure of 40 requests per minute per key in our own notes, but we could not find it on a public NVIDIA page when we went looking, so it is NOT published here as a rate limit. Unknown, not 40. What we do have is our own concurrency measurement below, which is worth more anyway: it says how many calls the model takes in parallel, which no rate-limit table tells you. If you find the published figure, the source URL is a one-line pull request.
 
 **Concurrency, measured 2026-09-05** - how many calls the model takes in parallel, which no rate-limit table tells you:
 - `nvidia/nemotron-3-super-120b-a12b`: 8 concurrent calls, all returned 200

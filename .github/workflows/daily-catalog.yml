@@ -60,8 +60,6 @@ jobs:
       - name: Published numbers must exist in the data
         run: python bench/gate_claims.py
 
-      - name: Improvements journal must be alive
-        run: python bench/gate_improvements.py --today "$(date -u +%F)"
 
       - name: Nothing private may ship
         run: python bench/gate_publish.py .

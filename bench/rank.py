@@ -359,7 +359,7 @@ def main():
                                                   cell(r["requests_per_day"])))
     else:
         L.append("**None yet.** Every provider we measure today wants a key. Endpoints that need none "
-                 "exist and are the most useful thing this list could add - see IMPROVEMENTS.md.")
+                 "exist, and an endpoint that needs no account at all is worth more than its raw score.")
 
     L += ["", "## 5. What the free tier costs you that is not money", "",
           "Training on your prompts, human review, and legal limits on where you may serve users. "

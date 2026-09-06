@@ -130,7 +130,7 @@ def main():
     raw = latest_raw()
     problems = []
     checked = []
-    for name in ("README.md", "RESULTS.md", "METHOD.md", "IMPROVEMENTS.md", "SECURITY.md",
+    for name in ("README.md", "RESULTS.md", "METHOD.md", "SECURITY.md",
                  "CONTRIBUTING.md", "LIMITS.md"):
         p = ROOT / name
         if not p.exists():

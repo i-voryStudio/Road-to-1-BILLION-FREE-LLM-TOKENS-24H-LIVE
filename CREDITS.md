@@ -27,9 +27,9 @@ providers. We use it as a map of what exists, not as a source of facts: every qu
 privacy claim in this repo is either measured by us or read from the provider's own terms, with the
 date beside it.
 
-Two things we deliberately did **not** take from it, and the reasons are in
-[IMPROVEMENTS.md](IMPROVEMENTS.md): their `hasFree` boolean, which covers both a recurring quota and
-credits that run out, and their headline provider count, which contains measured duplicates.
+Two things we deliberately did **not** take from it: their `hasFree` boolean, which covers both a
+recurring quota and credits that run out, and their headline provider count, which contains
+duplicates.
 
 ## The Romanian language benchmark
 

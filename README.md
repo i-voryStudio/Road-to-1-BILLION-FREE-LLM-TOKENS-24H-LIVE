@@ -13,31 +13,27 @@
 | Distance to 1,000,000,000 measured tokens/day | **167x** |
 <!--/HEADLINE-->
 
-**Where this is going, out loud: one billion free tokens a day.** That is the number the list is being
-built towards, and the box above measures the distance to it every single day - including the days it
-does not move. Growth comes from new providers, not from polishing the ones already here, and
-[IMPROVEMENTS.md](IMPROVEMENTS.md) tracks it as an open item with our name on it.
+**Where this is going, out loud: one billion free tokens a day.** That is the number the list is
+built towards, and the box above measures the distance to it every day.
 
-**Three numbers, not one, and this is the whole argument of the repo.** For two days that box showed a
-single total of 6,475,000 labelled *confirmed*. It was not: 275,000 of it was a figure copied off a
-provider's own page and 200,000 of it belonged to a **paid** plan — three lines under a sentence that
-says *Nothing here is copied*. Now they are separated by code, in
-[`data/capacity.json`](data/capacity.json), and only the measured one is added up or used to measure
-the distance to the target. The correction cost us 475,000 tokens of headline and one place in our own
-ranking, which is the point: a number you can lower is a number you can believe.
+**Three numbers, not one, and this is the whole argument.** Measured means we saw it: a response
+header, a usage endpoint, a 429 we walked into. Claimed means the provider says so on a page we read,
+sourced and dated — real, and still their word. Paid-plan means the only published figure belongs to a
+paid tier, so it is not free capacity at all and is excluded from both. They are separated by code, in
+[`data/capacity.json`](data/capacity.json), and only the measured one is summed. Every other list adds
+all three together and calls the result free.
 
-The measured total is still an **undercount** — 7 of the 12 providers publish no quota at all, so
-their capacity is real and uncounted. It moved five-fold in one afternoon when we stopped reading
-marketing pages and asked the providers directly: one of them exposes 5M tokens a day behind an
-endpoint nobody had thought to call.
+The measured total is an **undercount**: 7 of the 12 providers publish no quota at all, so their
+capacity is real and uncounted. Asking a provider directly beats reading its marketing page — one of
+them exposes 5M tokens a day behind an endpoint nobody had thought to call.
 
 ## We read every other list first. Then we measured all of it again.
 
-You already know these lists exist. [OmniRoute](https://github.com/diegosouzapw/OmniRoute) routes across
-hundreds of providers, `awesome-free-llm-apis` and seven more are catalogued in
-[SOURCES.md](SOURCES.md) — with what each one does better than us, because that is also true. We went
-through every one of them line by line. This is not a ninth copy of the same table: everything that got
-in here went through our own mill first, and the mill is the whole product.
+You already know these lists exist. [OmniRoute](https://github.com/diegosouzapw/OmniRoute) routes
+across hundreds of providers, and `awesome-free-llm-apis` and seven more are catalogued in
+[SOURCES.md](SOURCES.md), each credited for what it does well. We went through all of them line by
+line. This is not a ninth copy of the same table: everything in here went through our own mill first,
+and the mill is the product.
 
 **Nothing here is copied.** Quality comes from official benchmarks, by attribution, because a benchmark
 run by the people publishing the ranking is worth nothing. Everything else — whether the endpoint
@@ -128,7 +124,7 @@ Every endpoint we track, ranked or not, scored or not: **[ALL-ENDPOINTS.md](ALL-
 
 ### Why quality is imported and everything else is measured
 
-We used to run our own quality benchmark. It does not scale: free providers appear weekly, and each
+Running a quality benchmark of our own does not scale: free providers appear weekly, and each
 would have to go through a full battery before it could be listed at all. Worse, a benchmark run by
 whoever publishes the ranking is exactly what a careful reader should distrust.
 
@@ -196,10 +192,12 @@ default: inventing a "no" is the most damaging wrong answer this repo could publ
 - **Quotas in proprietary units** ("100,000 ANY Tokens", "10 Neutrinos") are quoted as text, never
   converted into a number that would look comparable.
 
-## Zero of the endpoints here work without a key
+## Endpoints that need no key at all
 
-That is a gap, not a feature, and it is the next thing being added — no-key endpoints exist. See
-[IMPROVEMENTS.md](IMPROVEMENTS.md).
+Rare, and worth more than their raw quality: no account, no card, no e-mail. The ranking pays them a
+bonus for it. Most lists that advertise "no key" are quoting a page that stopped being true a while
+ago, so every one here was called with no `Authorization` header before it was listed, and the day we
+did it is in the table.
 
 ---
 

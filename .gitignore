@@ -1,0 +1,17 @@
+# Never, under any circumstances
+.env
+.env.*
+*.key
+*.pem
+.secrets/
+secrets/
+
+# Local runs land here until they are reviewed and moved into results/
+scratch/
+*.local.json
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store

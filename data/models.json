@@ -1,0 +1,1048 @@
+{
+ "measured_on": "2026-09-06",
+ "language": "ro",
+ "paragraph_attempts": 3,
+ "judge_model": "claude-opus-5 (blind, one judge per lens)",
+ "jury_lenses": [
+  "sounds_human",
+  "language_correctness",
+  "follows_instruction"
+ ],
+ "scoring": "quality = 50% probes passed + 50% jury mean. quality_for_agents drops the sounds_human lens. A model whose paragraph failed the mechanical check never reached the jury and is scored on the mechanical half alone (judged=false).",
+ "excluded_providers": [
+  "siliconflow"
+ ],
+ "unreachable": [
+  {
+   "provider": "google",
+   "model": "gemini-3.8-flash",
+   "http": [
+    503,
+    503,
+    200,
+    503
+   ],
+   "answered": 1,
+   "of": 4,
+   "why": "HTTP 503: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high"
+  },
+  {
+   "provider": "nvidia",
+   "model": "moonshotai/kimi-k3",
+   "http": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "answered": 0,
+   "of": 4,
+   "why": "HTTP 0: The read operation timed out"
+  },
+  {
+   "provider": "siliconflow",
+   "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+   "http": [
+    402,
+    402,
+    402,
+    402
+   ],
+   "answered": 0,
+   "of": 4,
+   "why": "HTTP 402: {\"code\":30001,\"message\":\"<account state redacted>\",\"data\":null"
+  }
+ ],
+ "models": [
+  {
+   "provider": "google",
+   "model": "gemini-3.5-flash-lite",
+   "quality": 9.2,
+   "quality_for_agents": 9.8,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 6,
+    "language_correctness": 9,
+    "follows_instruction": 10
+   },
+   "avg_seconds": 0.8,
+   "requests_per_day": 500,
+   "volume_tier": "MEDIUM",
+   "volume_confidence": "DECLARED",
+   "volume_evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. Binding limit: Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload. Limit applies per PROJECT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=104 diacritics=43 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "alibaba",
+   "model": "qwen3.5-flash",
+   "quality": 9.0,
+   "quality_for_agents": 9.8,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 5,
+    "language_correctness": 9,
+    "follows_instruction": 10
+   },
+   "avg_seconds": 1.5,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=109 diacritics=37 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "openrouter",
+   "model": "minimax/minimax-m3:free",
+   "quality": 8.5,
+   "quality_for_agents": 8.5,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 7,
+    "language_correctness": 10,
+    "follows_instruction": 4
+   },
+   "avg_seconds": 3.5,
+   "requests_per_day": 50,
+   "volume_tier": "LOW",
+   "volume_confidence": "DECLARED",
+   "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. This is what a NEW account gets; it rises to 1000/day once the conditions in LIMITS.md are met. Shared across all free models, not per model. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=121 diacritics=41 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "xkiro",
+   "model": "minimax/minimax-m2.7:free",
+   "quality": 8.5,
+   "quality_for_agents": 9.5,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 3,
+    "language_correctness": 8,
+    "follows_instruction": 10
+   },
+   "avg_seconds": 16.4,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "No rate-limit headers returned and no published quota. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=69",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=94 diacritics=39 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "openrouter",
+   "model": "minimax/minimax-m2.7:free",
+   "quality": 8.5,
+   "quality_for_agents": 9.5,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 3,
+    "language_correctness": 8,
+    "follows_instruction": 10
+   },
+   "avg_seconds": 20.4,
+   "requests_per_day": 50,
+   "volume_tier": "LOW",
+   "volume_confidence": "DECLARED",
+   "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. This is what a NEW account gets; it rises to 1000/day once the conditions in LIMITS.md are met. Shared across all free models, not per model. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=6 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=95 diacritics=23 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "quality": 8.3,
+   "quality_for_agents": 9.2,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 3,
+    "language_correctness": 7,
+    "follows_instruction": 10
+   },
+   "avg_seconds": 0.4,
+   "requests_per_day": 1000,
+   "volume_tier": "MEDIUM",
+   "volume_confidence": "DECLARED",
+   "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Limit applies per ORGANIZATION.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=104 diacritics=36 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "cloudflare",
+   "model": "@cf/openai/gpt-oss-120b",
+   "quality": 8.3,
+   "quality_for_agents": 9.5,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 2,
+    "language_correctness": 8,
+    "follows_instruction": 10
+   },
+   "avg_seconds": 5.2,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=69",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=102 diacritics=28 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "quality": 8.2,
+   "quality_for_agents": 9.0,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 3,
+    "language_correctness": 7,
+    "follows_instruction": 9
+   },
+   "avg_seconds": 0.5,
+   "requests_per_day": 1000,
+   "volume_tier": "MEDIUM",
+   "volume_confidence": "DECLARED",
+   "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Limit applies per ORGANIZATION.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=68",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=91 diacritics=25 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "cerebras",
+   "model": "gemma-4-31b",
+   "quality": 7.8,
+   "quality_for_agents": 8.5,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 3,
+    "language_correctness": 5,
+    "follows_instruction": 9
+   },
+   "avg_seconds": 0.4,
+   "requests_per_day": 2400,
+   "volume_tier": "HIGH",
+   "volume_confidence": "MEASURED",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=98 diacritics=41 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "ollama",
+   "model": "gemma4:31b",
+   "quality": 7.8,
+   "quality_for_agents": 8.5,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 3,
+    "language_correctness": 5,
+    "follows_instruction": 9
+   },
+   "avg_seconds": 0.8,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=98 diacritics=42 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "xkiro",
+   "model": "minimax/minimax-m3:free",
+   "quality": 7.8,
+   "quality_for_agents": 8.2,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 4,
+    "language_correctness": 9,
+    "follows_instruction": 4
+   },
+   "avg_seconds": 11.2,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "No rate-limit headers returned and no published quota. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=120 diacritics=44 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "cloudflare",
+   "model": "@cf/mistralai/mistral-small-3.1-24b-instruct",
+   "quality": 7.7,
+   "quality_for_agents": 8.5,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 2,
+    "language_correctness": 4,
+    "follows_instruction": 10
+   },
+   "avg_seconds": 2.2,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=105 diacritics=39 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "nvidia",
+   "model": "nvidia/nemotron-3-ultra-550b-a55b",
+   "quality": 7.3,
+   "quality_for_agents": 7.0,
+   "judged": true,
+   "probes_passed": 2,
+   "probes_total": 4,
+   "probes_answered": 2,
+   "http_failures": 2,
+   "http_codes": [
+    503,
+    200,
+    503,
+    200
+   ],
+   "jury": {
+    "sounds_human": 6,
+    "language_correctness": 3,
+    "follows_instruction": 5
+   },
+   "avg_seconds": 40.1,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "40 requests per minute per key, shared across every model you call with that key, with no daily ceiling declared. Concurrency is the real constraint and it differs per model, which is why we measured it separately. Limit applies per KEY.",
+   "probe_detail": {
+    "A": "HTTP 503: {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":5",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "HTTP 503: {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":5",
+    "D": "words=116 diacritics=40 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "cloudflare",
+   "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+   "quality": 7.2,
+   "quality_for_agents": 7.8,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 2,
+    "language_correctness": 8,
+    "follows_instruction": 3
+   },
+   "avg_seconds": 1.4,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=73 diacritics=21 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "groq",
+   "model": "qwen/qwen3.8-27b",
+   "quality": 7.0,
+   "quality_for_agents": 7.8,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 1,
+    "language_correctness": 1,
+    "follows_instruction": 10
+   },
+   "avg_seconds": 0.4,
+   "requests_per_day": 1000,
+   "volume_tier": "MEDIUM",
+   "volume_confidence": "DECLARED",
+   "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Limit applies per ORGANIZATION.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=101 diacritics=33 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "cerebras",
+   "model": "gpt-oss-120b",
+   "quality": 6.9,
+   "quality_for_agents": 7.8,
+   "judged": true,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 3,
+    "language_correctness": 6,
+    "follows_instruction": 10
+   },
+   "avg_seconds": 0.4,
+   "requests_per_day": 2400,
+   "volume_tier": "HIGH",
+   "volume_confidence": "MEASURED",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=69",
+    "C": "key unitati = 89.9, expected 89900",
+    "D": "words=109 diacritics=50 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "alibaba",
+   "model": "qwen-turbo",
+   "quality": 6.9,
+   "quality_for_agents": 7.5,
+   "judged": true,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 4,
+    "language_correctness": 7,
+    "follows_instruction": 8
+   },
+   "avg_seconds": 1.3,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=68",
+    "C": "key module = None, expected 2",
+    "D": "words=88 diacritics=19 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "ollama",
+   "model": "gpt-oss:20b",
+   "quality": 6.8,
+   "quality_for_agents": 7.2,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 2,
+    "language_correctness": 1,
+    "follows_instruction": 8
+   },
+   "avg_seconds": 2.0,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=92 diacritics=36 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "nvidia",
+   "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+   "quality": 6.8,
+   "quality_for_agents": 7.2,
+   "judged": true,
+   "probes_passed": 4,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 2,
+    "language_correctness": 0,
+    "follows_instruction": 9
+   },
+   "avg_seconds": 8.6,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "40 requests per minute per key, shared across every model you call with that key, with no daily ceiling declared. Concurrency is the real constraint and it differs per model, which is why we measured it separately. Limit applies per KEY.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=97 diacritics=29 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "alibaba",
+   "model": "qwen-flash",
+   "quality": 6.4,
+   "quality_for_agents": 6.5,
+   "judged": true,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 5,
+    "language_correctness": 9,
+    "follows_instruction": 2
+   },
+   "avg_seconds": 1.2,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "key module = None, expected 2",
+    "D": "words=133 diacritics=40 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "alibaba",
+   "model": "qwen-plus",
+   "quality": 5.9,
+   "quality_for_agents": 6.5,
+   "judged": true,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 2,
+    "language_correctness": 7,
+    "follows_instruction": 4
+   },
+   "avg_seconds": 2.4,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "key module = None, expected 2",
+    "D": "words=123 diacritics=39 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+   "quality": 5.9,
+   "quality_for_agents": 5.0,
+   "judged": true,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": 8,
+    "language_correctness": 3,
+    "follows_instruction": 2
+   },
+   "avg_seconds": 48.6,
+   "requests_per_day": 50,
+   "volume_tier": "LOW",
+   "volume_confidence": "DECLARED",
+   "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. This is what a NEW account gets; it rises to 1000/day once the conditions in LIMITS.md are met. Shared across all free models, not per model. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "empty",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=131 diacritics=34 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "nvidia",
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "quality": 5.5,
+   "quality_for_agents": 5.5,
+   "judged": true,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 3,
+   "http_failures": 1,
+   "http_codes": [
+    200,
+    200,
+    503,
+    200
+   ],
+   "jury": {
+    "sounds_human": 1,
+    "language_correctness": 1,
+    "follows_instruction": 1
+   },
+   "avg_seconds": 1.3,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "40 requests per minute per key, shared across every model you call with that key, with no daily ceiling declared. Concurrency is the real constraint and it differs per model, which is why we measured it separately. Limit applies per KEY.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "HTTP 503: {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":5",
+    "D": "words=125 diacritics=36 wrong_diacritics=0 markdown=False"
+   }
+  },
+  {
+   "provider": "cerebras",
+   "model": "qwen-3.8-27b",
+   "quality": 3.8,
+   "quality_for_agents": 3.8,
+   "judged": false,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": null,
+    "language_correctness": null,
+    "follows_instruction": null
+   },
+   "avg_seconds": 0.6,
+   "requests_per_day": 2400,
+   "volume_tier": "HIGH",
+   "volume_confidence": "MEASURED",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "empty"
+   }
+  },
+  {
+   "provider": "ollama",
+   "model": "gpt-oss:120b",
+   "quality": 3.8,
+   "quality_for_agents": 3.8,
+   "judged": false,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": null,
+    "language_correctness": null,
+    "follows_instruction": null
+   },
+   "avg_seconds": 2.4,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "words=93 diacritics=24 wrong_diacritics=9 markdown=False"
+   }
+  },
+  {
+   "provider": "cloudflare",
+   "model": "@cf/google/gemma-4-26b-a4b-it",
+   "quality": 3.8,
+   "quality_for_agents": 3.8,
+   "judged": false,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": null,
+    "language_correctness": null,
+    "follows_instruction": null
+   },
+   "avg_seconds": 13.0,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "empty"
+   }
+  },
+  {
+   "provider": "google",
+   "model": "gemma-4-31b-it",
+   "quality": 3.8,
+   "quality_for_agents": 3.8,
+   "judged": false,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": null,
+    "language_correctness": null,
+    "follows_instruction": null
+   },
+   "avg_seconds": 19.1,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. Not published on the screen we read, and not measured. Binding limit: Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload. Limit applies per PROJECT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "empty"
+   }
+  },
+  {
+   "provider": "cloudflare",
+   "model": "@cf/qwen/qwen3.8-27b",
+   "quality": 3.8,
+   "quality_for_agents": 3.8,
+   "judged": false,
+   "probes_passed": 3,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": null,
+    "language_correctness": null,
+    "follows_instruction": null
+   },
+   "avg_seconds": 24.9,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=5 wrong_diacritics=0 chars=70",
+    "C": "keys=['module', 'revizie', 'serie', 'unitati', 'watti']",
+    "D": "empty"
+   }
+  },
+  {
+   "provider": "groq",
+   "model": "qwen/qwen3.6-27b",
+   "quality": 2.5,
+   "quality_for_agents": 2.5,
+   "judged": false,
+   "probes_passed": 1,
+   "probes_total": 4,
+   "probes_answered": 2,
+   "http_failures": 2,
+   "http_codes": [
+    200,
+    429,
+    429,
+    200
+   ],
+   "jury": {
+    "sounds_human": null,
+    "language_correctness": null,
+    "follows_instruction": null
+   },
+   "avg_seconds": 0.7,
+   "requests_per_day": 1000,
+   "volume_tier": "MEDIUM",
+   "volume_confidence": "DECLARED",
+   "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Limit applies per ORGANIZATION.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "HTTP 429: {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.6-27b` in organization `org_",
+    "C": "HTTP 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.6-27b` in organization `org_0",
+    "D": "words=307 diacritics=80 wrong_diacritics=0 markdown=True"
+   }
+  },
+  {
+   "provider": "nvidia",
+   "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+   "quality": 1.2,
+   "quality_for_agents": 1.2,
+   "judged": false,
+   "probes_passed": 1,
+   "probes_total": 4,
+   "probes_answered": 4,
+   "http_failures": 0,
+   "http_codes": [
+    200,
+    200,
+    200,
+    200
+   ],
+   "jury": {
+    "sounds_human": null,
+    "language_correctness": null,
+    "follows_instruction": null
+   },
+   "avg_seconds": 59.0,
+   "requests_per_day": null,
+   "volume_tier": "UNKNOWN",
+   "volume_confidence": "UNKNOWN",
+   "volume_evidence": "40 requests per minute per key, shared across every model you call with that key, with no daily ceiling declared. Concurrency is the real constraint and it differs per model, which is why we measured it separately. Limit applies per KEY.",
+   "probe_detail": {
+    "A": "found all | stated=[14400, 81600]",
+    "B": "diacritics=7 wrong_diacritics=2 chars=400",
+    "C": "no JSON object in the answer",
+    "D": "words=329 diacritics=43 wrong_diacritics=0 markdown=True"
+   }
+  }
+ ]
+}

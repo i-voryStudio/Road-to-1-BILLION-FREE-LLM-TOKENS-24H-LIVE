@@ -1,0 +1,44 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The probe checkers decide every score in this repo. If they drift, the whole table is wrong,
+      # so they are tested in both directions: correct answers must pass, wrong answers must fail.
+      - name: Probe checkers
+        run: python bench/test_probes.py
+
+      # Blocks a key, an account balance or a private path from ever reaching a commit.
+      - name: Publication gate
+        run: python bench/gate_publish.py .
+
+      - name: Language packs are valid JSON with the required fields
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          required = {"language", "code", "probes", "jury"}
+          bad = []
+          for p in sorted(Path("bench/languages").glob("*.json")):
+              d = json.loads(p.read_text(encoding="utf-8"))
+              missing = required - set(d)
+              if missing:
+                  bad.append("%s: missing %s" % (p.name, sorted(missing)))
+              for name, spec in d.get("probes", {}).items():
+                  if "prompt" not in spec or "kind" not in spec:
+                      bad.append("%s: probe %s needs a prompt and a kind" % (p.name, name))
+              print("%-12s %s, %d probes, %d lenses" % (p.name, d.get("language"), len(d.get("probes", {})), len(d.get("jury", {}))))
+          if bad:
+              print("\n".join(bad)); sys.exit(1)
+          PY

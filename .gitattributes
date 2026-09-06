@@ -1,0 +1,5 @@
+# Keep line endings identical on every platform: the results files are compared across runs,
+# and a CRLF/LF flip would show up as every line changing.
+* text=auto eol=lf
+*.png binary
+*.jpg binary

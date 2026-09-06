@@ -1,0 +1,137 @@
+{
+ "_comment": [
+  "Every provider here speaks the OpenAI /chat/completions shape, so one client reaches all of them.",
+  "key_env is the environment variable the runner reads. A provider with no key set is skipped, not failed.",
+  "pause_seconds is what WE used to stay under the published per-minute limit. Raise it if you get 429s;",
+  "the runner gives each provider its own thread, so a slow provider does not hold up the others.",
+  "extra_body carries the per-provider switch that turns reasoning down or off. Leaving it out is the",
+  "single most common reason a 200 comes back with an empty message: the model spent its whole token",
+  "budget thinking. See README, 'Why a model returns 200 and nothing else'."
+ ],
+ "providers": [
+  {
+   "name": "google",
+   "url": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+   "key_env": "GEMINI_API_KEY",
+   "signup": "https://aistudio.google.com/apikey",
+   "pause_seconds": 13,
+   "models": [
+    {"id": "gemini-3.8-flash"},
+    {"id": "gemini-3.5-flash-lite"},
+    {"id": "gemma-4-31b-it"}
+   ]
+  },
+  {
+   "name": "cerebras",
+   "url": "https://api.cerebras.ai/v1/chat/completions",
+   "key_env": "CEREBRAS_API_KEY",
+   "signup": "https://cloud.cerebras.ai",
+   "pause_seconds": 13,
+   "models": [
+    {"id": "gemma-4-31b"},
+    {"id": "gpt-oss-120b", "extra_body": {"reasoning_effort": "low"}},
+    {"id": "qwen-3.8-27b"}
+   ]
+  },
+  {
+   "name": "groq",
+   "url": "https://api.groq.com/openai/v1/chat/completions",
+   "key_env": "GROQ_API_KEY",
+   "signup": "https://console.groq.com/keys",
+   "pause_seconds": 4,
+   "models": [
+    {"id": "qwen/qwen3.8-27b"},
+    {"id": "openai/gpt-oss-120b", "extra_body": {"reasoning_effort": "low"}},
+    {"id": "openai/gpt-oss-20b", "extra_body": {"reasoning_effort": "low"}},
+    {"id": "qwen/qwen3.6-27b"}
+   ]
+  },
+  {
+   "name": "openrouter",
+   "url": "https://openrouter.ai/api/v1/chat/completions",
+   "key_env": "OPENROUTER_API_KEY",
+   "signup": "https://openrouter.ai/keys",
+   "pause_seconds": 4,
+   "models": [
+    {"id": "minimax/minimax-m3:free", "max_tokens": 4000},
+    {"id": "minimax/minimax-m2.7:free", "max_tokens": 4000},
+    {"id": "nvidia/nemotron-3-ultra-550b-a55b:free", "extra_body": {"chat_template_kwargs": {"enable_thinking": false}}}
+   ]
+  },
+  {
+   "name": "cloudflare",
+   "url": "https://api.cloudflare.com/client/v4/accounts/{CF_ACCOUNT_ID}/ai/v1/chat/completions",
+   "key_env": "CF_API_TOKEN",
+   "signup": "https://dash.cloudflare.com/profile/api-tokens",
+   "pause_seconds": 2,
+   "models": [
+    {"id": "@cf/openai/gpt-oss-120b"},
+    {"id": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"},
+    {"id": "@cf/google/gemma-4-26b-a4b-it"},
+    {"id": "@cf/qwen/qwen3.8-27b"},
+    {"id": "@cf/mistralai/mistral-small-3.1-24b-instruct"}
+   ]
+  },
+  {
+   "name": "nvidia",
+   "url": "https://integrate.api.nvidia.com/v1/chat/completions",
+   "key_env": "NVIDIA_API_KEY",
+   "signup": "https://build.nvidia.com",
+   "pause_seconds": 3,
+   "timeout_seconds": 180,
+   "models": [
+    {"id": "nvidia/nemotron-3-super-120b-a12b", "extra_body": {"chat_template_kwargs": {"enable_thinking": false}}},
+    {"id": "nvidia/nemotron-3-ultra-550b-a55b", "extra_body": {"chat_template_kwargs": {"enable_thinking": false}}},
+    {"id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning", "max_tokens": 2500},
+    {"id": "nvidia/nemotron-3.5-lightning-30b-a3b", "max_tokens": 2500},
+    {"id": "moonshotai/kimi-k3", "max_tokens": 2500}
+   ]
+  },
+  {
+   "name": "ollama",
+   "url": "https://ollama.com/v1/chat/completions",
+   "key_env": "OLLAMA_API_KEY",
+   "signup": "https://ollama.com/settings/keys",
+   "pause_seconds": 2,
+   "models": [
+    {"id": "gemma4:31b"},
+    {"id": "gpt-oss:120b", "extra_body": {"reasoning_effort": "low"}},
+    {"id": "gpt-oss:20b", "extra_body": {"reasoning_effort": "low"}}
+   ]
+  },
+  {
+   "name": "alibaba",
+   "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+   "key_env": "ALIBABA_API_KEY",
+   "signup": "https://modelstudio.console.alibabacloud.com",
+   "pause_seconds": 2,
+   "models": [
+    {"id": "qwen-flash", "extra_body": {"enable_thinking": false}},
+    {"id": "qwen-plus", "extra_body": {"enable_thinking": false}},
+    {"id": "qwen-turbo", "extra_body": {"enable_thinking": false}},
+    {"id": "qwen3.5-flash", "extra_body": {"enable_thinking": false}}
+   ]
+  },
+  {
+   "name": "xkiro",
+   "url": "https://api.xkiro.com/v1/chat/completions",
+   "key_env": "XKIRO_API_KEY",
+   "signup": "https://xkiro.com",
+   "pause_seconds": 3,
+   "models": [
+    {"id": "minimax/minimax-m2.7:free", "max_tokens": 4000},
+    {"id": "minimax/minimax-m3:free", "max_tokens": 4000}
+   ]
+  },
+  {
+   "name": "siliconflow",
+   "url": "https://api.siliconflow.com/v1/chat/completions",
+   "key_env": "SILICONFLOW_API_KEY",
+   "signup": "https://siliconflow.com",
+   "pause_seconds": 2,
+   "models": [
+    {"id": "Qwen/Qwen3-Coder-30B-A3B-Instruct"}
+   ]
+  }
+ ]
+}

@@ -1,0 +1,451 @@
+{
+ "judge_model": "claude-opus-5 (blind, one judge per lens)",
+ "judge_url": "manual, same prompts as bench/judge.py --export",
+ "seed": 20260905,
+ "lenses": [
+  "sounds_human",
+  "language_correctness",
+  "follows_instruction"
+ ],
+ "verdicts": [
+  {
+   "id": "P01",
+   "lens": "sounds_human",
+   "score": 7,
+   "reason": "Se angajeaza la cifre diferentiate pe caz, nu la o medie prudenta: \"poate urca pana la 25% sau chiar 40% in cazul imobilelor mai vechi\" si \"La creditele de nevoi personale, avansul este rar solicitat\", afirmatii pe care un bancher le-ar putea contrazice."
+  },
+  {
+   "id": "P02",
+   "lens": "sounds_human",
+   "score": 2,
+   "reason": "Zero cifre si numai definitii circulare de manual: \"Acest avans reprezinta o suma initiala care trebuie depusa de catre solicitant\", plus perechea de umplutura \"In plus... ceea ce poate duce la conditii mai favorabile\"."
+  },
+  {
+   "id": "P03",
+   "lens": "sounds_human",
+   "score": 2,
+   "reason": "Se fereste sa spuna un numar tocmai unde ar conta: \"de obicei se situeaza in jurul unei treimi din suma necesara\", si toate frazele pornesc la fel de prudent, \"In general\", \"De asemenea\"."
+  },
+  {
+   "id": "P04",
+   "lens": "sounds_human",
+   "score": 2,
+   "reason": "Nu comite nicio afirmatie verificabila, doar echilibru pe la mijloc: \"variaza in functie de tipul de credit, de profilul financiar al clientului si de politica institutiei\", incheiat cu \"protejeaza atat partea bancara, cat si consumatorul\"."
+  },
+  {
+   "id": "P05",
+   "lens": "sounds_human",
+   "score": 5,
+   "reason": "Are o cifra asumata si un final care se adreseaza direct cuiva, \"chiar daca pare dificil sa strangi un avans semnificativ\", dar corpul ramane in lista prudenta \"dobanzi mai mici, rate mai mici sau o perioada de rambursare mai lunga\"."
+  },
+  {
+   "id": "P06",
+   "lens": "sounds_human",
+   "score": 2,
+   "reason": "Ritmul inegal vine din degradare, nu din voce: \"nu conquera\", \"permite contracatul riscului\" si \"ajuta borrower-ii\" sunt cedari de model, iar substanta ramane generica."
+  },
+  {
+   "id": "P07",
+   "lens": "sounds_human",
+   "score": 3,
+   "reason": "Cifra e imbracata in perifraza si sursa e o autoritate vaga: \"reglementarile din domeniul bancar recomanda mentinerea unui prag minim de lichiditate\", propozitie pe care nimeni nu o poate contrazice fiindca nu spune nimic."
+  },
+  {
+   "id": "P08",
+   "lens": "sounds_human",
+   "score": 2,
+   "reason": "O singura fraza lunga descompusa, \"banii pe care bancii le cer ca avans constituiesc\" si \"eventuale reducari in lichidele lunare\", plus inchiderea de robot politicos \"este recomandat sa se discuta detaliile cu consilierul bancar\"."
+  },
+  {
+   "id": "P09",
+   "lens": "sounds_human",
+   "score": 5,
+   "reason": "Spune un mecanism concret si contestabil, \"institutiile financiare evita situatia in care valoarea proprietatii scade sub nivelul datoriei\", dar ambalajul e prea neted: \"un tampon esential care aliniaza interesele clientului cu cele ale creditorului\"."
+  },
+  {
+   "id": "P10",
+   "lens": "sounds_human",
+   "score": 3,
+   "reason": "Cifra exista dar restul e insiruire simetrica de beneficii: \"reduce expunerea institutiei financiare, scade probabilitatea... si permite obtinerea unor conditii mai avantajoase\", incheiat cu \"incurajand disciplina financiara\"."
+  },
+  {
+   "id": "P11",
+   "lens": "sounds_human",
+   "score": 3,
+   "reason": "Promite \"un avans semnificativ\" si nu spune niciodata cat, iar explicatia se auto-defineste: \"Aceasta suma, cunoscuta sub numele de avans, reprezinta partea din valoarea proprietatii\"."
+  },
+  {
+   "id": "P12",
+   "lens": "sounds_human",
+   "score": 6,
+   "reason": "Intra in detalii pe care doar cineva din piata le numeste, \"tipul creditului (standard sau Prima Casa)\", \"LTV mai mic\" si \"eliminarea costurilor cu asigurarea creditului\", desi ultima fraza aluneca in nonsens cu \"dezechilibrul dintre valoarea imobilului si suma imprumutata protejeaza ambele parti\"."
+  },
+  {
+   "id": "P13",
+   "lens": "sounds_human",
+   "score": 4,
+   "reason": "Adresarea la persoana a doua da putina caldura, \"pierderea potentiala este mai mica\", dar se termina in formula cea mai previzibila din lot: \"in general, cu cat avansul este mai mare, cu atat conditiile... pot deveni mai avantajoase\"."
+  },
+  {
+   "id": "P14",
+   "lens": "sounds_human",
+   "score": 3,
+   "reason": "Cifra e insotita de motivatii care se contrazic in gol, \"reduce expunerea bancii la pierderi in cazul deteriorarii proprietatii\", si de umplutura clasica \"In plus, bancile considera avansul ca un indicator\"."
+  },
+  {
+   "id": "P15",
+   "lens": "sounds_human",
+   "score": 2,
+   "reason": "Patru propozitii care spun acelasi lucru de trei ori, \"Avansul este o garantie pentru banca\" apoi \"avansul arata si capacitatea clientului\" apoi \"bancile pot evalua mai bine solvabilitatea\", si niciun numar."
+  },
+  {
+   "id": "P16",
+   "lens": "sounds_human",
+   "score": 1,
+   "reason": "Raspunde la alta intrebare si se destrama lexical, \"certificatii de cunoastere a terenului\" si \"protejand interesurile ambele parti\", iar la final lasa la vedere artefactul de sarcina \"(104 cuvinte)\", text adresat sistemului, nu cititorului, pe care il notez ca pe orice alt text."
+  },
+  {
+   "id": "P17",
+   "lens": "sounds_human",
+   "score": 3,
+   "reason": "Procentul scris in litere si o formulare stalcita, \"Acest procentaj la inceput permite institutiei\", peste un corp complet neutru care se inchide cu \"un portofoliu de credite sanatos si sustenabil in timp\"."
+  },
+  {
+   "id": "P18",
+   "lens": "sounds_human",
+   "score": 4,
+   "reason": "Are o distinctie utila si scurta, \"10-20% pentru un credit ipotecar sau mai putin pentru un credit auto\", dar isi anuleaza curajul cu inchiderea de brosura \"Este important sa se evalueze corect capacitatea de plata\"."
+  },
+  {
+   "id": "P19",
+   "lens": "sounds_human",
+   "score": 6,
+   "reason": "Ritm inegal, cu o propozitie scurta care taie, \"Motivul principal pentru care bancile cer aceasta suma este reducerea riscului financiar\", si o afirmatie destul de transanta ca sa fie contrazisa: \"garantand ca valoarea proprietatii ramane mereu mai mare decat soldul creditului\"."
+  },
+  {
+   "id": "P20",
+   "lens": "sounds_human",
+   "score": 8,
+   "reason": "Singurul care ia trei produse pe rand si spune ceva ce se poate combate, \"la creditele auto, avansul minim este adesea de 20%, desi exista oferte cu zero avans compensate prin dobanzi mai mari\" si \"la nevoi personale... banca nu cere avans\"."
+  },
+  {
+   "id": "P21",
+   "lens": "sounds_human",
+   "score": 1,
+   "reason": "Incepe cu un cuvant care nu exista in context, \"Obisnuitul cerut de institutiile financiare\", si continua cu \"antecedentele dobanzi\" si \"in caz de saritura a pretului\": limbaj rupt, zero angajament."
+  },
+  {
+   "id": "P22",
+   "lens": "sounds_human",
+   "score": 3,
+   "reason": "Reformulare neteda a aceleiasi idei, cu anglicism de umplutura, \"exista un buffer de siguranta in cazul unei scaderi a valorii imobiliare\", si nicio cifra pe care cineva sa o poata ataca."
+  },
+  {
+   "id": "P23",
+   "lens": "sounds_human",
+   "score": 3,
+   "reason": "Ramane la comparatia fara reper, \"pentru un credit imobiliar avansul este adesea mai mare decat pentru unul de consum\", si la enumerarea prudenta \"istoricul de credit, veniturile si stabilitatea angajarii\"."
+  },
+  {
+   "id": "P01",
+   "lens": "language_correctness",
+   "score": 10,
+   "reason": "Diacritice corecte cu virgulă și topică integral românească, cu formulări pe care un corector nu le-ar atinge: „cu cât clientul contribuie mai mult din resurse proprii, cu atât expunerea instituției este mai mică\"."
+  },
+  {
+   "id": "P02",
+   "lens": "language_correctness",
+   "score": 4,
+   "reason": "Două erori grave de lexic, cuvântul inexistent „seriositatea\" și confuzia „împrumutătorul are resursele necesare\" (creditorul în loc de debitorul), plus calcul „riscurile asociate cu împrumuturile\" și „rate de dobândă\"."
+  },
+  {
+   "id": "P03",
+   "lens": "language_correctness",
+   "score": 8,
+   "reason": "Curat și natural pe tot parcursul, doar sintagma „de profilul creditului\" e vagă și nefirească lângă „profilul solicitantului\" din prima frază."
+  },
+  {
+   "id": "P04",
+   "lens": "language_correctness",
+   "score": 7,
+   "reason": "Corect, dar apar două urme de traducere: „plătită din resurse proprii ale solicitantului\" (lipsește articolul, corect „din resursele proprii\") și „asigurând că împrumutul este într-adevăr necesar\", calc după „ensuring that\"."
+  },
+  {
+   "id": "P05",
+   "lens": "language_correctness",
+   "score": 9,
+   "reason": "Diacritice și acorduri impecabile, frază românească firească: „chiar dacă pare dificil să strângi un avans semnificativ, acesta este un pas esențial\"."
+  },
+  {
+   "id": "P06",
+   "lens": "language_correctness",
+   "score": 1,
+   "reason": "Text rupt de limbă: „nu conqueră\", „contracâtul riscului\" și „ajută borrower-ii\" sunt cuvinte inventate sau lăsate în engleză, eroare gravă."
+  },
+  {
+   "id": "P07",
+   "lens": "language_correctness",
+   "score": 8,
+   "reason": "Registru formal dar corect, cu formulări românești bune ca „scade raportul dintre credit și valoarea bunului\"; singurul reproș e „de regulă situată\", acord ambiguu cu „un avans\"."
+  },
+  {
+   "id": "P08",
+   "lens": "language_correctness",
+   "score": 0,
+   "reason": "Aproape fiecare grup de cuvinte e agramat sau inventat: „banii pe care bancii le cer\", „constituiesc\", „sumei pinute\", „reducări în lichidele lunane\", „este recomandat să se discuta\"."
+  },
+  {
+   "id": "P09",
+   "lens": "language_correctness",
+   "score": 9,
+   "reason": "Limbă îngrijită, acorduri și diacritice corecte, cu o construcție firească: „acest avans funcționează ca un tampon esențial care aliniază interesele clientului cu cele ale creditorului\"."
+  },
+  {
+   "id": "P10",
+   "lens": "language_correctness",
+   "score": 7,
+   "reason": "Româna e corectă, dar tipografia e străină, „10‑20 %\" cu spațiu înainte de procent, iar „împrumutul să devină nerambursabil\" folosește greșit adjectivul (nerambursabil = care nu se restituie prin natura lui)."
+  },
+  {
+   "id": "P11",
+   "lens": "language_correctness",
+   "score": 5,
+   "reason": "Frazare bună până la anglicismul brut „În cazul unui default\", lăsat netradus, plus redundanța „cunoscută sub numele de avans\" într-un text despre avans."
+  },
+  {
+   "id": "P12",
+   "lens": "language_correctness",
+   "score": 3,
+   "reason": "Erori de lexic și diacritice în lanț: „la contracarea unui credit\" (în loc de contractarea), „un colateral solid\", „reduce expoziția băncii\" și „acces la dobandă mai avantajoase\", fără diacritic și în dezacord."
+  },
+  {
+   "id": "P13",
+   "lens": "language_correctness",
+   "score": 9,
+   "reason": "Adresare la persoana a doua curgătoare și corectă, fără nicio urmă de traducere: „o parte din investiție este deja acoperită de tine, iar în cazul în care nu mai poți rambursa, pierderea potențială este mai mică\"."
+  },
+  {
+   "id": "P14",
+   "lens": "language_correctness",
+   "score": 7,
+   "reason": "Corect gramatical, dar „o cotă mai favorabilă\" e calc după „rate\" (în română: dobândă mai bună), iar „10 % și 20 %\" scrie spațiu înainte de procent."
+  },
+  {
+   "id": "P15",
+   "lens": "language_correctness",
+   "score": 8,
+   "reason": "Simplu și corect, diacritice bune, singura scădere fiind repetarea greoaie a subiectului în „Avansul este o garanție pentru banca care acordă creditul\"."
+  },
+  {
+   "id": "P16",
+   "lens": "language_correctness",
+   "score": 1,
+   "reason": "Plin de cuvinte inexistente sau împrumutate greșit, „aprobaturi de venit\", „dichiarări de impozit\", „certificatii de cunoaștere a terenului\", „interesurile ambele părți\", plus reziduul „(104 cuvinte)\" lăsat în text."
+  },
+  {
+   "id": "P17",
+   "lens": "language_correctness",
+   "score": 6,
+   "reason": "„Acest procentaj la început\" e traducere directă din engleză, iar „zece până la douăzeci de procente\" în loc de „la sută\" sună străin, restul textului fiind însă corect."
+  },
+  {
+   "id": "P18",
+   "lens": "language_correctness",
+   "score": 7,
+   "reason": "Text simplu și corect, cu o singură greșeală de lexic, „reducând riscul de neplătire\", unde româna cere „de neplată\"."
+  },
+  {
+   "id": "P19",
+   "lens": "language_correctness",
+   "score": 9,
+   "reason": "Frază românească naturală și diacritice complete: „în cazul unei scăderi a prețurilor de pe piața imobiliară, avansul oferă băncii o marjă de siguranță\"."
+  },
+  {
+   "id": "P20",
+   "lens": "language_correctness",
+   "score": 3,
+   "reason": "Diacritice lipsă și lexic greșit în serie: „dobanzi mai mari\", „garantia lipsește\", „reduce expoziția băncii\", „protecția capitalei împrumutate\" și „disciplina financiară a împrumutătorului\" (când vorbește despre client)."
+  },
+  {
+   "id": "P21",
+   "lens": "language_correctness",
+   "score": 1,
+   "reason": "Începe cu un nonsens gramatical, „Obișnuitul cerut de instituțiile financiare\", și continuă cu „antecedentele dobânzi\", „un avans mai mare sigurează creditorul\" și „șansele de aprobată a cererii\"."
+  },
+  {
+   "id": "P22",
+   "lens": "language_correctness",
+   "score": 5,
+   "reason": "Dezacord clar în „partea din valoare proprietății\" și anglicism brut în „există un buffer de siguranță\", peste calcul „împrumutatul este investit financiar în proiect\"."
+  },
+  {
+   "id": "P23",
+   "lens": "language_correctness",
+   "score": 8,
+   "reason": "Curgere firească și diacritice corecte, doar „stabilitatea angajării\" e nefiresc în română, unde se spune „stabilitatea locului de muncă\"."
+  },
+  {
+   "id": "P01",
+   "lens": "follows_instruction",
+   "score": 4,
+   "reason": "121 de cuvinte, cu 11 peste plafon, coada „un avans consistent îi demonstrează băncii că împrumutatul are disciplină financiară\" fiind exact surplusul care rupe limita, deși restul constrângerilor (fără titlu, listă, bold, bancă numită) sunt respectate."
+  },
+  {
+   "id": "P02",
+   "lens": "follows_instruction",
+   "score": 10,
+   "reason": "105 cuvinte, fix în interval, fără titlu, fără listă, fără bold și fără nicio cifră, doar formulări generale de tipul „rate de dobândă mai scăzute sau termene de plată mai lungi\"."
+  },
+  {
+   "id": "P03",
+   "lens": "follows_instruction",
+   "score": 10,
+   "reason": "102 cuvinte, un singur bloc de proză, iar cifra e înlocuită cu o formulare generală, „se situează în jurul unei treimi din suma necesară\", deci nicio bancă anume nu primește un procent."
+  },
+  {
+   "id": "P04",
+   "lens": "follows_instruction",
+   "score": 4,
+   "reason": "123 de cuvinte, cu 13 peste limită, fraza finală „Acest mecanism protejează atât partea bancară, cât și consumatorul\" fiind adaos peste plafon, chiar dacă celelalte interdicții sunt respectate."
+  },
+  {
+   "id": "P05",
+   "lens": "follows_instruction",
+   "score": 2,
+   "reason": "133 de cuvinte, cu 23 peste plafon, adică depășire de peste 20%, închisă cu o frază complet în plus, „chiar dacă pare dificil să strângi un avans semnificativ, acesta este un pas esențial\"."
+  },
+  {
+   "id": "P06",
+   "lens": "follows_instruction",
+   "score": 8,
+   "reason": "92 de cuvinte, în interval și fără titlu sau listă, dar strecoară cuvinte care nu sunt românești, „nu conqueră\" și „ajută borrower-ii\", ceea ce încalcă parțial cerința de text în română."
+  },
+  {
+   "id": "P07",
+   "lens": "follows_instruction",
+   "score": 10,
+   "reason": "94 de cuvinte, proză continuă, iar procentul e dat ca interval general scris în litere, „între zece și douăzeci la sută din sumă\", fără nicio bancă numită."
+  },
+  {
+   "id": "P08",
+   "lens": "follows_instruction",
+   "score": 9,
+   "reason": "97 de cuvinte în interval și zero cifre atribuite unei bănci, dar e o singură frază-fluviu care abia mai funcționează ca paragraf, „banii pe care bancii le cer ca avans constituiesc o parte din totalul sumei pinute\"."
+  },
+  {
+   "id": "P09",
+   "lens": "follows_instruction",
+   "score": 10,
+   "reason": "109 cuvinte, în interval, fără titlu ori bold, cu interval general scris în litere, „între cincisprezece și douăzeci la sută din valoarea imobilului\"."
+  },
+  {
+   "id": "P10",
+   "lens": "follows_instruction",
+   "score": 9,
+   "reason": "90-91 de cuvinte, adică fix pe limita de jos în funcție de cum numeri semnul procent din „aproximativ 10‑20 % din valoarea totală\", conform dar fără nicio marjă."
+  },
+  {
+   "id": "P11",
+   "lens": "follows_instruction",
+   "score": 9,
+   "reason": "98 de cuvinte și toate interdicțiile respectate, cu o singură abatere de la cerința de română, cuvântul englezesc din „În cazul unui default, avansul servește ca o formă de protecție\"."
+  },
+  {
+   "id": "P12",
+   "lens": "follows_instruction",
+   "score": 5,
+   "reason": "116 cuvinte, cu 6 peste plafon, plus o diacritică lipsă în „acces la dobandă mai avantajoase\", chiar dacă intervalul „între 15% și 30%\" rămâne general, fără bancă numită."
+  },
+  {
+   "id": "P13",
+   "lens": "follows_instruction",
+   "score": 4,
+   "reason": "120 de cuvinte, cu 10 peste limită, coada „cu cât avansul este mai mare, cu atât condițiile de dobândă și de garantare pot deveni mai avantajoase pentru tine\" fiind surplusul, restul constrângerilor fiind curate."
+  },
+  {
+   "id": "P14",
+   "lens": "follows_instruction",
+   "score": 10,
+   "reason": "102-104 cuvinte, în interval, proză continuă, iar cifra e interval general, „între 10 % și 20 % din valoarea proprietății\", fără nume de bancă."
+  },
+  {
+   "id": "P15",
+   "lens": "follows_instruction",
+   "score": 3,
+   "reason": "73 de cuvinte, cu 17 sub minim, adică un sfert din lungimea cerută lipsește, textul oprindu-se brusc la „băncile pot evalua mai bine solvabilitatea și seriozitatea clienților\"."
+  },
+  {
+   "id": "P16",
+   "lens": "follows_instruction",
+   "score": 1,
+   "reason": "Răspunde la cu totul altă întrebare, actele cerute la dosar, „bancherii solicită aprobaturi de venit din ultimele trei luni\", are 122 de cuvinte și mai adaugă și un comentariu în afara paragrafului, „(104 cuvinte)\", care e și fals."
+  },
+  {
+   "id": "P17",
+   "lens": "follows_instruction",
+   "score": 10,
+   "reason": "109 cuvinte, în interval, un singur bloc fără titlu sau listă, cu procentul scris ca interval general, „de aproximativ zece până la douăzeci de procente\"."
+  },
+  {
+   "id": "P18",
+   "lens": "follows_instruction",
+   "score": 8,
+   "reason": "88 de cuvinte, cu 2 sub minim, restul curat: „10-20% pentru un credit ipotecar\" e interval general, fără bancă numită."
+  },
+  {
+   "id": "P19",
+   "lens": "follows_instruction",
+   "score": 10,
+   "reason": "104 cuvinte, proză continuă, diacritice complete și interval general scris în litere, „de obicei între cincisprezece și treizeci la sută\"."
+  },
+  {
+   "id": "P20",
+   "lens": "follows_instruction",
+   "score": 2,
+   "reason": "131 de cuvinte, cu 21 peste plafon, plus diacritice lipsă în „compensate prin dobanzi mai mari\" și „garantia lipsește\"."
+  },
+  {
+   "id": "P21",
+   "lens": "follows_instruction",
+   "score": 10,
+   "reason": "101 cuvinte, în interval, fără titlu, listă sau bold, și fără nicio cifră, doar formulări generale ca „stabilind un prag minim pentru a reduce propriul risc credit\"."
+  },
+  {
+   "id": "P22",
+   "lens": "follows_instruction",
+   "score": 9,
+   "reason": "98 de cuvinte și toate interdicțiile respectate, cu o singură scăpare din română, „există un buffer de siguranță în cazul unei scăderi a valorii imobiliare\"."
+  },
+  {
+   "id": "P23",
+   "lens": "follows_instruction",
+   "score": 10,
+   "reason": "93-95 de cuvinte, proză continuă, zero cifre și deci zero risc de bancă inventată, doar comparația generală „pentru un credit imobiliar avansul este adesea mai mare decât pentru unul de consum\"."
+  }
+ ],
+ "key": {
+  "P01": "openrouter | minimax/minimax-m3:free",
+  "P02": "cloudflare | @cf/mistralai/mistral-small-3.1-24b-instruct",
+  "P03": "cloudflare | @cf/openai/gpt-oss-120b",
+  "P04": "alibaba | qwen-plus",
+  "P05": "alibaba | qwen-flash",
+  "P06": "ollama | gpt-oss:20b",
+  "P07": "xkiro | minimax/minimax-m2.7:free",
+  "P08": "nvidia | nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+  "P09": "alibaba | qwen3.5-flash",
+  "P10": "groq | openai/gpt-oss-120b",
+  "P11": "ollama | gemma4:31b",
+  "P12": "nvidia | nvidia/nemotron-3-ultra-550b-a55b",
+  "P13": "xkiro | minimax/minimax-m3:free",
+  "P14": "groq | openai/gpt-oss-20b",
+  "P15": "cloudflare | @cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "P16": "nvidia | nvidia/nemotron-3-super-120b-a12b",
+  "P17": "cerebras | gpt-oss-120b",
+  "P18": "alibaba | qwen-turbo",
+  "P19": "google | gemini-3.5-flash-lite",
+  "P20": "openrouter | nvidia/nemotron-3-ultra-550b-a55b:free",
+  "P21": "groq | qwen/qwen3.8-27b",
+  "P22": "cerebras | gemma-4-31b",
+  "P23": "openrouter | minimax/minimax-m2.7:free"
+ }
+}

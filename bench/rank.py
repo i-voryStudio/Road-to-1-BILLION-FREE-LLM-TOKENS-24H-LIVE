@@ -1,0 +1,297 @@
+#!/usr/bin/env python3
+"""Turn raw probe results, jury verdicts and rate limits into the published tables.
+
+    python bench/rank.py results.json --jury jury.json --out .
+
+Writes RESULTS.md, LIMITS.md and data/models.{json,csv}. Everything published is generated from here,
+so two tables in this repo cannot disagree with each other.
+
+Scoring, stated once so it is arguable:
+    quality            = 50% mechanical (probes passed / total * 10) + 50% jury mean over all lenses
+    quality_for_agents = the same, but the jury mean drops the "sounds human" lens
+
+Why two numbers: a model that writes stiff but correct prose is useless for a blog post and perfectly
+good for an extraction step. One number would hide that, so we publish both and say which is which.
+A model with no jury score (its paragraph failed the mechanical check, so it never reached the jury)
+scores the mechanical half only, and the table says so - it is not silently treated as a zero.
+"""
+import argparse, csv, json, sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+TIER = [(2000, "HIGH"), (400, "MEDIUM"), (1, "LOW")]
+
+
+def volume_for(provider, model, limits):
+    """Return (requests_per_day, tier, confidence, evidence) for one model."""
+    p = limits["providers"].get(provider)
+    if not p:
+        return None, "UNKNOWN", "UNKNOWN", "Provider not in limits.json."
+    entry = (p.get("models") or {}).get(model) or p.get("all_models") or {}
+    rpd = entry.get("rpd")
+    conf = entry.get("rpd_confidence") or p.get("confidence", "UNKNOWN")
+    bits = [p.get("caveat", "")]
+    # Some providers state the cap as a condition rather than a number (OpenRouter's depends on lifetime
+    # credits). Publish the figure a NEW account actually gets, and say what raises it.
+    if rpd is None and p.get("free_models_combined"):
+        tiers = p["free_models_combined"]
+        baseline = min((v["rpd"] for v in tiers.values()), default=None)
+        best = max((v["rpd"] for v in tiers.values()), default=None)
+        rpd = baseline
+        if baseline != best:
+            bits.append("This is what a NEW account gets; it rises to %s/day once the conditions in "
+                        "LIMITS.md are met. Shared across all free models, not per model." % best)
+    if rpd is None:
+        conf = "UNKNOWN"  # no number means no number, whatever the provider declares about other things
+    if entry.get("note"):
+        bits.append(entry["note"])
+    if p.get("binding_limit"):
+        bits.append("Binding limit: " + p["binding_limit"])
+    if p.get("scope"):
+        bits.append("Limit applies per %s." % p["scope"].upper())
+    if p.get("volatile"):
+        bits.append("VOLATILE: this figure moved under us at least once.")
+    tier = "UNKNOWN"
+    if rpd:
+        tier = next((name for floor, name in TIER if rpd >= floor), "LOW")
+    return rpd, tier, conf, " ".join(b for b in bits if b).strip()
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("results")
+    ap.add_argument("--jury", default=None)
+    ap.add_argument("--limits", default=str(HERE / "limits.json"))
+    ap.add_argument("--out", default=".")
+    ap.add_argument("--exclude", default="siliconflow",
+                    help="providers to leave out of the quality ranking, comma-separated. Default excludes "
+                         "siliconflow: the key was answered with 402, which is a fact about the caller, not about them.")
+    ap.add_argument("--date", required=True, help="the date the battery was run, YYYY-MM-DD")
+    a = ap.parse_args()
+
+    raw = json.loads(Path(a.results).read_text(encoding="utf-8"))
+    limits = json.loads(Path(a.limits).read_text(encoding="utf-8"))
+    jury = json.loads(Path(a.jury).read_text(encoding="utf-8")) if a.jury else {"verdicts": [], "key": {}, "lenses": []}
+    excluded = {x.strip() for x in a.exclude.split(",") if x.strip()}
+    out = Path(a.out)
+
+    # jury scores, indexed by the model they belong to once the key is applied
+    by_model = {}
+    for v in jury.get("verdicts", []):
+        model_key = jury.get("key", {}).get(v["id"])
+        if model_key:
+            by_model.setdefault(model_key, {})[v["lens"]] = v["score"]
+    lenses = jury.get("lenses", [])
+    agent_lenses = [l for l in lenses if l != "sounds_human"]
+
+    per = {}
+    for row in raw["rows"]:
+        k = (row["provider"], row["model"])
+        d = per.setdefault(k, {"passed": 0, "of": 0, "seconds": [], "probes": {}, "http": []})
+        d["passed"] += 1 if row["passed"] else 0
+        d["of"] += 1
+        d["seconds"].append(row["seconds"])
+        d["http"].append(row["http"])
+        d["probes"][row["probe"]] = {"passed": row["passed"], "note": row["note"], "kind": row["kind"]}
+
+    models, unreachable = [], []
+    for (provider, model), d in sorted(per.items()):
+        # A probe that never got an answer is not a quality failure. 503, 429, 402 and timeouts say the
+        # endpoint was unavailable or the calling account was, and scoring those as zero would publish a lie.
+        delivered = [h for h in d["http"] if h == 200]
+        blocked = len(d["http"]) - len(delivered)
+        # Below half the probes answered, whatever came back is not a measurement of the model. Ranking
+        # a model on one probe out of four would put a number next to it that we did not earn.
+        if len(delivered) * 2 < len(d["http"]):
+            unreachable.append({"provider": provider, "model": model, "http": d["http"],
+                                "answered": len(delivered), "of": len(d["http"]),
+                                "why": next((v["note"] for v in d["probes"].values()
+                                             if not v["passed"] and "HTTP" in v["note"]), "")[:120]})
+            continue
+        if provider in excluded:
+            continue
+        # Score on the probes that actually ran, not on the ones the network ate.
+        mech = d["passed"] / max(1, d["of"] - blocked) * 10
+        j = by_model.get("%s | %s" % (provider, model), {})
+        scored = [j[l] for l in lenses if l in j]
+        scored_agent = [j[l] for l in agent_lenses if l in j]
+        judged = bool(scored)
+        jury_mean = sum(scored) / len(scored) if scored else None
+        jury_agent = sum(scored_agent) / len(scored_agent) if scored_agent else None
+        rpd, tier, conf, evidence = volume_for(provider, model, limits)
+        models.append({
+            "provider": provider, "model": model,
+            "quality": round(0.5 * mech + 0.5 * jury_mean, 1) if judged else round(mech / 2, 1),
+            "quality_for_agents": round(0.5 * mech + 0.5 * jury_agent, 1) if jury_agent is not None else round(mech / 2, 1),
+            "judged": judged,
+            "probes_passed": d["passed"], "probes_total": d["of"], "probes_answered": d["of"] - blocked,
+            "http_failures": blocked, "http_codes": d["http"],
+            "jury": {l: j.get(l) for l in lenses},
+            "avg_seconds": round(sum(d["seconds"]) / len(d["seconds"]), 1),
+            "requests_per_day": rpd, "volume_tier": tier, "volume_confidence": conf, "volume_evidence": evidence,
+            "probe_detail": {p: v["note"] for p, v in d["probes"].items()},
+        })
+    models.sort(key=lambda m: (-m["quality"], m["avg_seconds"]))
+
+    (out / "data").mkdir(parents=True, exist_ok=True)
+    (out / "data" / "models.json").write_text(json.dumps({
+        "measured_on": a.date, "language": raw.get("language"),
+        "paragraph_attempts": raw.get("paragraph_attempts", 1),
+        "judge_model": jury.get("judge_model"), "jury_lenses": lenses,
+        "scoring": "quality = 50% probes passed + 50% jury mean. quality_for_agents drops the sounds_human lens. "
+                   "A model whose paragraph failed the mechanical check never reached the jury and is scored on "
+                   "the mechanical half alone (judged=false).",
+        "excluded_providers": sorted(excluded),
+        "unreachable": unreachable,
+        "models": models,
+    }, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+
+    cols = ["provider", "model", "quality", "quality_for_agents", "judged", "probes_passed", "probes_total",
+            "avg_seconds", "requests_per_day", "volume_tier", "volume_confidence"]
+    with open(out / "data" / "models.csv", "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(models)
+
+    def table(rows, quality_key="quality"):
+        jury_head = " / ".join(l.replace("_", " ") for l in lenses) if lenses else "Jury"
+        head = ("| # | Model | Provider | Quality | Probes | %s | Req/day | Evidence | Speed |\n"
+                "|---|---|---|---|---|---|---|---|---|\n" % jury_head)
+        body = ""
+        for i, m in enumerate(rows, 1):
+            jury_cell = " / ".join(str(m["jury"].get(l)) if m["jury"].get(l) is not None else "-" for l in lenses) if m["judged"] else "not judged"
+            rpd = "{:,}".format(m["requests_per_day"]) if m["requests_per_day"] else "?"
+            probes = "%d/%d" % (m["probes_passed"], m["probes_answered"])
+            if m["http_failures"]:
+                probes += " ⚠"  # some probes never got an answer; see the footnote
+            body += "| %d | `%s` | %s | **%s** | %s | %s | %s | %s | %.1f s |\n" % (
+                i, m["model"], m["provider"], m[quality_key], probes,
+                jury_cell, rpd, m["volume_confidence"], m["avg_seconds"])
+        note = ""
+        if any(m["http_failures"] for m in rows):
+            note = ("\n⚠ = one or more probes never received an answer (503, 429, 402 or a timeout). Those "
+                    "probes are excluded from the score rather than counted as failures, because an "
+                    "unavailable endpoint is not a bad model. The `Probes` column shows passes out of "
+                    "probes actually answered; the HTTP codes are in `data/models.json`.\n")
+        return head + body + note
+
+    known = [m for m in models if m["requests_per_day"]]
+    lines = [
+        "# Full results",
+        "",
+        "Battery run on **%s**, probes in **%s**. %s"
+        % (a.date, raw.get("language"),
+           ("The paragraph probe was run %d times per model and the verdict is the majority of those."
+            % raw.get("paragraph_attempts", 1)) if raw.get("paragraph_attempts", 1) > 1
+           else "Every probe was run once."),
+        "Judge model: `%s`. Generated by `bench/rank.py` - do not edit by hand." % (jury.get("judge_model") or "none"),
+        "",
+        "`Evidence` is how we know the requests-per-day figure: MEASURED by us, DECLARED by the provider, or "
+        "UNKNOWN. See [LIMITS.md](LIMITS.md) for the per-provider detail and the caveats, which matter more "
+        "than the numbers.",
+        "",
+        "## 1. Quality (all models)", "", table(models),
+        "", "## 2. Quality x volume (only models whose daily limit is known)", "", table(known),
+        "", "## 3. Quality for agent work (drops the 'sounds human' lens)",
+        "",
+        "For extraction, classification and tool calls, prose voice is irrelevant and correctness is not. "
+        "This ranking is the one to use when the model is a component, not a writer.",
+        "", table(sorted(models, key=lambda m: (-m["quality_for_agents"], m["avg_seconds"])), "quality_for_agents"),
+        "", "## 4. What each model actually did on each probe", "",
+        "| Model | " + " | ".join(sorted({p for m in models for p in m["probe_detail"]})) + " |",
+        "|---|" + "---|" * len(sorted({p for m in models for p in m["probe_detail"]})),
+    ]
+    probes = sorted({p for m in models for p in m["probe_detail"]})
+    for m in models:
+        cells = [" ".join(m["probe_detail"].get(p, "-").replace("|", "/").split())[:70] for p in probes]
+        lines.append("| `%s` | %s |" % (m["model"], " | ".join(cells)))
+    if unreachable or excluded:
+        lines += ["", "## Not ranked", "",
+                  "Scoring a model that never answered would be publishing a lie about it. These are listed "
+                  "with what happened instead.", ""]
+    if unreachable:
+        lines += ["A model is only ranked if at least half its probes came back. Below that, whatever "
+                  "answered is not a measurement of the model.", "",
+                  "| Model | Provider | Answered | HTTP codes | What happened |", "|---|---|---|---|---|"]
+        for u in unreachable:
+            # Provider error bodies are JSON with newlines in them; a raw paste breaks the table.
+            why = " ".join(u["why"].replace("|", "/").split())[:110]
+            lines.append("| `%s` | %s | %d/%d | %s | %s |" % (u["model"], u["provider"],
+                                                              u.get("answered", 0), u.get("of", 0),
+                                                              ", ".join(str(h) for h in u["http"]), why))
+        lines += ["", "A `0` code is a timeout on our side. `402` is the calling account balance, not the "
+                      "provider's capability. `429` and `503` mean the endpoint was rate-limiting or "
+                      "overloaded at that moment, which is worth knowing about a free tier, but is not a "
+                      "measurement of the model.", ""]
+    if excluded:
+        lines += ["- Excluded by request: " + ", ".join(sorted(excluded)) + ". See LIMITS.md."]
+    (out / "RESULTS.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+    lim = ["# Rate limits, and how we know them", "",
+           "Read on %s. Source of truth: [`bench/limits.json`](bench/limits.json) - correcting a number here "
+           "is a one-line pull request." % limits.get("read_on", a.date), "",
+           "Three confidence levels, and the difference matters more than the numbers:", "",
+           "- **MEASURED** - we saw it: a response header, or a 429 we walked into.",
+           "- **DECLARED** - the provider says so on a page we read, with the date we read it.",
+           "- **UNKNOWN** - nobody publishes it and we did not measure it. It stays unknown. We do not copy a "
+           "figure from another list to fill the gap, and unknown does not mean unlimited.", ""]
+    for name, p in limits["providers"].items():
+        lim += ["## %s" % name, "",
+                "- **Confidence:** %s" % p.get("confidence", "UNKNOWN"),
+                "- **Limit applies per:** %s" % p.get("scope", "?").upper() +
+                (" - so a second API key does not raise it." if p.get("scope") in ("organization", "project") else ""),
+                ]
+        if p.get("source"):
+            lim.append("- **Source:** %s (read %s)" % (p["source"], p.get("read_on", "?")))
+        if p.get("measured_on"):
+            lim.append("- **Measured:** %s, %s" % (p["measured_on"], p.get("measured_how", "")))
+        if p.get("volatile"):
+            lim.append("- **VOLATILE** - re-measure before relying on it.")
+        if p.get("binding_limit"):
+            lim.append("- **The limit that actually bites:** %s" % p["binding_limit"])
+        if p.get("caveat"):
+            lim += ["", p["caveat"]]
+        if p.get("models"):
+            lim += ["", "| Model | RPM | RPD | TPM | TPD |", "|---|---|---|---|---|"]
+            for mid, v in p["models"].items():
+                lim.append("| `%s` | %s | %s | %s | %s |" % (mid, v.get("rpm", "-"), v.get("rpd", "-") or "-",
+                                                             v.get("tpm", "-"), v.get("tpd", "-")))
+        elif p.get("all_models", {}).get("rpd") or p.get("all_models", {}).get("rpm"):
+            v = p["all_models"]
+            lim += ["", "All models: %s" % ", ".join("%s %s" % (k.upper(), val) for k, val in v.items() if val)]
+        if p.get("measured_concurrency"):
+            lim += ["", "**Concurrency, measured %s** - how many calls the model takes in parallel, which no "
+                        "rate-limit table tells you:" % p["measured_concurrency"].get("measured_on", "?")]
+            for mid, note in p["measured_concurrency"].items():
+                if mid not in ("measured_on",):
+                    lim.append("- `%s`: %s" % (mid, note))
+        if p.get("free_models_combined"):
+            lim += ["", "| Lifetime credits purchased | Req/min | Req/day |", "|---|---|---|"]
+            for cond, v in p["free_models_combined"].items():
+                lim.append("| %s | %s | %s |" % (cond.replace("_", " "), v["rpm"], v["rpd"]))
+        if p.get("free_allocation"):
+            lim += ["", "Free allocation: %s" % json.dumps(p["free_allocation"])]
+            if p.get("neuron_cost_examples"):
+                lim += ["", "| Model | Neurons / M input | Neurons / M output |", "|---|---|---|"]
+                for mid, v in p["neuron_cost_examples"].items():
+                    lim.append("| `%s` | {:,} | {:,} |".format(v["input_per_million"], v["output_per_million"]) % mid)
+        lim.append("")
+    (out / "LIMITS.md").write_text("\n".join(lim) + "\n", encoding="utf-8", newline="\n")
+
+    judged = sum(1 for m in models if m["judged"])
+    print("wrote RESULTS.md, LIMITS.md, data/models.json, data/models.csv")
+    print("  %d models ranked (%d judged, %d mechanical-only), %d with a known daily limit"
+          % (len(models), judged, len(models) - judged, len(known)))
+    if unreachable:
+        print("  %d never answered, not ranked: %s"
+              % (len(unreachable), ", ".join(u["model"] for u in unreachable)))
+    partial = [m for m in models if m["http_failures"]]
+    if partial:
+        print("  %d answered only partially, scored on what came back: %s"
+              % (len(partial), ", ".join("%s (%d/%d)" % (m["model"], m["probes_answered"], m["probes_total"])
+                                         for m in partial)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

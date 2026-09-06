@@ -1,0 +1,294 @@
+#!/usr/bin/env python3
+"""Run the four-probe battery against every free LLM endpoint you have a key for.
+
+Reads bench/providers.json (endpoints, models, pacing) and bench/languages/<code>.json (the probes and
+the pass conditions). Writes one JSON file with every raw answer, plus a mechanical score per model.
+
+The probes are checked by code, not by a model: probe A has one correct pair of numbers, probe C is fed
+to a JSON parser, probe B and D are counted character by character. Only probe D needs a judge, and that
+is a separate step (judge.py), so this script alone gives you a reproducible number with no LLM in the loop.
+
+    export GROQ_API_KEY=... CEREBRAS_API_KEY=...
+    python bench/benchmark.py --out results.json                 # every provider you have a key for
+    python bench/benchmark.py --out results.json --only groq,cerebras
+    python bench/benchmark.py --out results.json --language en
+
+Providers with no key set are skipped and listed at the end. Nothing here writes a key anywhere.
+"""
+import argparse, json, os, re, sys, threading, time, urllib.error, urllib.request
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+UA = "free-llm-benchmark/1.0 (+https://github.com/i-voryStudio)"
+
+
+# ---------------------------------------------------------------- checking
+
+def count_any(text, chars):
+    return sum(text.count(c) for c in chars) if chars else 0
+
+
+SECRET = re.compile(r"(sk-[A-Za-z0-9_\-]{6,}|gsk_[A-Za-z0-9_\-]{6,}|nvapi-[A-Za-z0-9_\-]{6,}|(?:Bearer|api[-_ ]?key|token)[\"'\s:=]+[A-Za-z0-9_\-]{12,})", re.I)
+# A provider's error body can echo the key back, and it always describes the calling account, not the model.
+# The trigger word is dropped along with the rest: keeping it would still publish the state of our own
+# account, and the HTTP code already carries everything a reader of the results needs to know.
+BALANCE = re.compile(r"[^\"}]{0,40}(balance|insufficient\s+funds|insufficient[_ ]quota|billing)[^\"}]{0,80}", re.I)
+
+
+def redact(body):
+    """Never let a key or the calling account state reach a published results file."""
+    return BALANCE.sub("<account state redacted>", SECRET.sub("***", body))
+
+
+# A thousands separator is a comma/dot/space between a digit and EXACTLY three more digits.
+# "14,400" is one number; "14400,81600" is two, because 81600 has five digits, not three.
+# Getting this wrong in either direction silently rewrites the score, so test_probes.py pins both cases.
+THOUSANDS = re.compile(r"(?<=\d)[.,   ](?=\d{3}(?!\d))")
+
+
+def numbers_in(text):
+    """Every integer the text states, with thousands separators removed and list separators kept."""
+    return [int(x) for x in re.findall(r"\d+", THOUSANDS.sub("", text))]
+
+
+def check(probe, spec, text, lang):
+    """Return (passed, note). Pure code, no model involved."""
+    t = (text or "").strip()
+    if not t:
+        return False, "empty"
+    kind = spec.get("kind")
+
+    if kind == "arithmetic":
+        # The whole difficulty is telling a list separator from a thousands separator: "14400, 81600"
+        # is two numbers, "14,400" is one. numbers_in() settles it by grouping width, not by guessing.
+        stated = numbers_in(t)
+        missing = [n for n in spec["expect_numbers"] if n not in stated]
+        return not missing, ("found all" if not missing else "missing %s" % missing) + " | stated=%s" % stated[:5]
+
+    if kind in ("diacritics_rewrite", "constrained_rewrite"):
+        d = count_any(t, lang.get("diacritics", ""))
+        bad = count_any(t, lang.get("wrong_diacritics", ""))
+        ok = (d >= spec.get("min_diacritics", 0)
+              and bad == 0
+              and all(w.lower() in t.lower() for w in spec.get("must_contain", []))
+              and not any(w.lower() in t.lower() for w in spec.get("must_not_contain", []))
+              and spec.get("min_chars", 0) <= len(t) <= spec.get("max_chars", 10 ** 6))
+        return ok, "diacritics=%d wrong_diacritics=%d chars=%d" % (d, bad, len(t))
+
+    if kind == "json_extraction":
+        m = re.search(r"\{.*\}", t, re.S)
+        if not m:
+            return False, "no JSON object in the answer"
+        try:
+            j = json.loads(m.group(0))
+        except Exception as e:
+            return False, "invalid JSON: %s" % str(e)[:40]
+        strings = set(spec.get("string_keys", []))
+        for k, want in spec["expect"].items():
+            got = j.get(k)
+            if k in strings:
+                if str(want).lower() not in str(got).lower():
+                    return False, "key %s = %r, expected to contain %r" % (k, got, want)
+            elif got != want:
+                return False, "key %s = %r, expected %r" % (k, got, want)
+        return True, "keys=%s" % sorted(j.keys())
+
+    if kind == "paragraph":
+        words = len(t.split())
+        d = count_any(t, lang.get("diacritics", ""))
+        bad = count_any(t, lang.get("wrong_diacritics", ""))
+        markdown = bool(re.search(r"(^|\n)\s*([#\-*]|\d+\.)\s", t)) or "**" in t
+        ok = (spec.get("min_words", 0) <= words <= spec.get("max_words", 10 ** 6)
+              and d >= spec.get("min_diacritics", 0) and bad == 0 and not markdown)
+        return ok, "words=%d diacritics=%d wrong_diacritics=%d markdown=%s" % (words, d, bad, markdown)
+
+    return False, "unknown probe kind %r" % kind
+
+
+# ---------------------------------------------------------------- calling
+
+def call(url, key, model, prompt, extra_body, max_tokens, timeout):
+    body = {"model": model, "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": max_tokens, **(extra_body or {})}
+    headers = {"Content-Type": "application/json", "User-Agent": UA, "Authorization": "Bearer " + key}
+    started = time.time()
+    try:
+        req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
+        with urllib.request.urlopen(req, timeout=timeout) as f:
+            data = json.load(f)
+        msg = (data.get("choices") or [{}])[0].get("message", {}) if isinstance(data, dict) else {}
+        text = msg.get("content") or ""
+        if not text and isinstance(data, dict) and isinstance(data.get("result"), dict):
+            text = data["result"].get("response", "")  # Cloudflare's non-OpenAI shape
+        thought_out_loud = bool(re.search(r"<think>|<thought>", text))
+        text = re.sub(r"<think>.*?</think>|<thought>.*?</thought>", "", text, flags=re.S).strip()
+        return {"http": 200, "seconds": round(time.time() - started, 1), "text": text,
+                "reasoning_field": bool(msg.get("reasoning") or msg.get("reasoning_content")),
+                "thought_out_loud": thought_out_loud}
+    except urllib.error.HTTPError as e:
+        return {"http": e.code, "seconds": round(time.time() - started, 1), "text": "",
+                "error": redact(e.read().decode("utf-8", "replace"))[:200]}
+    except Exception as e:
+        return {"http": 0, "seconds": round(time.time() - started, 1), "text": "", "error": redact(str(e))[:160]}
+
+
+def run_provider(prov, lang, rows, lock, repeat_paragraph):
+    url, key = prov["url"], os.environ[prov["key_env"]]
+    for placeholder in re.findall(r"\{([A-Z_]+)\}", url):
+        url = url.replace("{%s}" % placeholder, os.environ.get(placeholder, ""))
+    timeout = prov.get("timeout_seconds", 120)
+    for model in prov["models"]:
+        for name, spec in lang["probes"].items():
+            max_tokens = model.get("max_tokens", spec.get("max_tokens", 1200))
+            # The paragraph probe is the only one a model can fail by accident, and the only one a jury
+            # scores. Running it more than once and taking the majority is free and kills most of the noise.
+            tries = repeat_paragraph if spec["kind"] == "paragraph" else 1
+            attempts = []
+            for i in range(tries):
+                r = call(url, key, model["id"], spec["prompt"], model.get("extra_body"), max_tokens, timeout)
+                if r["http"] == 200:
+                    ok, note = check(name, spec, r["text"], lang)
+                else:
+                    ok, note = False, "HTTP %s: %s" % (r["http"], r.get("error", "")[:90])
+                attempts.append({"passed": ok, "note": note, "http": r["http"], "seconds": r["seconds"],
+                                 "reasoning_field": r.get("reasoning_field"),
+                                 "thought_out_loud": r.get("thought_out_loud"),
+                                 "text": r.get("text", "")[:2500 if spec["kind"] == "paragraph" else 400]})
+                if i + 1 < tries:
+                    time.sleep(prov.get("pause_seconds", 2))
+            wins = sum(1 for a in attempts if a["passed"])
+            passed = wins * 2 > tries
+            # Report the attempt that decided the verdict, so text and note match the pass/fail.
+            best = next((a for a in attempts if a["passed"] == passed), attempts[0])
+            row = {"provider": prov["name"], "model": model["id"], "probe": name, "kind": spec["kind"],
+                   "passed": passed, "note": best["note"], "http": best["http"],
+                   "seconds": round(sum(a["seconds"] for a in attempts) / len(attempts), 1),
+                   "attempts": tries, "attempts_passed": wins,
+                   "reasoning_field": best["reasoning_field"], "thought_out_loud": best["thought_out_loud"],
+                   "text": best["text"],
+                   "all_texts": [a["text"] for a in attempts] if tries > 1 else None}
+            with lock:
+                rows.append(row)
+                extra = "" if tries == 1 else " [%d/%d]" % (wins, tries)
+                print("%-12s %-46s %s %-4s %6.1fs  %s%s"
+                      % (prov["name"], model["id"], name, "OK" if passed else "FAIL",
+                         row["seconds"], best["note"][:60], extra), flush=True)
+            time.sleep(prov.get("pause_seconds", 2))
+
+
+# ---------------------------------------------------------------- main
+
+def recheck(results_path, lang, out_path):
+    """Re-run the checkers over saved answers. No network, no keys, no cost.
+
+    The answers are stored, so a fix to check() does not need the battery run again - and it must not,
+    because re-running would score different answers. Use this whenever a checker changes: it is the
+    difference between correcting a score and quietly replacing the measurement.
+    """
+    data = json.loads(Path(results_path).read_text(encoding="utf-8"))
+    changed = []
+    for row in data["rows"]:
+        # Redaction rules can tighten too, and a results file written under the old ones is still on disk.
+        row["note"] = redact(row["note"])
+        if row.get("text"):
+            row["text"] = redact(row["text"])
+        if row["http"] != 200:
+            continue
+        spec = lang["probes"].get(row["probe"])
+        if not spec:
+            continue
+        was = row["passed"]
+        now, note = check(row["probe"], spec, row.get("text", ""), lang)
+        if now != was:
+            changed.append((row["provider"], row["model"], row["probe"], was, now, row.get("text", "")[:60]))
+        row["passed"], row["note"] = now, note
+    data["rechecked"] = True
+    Path(out_path).write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n",
+                              encoding="utf-8", newline="\n")
+    print("re-checked %d rows against the current checkers, %d verdicts changed"
+          % (len(data["rows"]), len(changed)))
+    for provider, model, probe, was, now, text in changed:
+        print("  %-12s %-42s %s  %s -> %s   %r"
+              % (provider, model[:42], probe, "PASS" if was else "FAIL", "PASS" if now else "FAIL", text))
+    print("wrote %s" % out_path)
+    return 0
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--out", required=True, help="where to write the raw results JSON")
+    ap.add_argument("--recheck", metavar="RESULTS",
+                    help="re-score a saved results file with the current checkers and exit. Makes no API "
+                         "calls: use it after fixing a checker, so the scores are corrected rather than "
+                         "the measurement silently replaced by a new run.")
+    ap.add_argument("--language", default="ro", help="probe set from bench/languages/ (default: ro)")
+    ap.add_argument("--only", default="", help="comma-separated provider names, e.g. groq,cerebras")
+    ap.add_argument("--providers", default=str(HERE / "providers.json"))
+    ap.add_argument("--repeat-paragraph", type=int, default=3, metavar="N",
+                    help="run the paragraph probe N times and take the majority verdict (default: 3). "
+                         "The other three probes are deterministic enough to run once.")
+    a = ap.parse_args()
+
+    lang = json.loads((HERE / "languages" / (a.language + ".json")).read_text(encoding="utf-8"))
+    if a.recheck:
+        return recheck(a.recheck, lang, a.out)
+
+    all_providers = json.loads(Path(a.providers).read_text(encoding="utf-8"))["providers"]
+    if a.only:
+        wanted = {x.strip() for x in a.only.split(",")}
+        all_providers = [p for p in all_providers if p["name"] in wanted]
+
+    live = [p for p in all_providers if os.environ.get(p["key_env"])]
+    skipped = [(p["name"], p["key_env"], p.get("signup", "")) for p in all_providers if not os.environ.get(p["key_env"])]
+    if not live:
+        print("No API keys found in the environment. Set at least one, e.g.:\n  export GROQ_API_KEY=...")
+        for name, env, signup in skipped:
+            print("  %-12s %-22s %s" % (name, env, signup))
+        return 1
+
+    print("language: %s | probes: %s | paragraph probe run %dx | providers: %s\n"
+          % (lang["language"], ", ".join(lang["probes"]), a.repeat_paragraph,
+             ", ".join("%s(%d)" % (p["name"], len(p["models"])) for p in live)))
+
+    rows, lock, threads = [], threading.Lock(), []
+    for p in live:
+        t = threading.Thread(target=run_provider, args=(p, lang, rows, lock, a.repeat_paragraph), daemon=True)
+        t.start()
+        threads.append(t)
+    for t in threads:
+        t.join()
+
+    per = {}
+    for r in rows:
+        k = (r["provider"], r["model"])
+        d = per.setdefault(k, {"passed": 0, "seconds": [], "http": []})
+        d["passed"] += 1 if r["passed"] else 0
+        d["seconds"].append(r["seconds"])
+        d["http"].append(r["http"])
+
+    Path(a.out).write_text(json.dumps({
+        "language": lang["code"], "probe_count": len(lang["probes"]),
+        "paragraph_attempts": a.repeat_paragraph, "rows": rows,
+        "mechanical_score": [{"provider": k[0], "model": k[1], "passed": v["passed"],
+                              "of": len(lang["probes"]),
+                              "avg_seconds": round(sum(v["seconds"]) / len(v["seconds"]), 1),
+                              "http": v["http"]}
+                             for k, v in per.items()],
+    }, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+
+    print("\n=== MECHANICAL SCORE (probes passed) ===")
+    for k, v in sorted(per.items(), key=lambda kv: (-kv[1]["passed"], sum(kv[1]["seconds"]))):
+        print("  %d/%d  %6.1fs avg  %-12s %-46s http=%s"
+              % (v["passed"], len(lang["probes"]), sum(v["seconds"]) / len(v["seconds"]), k[0], k[1],
+                 ",".join(str(h) for h in v["http"])))
+    if skipped:
+        print("\nskipped, no key set:")
+        for name, env, signup in skipped:
+            print("  %-12s %-22s %s" % (name, env, signup))
+    print("\nwrote %s (%d rows)" % (a.out, len(rows)))
+    print("Next: judge the paragraphs with  python bench/judge.py %s" % a.out)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -8,6 +8,11 @@ on:
     - cron: '17 6 * * *'
   workflow_dispatch:
 
+# Two runs must not race each other into the same file.
+concurrency:
+  group: daily-catalog
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -15,8 +20,8 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, pinned: a tag can be moved, a SHA cannot
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0, pinned
         with:
           python-version: '3.12'
 
@@ -32,6 +37,11 @@ jobs:
       - name: Contribution data must still be sane
         run: python bench/gate_contributions.py
 
+      # The daily habit, measured. If nobody has written in the journal for two weeks, this job goes
+      # red - which is the point: a repo drifting shows up here before it shows up anywhere else.
+      - name: Improvements journal must be alive
+        run: python bench/gate_improvements.py --today "$(date -u +%F)"
+
       - name: Nothing private may ship
         run: python bench/gate_publish.py .
 
@@ -44,5 +54,7 @@ jobs:
           else
             git add data/catalog.json
             git commit -m "catalog: $(date -u +%F) automatic check"
+            # Somebody may have pushed while this job was running; rebase rather than fail.
+            git pull --rebase --autostash origin main
             git push
           fi

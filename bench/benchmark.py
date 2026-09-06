@@ -23,6 +23,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from gate_contributions import ALLOWED_HOSTS, ALLOWED_URL_PLACEHOLDERS  # single source of truth
 UA = "free-llm-benchmark/1.0 (+https://github.com/i-voryStudio)"
+MAX_BODY = 8 * 1024 * 1024   # a chat completion that big is a fault, not an answer
 
 
 # ---------------------------------------------------------------- checking
@@ -31,7 +32,9 @@ def count_any(text, chars):
     return sum(text.count(c) for c in chars) if chars else 0
 
 
-SECRET = re.compile(r"(sk-[A-Za-z0-9_\-]{6,}|gsk_[A-Za-z0-9_\-]{6,}|nvapi-[A-Za-z0-9_\-]{6,}|(?:Bearer|api[-_ ]?key|token)[\"'\s:=]+[A-Za-z0-9_\-]{12,})", re.I)
+SECRET = re.compile(r"(sk-[A-Za-z0-9_\-]{6,}|gsk_[A-Za-z0-9_\-]{6,}|nvapi-[A-Za-z0-9_\-]{6,}"
+                    r"|AIza[A-Za-z0-9_\-]{20,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}"
+                    r"|(?:Bearer|api[-_ ]?key|token)[\"'\s:=]+[A-Za-z0-9_\-]{12,})", re.I)
 # A provider's error body can echo the key back, and it always describes the calling account, not the model.
 # The trigger word is dropped along with the rest: keeping it would still publish the state of our own
 # account, and the HTTP code already carries everything a reader of the results needs to know.
@@ -144,7 +147,13 @@ def call(url, key, model, prompt, extra_body, max_tokens, timeout):
     try:
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
         with OPENER.open(req, timeout=timeout) as f:
-            data = json.load(f)
+            # A broken or hostile endpoint can stream forever. Read a bounded amount and refuse the rest:
+            # json.load(f) would happily consume the machine's memory.
+            payload = f.read(MAX_BODY + 1)
+        if len(payload) > MAX_BODY:
+            return {"http": 0, "seconds": round(time.time() - started, 1), "text": "",
+                    "error": "response larger than %d bytes, refused" % MAX_BODY}
+        data = json.loads(payload.decode("utf-8", "replace"))
         msg = (data.get("choices") or [{}])[0].get("message", {}) if isinstance(data, dict) else {}
         text = msg.get("content") or ""
         if not text and isinstance(data, dict) and isinstance(data.get("result"), dict):

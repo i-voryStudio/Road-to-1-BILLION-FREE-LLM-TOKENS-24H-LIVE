@@ -1,0 +1,10 @@
+# Every file that decides where an API key is sent, or what a score means, needs a human review.
+# GitHub asks for it automatically on any pull request touching these.
+
+/bench/gate_contributions.py   @i-voryStudio
+/bench/gate_publish.py         @i-voryStudio
+/bench/test_gate.py            @i-voryStudio
+/bench/benchmark.py            @i-voryStudio
+/bench/providers.json          @i-voryStudio
+/.github/                      @i-voryStudio
+/SECURITY.md                   @i-voryStudio

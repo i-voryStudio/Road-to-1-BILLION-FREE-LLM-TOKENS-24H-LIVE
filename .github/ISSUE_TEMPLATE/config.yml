@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security problem
+    url: https://github.com/i-voryStudio/Road-to-1-BILLION-FREE-LLM-TOKENS-24H-LIVE/security/advisories/new
+    about: Report privately. Please do not open a public issue for a credential-handling problem.
+  - name: You disagree with the jury
+    url: https://github.com/i-voryStudio/Road-to-1-BILLION-FREE-LLM-TOKENS-24H-LIVE/blob/main/CONTRIBUTING.md
+    about: Re-judge the published paragraphs with your own model and open an issue with the numbers. Half of each quality score comes from a language model judging, and we would rather that were challenged than believed.

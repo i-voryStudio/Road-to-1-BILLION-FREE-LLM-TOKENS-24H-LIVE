@@ -60,8 +60,9 @@ anybody can copy. See **[Add your language](bench/languages/README.md)**.
 ## Results
 
 Full tables: **[RESULTS.md](RESULTS.md)** · Rate limits with sources: **[LIMITS.md](LIMITS.md)** ·
-Method and its weaknesses: **[METHOD.md](METHOD.md)** · Machine-readable:
-[`data/models.json`](data/models.json), [`data/models.csv`](data/models.csv)
+Method and its weaknesses: **[METHOD.md](METHOD.md)** · What is still wrong with this repo:
+**[IMPROVEMENTS.md](IMPROVEMENTS.md)** · How your keys are handled: **[SECURITY.md](SECURITY.md)** ·
+Machine-readable: [`data/models.json`](data/models.json), [`data/models.csv`](data/models.csv)
 
 ### Top 10 by quality
 

@@ -4,49 +4,57 @@
 
 | | |
 |---|---|
-| **Requests per 24h**, across providers with a confirmed quota | **3,950** |
-| **Tokens per 24h**, confirmed | **1,200,000** |
+| **Tokens per 24h**, confirmed | **6,475,000** |
 | Endpoints answering today | **28 of 33** |
-| Providers whose daily quota nobody publishes | **6 of 10** |
+| Providers whose quota nobody publishes | **5 of 10** |
 
-Those totals are the **confirmed minimum**, not a marketing number: six of the ten providers publish no
-daily quota at all, so their capacity is real but uncounted. We would rather understate than invent.
+That total is the **confirmed minimum, and it is an undercount** — 5 of the 10 providers publish no
+quota at all, so their capacity is real and uncounted. We would rather understate than invent. It also
+moved five-fold in one afternoon when we stopped reading marketing pages and asked the providers
+directly: one of them exposes 5M tokens a day behind an endpoint nobody had thought to call.
 
 ### The five best free endpoints today
 
-| # | Model | Provider | Value | Coding | Req/day |
+| # | Model | Provider | Value | Coding | Tokens/day |
 |---|---|---|---|---|---|
-| 1 | `qwen-3.8-27b` | cerebras | **211.1** | 68.1 | 2,400 |
-| 2 | `qwen/qwen3.8-27b` | groq | **178.8** | 68.1 | 1,000 |
-| 3 | `qwen/qwen3.6-27b` | groq | **141.0** | 53.7 | 1,000 |
-| 4 | `gemma-4-31b` | cerebras | **134.5** | 43.4 | 2,400 |
-| 5 | `gpt-oss-120b` | cerebras | **94.2** | 30.4 | 2,400 |
+| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 |
+| 2 | `minimax/minimax-m2.7:free` | xkiro | **210.4** | 52.6 | 5,000,000 |
+| 3 | `qwen-3.8-27b` | cerebras | **206.2** | 68.1 | 1,000,000 |
+| 4 | `qwen/qwen3.8-27b` | groq | **155.1** | 68.1 | 200,000 |
+| 5 | `gemma-4-31b` | cerebras | **131.4** | 43.4 | 1,000,000 |
 
-**Value = quality x volume**, and that is the whole point. `gemini-3.8-flash` has the best coding score
-in the entire list — **76.3** — and does not appear above, because Google gives you **20 requests a
-day**. A weaker model you can call 2,400 times beats a brilliant one you can call twenty.
+**Value = quality x volume x how often it actually answers.** Volume is in **tokens**, not requests,
+because a request cap and a token cap are the same shelf in different units and the smaller one is your
+real ceiling. `gemini-3.8-flash` has the best coding score in the whole list — **76.3** — and is nowhere
+near the top, because Google gives you 20 requests a day.
 
-Every other list ranks these by rate limit alone. Full tables and all six filters:
-**[RESULTS.md](RESULTS.md)**.
+Full ranking of the top 30: below. **Every single endpoint we track, nothing filtered:
+[ALL-ENDPOINTS.md](ALL-ENDPOINTS.md).** All six filters: [RESULTS.md](RESULTS.md).
 
 ---
 
-## How this list is built, and why you can check every number
+## The full ranking, top 30
 
-**We read every free-LLM list on GitHub before writing ours** — all eight of them, plus the
-[OmniRoute](https://github.com/diegosouzapw/OmniRoute) catalogue of 351 providers, every provider's own
-rate-limit and terms pages, and two benchmark suites we evaluated and rejected. What we took from each,
-and what we deliberately refused to take, is written down: **[SOURCES.md](SOURCES.md)**.
+<!--RANKING-->
+| # | Model | Provider | Value | Auth | Coding | Req/day | Note |
+|---|---|---|---|---|---|---|---|
+| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | key | 58.6 | 5,000,000 | answers 100% of the time |
+| 2 | `minimax/minimax-m2.7:free` | xkiro | **210.4** | key | 52.6 | 5,000,000 | answers 100% of the time |
+| 3 | `qwen-3.8-27b` | cerebras | **206.2** | key | 68.1 | 1,000,000 | **answers blank unless you turn thinking off** |
+| 4 | `qwen/qwen3.8-27b` | groq | **155.1** | key | 68.1 | 200,000 | answers 88% of the time |
+| 5 | `gemma-4-31b` | cerebras | **131.4** | key | 43.4 | 1,000,000 | answers 92% of the time |
+| 6 | `qwen/qwen3.6-27b` | groq | **122.3** | key | 53.7 | 200,000 | answers 88% of the time |
+| 7 | `gpt-oss-120b` | cerebras | **92.0** | key | 30.4 | 1,000,000 | answers 92% of the time |
+| 8 | `minimax/minimax-m3:free` | openrouter | **91.8** | key | 58.6 | 25,000 | answers 92% of the time |
+| 9 | `gemini-3.5-flash-lite` | google | **88.8** | key | 49.3 | 250,000 | **trains on your prompts** |
+| 10 | `minimax/minimax-m2.7:free` | openrouter | **82.4** | key | 52.6 | 25,000 | answers 92% of the time |
+| 11 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **77.2** | key | 49.3 | 25,000 | answers 92% of the time |
+| 12 | `openai/gpt-oss-120b` | groq | **69.2** | key | 30.4 | 200,000 | answers 88% of the time |
+| 13 | `gemini-3.8-flash` | google | **67.3** | key | 76.3 | 10,000 | **trains on your prompts** |
+| 14 | `openai/gpt-oss-20b` | groq | **47.1** | key | 20.7 | 200,000 | answers 88% of the time |
+<!--/RANKING-->
 
-**A research loop runs continuously — on these same free APIs — looking for new ones.** Free endpoints
-appear weekly and die in months, usually with no announcement. The catalogue we cross-check against lost
-six providers between March and August 2026. A list nobody re-reads becomes fiction; this one is
-re-measured every day, and what dies gets a date and a headstone in
-**[GRAVEYARD.md](GRAVEYARD.md)** rather than quietly disappearing.
-
-**Quality is imported, never run by us.** Scores come from official benchmarks (Artificial Analysis,
-Design Arena). We measure only what nobody else can tell you: the real quota, whether it answers today,
-whether it needs a key, and what the free tier costs you in things that are not money.
+Every endpoint we track, ranked or not, scored or not: **[ALL-ENDPOINTS.md](ALL-ENDPOINTS.md)**.
 
 ---
 

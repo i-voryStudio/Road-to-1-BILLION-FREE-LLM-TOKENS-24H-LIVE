@@ -44,6 +44,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 NOAUTH_BONUS = 1.25
+# A request budget and a token budget are the same shelf measured in different units, and whichever
+# runs out first is your real ceiling. To compare them we need one number for the size of a reply.
+# 500 output tokens is roughly a substantial paragraph, and it is DECLARED here rather than buried:
+# change it and every volume figure moves, which is exactly why it should be visible.
+TOKENS_PER_REPLY = 500
 
 
 def load(path, what):
@@ -54,13 +59,25 @@ def load(path, what):
     return json.loads(p.read_text(encoding="utf-8"))
 
 
+def daily_tokens(rpd, tpd):
+    """The volume you can actually draw in a day, in tokens, from whichever limit binds first.
+
+    A provider offering 2,400 requests but 1,000,000 tokens gives you the smaller of the two once a
+    request is worth TOKENS_PER_REPLY. Ranking on requests alone hid the largest free allowance in this
+    whole list: xkiro publishes 5M tokens a day and no request cap at all, so it did not appear.
+    """
+    from_requests = rpd * TOKENS_PER_REPLY if rpd else None
+    candidates = [x for x in (tpd, from_requests) if x]
+    return min(candidates) if candidates else None
+
+
 def volume_of(provider, model, limits):
-    """(requests_per_day, confidence, evidence). UNKNOWN stays UNKNOWN."""
+    """(requests_per_day, tokens_per_day, confidence, evidence). UNKNOWN stays UNKNOWN."""
     p = (limits.get("providers") or {}).get(provider)
     if not p:
-        return None, "UNKNOWN", "Provider not in limits.json."
+        return None, None, "UNKNOWN", "Provider not in limits.json."
     entry = (p.get("models") or {}).get(model) or p.get("all_models") or {}
-    rpd = entry.get("rpd")
+    rpd, tpd = entry.get("rpd"), entry.get("tpd")
     conf = entry.get("rpd_confidence") or p.get("confidence", "UNKNOWN")
     bits = [p.get("caveat", "")]
     if rpd is None and p.get("free_models_combined"):
@@ -74,7 +91,7 @@ def volume_of(provider, model, limits):
         conf = "PAID-PLAN"
         bits.append("This figure is the provider's %s plan, not its free tier."
                     % (p.get("rpd_plan") or "paid"))
-    if rpd is None:
+    if rpd is None and tpd is None:
         conf = "UNKNOWN"
     if entry.get("note"):
         bits.append(entry["note"])
@@ -84,7 +101,7 @@ def volume_of(provider, model, limits):
         bits.append("Applies per %s." % p["scope"].upper())
     if p.get("volatile"):
         bits.append("VOLATILE: this figure moved under us at least once.")
-    return rpd, conf, " ".join(b for b in bits if b).strip()
+    return rpd, tpd, conf, " ".join(b for b in bits if b).strip()
 
 
 def main():
@@ -126,7 +143,8 @@ def main():
             aa = sc.get("artificial_analysis", {})
             da = sc.get("design_arena", {})
             coding = aa.get("coding_index")
-            rpd, conf, evidence = volume_of(p["name"], m["id"], limits)
+            rpd, tpd, conf, evidence = volume_of(p["name"], m["id"], limits)
+            volume = daily_tokens(rpd, tpd)
 
             row = {
                 "provider": p["name"], "model": m["id"],
@@ -137,6 +155,8 @@ def main():
                 "arena_elo": (da.get("codecategories") or {}).get("elo"),
                 "scored_as": sc.get("matched_as"),
                 "requests_per_day": rpd,
+                "tokens_per_day": tpd,
+                "daily_tokens": volume,
                 "volume_confidence": conf,
                 "volume_evidence": evidence,
                 "trains_on_free_tier": priv.get("trains_on_free_tier", "UNKNOWN"),
@@ -150,10 +170,10 @@ def main():
                 "measured_at": a.date,
             }
             # Rankable only with BOTH halves. Half a fact is not a rank.
-            if coding is not None and rpd:
+            if coding is not None and volume:
                 bonus = NOAUTH_BONUS if not needs_key else 1.0
                 reliability = answered.get(p["name"], 1.0)   # untested means unpenalised
-                row["value"] = round(coding * math.log10(1 + rpd) * bonus * reliability, 1)
+                row["value"] = round(coding * math.log10(1 + volume / TOKENS_PER_REPLY) * bonus * reliability, 1)
                 row["noauth_bonus_applied"] = bonus != 1.0
                 row["reliability_applied"] = reliability
                 rows.append(row)
@@ -161,7 +181,7 @@ def main():
                 row["value"] = None
                 row["why_unranked"] = ("no official benchmark score published for this model"
                                        if coding is None else
-                                       "daily quota unknown - see LIMITS.md")
+                                       "daily volume unknown - see LIMITS.md")
                 unranked.append(row)
 
     rows.sort(key=lambda r: -r["value"])
@@ -189,6 +209,9 @@ def main():
     def cell(v, dash="?"):
         return dash if v is None else v
 
+    def num(v, dash="?"):
+        return dash if v is None else "{:,}".format(v)
+
     def privacy_flag(r):
         if r["trains_on_free_tier"] == "yes":
             return "**trains on your prompts**"
@@ -207,13 +230,13 @@ def main():
          "A brilliant model you may call 20 times a day loses to a decent one you may call 2,400 times, "
          "which is the whole point of ranking this way." % NOAUTH_BONUS,
          "", "## 1. By value: quality x volume", "",
-         "| # | Model | Provider | Value | Auth | Coding | Req/day | Evidence | Privacy |",
+         "| # | Model | Provider | Value | Auth | Coding | Tokens/day | Evidence | Privacy |",
          "|---|---|---|---|---|---|---|---|---|"]
     for i, r in enumerate(rows, 1):
         L.append("| %d | `%s` | %s | **%s** | %s | %s | %s | %s | %s |"
                  % (i, r["model"], r["provider"], r["value"],
                     "**no key**" if r["auth"] == "NO KEY" else "key",
-                    cell(r["coding_index"]), "{:,}".format(r["requests_per_day"]),
+                    cell(r["coding_index"]), num(r["daily_tokens"]),
                     r["volume_confidence"], privacy_flag(r)))
 
     L += ["", "## 2. By quality alone (official benchmark scores)", "",
@@ -225,11 +248,16 @@ def main():
                  % (r["model"], r["provider"], r["coding_index"], cell(r["intelligence_index"]),
                     cell(r["agentic_index"]), cell(r["arena_elo"]), r["scored_as"]))
 
-    L += ["", "## 3. By volume: what you get to burn", "",
-          "| Model | Provider | Req/day | Evidence | Value |", "|---|---|---|---|---|"]
-    for r in sorted([x for x in rows if x["requests_per_day"]], key=lambda x: -x["requests_per_day"]):
-        L.append("| `%s` | %s | **{:,}** | %s | %s |".format(r["requests_per_day"])
-                 % (r["model"], r["provider"], r["volume_confidence"], r["value"]))
+    L += ["", "## 3. By volume: what you get to burn in a day", "",
+          "Tokens, not requests: whichever of the two limits binds first, converted at "
+          "%d output tokens per reply. A request cap and a token cap are the same shelf in different "
+          "units, and the smaller one is your real ceiling." % TOKENS_PER_REPLY, "",
+          "| Model | Provider | Tokens/day | Req/day | Evidence | Value |",
+          "|---|---|---|---|---|---|"]
+    for r in sorted([x for x in rows if x["daily_tokens"]], key=lambda x: -x["daily_tokens"]):
+        L.append("| `%s` | %s | **%s** | %s | %s | %s |"
+                 % (r["model"], r["provider"], num(r["daily_tokens"]), num(r["requests_per_day"]),
+                    r["volume_confidence"], r["value"]))
 
     noauth = [r for r in rows + unranked if r["auth"] == "NO KEY"]
     L += ["", "## 4. Needs no key at all", ""]
@@ -307,27 +335,70 @@ def main():
             head = ("| # | Model | Provider | Value | Auth | Coding | Req/day | Note |\n"
                     "|---|---|---|---|---|---|---|---|\n")
             body = ""
-            for i, r in enumerate(rows[:10], 1):
+            for i, r in enumerate(rows[:30], 1):
                 note = ("**trains on your prompts**" if r["trains_on_free_tier"] == "yes"
-                        else "returns empty 200s" if r["returned_empty_200"]
-                        else "%.0f%% answered" % (100 * r["answered_rate"]) if r.get("answered_rate")
-                        else r["volume_confidence"])
+                        else "**answers blank unless you turn thinking off**" if r["returned_empty_200"]
+                        else "answers %.0f%% of the time" % (100 * r["answered_rate"])
+                        if r.get("answered_rate") else r["volume_confidence"])
                 body += "| %d | `%s` | %s | **%s** | %s | %s | %s | %s |\n" % (
                     i, r["model"], r["provider"], r["value"],
                     "**no key**" if r["auth"] == "NO KEY" else "key",
-                    r["coding_index"], "{:,}".format(r["requests_per_day"]), note)
+                    r["coding_index"], num(r["daily_tokens"]), note)
             block = "<!--RANKING-->" + chr(10) + head + body + "<!--/RANKING-->"
             text = re.sub(r"<!--RANKING-->.*?<!--/RANKING-->", lambda _: block, text, flags=re.S)
             readme.write_text(text, encoding="utf-8", newline=chr(10))
             print("regenerated the README table between its markers")
+    # One file with EVERY endpoint, ranked or not, scored or not. The main tables filter; this one
+    # never does, so there is always a place where nothing has been left out.
+    A = ["# Every endpoint we track", "",
+         "All %d of them, ranked or not, scored or not, alive or not. The tables in "
+         "[RESULTS.md](RESULTS.md) filter and sort; this one never does." % (len(rows) + len(unranked)),
+         "", "Measured **%s**. `?` means we do not know, and we would rather write that than guess."
+         % a.date, "",
+         "| Model | Provider | Value | Auth | Coding | Intelligence | Agentic | Arena | Tokens/day | "
+         "Req/day | Evidence | Answers | Trains on prompts | Note |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    for r in rows + unranked:
+        note = []
+        if r.get("returned_empty_200"):
+            note.append("answers blank unless thinking is off")
+        if r.get("thinking_switch"):
+            note.append("we send `%s`" % json.dumps(r["thinking_switch"]))
+        if r.get("why_unranked"):
+            note.append(r["why_unranked"])
+        if r.get("region_restriction") not in (None, "UNKNOWN"):
+            note.append(r["region_restriction"])
+        A.append("| `%s` | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+                 % (r["model"], r["provider"],
+                    r["value"] if r["value"] is not None else "not ranked",
+                    "no key" if r["auth"] == "NO KEY" else "key",
+                    cell(r["coding_index"]), cell(r["intelligence_index"]), cell(r["agentic_index"]),
+                    cell(r["arena_elo"]), num(r["daily_tokens"]), num(r["requests_per_day"]),
+                    r["volume_confidence"],
+                    "%.0f%%" % (100 * r["answered_rate"]) if r.get("answered_rate") else "?",
+                    r["trains_on_free_tier"],
+                    "; ".join(note) or ""))
+    A += ["", "## What the columns mean", "",
+          "- **Value** — `coding_index x log10(1 + requests/day)`, times %s if no key is needed, times "
+          "how often the provider actually answered us. Blank where we lack a score or a quota: a row "
+          "needs both halves, and half a fact is not a rank." % NOAUTH_BONUS,
+          "- **Coding / Intelligence / Agentic / Arena** — imported from official benchmarks, never run "
+          "by us. `?` means that model has no published score.",
+          "- **Evidence** — how we know the quota: MEASURED by us, DECLARED by the provider, PAID-PLAN "
+          "when the only published figure belongs to a paid tier, UNKNOWN when nobody publishes it.",
+          "- **Answers** — share of the probe's calls that came back with something in them.",
+          "- **Trains on prompts** — from the provider's own terms. `UNKNOWN` means nobody has read "
+          "them yet, and that is the honest default.", ""]
+    (out / "ALL-ENDPOINTS.md").write_text(chr(10).join(A) + chr(10), encoding="utf-8",
+                                          newline=chr(10))
     print("ranked %d endpoints, %d unranked" % (len(rows), len(unranked)))
     if rows:
         print("  top: %s @ %s  value=%s (coding %s, %s/day%s)"
               % (rows[0]["model"], rows[0]["provider"], rows[0]["value"], rows[0]["coding_index"],
-                 "{:,}".format(rows[0]["requests_per_day"]),
+                 num(rows[0]["daily_tokens"]),
                  ", no key" if rows[0]["auth"] == "NO KEY" else ""))
     print("  no-key endpoints: %d" % len(noauth))
-    print("wrote RESULTS.md, data/ranking.json, data/ranking.csv")
+    print("wrote RESULTS.md, ALL-ENDPOINTS.md, data/ranking.json, data/ranking.csv")
     return 0
 
 

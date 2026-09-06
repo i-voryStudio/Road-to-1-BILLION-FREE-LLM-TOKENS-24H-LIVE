@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-09-06",
+ "measured_at": "2026-09-07",
  "ranking_formula": "coding_index * log10(1 + requests_per_day) * 1.25 if no key is needed",
  "quality_source": "https://openrouter.ai/api/v1/models",
  "quality_fetched_on": "2026-09-06",
@@ -12,6 +12,60 @@
  ],
  "ranked": [
   {
+   "provider": "xkiro",
+   "model": "minimax/minimax-m3:free",
+   "auth": "KEY",
+   "coding_index": 58.6,
+   "intelligence_index": 35.7,
+   "agentic_index": 31,
+   "arena_elo": 1267,
+   "scored_as": "minimax/minimax-m3:batch",
+   "requests_per_day": null,
+   "tokens_per_day": 5000000,
+   "daily_tokens": 5000000,
+   "volume_confidence": "MEASURED",
+   "volume_evidence": "The largest confirmed free token allowance in this list by a wide margin, and it took one GET to find - it was sitting behind an endpoint nobody had asked. Requests per day are NOT published; the ceiling here is tokens. Binding limit: Tokens, not requests. 5M/day is roughly 3,500 pages of output, so on this provider you will hit model quality or latency long before you hit the quota. Applies per ACCOUNT.",
+   "trains_on_free_tier": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "privacy_source": null,
+   "answered_rate": 1.0,
+   "reliability_note": "answers reliably",
+   "returned_empty_200": false,
+   "thinking_switch": null,
+   "measured_at": "2026-09-07",
+   "value": 234.4,
+   "noauth_bonus_applied": false,
+   "reliability_applied": 1.0
+  },
+  {
+   "provider": "xkiro",
+   "model": "minimax/minimax-m2.7:free",
+   "auth": "KEY",
+   "coding_index": 52.6,
+   "intelligence_index": null,
+   "agentic_index": null,
+   "arena_elo": 1251,
+   "scored_as": "minimax/minimax-m2.7:free",
+   "requests_per_day": null,
+   "tokens_per_day": 5000000,
+   "daily_tokens": 5000000,
+   "volume_confidence": "MEASURED",
+   "volume_evidence": "The largest confirmed free token allowance in this list by a wide margin, and it took one GET to find - it was sitting behind an endpoint nobody had asked. Requests per day are NOT published; the ceiling here is tokens. Binding limit: Tokens, not requests. 5M/day is roughly 3,500 pages of output, so on this provider you will hit model quality or latency long before you hit the quota. Applies per ACCOUNT.",
+   "trains_on_free_tier": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "privacy_source": null,
+   "answered_rate": 1.0,
+   "reliability_note": "answers reliably",
+   "returned_empty_200": false,
+   "thinking_switch": null,
+   "measured_at": "2026-09-07",
+   "value": 210.4,
+   "noauth_bonus_applied": false,
+   "reliability_applied": 1.0
+  },
+  {
    "provider": "cerebras",
    "model": "qwen-3.8-27b",
    "auth": "KEY",
@@ -21,8 +75,10 @@
    "arena_elo": null,
    "scored_as": "qwen/qwen3.8-27b",
    "requests_per_day": 2400,
+   "tokens_per_day": 1000000,
+   "daily_tokens": 1000000,
    "volume_confidence": "MEASURED",
-   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
    "human_review": "UNKNOWN",
    "region_restriction": "UNKNOWN",
@@ -31,8 +87,8 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": true,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
-   "value": 211.1,
+   "measured_at": "2026-09-07",
+   "value": 206.2,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.917
   },
@@ -46,6 +102,8 @@
    "arena_elo": null,
    "scored_as": "qwen/qwen3.8-27b",
    "requests_per_day": 1000,
+   "tokens_per_day": 200000,
+   "daily_tokens": 200000,
    "volume_confidence": "PAID-PLAN",
    "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. This figure is the provider's Developer plan, not its free tier. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Applies per ORGANIZATION.",
    "trains_on_free_tier": "UNKNOWN",
@@ -56,33 +114,8 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
-   "value": 178.8,
-   "noauth_bonus_applied": false,
-   "reliability_applied": 0.875
-  },
-  {
-   "provider": "groq",
-   "model": "qwen/qwen3.6-27b",
-   "auth": "KEY",
-   "coding_index": 53.7,
-   "intelligence_index": null,
-   "agentic_index": 20.1,
-   "arena_elo": null,
-   "scored_as": "qwen/qwen3.6-27b",
-   "requests_per_day": 1000,
-   "volume_confidence": "PAID-PLAN",
-   "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. This figure is the provider's Developer plan, not its free tier. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Applies per ORGANIZATION.",
-   "trains_on_free_tier": "UNKNOWN",
-   "human_review": "UNKNOWN",
-   "region_restriction": "UNKNOWN",
-   "privacy_source": null,
-   "answered_rate": 0.875,
-   "reliability_note": "occasionally refuses or returns nothing",
-   "returned_empty_200": false,
-   "thinking_switch": null,
-   "measured_at": "2026-09-06",
-   "value": 141.0,
+   "measured_at": "2026-09-07",
+   "value": 155.1,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.875
   },
@@ -96,8 +129,10 @@
    "arena_elo": null,
    "scored_as": "google/gemma-4-31b-it:batch",
    "requests_per_day": 2400,
+   "tokens_per_day": 1000000,
+   "daily_tokens": 1000000,
    "volume_confidence": "MEASURED",
-   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
    "human_review": "UNKNOWN",
    "region_restriction": "UNKNOWN",
@@ -106,10 +141,37 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
-   "value": 134.5,
+   "measured_at": "2026-09-07",
+   "value": 131.4,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.917
+  },
+  {
+   "provider": "groq",
+   "model": "qwen/qwen3.6-27b",
+   "auth": "KEY",
+   "coding_index": 53.7,
+   "intelligence_index": null,
+   "agentic_index": 20.1,
+   "arena_elo": null,
+   "scored_as": "qwen/qwen3.6-27b",
+   "requests_per_day": 1000,
+   "tokens_per_day": 200000,
+   "daily_tokens": 200000,
+   "volume_confidence": "PAID-PLAN",
+   "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. This figure is the provider's Developer plan, not its free tier. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Applies per ORGANIZATION.",
+   "trains_on_free_tier": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "privacy_source": null,
+   "answered_rate": 0.875,
+   "reliability_note": "occasionally refuses or returns nothing",
+   "returned_empty_200": false,
+   "thinking_switch": null,
+   "measured_at": "2026-09-07",
+   "value": 122.3,
+   "noauth_bonus_applied": false,
+   "reliability_applied": 0.875
   },
   {
    "provider": "cerebras",
@@ -121,8 +183,10 @@
    "arena_elo": 980,
    "scored_as": "openai/gpt-oss-120b:batch",
    "requests_per_day": 2400,
+   "tokens_per_day": 1000000,
+   "daily_tokens": 1000000,
    "volume_confidence": "MEASURED",
-   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
    "human_review": "UNKNOWN",
    "region_restriction": "UNKNOWN",
@@ -133,8 +197,8 @@
    "thinking_switch": {
     "reasoning_effort": "low"
    },
-   "measured_at": "2026-09-06",
-   "value": 94.2,
+   "measured_at": "2026-09-07",
+   "value": 92.0,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.917
   },
@@ -148,6 +212,8 @@
    "arena_elo": 1267,
    "scored_as": "minimax/minimax-m3:batch",
    "requests_per_day": 50,
+   "tokens_per_day": null,
+   "daily_tokens": 25000,
    "volume_confidence": "DECLARED",
    "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. What a NEW account gets; rises to 1000/day under the conditions in LIMITS.md, and is shared across all free models. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -158,7 +224,7 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": 91.8,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.917
@@ -173,6 +239,8 @@
    "arena_elo": null,
    "scored_as": "google/gemini-3.5-flash-lite:batch",
    "requests_per_day": 500,
+   "tokens_per_day": null,
+   "daily_tokens": 250000,
    "volume_confidence": "DECLARED",
    "volume_evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. Binding limit: Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload. Applies per PROJECT.",
    "trains_on_free_tier": "yes",
@@ -183,7 +251,7 @@
    "reliability_note": "unreliable in our measurements - see the counts",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": 88.8,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.667
@@ -198,6 +266,8 @@
    "arena_elo": 1251,
    "scored_as": "minimax/minimax-m2.7:free",
    "requests_per_day": 50,
+   "tokens_per_day": null,
+   "daily_tokens": 25000,
    "volume_confidence": "DECLARED",
    "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. What a NEW account gets; rises to 1000/day under the conditions in LIMITS.md, and is shared across all free models. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -208,37 +278,10 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": 82.4,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.917
-  },
-  {
-   "provider": "groq",
-   "model": "openai/gpt-oss-120b",
-   "auth": "KEY",
-   "coding_index": 30.4,
-   "intelligence_index": 15.6,
-   "agentic_index": 6.3,
-   "arena_elo": 980,
-   "scored_as": "openai/gpt-oss-120b:batch",
-   "requests_per_day": 1000,
-   "volume_confidence": "PAID-PLAN",
-   "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. This figure is the provider's Developer plan, not its free tier. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Applies per ORGANIZATION.",
-   "trains_on_free_tier": "UNKNOWN",
-   "human_review": "UNKNOWN",
-   "region_restriction": "UNKNOWN",
-   "privacy_source": null,
-   "answered_rate": 0.875,
-   "reliability_note": "occasionally refuses or returns nothing",
-   "returned_empty_200": false,
-   "thinking_switch": {
-    "reasoning_effort": "low"
-   },
-   "measured_at": "2026-09-06",
-   "value": 79.8,
-   "noauth_bonus_applied": false,
-   "reliability_applied": 0.875
   },
   {
    "provider": "openrouter",
@@ -250,6 +293,8 @@
    "arena_elo": 1153,
    "scored_as": "nvidia/nemotron-3-ultra-550b-a55b:free",
    "requests_per_day": 50,
+   "tokens_per_day": null,
+   "daily_tokens": 25000,
    "volume_confidence": "DECLARED",
    "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. What a NEW account gets; rises to 1000/day under the conditions in LIMITS.md, and is shared across all free models. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -264,10 +309,39 @@
      "enable_thinking": false
     }
    },
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": 77.2,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.917
+  },
+  {
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "auth": "KEY",
+   "coding_index": 30.4,
+   "intelligence_index": 15.6,
+   "agentic_index": 6.3,
+   "arena_elo": 980,
+   "scored_as": "openai/gpt-oss-120b:batch",
+   "requests_per_day": 1000,
+   "tokens_per_day": 200000,
+   "daily_tokens": 200000,
+   "volume_confidence": "PAID-PLAN",
+   "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. This figure is the provider's Developer plan, not its free tier. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Applies per ORGANIZATION.",
+   "trains_on_free_tier": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "privacy_source": null,
+   "answered_rate": 0.875,
+   "reliability_note": "occasionally refuses or returns nothing",
+   "returned_empty_200": false,
+   "thinking_switch": {
+    "reasoning_effort": "low"
+   },
+   "measured_at": "2026-09-07",
+   "value": 69.2,
+   "noauth_bonus_applied": false,
+   "reliability_applied": 0.875
   },
   {
    "provider": "google",
@@ -279,6 +353,8 @@
    "arena_elo": 1320,
    "scored_as": "google/gemini-3.8-flash:batch",
    "requests_per_day": 20,
+   "tokens_per_day": null,
+   "daily_tokens": 10000,
    "volume_confidence": "DECLARED",
    "volume_evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. The 20/day figure was read for 3.7 Flash on the same screen and is assumed to carry over to 3.8. Not separately confirmed. The 5/min WAS measured: our sixth call inside six seconds returned 429 with 'limit: 5'. Binding limit: Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload. Applies per PROJECT.",
    "trains_on_free_tier": "yes",
@@ -289,7 +365,7 @@
    "reliability_note": "unreliable in our measurements - see the counts",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": 67.3,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.667
@@ -304,6 +380,8 @@
    "arena_elo": null,
    "scored_as": "openai/gpt-oss-20b:batch",
    "requests_per_day": 1000,
+   "tokens_per_day": 200000,
+   "daily_tokens": 200000,
    "volume_confidence": "PAID-PLAN",
    "volume_evidence": "The published table is labelled as the BASE LIMITS OF THE DEVELOPER PLAN, not the free tier. Quote: 'the limits shown below are the base limits for the Developer plan'. Free-tier values are not published; check your own console at /settings/limits. Every list that reprints 1,000 requests/day as a free-tier figure is reprinting a paid plan's number. This figure is the provider's Developer plan, not its free tier. Binding limit: TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt. Applies per ORGANIZATION.",
    "trains_on_free_tier": "UNKNOWN",
@@ -316,8 +394,8 @@
    "thinking_switch": {
     "reasoning_effort": "low"
    },
-   "measured_at": "2026-09-06",
-   "value": 54.3,
+   "measured_at": "2026-09-07",
+   "value": 47.1,
    "noauth_bonus_applied": false,
    "reliability_applied": 0.875
   }
@@ -333,6 +411,8 @@
    "arena_elo": 980,
    "scored_as": "openai/gpt-oss-120b:batch",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -343,9 +423,9 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "cloudflare",
@@ -357,6 +437,8 @@
    "arena_elo": null,
    "scored_as": "google/gemma-4-26b-a4b-it:free",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -367,9 +449,9 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": true,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "cloudflare",
@@ -381,6 +463,8 @@
    "arena_elo": null,
    "scored_as": "qwen/qwen3.8-27b",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -391,9 +475,9 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": true,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "google",
@@ -405,6 +489,8 @@
    "arena_elo": null,
    "scored_as": "google/gemma-4-31b-it:batch",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. Not published on the screen we read, and not measured. Binding limit: Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload. Applies per PROJECT.",
    "trains_on_free_tier": "yes",
@@ -415,9 +501,9 @@
    "reliability_note": "unreliable in our measurements - see the counts",
    "returned_empty_200": true,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "nvidia",
@@ -429,6 +515,8 @@
    "arena_elo": null,
    "scored_as": "nvidia/nemotron-3-super-120b-a12b:free",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "We carried a figure of 40 requests per minute per key in our own notes, but we could not find it on a public NVIDIA page when we went looking, so it is NOT published here as a rate limit. Unknown, not 40. What we do have is our own concurrency measurement below, which is worth more anyway: it says how many calls the model takes in parallel, which no rate-limit table tells you. If you find the published figure, the source URL is a one-line pull request. Applies per KEY.",
    "trains_on_free_tier": "UNKNOWN",
@@ -443,9 +531,9 @@
      "enable_thinking": false
     }
    },
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "nvidia",
@@ -457,6 +545,8 @@
    "arena_elo": 1153,
    "scored_as": "nvidia/nemotron-3-ultra-550b-a55b:free",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "We carried a figure of 40 requests per minute per key in our own notes, but we could not find it on a public NVIDIA page when we went looking, so it is NOT published here as a rate limit. Unknown, not 40. What we do have is our own concurrency measurement below, which is worth more anyway: it says how many calls the model takes in parallel, which no rate-limit table tells you. If you find the published figure, the source URL is a one-line pull request. Applies per KEY.",
    "trains_on_free_tier": "UNKNOWN",
@@ -471,9 +561,9 @@
      "enable_thinking": false
     }
    },
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "nvidia",
@@ -485,6 +575,8 @@
    "arena_elo": null,
    "scored_as": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "We carried a figure of 40 requests per minute per key in our own notes, but we could not find it on a public NVIDIA page when we went looking, so it is NOT published here as a rate limit. Unknown, not 40. What we do have is our own concurrency measurement below, which is worth more anyway: it says how many calls the model takes in parallel, which no rate-limit table tells you. If you find the published figure, the source URL is a one-line pull request. Applies per KEY.",
    "trains_on_free_tier": "UNKNOWN",
@@ -495,9 +587,9 @@
    "reliability_note": "unreliable in our measurements - see the counts",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "nvidia",
@@ -509,6 +601,8 @@
    "arena_elo": 1392,
    "scored_as": "moonshotai/kimi-k3:batch",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "We carried a figure of 40 requests per minute per key in our own notes, but we could not find it on a public NVIDIA page when we went looking, so it is NOT published here as a rate limit. Unknown, not 40. What we do have is our own concurrency measurement below, which is worth more anyway: it says how many calls the model takes in parallel, which no rate-limit table tells you. If you find the published figure, the source URL is a one-line pull request. Applies per KEY.",
    "trains_on_free_tier": "UNKNOWN",
@@ -519,9 +613,9 @@
    "reliability_note": "unreliable in our measurements - see the counts",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "ollama",
@@ -533,6 +627,8 @@
    "arena_elo": null,
    "scored_as": "google/gemma-4-31b-it:batch",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -543,9 +639,9 @@
    "reliability_note": "answers reliably",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "ollama",
@@ -557,6 +653,8 @@
    "arena_elo": 980,
    "scored_as": "openai/gpt-oss-120b:batch",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -569,9 +667,9 @@
    "thinking_switch": {
     "reasoning_effort": "low"
    },
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "ollama",
@@ -583,6 +681,8 @@
    "arena_elo": null,
    "scored_as": "openai/gpt-oss-20b:batch",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -595,57 +695,9 @@
    "thinking_switch": {
     "reasoning_effort": "low"
    },
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
-  },
-  {
-   "provider": "xkiro",
-   "model": "minimax/minimax-m2.7:free",
-   "auth": "KEY",
-   "coding_index": 52.6,
-   "intelligence_index": null,
-   "agentic_index": null,
-   "arena_elo": 1251,
-   "scored_as": "minimax/minimax-m2.7:free",
-   "requests_per_day": null,
-   "volume_confidence": "UNKNOWN",
-   "volume_evidence": "No rate-limit headers returned and no published quota. Applies per ACCOUNT.",
-   "trains_on_free_tier": "UNKNOWN",
-   "human_review": "UNKNOWN",
-   "region_restriction": "UNKNOWN",
-   "privacy_source": null,
-   "answered_rate": 1.0,
-   "reliability_note": "answers reliably",
-   "returned_empty_200": false,
-   "thinking_switch": null,
-   "measured_at": "2026-09-06",
-   "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
-  },
-  {
-   "provider": "xkiro",
-   "model": "minimax/minimax-m3:free",
-   "auth": "KEY",
-   "coding_index": 58.6,
-   "intelligence_index": 35.7,
-   "agentic_index": 31,
-   "arena_elo": 1267,
-   "scored_as": "minimax/minimax-m3:batch",
-   "requests_per_day": null,
-   "volume_confidence": "UNKNOWN",
-   "volume_evidence": "No rate-limit headers returned and no published quota. Applies per ACCOUNT.",
-   "trains_on_free_tier": "UNKNOWN",
-   "human_review": "UNKNOWN",
-   "region_restriction": "UNKNOWN",
-   "privacy_source": null,
-   "answered_rate": 1.0,
-   "reliability_note": "answers reliably",
-   "returned_empty_200": false,
-   "thinking_switch": null,
-   "measured_at": "2026-09-06",
-   "value": null,
-   "why_unranked": "daily quota unknown - see LIMITS.md"
+   "why_unranked": "daily volume unknown - see LIMITS.md"
   },
   {
    "provider": "alibaba",
@@ -657,6 +709,8 @@
    "arena_elo": null,
    "scored_as": null,
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -669,7 +723,7 @@
    "thinking_switch": {
     "enable_thinking": false
    },
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
    "why_unranked": "no official benchmark score published for this model"
   },
@@ -683,6 +737,8 @@
    "arena_elo": null,
    "scored_as": null,
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -695,7 +751,7 @@
    "thinking_switch": {
     "enable_thinking": false
    },
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
    "why_unranked": "no official benchmark score published for this model"
   },
@@ -709,6 +765,8 @@
    "arena_elo": null,
    "scored_as": null,
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -721,7 +779,7 @@
    "thinking_switch": {
     "enable_thinking": false
    },
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
    "why_unranked": "no official benchmark score published for this model"
   },
@@ -735,6 +793,8 @@
    "arena_elo": null,
    "scored_as": null,
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -747,7 +807,7 @@
    "thinking_switch": {
     "enable_thinking": false
    },
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
    "why_unranked": "no official benchmark score published for this model"
   },
@@ -761,6 +821,8 @@
    "arena_elo": null,
    "scored_as": null,
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -771,7 +833,7 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
    "why_unranked": "no official benchmark score published for this model"
   },
@@ -785,6 +847,8 @@
    "arena_elo": null,
    "scored_as": null,
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -795,7 +859,7 @@
    "reliability_note": "occasionally refuses or returns nothing",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
    "why_unranked": "no official benchmark score published for this model"
   },
@@ -809,6 +873,8 @@
    "arena_elo": null,
    "scored_as": null,
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "We carried a figure of 40 requests per minute per key in our own notes, but we could not find it on a public NVIDIA page when we went looking, so it is NOT published here as a rate limit. Unknown, not 40. What we do have is our own concurrency measurement below, which is worth more anyway: it says how many calls the model takes in parallel, which no rate-limit table tells you. If you find the published figure, the source URL is a one-line pull request. Applies per KEY.",
    "trains_on_free_tier": "UNKNOWN",
@@ -819,7 +885,7 @@
    "reliability_note": "unreliable in our measurements - see the counts",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
    "why_unranked": "no official benchmark score published for this model"
   },
@@ -833,6 +899,8 @@
    "arena_elo": null,
    "scored_as": "qwen/qwen3-coder-30b-a3b-instruct",
    "requests_per_day": null,
+   "tokens_per_day": null,
+   "daily_tokens": null,
    "volume_confidence": "UNKNOWN",
    "volume_evidence": "NOT TESTED, and this is about the caller, not about them: the key was answered with 402, so every call returned 402. That says nothing about the provider's free tier and SiliconFlow is therefore excluded from the quality ranking rather than scored zero. Applies per ACCOUNT.",
    "trains_on_free_tier": "UNKNOWN",
@@ -843,7 +911,7 @@
    "reliability_note": "unreliable in our measurements - see the counts",
    "returned_empty_200": false,
    "thinking_switch": null,
-   "measured_at": "2026-09-06",
+   "measured_at": "2026-09-07",
    "value": null,
    "why_unranked": "no official benchmark score published for this model"
   }

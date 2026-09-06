@@ -61,17 +61,17 @@
    },
    "binding_limit": "TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt.",
    "measured": {
-    "note": "413 Request too large on a long prompt",
-    "measured_on": "2026-09-02"
+    "note": "Re-read from their headers on 2026-09-07 on the key: 1000 requests/day and 8000 tokens/minute. The per-minute token ceiling is what actually stops you - a long prompt returns 413 long before the request count matters.",
+    "measured_on": "2026-09-07"
    },
    "rpd_plan": "Developer"
   },
   "cerebras": {
    "scope": "account",
    "confidence": "MEASURED",
-   "measured_on": "2026-09-02",
-   "measured_how": "read off the rate-limit response headers on the calling account",
-   "volatile": true,
+   "measured_on": "2026-09-07",
+   "measured_how": "rate-limit response headers on the calling account, read again on 2026-09-07: x-ratelimit-limit-requests-day 2400, x-ratelimit-limit-tokens-day 1000000, 5 requests/minute. The figures held across five days.",
+   "volatile": false,
    "caveat": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them.",
    "source": "https://inference-docs.cerebras.ai/support/pricing",
    "all_models": {
@@ -184,10 +184,17 @@
   },
   "xkiro": {
    "scope": "account",
-   "confidence": "UNKNOWN",
-   "caveat": "No rate-limit headers returned and no published quota.",
+   "confidence": "MEASURED",
+   "measured_on": "2026-09-07",
+   "measured_how": "their own usage endpoint, GET https://api.xkiro.com/v1/usage, which reports the daily token allowance and what is left of it",
+   "caveat": "The largest confirmed free token allowance in this list by a wide margin, and it took one GET to find - it was sitting behind an endpoint nobody had asked. Requests per day are NOT published; the ceiling here is tokens.",
    "all_models": {
-    "rpd": null
+    "rpd": null,
+    "tpd": 5000000
+   },
+   "binding_limit": "Tokens, not requests. 5M/day is roughly 3,500 pages of output, so on this provider you will hit model quality or latency long before you hit the quota.",
+   "measured_values": {
+    "limit_per_day": 5000000,
    }
   },
   "siliconflow": {

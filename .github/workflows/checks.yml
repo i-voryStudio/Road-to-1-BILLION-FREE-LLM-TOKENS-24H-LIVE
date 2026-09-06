@@ -57,6 +57,13 @@ jobs:
       - name: Model matching, tested in both directions
         run: python bench/test_scores.py
 
+      # The crawler is the one program here that POSTs to hosts it read out of somebody else's JSON.
+      # Its address guard refused a real catalogue entry pointing at 127.0.0.1 on its first live run.
+      - name: The crawler's defences, tested in both directions
+        run: |
+          python bench/test_crawl.py
+          python bench/test_admission.py
+
       # One reading per endpoint per day, and no day the provider did not actually fail.
       - name: Uptime history and the fourteen-day rule
         run: python bench/gate_viability.py --today "$(date -u +%F)"

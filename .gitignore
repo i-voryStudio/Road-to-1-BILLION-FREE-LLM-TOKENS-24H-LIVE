@@ -15,3 +15,9 @@ __pycache__/
 .venv/
 venv/
 .DS_Store
+
+# The crawler saves every catalogue it reads, verbatim, so a claim can be re-checked against the exact
+# bytes we saw. models.dev alone is 4.5 MB a day: that is 1.6 GB a year of third-party data in a repo
+# whose value is its own measurements. The reports, the channel state and the seen-list ARE committed -
+# they are what makes the crawl reproducible - the raw copies stay local.
+data/crawl/raw/

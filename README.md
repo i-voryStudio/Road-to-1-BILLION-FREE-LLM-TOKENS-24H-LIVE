@@ -60,6 +60,26 @@ So of sixteen keyless endpoints on the best-known list, **one actually answers**
 criticism of them — free endpoints close quietly, and a list nobody re-runs is a list that decays. It
 is the reason this one gets re-run.
 
+**And something is looking for the next one, all day.** A catalogue crawler reads three
+public, keyless catalogues - models.dev, and OpenRouter's provider and model lists - triages every
+provider that gives something away, and probes the ones with a real endpoint using a request that
+carries **no `Authorization` header at all**. First live run, today: 187 candidates, 153 we had never
+seen, 48 with a working endpoint to try, and one that answered a real completion with no key
+(`api.kilo.ai`). It probes at most 40 hosts a day and each domain at most once a week, because a
+non-stop loop POSTing to hundreds of strangers from one IP is a scanner, not research.
+
+It also refused a host on that first run: `atomic-chat`, a real entry in a real public catalogue,
+publishes `http://127.0.0.1:8090` as its API. An unattended probe would have aimed the server at
+the network, chosen by a file somebody else can edit. Every candidate host is resolved first and
+refused if any address is private, loopback, link-local or metadata, and redirects are refused
+outright - its test checks both directions.
+
+Nothing it finds is published by machine. A candidate becomes a row through
+an admission step, which admits **only endpoints that need no key** (an account needs
+a human, so there is nothing to automate), needs the endpoint to have answered on **two different
+days**, appends exactly one verified line to the host allowlist, writes UNKNOWN wherever nobody has
+measured, and rolls the whole thing back unless every gate exits 0. It stops before the merge.
+
 **And it is re-run every day.** A scheduled job re-reads the public catalogues, re-imports the official
 scores, recomputes the ranking, applies the fourteen-day death rule, and commits the difference —
 [`daily-catalog.yml`](.github/workflows/daily-catalog.yml), 06:17 UTC, no secrets, so it runs on your

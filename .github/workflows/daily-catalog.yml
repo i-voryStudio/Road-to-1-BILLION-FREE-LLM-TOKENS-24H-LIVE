@@ -57,6 +57,12 @@ jobs:
       - name: Apply the fourteen-day rule
         run: python bench/gate_viability.py --today "$(date -u +%F)"
 
+      # Look for endpoints nobody has added yet. In CI it only READS the public catalogues and triages
+      # them - the live probing runs where the radar runs, because forty unauthenticated POSTs a day
+      # to hosts out of a third-party file should come from a machine we own, not from shared CI IPs.
+      - name: Hunt for providers we do not track
+        run: python bench/crawl.py --date "$(date -u +%F)" --out data/crawl --no-probe
+
       - name: Published numbers must exist in the data
         run: python bench/gate_claims.py
 
@@ -70,10 +76,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet data/ README.md RESULTS.md; then
+          if git diff --quiet data/ README.md RESULTS.md ALL-ENDPOINTS.md GRAVEYARD.md; then
             echo "nothing changed today - no commit. A commit that moves only a timestamp is noise."
           else
-            git add data/ README.md RESULTS.md
+            git add data/ README.md RESULTS.md ALL-ENDPOINTS.md GRAVEYARD.md
             git commit -m "daily: $(date -u +%F) catalogue, scores and reliability"
             # Somebody may have pushed while this job was running; rebase rather than fail.
             git pull --rebase --autostash origin main

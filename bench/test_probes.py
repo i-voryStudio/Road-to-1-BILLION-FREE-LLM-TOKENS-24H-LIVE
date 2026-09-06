@@ -105,6 +105,53 @@ def check_generation():
     return fails
 
 
+KEY_CARRYING = ("benchmark.py", "probe_alive.py", "judge.py", "measure_limits.py")
+
+
+def redirect_cases():
+    """The cross-host redirect must raise, the same-host one must be allowed.
+
+    Both directions, because a handler that refuses everything breaks every provider that redirects
+    /v1/chat/completions to a versioned path, and a handler that allows everything hands the key over.
+    """
+    from http_safe import NoCrossHostRedirect
+    import urllib.error
+    import urllib.request
+
+    h = NoCrossHostRedirect()
+    out = []
+
+    def req():
+        # A real Request, not a stand-in: the parent handler reads half a dozen attributes off it and a
+        # fake that satisfies only the ones we thought of would test our fake, not the handler.
+        return urllib.request.Request("https://api.groq.com/openai/v1/chat/completions",
+                                      data=b"{}", headers={"Authorization": "Bearer x"})
+
+    try:
+        h.redirect_request(req(), None, 302, "Found", {}, "https://evil.example/steal")
+        out.append(("cross-host redirect refused", False, "it was FOLLOWED - the key would have left"))
+    except urllib.error.URLError:
+        out.append(("cross-host redirect refused", True, ""))
+    except Exception as e:
+        out.append(("cross-host redirect refused", False,
+                    "raised %s instead of URLError" % type(e).__name__))
+
+    try:
+        r = h.redirect_request(req(), None, 302, "Found", {},
+                               "https://api.groq.com/openai/v1/chat/completions/")
+        out.append(("same-host redirect still allowed", r is not None, "returned None"))
+    except Exception as e:
+        out.append(("same-host redirect still allowed", False, "raised %s" % type(e).__name__))
+
+    # And nobody may quietly go back to the unprotected call.
+    for name in KEY_CARRYING:
+        src = (Path(__file__).resolve().parent / name).read_text(encoding="utf-8")
+        bad = "urllib.request.urlopen(" in src
+        out.append(("%s does not call urlopen directly" % name, not bad,
+                    "found urllib.request.urlopen - use open_url from http_safe" if bad else ""))
+    return out
+
+
 def main():
     failures = []
     for probe, lang, text, should_pass, why in CASES:
@@ -117,9 +164,24 @@ def main():
               % (mark, lang["code"], probe, should_pass, got, why))
 
     print()
-    failures += [("generation", "build_body", f, "") for f in check_generation()]
+    for f in check_generation():
+        # 6 fields, like every other failure, so the report below can print them. It used to append a
+        # 4-tuple into a list unpacked as 6, which meant the FIRST generation failure crashed the
+        # reporter instead of reporting - a test that breaks when it finds something.
+        failures.append(("build_body", "generation", f, "-", "-", ""))
 
-    print("\n%d cases, %d failures" % (len(CASES) + 1, len(failures)))
+    extra = []
+    print("redirect and opener discipline:")
+    for label, ok, why in redirect_cases():
+        print("  %-4s %s%s" % ("ok" if ok else "FAIL", label,
+                               "  -> " + why if (why and not ok) else ""))
+        if not ok:
+            extra.append(("http_safe", "opener", label, "protected", "unprotected", why))
+    failures += extra
+
+    total = len(CASES) + 1 + len(redirect_cases())
+    print()
+    print("%d cases, %d failures" % (total, len(failures)))
     for probe, code, why, want, got, note in failures:
         print("  %s/%s expected %s, got %s (%s) - %s" % (code, probe, want, got, note, why))
     return 1 if failures else 0

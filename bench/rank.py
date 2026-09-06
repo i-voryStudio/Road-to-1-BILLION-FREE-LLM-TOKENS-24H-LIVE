@@ -71,6 +71,53 @@ def daily_tokens(rpd, tpd):
     return min(candidates) if candidates else None
 
 
+UPTIME_WINDOW_DAYS = 14
+# What counts as the endpoint having answered us. `blocked` is deliberately absent from BOTH sets: it
+# means they refused the caller, which is a fact about the caller's IP, not about the endpoint's health.
+ANSWERED = {"alive"}
+NOT_ANSWERED = {"down", "overloaded", "empty"}
+
+
+def answered_from_uptime(path, today):
+    """{(provider, model): rate}, {(provider, model): note}, from the last %d days of the radar.
+
+    Endpoints with no reading in the window are absent from the result, and rank.py leaves those
+    unpenalised - we do not punish what we did not test. A rate built on two days says two days.
+    """ % UPTIME_WINDOW_DAYS
+    from datetime import date as _date, timedelta
+    rates, notes = {}, {}
+    if not Path(path).exists():
+        return rates, notes
+    try:
+        end = _date.fromisoformat(today)
+    except ValueError:
+        return rates, notes
+    start = end - timedelta(days=UPTIME_WINDOW_DAYS - 1)
+    tally = {}
+    for line in Path(path).read_text(encoding="utf-8").split(chr(10)):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            r = json.loads(line)
+            d = _date.fromisoformat(r["date"])
+        except (ValueError, KeyError):
+            continue
+        if d < start or d > end:
+            continue
+        state = r.get("state")
+        if state not in ANSWERED and state not in NOT_ANSWERED:
+            continue                      # no_key, rate_limited, payment_required, blocked: not a verdict
+        key = (r["provider"], r["model"])
+        yes, total = tally.get(key, (0, 0))
+        tally[key] = (yes + (1 if state in ANSWERED else 0), total + 1)
+    for key, (yes, total) in tally.items():
+        rates[key] = yes / total
+        notes[key] = ("answered %d of %d radar probes in the last %d days"
+                      % (yes, total, UPTIME_WINDOW_DAYS))
+    return rates, notes
+
+
 def volume_of(provider, model, limits):
     """(requests_per_day, tokens_per_day, confidence, evidence). UNKNOWN stays UNKNOWN."""
     p = (limits.get("providers") or {}).get(provider)
@@ -125,16 +172,41 @@ def main():
     # A published quota is not availability. A provider that refuses a third of your calls is worth a
     # third less than its paper number, and ranking on advertised figures alone rewards whoever
     # advertises hardest. Missing measurement means no penalty - we do not punish what we did not test.
-    answered = {r["provider"]: r["answered_rate"] for r in rel.get("providers", [])}
-    rel_note = {r["provider"]: r["note"] for r in rel.get("providers", [])}
+    # ANSWERED RATE COMES FROM THE RADAR, NOT FROM THE ARCHIVE.
+    #
+    # It used to come from reliability.py, which reads every results/*/raw.json ever written, unweighted
+    # by date. That made "answers 88% of the time", printed in the present tense on the front page, a
+    # souvenir of whichever afternoon the battery last ran - and for a provider admitted today it would
+    # be a single ten-second sample, frozen forever. data/uptime.jsonl is the only file written every
+    # day, so the live claim is computed from it, over a rolling 14-day window, per ENDPOINT.
+    out = Path(a.out)
+    answered, rel_note = answered_from_uptime(out / "data" / "uptime.jsonl", a.date)
+    archive = {r["provider"]: r["answered_rate"] for r in rel.get("providers", [])}
     trap = rel.get("reasoning_trap", {})
     trapped = {(t["provider"], t["model"]) for t in trap.get("observed", []) if not t["had_switch"]}
     switched = {(t["provider"], t["model"]) for t in trap.get("already_switched_off_by_us", [])}
-    out = Path(a.out)
+    # THE FOURTEEN-DAY RULE, APPLIED HERE AND NOT ONLY DESCRIBED.
+    #
+    # gate_viability.py has been writing data/viability.json since the radar was born, and until now
+    # NOTHING read it. The rule that gives this repo the word LIVE in its name - 14 consecutive days
+    # without an answer and an endpoint is buried - decided the contents of GRAVEYARD.md and nothing
+    # else: a buried endpoint kept its row, its value and its share of the headline total. A document
+    # generator, not a rule. Now the ranking honours it.
+    viab = {}
+    vpath = out / "data" / "viability.json"
+    if vpath.exists():
+        try:
+            v = json.loads(vpath.read_text(encoding="utf-8"))
+            for state in ("degraded", "buried"):
+                for e in v.get(state) or []:
+                    viab[(e["provider"], e["model"])] = (state, e.get("days_down"))
+        except ValueError:
+            print("data/viability.json is not readable - refusing to rank as if every endpoint were healthy")
+            return 2
 
     by_model = {(r["provider"], r["model"]): r for r in scores.get("matched", [])}
 
-    rows, unranked = [], []
+    rows, unranked, buried = [], [], []
     for p in providers["providers"]:
         needs_key = bool(p.get("key_env"))
         priv = (privacy.get("providers") or {}).get(p["name"], {})
@@ -163,17 +235,36 @@ def main():
                 "human_review": priv.get("human_review", "UNKNOWN"),
                 "region_restriction": priv.get("region_restriction", "UNKNOWN"),
                 "privacy_source": priv.get("source"),
-                "answered_rate": answered.get(p["name"]),
-                "reliability_note": rel_note.get(p["name"]),
+                "answered_rate": answered.get((p["name"], m["id"])),
+                "reliability_note": rel_note.get((p["name"], m["id"])),
+                "answered_rate_archive": archive.get(p["name"]),
                 "returned_empty_200": (p["name"], m["id"]) in trapped,
                 "thinking_switch": m.get("extra_body") if (p["name"], m["id"]) in switched else None,
                 "measured_at": a.date,
             }
+            state, days = viab.get((p["name"], m["id"]), (None, None))
+            row["viability"] = state or "healthy"
+            row["days_down"] = days
+            if state == "buried":
+                # Out of the ranking and out of the headline sum entirely. Capacity you cannot reach
+                # for fourteen days is not capacity, and leaving it in the total would inflate the one
+                # number this repo is judged on with endpoints that stopped answering a fortnight ago.
+                row["value"] = None
+                row["why_unranked"] = ("buried: no answer for %s consecutive days - see GRAVEYARD.md"
+                                       % days)
+                row["daily_tokens"] = None
+                buried.append(row)
+                continue
+
             # Rankable only with BOTH halves. Half a fact is not a rank.
             if coding is not None and volume:
                 bonus = NOAUTH_BONUS if not needs_key else 1.0
-                reliability = answered.get(p["name"], 1.0)   # untested means unpenalised
-                row["value"] = round(coding * math.log10(1 + volume / TOKENS_PER_REPLY) * bonus * reliability, 1)
+                reliability = answered.get((p["name"], m["id"]), 1.0)   # untested means unpenalised
+                degraded_penalty = 0.5 if state == "degraded" else 1.0
+                row["value"] = round(coding * math.log10(1 + volume / TOKENS_PER_REPLY) * bonus
+                                     * reliability * degraded_penalty, 1)
+                if state == "degraded":
+                    row["degraded_penalty_applied"] = degraded_penalty
                 row["noauth_bonus_applied"] = bonus != 1.0
                 row["reliability_applied"] = reliability
                 rows.append(row)
@@ -195,7 +286,7 @@ def main():
         "quality_fetched_on": scores.get("fetched_on"),
         "filters": ["1 value = quality x volume", "2 quality (official benchmarks)", "3 volume",
                     "4 auth", "5 privacy cost"],
-        "ranked": rows, "unranked": unranked,
+        "ranked": rows, "unranked": unranked, "buried": buried,
     }, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
 
     cols = ["provider", "model", "value", "auth", "coding_index", "intelligence_index", "arena_elo",
@@ -252,7 +343,7 @@ def main():
           "Tokens, not requests: whichever of the two limits binds first, converted at "
           "%d output tokens per reply. A request cap and a token cap are the same shelf in different "
           "units, and the smaller one is your real ceiling." % TOKENS_PER_REPLY, "",
-          "| Model | Provider | Tokens/day | Req/day | Evidence | Value |",
+          "| Model | Provider | Tokens/day | Requests/day | Evidence | Value |",
           "|---|---|---|---|---|---|"]
     for r in sorted([x for x in rows if x["daily_tokens"]], key=lambda x: -x["daily_tokens"]):
         L.append("| `%s` | %s | **%s** | %s | %s | %s |"
@@ -262,7 +353,7 @@ def main():
     noauth = [r for r in rows + unranked if r["auth"] == "NO KEY"]
     L += ["", "## 4. Needs no key at all", ""]
     if noauth:
-        L += ["| Model | Provider | Coding | Req/day |", "|---|---|---|---|"]
+        L += ["| Model | Provider | Coding | Tokens/day |", "|---|---|---|---|"]
         for r in noauth:
             L.append("| `%s` | %s | %s | %s |" % (r["model"], r["provider"], cell(r["coding_index"]),
                                                   cell(r["requests_per_day"])))
@@ -338,9 +429,22 @@ def main():
     per_provider = {}
     for r in rows + unranked:
         v = r.get("daily_tokens")
-        if v:
-            per_provider[r["provider"]] = max(per_provider.get(r["provider"], 0), v)
-    confirmed = sum(per_provider.values())
+        if v and v > per_provider.get(r["provider"], (0, ""))[0]:
+            per_provider[r["provider"]] = (v, r.get("volume_confidence") or "UNKNOWN")
+
+    # And now the part that was wrong for two days: these are NOT one number. Summing them and calling
+    # the result "confirmed" is exactly what this repo accuses every other list of doing, three lines
+    # under a README sentence that reads "Nothing here is copied". They are three separate facts:
+    #
+    #   MEASURED   we saw it: a response header, a usage endpoint, a 429 we walked into
+    #   DECLARED   the provider says so on a page we read. Real, sourced, and still their claim
+    #   PAID-PLAN  the only published figure belongs to a PAID tier. It is not free-tier capacity at all
+    #
+    # The headline number, and the distance to the target, use MEASURED alone.
+    def total(kind):
+        return sum(v for v, c in per_provider.values() if c == kind)
+
+    measured, declared, paid = total("MEASURED"), total("DECLARED"), total("PAID-PLAN")
     n_providers = len({r["provider"] for r in rows + unranked})
     silent = n_providers - len(per_provider)
 
@@ -363,32 +467,65 @@ def main():
 
     if readme.exists() and "<!--HEADLINE-->" in readme.read_text(encoding="utf-8"):
         TARGET = 1000000000
-        gap = TARGET / confirmed if confirmed else 0
+        gap = TARGET / measured if measured else 0
         H = ["| | |", "|---|---|",
-             "| **Tokens per 24h**, confirmed | **%s** |" % num(confirmed),
+             "| **Tokens per 24h we MEASURED ourselves** | **%s** |" % num(measured),
+             "| Also claimed by providers, sourced, not measured | %s |" % num(declared),
+             "| Published only for a PAID plan, excluded from both | %s |" % num(paid),
              "| Endpoints answering today | **%d of %d tested** |" % (today_alive, today_total),
              "| Providers whose quota nobody publishes | **%d of %d** |" % (silent, n_providers),
-             "| Distance to 1,000,000,000 tokens/day | **%.0fx** |" % gap]
+             "| Distance to 1,000,000,000 measured tokens/day | **%.0fx** |" % gap]
         text = readme.read_text(encoding="utf-8")
         block = "<!--HEADLINE-->" + chr(10) + chr(10).join(H) + chr(10) + "<!--/HEADLINE-->"
         text = re.sub(r"<!--HEADLINE-->.*?<!--/HEADLINE-->", lambda _: block, text, flags=re.S)
         readme.write_text(text, encoding="utf-8", newline=chr(10))
-        print("headline: %s tokens/24h confirmed, %d of %d answering, %.0fx to the target"
-              % (num(confirmed), today_alive, today_total, gap))
+        print("headline: %s MEASURED + %s declared + %s paid-plan excluded, %d of %d answering, %.0fx to go"
+              % (num(measured), num(declared), num(paid), today_alive, today_total, gap))
+
+    # The same three numbers as data, so a gate can check the prose against them instead of trusting it.
+    (out / "data" / "capacity.json").write_text(json.dumps({
+        "date": a.date,
+        "measured_tokens_per_day": measured,
+        "declared_tokens_per_day": declared,
+        "paid_plan_tokens_per_day_excluded": paid,
+        "per_provider": {k: {"daily_tokens": v, "confidence": c} for k, (v, c) in sorted(per_provider.items())},
+        "providers_tracked": n_providers,
+        "providers_with_no_published_quota": silent,
+        "target_tokens_per_day": 1000000000,
+        "target_date": "2026-11-07",
+        "multiple_still_needed": round(1000000000 / measured, 1) if measured else None,
+        "note": "MEASURED is the only figure the headline and the target distance use. DECLARED is the "
+                "provider's own claim, sourced and dated, and is never added to it. PAID-PLAN is a "
+                "number published for a paid tier and is excluded from both - reprinting one as free "
+                "capacity is the mistake this repo names in its own README.",
+    }, indent=1, ensure_ascii=False) + chr(10), encoding="utf-8", newline=chr(10))
+
+    # The five at the top, generated too. Hand-typed, this table drifted from the ranking the first
+    # time the formula changed, and gate_claims.py caught four wrong numbers on the front page.
+    if readme.exists() and "<!--TOP5-->" in readme.read_text(encoding="utf-8") and rows:
+        T = ["| # | Model | Provider | Value | Coding | Tokens/day |", "|---|---|---|---|---|---|"]
+        for i, r5 in enumerate(rows[:5], 1):
+            T.append("| %d | `%s` | %s | **%s** | %s | %s |"
+                     % (i, r5["model"], r5["provider"], r5["value"], r5["coding_index"],
+                        num(r5["daily_tokens"])))
+        text = readme.read_text(encoding="utf-8")
+        block = "<!--TOP5-->" + chr(10) + chr(10).join(T) + chr(10) + "<!--/TOP5-->"
+        text = re.sub(r"<!--TOP5-->.*?<!--/TOP5-->", lambda _: block, text, flags=re.S)
+        readme.write_text(text, encoding="utf-8", newline=chr(10))
 
     # The README table is GENERATED between markers. Hand-editing it is how a published number
     # drifts away from the data, which gate_claims.py then catches. Better to make drift impossible.
     if readme.exists() and rows:
         text = readme.read_text(encoding="utf-8")
         if "<!--RANKING-->" in text and "<!--/RANKING-->" in text:
-            head = ("| # | Model | Provider | Value | Auth | Coding | Req/day | Note |\n"
+            head = ("| # | Model | Provider | Value | Auth | Coding | Tokens/day | Note |\n"
                     "|---|---|---|---|---|---|---|---|\n")
             body = ""
             for i, r in enumerate(rows[:30], 1):
                 note = ("**trains on your prompts**" if r["trains_on_free_tier"] == "yes"
                         else "**answers blank unless you turn thinking off**" if r["returned_empty_200"]
-                        else "answers %.0f%% of the time" % (100 * r["answered_rate"])
-                        if r.get("answered_rate") else r["volume_confidence"])
+                        else "answered %s" % r["reliability_note"].split("answered ")[-1]
+                        if r.get("reliability_note") else r["volume_confidence"])
                 body += "| %d | `%s` | %s | **%s** | %s | %s | %s | %s |\n" % (
                     i, r["model"], r["provider"], r["value"],
                     "**no key**" if r["auth"] == "NO KEY" else "key",

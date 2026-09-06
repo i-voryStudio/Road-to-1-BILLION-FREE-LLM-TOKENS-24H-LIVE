@@ -39,6 +39,9 @@ ROOT = HERE.parent
 FLAKY_FROM, DEGRADED_FROM, BURY_AT = 1, 4, 14
 UP_STATES = {"alive", "empty", "rate_limited", "payment_required"}   # answered, even if not usefully
 DOWN_STATES = {"down", "overloaded"}
+# `blocked` (401/403/406/451) is in NEITHER set on purpose. It means the endpoint refused the caller - our
+# key, the caller's IP, the caller's region - and counting that toward a provider's death would let our own scanning
+# bury a live service. It is skipped entirely, exactly like a day we did not probe.
 
 
 def read_history(path):
@@ -86,7 +89,7 @@ def main():
     seen = defaultdict(dict)
     doubled = []
     for r in rows:
-        if r.get("state") == "no_key":
+        if r.get("state") in ("no_key", "blocked"):
             continue
         try:
             d = datetime.strptime(r["date"], "%Y-%m-%d").date()

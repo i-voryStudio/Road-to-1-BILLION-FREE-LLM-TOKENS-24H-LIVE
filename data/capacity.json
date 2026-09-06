@@ -1,0 +1,34 @@
+{
+ "date": "2026-09-07",
+ "measured_tokens_per_day": 6000000,
+ "declared_tokens_per_day": 275000,
+ "paid_plan_tokens_per_day_excluded": 200000,
+ "per_provider": {
+  "cerebras": {
+   "daily_tokens": 1000000,
+   "confidence": "MEASURED"
+  },
+  "google": {
+   "daily_tokens": 250000,
+   "confidence": "DECLARED"
+  },
+  "groq": {
+   "daily_tokens": 200000,
+   "confidence": "PAID-PLAN"
+  },
+  "openrouter": {
+   "daily_tokens": 25000,
+   "confidence": "DECLARED"
+  },
+  "xkiro": {
+   "daily_tokens": 5000000,
+   "confidence": "MEASURED"
+  }
+ },
+ "providers_tracked": 12,
+ "providers_with_no_published_quota": 7,
+ "target_tokens_per_day": 1000000000,
+ "target_date": "2026-11-07",
+ "multiple_still_needed": 166.7,
+ "note": "MEASURED is the only figure the headline and the target distance use. DECLARED is the provider's own claim, sourced and dated, and is never added to it. PAID-PLAN is a number published for a paid tier and is excluded from both - reprinting one as free capacity is the mistake this repo names in its own README."
+}

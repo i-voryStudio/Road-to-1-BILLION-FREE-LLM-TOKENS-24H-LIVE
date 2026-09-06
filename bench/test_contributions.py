@@ -84,6 +84,74 @@ MUST_PASS = [
 ]
 
 
+def check_privacy_entry(entry):
+    """Run only the privacy half of the gate over one provider entry."""
+    problems = []
+    tmp = HERE / "_test_privacy.json"
+    tmp.write_text(json.dumps({"providers": {"someprovider": entry}}), encoding="utf-8")
+    try:
+        G.check_privacy(tmp, problems)
+    finally:
+        tmp.unlink()
+    return problems
+
+
+def check_cross_file(providers, judges):
+    """Both files, ONE key-binding map - the way main() runs them."""
+    problems = []
+    maps = G.new_bindings()
+    tp = HERE / "_test_providers.json"
+    tj = HERE / "_test_judges.json"
+    tp.write_text(json.dumps({"providers": providers}), encoding="utf-8")
+    tj.write_text(json.dumps({"judges": judges}), encoding="utf-8")
+    try:
+        G.check_providers(tp, problems, maps)
+        G.check_judges(tj, problems, maps)
+    finally:
+        tp.unlink()
+        tj.unlink()
+    return problems
+
+
+JUDGE = {"name": "glm", "via": "api", "family": "glm", "url": "https://api.z.ai/api/coding/paas/v4/chat/completions",
+         "key_env": "ZAI_API_KEY"}
+
+CROSS_FILE_MUST_REFUSE = [
+    ("a contributed provider claims the JUDGE's key and points it at another allowed host",
+     [{"name": "groq", "url": OK_HOST, "key_env": "ZAI_API_KEY"}], [JUDGE]),
+    ("and the same theft in the other direction: a judge claims a provider's key",
+     [{"name": "groq", "url": OK_HOST, "key_env": "GROQ_API_KEY"}],
+     [dict(JUDGE, key_env="GROQ_API_KEY")]),
+]
+
+PRIVACY_MUST_REFUSE = [
+    ("says it does not train on your prompts, with no source at all",
+     {"trains_on_free_tier": "no"}),
+    ("says it does not train, sourced and dated, but quotes nothing",
+     {"trains_on_free_tier": "no", "source": "https://example.com/terms", "read_on": "2026-09-07"}),
+    ("says it does not train, and the quote it offers says nothing of the kind",
+     {"trains_on_free_tier": "no", "source": "https://example.com/terms", "read_on": "2026-09-07",
+      "quotes": ["We may use your content to provide and improve the Services."]}),
+    ("a dated claim with a source that is not https",
+     {"logs_prompts": "yes", "source": "http://example.com/terms", "read_on": "2026-09-07",
+      "quotes": ["We log prompts."]}),
+    ("a sourced, quoted claim with no date",
+     {"human_review": "yes", "source": "https://example.com/terms",
+      "quotes": ["Human reviewers may read your input."]}),
+]
+
+PRIVACY_MUST_PASS = [
+    ("UNKNOWN everywhere needs nothing - not knowing is allowed, guessing is not",
+     {"trains_on_free_tier": "UNKNOWN", "logs_prompts": "UNKNOWN"}),
+    ("a 'no' with a source, a date and a quote that actually negates",
+     {"trains_on_free_tier": "no", "source": "https://example.com/terms", "read_on": "2026-09-07",
+      "quotes": ["We do not use your prompts to train our models."]}),
+    ("a 'yes' with a source, a date and their own sentence",
+     {"trains_on_free_tier": "yes", "source": "https://example.com/terms", "read_on": "2026-09-07",
+      "quotes": ["Google uses the content you submit to improve our products."]}),
+]
+
+
 def main():
     bad = 0
     print("planted pull requests that MUST be refused:")
@@ -107,7 +175,37 @@ def main():
             for _, what in problems:
                 print("         -> %s" % what[:160])
 
-    total = len(MUST_REFUSE) + len(MUST_PASS)
+    print()
+    print("cross-file key theft that MUST be refused:")
+    for label, provs, judges in CROSS_FILE_MUST_REFUSE:
+        problems = check_cross_file(provs, judges)
+        ok = bool(problems)
+        print("  %-4s %s" % ("ok" if ok else "MISS", label))
+        if not ok:
+            bad += 1
+
+    print()
+    print("privacy claims that MUST be refused:")
+    for label, entry in PRIVACY_MUST_REFUSE:
+        problems = check_privacy_entry(entry)
+        ok = bool(problems)
+        print("  %-4s %s" % ("ok" if ok else "MISS", label))
+        if not ok:
+            bad += 1
+
+    print()
+    print("privacy claims that MUST pass:")
+    for label, entry in PRIVACY_MUST_PASS:
+        problems = check_privacy_entry(entry)
+        ok = not problems
+        print("  %-4s %s" % ("ok" if ok else "FAIL", label))
+        if not ok:
+            bad += 1
+            for _, what in problems:
+                print("         -> %s" % what[:150])
+
+    total = (len(MUST_REFUSE) + len(MUST_PASS) + len(CROSS_FILE_MUST_REFUSE)
+             + len(PRIVACY_MUST_REFUSE) + len(PRIVACY_MUST_PASS))
     print("\n%d of %d cases behaved as required" % (total - bad, total))
     if bad:
         print("THE GATE IS MISCALIBRATED. Fix it before merging anything.")

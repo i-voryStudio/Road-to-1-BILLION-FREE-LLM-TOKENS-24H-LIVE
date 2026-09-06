@@ -51,6 +51,12 @@ jobs:
       - name: Contribution gate, tested
         run: python bench/test_contributions.py
 
+      # Which published score belongs to which endpoint. Half this file is pairs that MUST NOT match,
+      # because attaching one model's reputation to another model's endpoint is the one error here
+      # that a reader cannot check and we cannot walk back.
+      - name: Model matching, tested in both directions
+        run: python bench/test_scores.py
+
       # One reading per endpoint per day, and no day the provider did not actually fail.
       - name: Uptime history and the fourteen-day rule
         run: python bench/gate_viability.py --today "$(date -u +%F)"

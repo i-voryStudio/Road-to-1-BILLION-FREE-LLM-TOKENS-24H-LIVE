@@ -113,23 +113,7 @@ def check(probe, spec, text, lang):
 
 # ---------------------------------------------------------------- calling
 
-class NoCrossHostRedirect(urllib.request.HTTPRedirectHandler):
-    """Refuse a redirect that changes host.
-
-    urllib keeps the Authorization header across a 302, so a provider (or anyone who can answer for one)
-    could bounce the request to a server of their choosing and receive the API key. The host allowlist
-    would be useless without this: it checks where we aim, this checks where we land.
-    """
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        if urlparse(newurl).hostname != urlparse(req.full_url).hostname:
-            raise urllib.error.URLError(
-                "refused redirect to a different host (%s -> %s): the API key travels in the header"
-                % (urlparse(req.full_url).hostname, urlparse(newurl).hostname))
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
-
-
-OPENER = urllib.request.build_opener(NoCrossHostRedirect)
+from http_safe import NoCrossHostRedirect, OPENER   # one door, one lock: see bench/http_safe.py
 
 
 def build_body(model, prompt, extra_body, max_tokens, generation, unsupported):

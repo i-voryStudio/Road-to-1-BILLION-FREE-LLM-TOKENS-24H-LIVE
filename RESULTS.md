@@ -11,19 +11,19 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 | # | Model | Provider | Value | Auth | Coding | Tokens/day | Evidence | Privacy |
 |---|---|---|---|---|---|---|---|---|
 | 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | key | 58.6 | 5,000,000 | MEASURED | unknown |
-| 2 | `minimax/minimax-m2.7:free` | xkiro | **210.4** | key | 52.6 | 5,000,000 | MEASURED | unknown |
-| 3 | `qwen-3.8-27b` | cerebras | **206.2** | key | 68.1 | 1,000,000 | MEASURED | unknown |
-| 4 | `qwen/qwen3.8-27b` | groq | **155.1** | key | 68.1 | 200,000 | PAID-PLAN | unknown |
-| 5 | `gemma-4-31b` | cerebras | **131.4** | key | 43.4 | 1,000,000 | MEASURED | unknown |
-| 6 | `qwen/qwen3.6-27b` | groq | **122.3** | key | 53.7 | 200,000 | PAID-PLAN | unknown |
-| 7 | `gpt-oss-120b` | cerebras | **92.0** | key | 30.4 | 1,000,000 | MEASURED | unknown |
-| 8 | `minimax/minimax-m3:free` | openrouter | **91.8** | key | 58.6 | 25,000 | DECLARED | unknown |
-| 9 | `gemini-3.5-flash-lite` | google | **88.8** | key | 49.3 | 250,000 | DECLARED | **trains on your prompts** |
-| 10 | `minimax/minimax-m2.7:free` | openrouter | **82.4** | key | 52.6 | 25,000 | DECLARED | unknown |
-| 11 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **77.2** | key | 49.3 | 25,000 | DECLARED | unknown |
-| 12 | `openai/gpt-oss-120b` | groq | **69.2** | key | 30.4 | 200,000 | PAID-PLAN | unknown |
-| 13 | `gemini-3.8-flash` | google | **67.3** | key | 76.3 | 10,000 | DECLARED | **trains on your prompts** |
-| 14 | `openai/gpt-oss-20b` | groq | **47.1** | key | 20.7 | 200,000 | PAID-PLAN | unknown |
+| 2 | `qwen-3.8-27b` | cerebras | **224.8** | key | 68.1 | 1,000,000 | MEASURED | unknown |
+| 3 | `qwen/qwen3.8-27b` | groq | **177.3** | key | 68.1 | 200,000 | PAID-PLAN | unknown |
+| 4 | `gemma-4-31b` | cerebras | **143.3** | key | 43.4 | 1,000,000 | MEASURED | unknown |
+| 5 | `qwen/qwen3.6-27b` | groq | **139.8** | key | 53.7 | 200,000 | PAID-PLAN | unknown |
+| 6 | `gemini-3.5-flash-lite` | google | **133.1** | key | 49.3 | 250,000 | DECLARED | **trains on your prompts** |
+| 7 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | key | 52.6 | 5,000,000 | MEASURED | unknown |
+| 8 | `gpt-oss-120b` | cerebras | **100.4** | key | 30.4 | 1,000,000 | MEASURED | unknown |
+| 9 | `minimax/minimax-m3:free` | openrouter | **100.1** | key | 58.6 | 25,000 | DECLARED | unknown |
+| 10 | `openai/gpt-oss-120b` | groq | **79.1** | key | 30.4 | 200,000 | PAID-PLAN | unknown |
+| 11 | `openai/gpt-oss-20b` | groq | **53.9** | key | 20.7 | 200,000 | PAID-PLAN | unknown |
+| 12 | `gemini-3.8-flash` | google | **0.0** | key | 76.3 | 10,000 | DECLARED | **trains on your prompts** |
+| 13 | `minimax/minimax-m2.7:free` | openrouter | **0.0** | key | 52.6 | 25,000 | DECLARED | unknown |
+| 14 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** | key | 49.3 | 25,000 | DECLARED | unknown |
 
 ## 2. By quality alone (official benchmark scores)
 
@@ -66,26 +66,26 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 
 Tokens, not requests: whichever of the two limits binds first, converted at 500 output tokens per reply. A request cap and a token cap are the same shelf in different units, and the smaller one is your real ceiling.
 
-| Model | Provider | Tokens/day | Req/day | Evidence | Value |
+| Model | Provider | Tokens/day | Requests/day | Evidence | Value |
 |---|---|---|---|---|---|
 | `minimax/minimax-m3:free` | xkiro | **5,000,000** | ? | MEASURED | 234.4 |
-| `minimax/minimax-m2.7:free` | xkiro | **5,000,000** | ? | MEASURED | 210.4 |
-| `qwen-3.8-27b` | cerebras | **1,000,000** | 2,400 | MEASURED | 206.2 |
-| `gemma-4-31b` | cerebras | **1,000,000** | 2,400 | MEASURED | 131.4 |
-| `gpt-oss-120b` | cerebras | **1,000,000** | 2,400 | MEASURED | 92.0 |
-| `gemini-3.5-flash-lite` | google | **250,000** | 500 | DECLARED | 88.8 |
-| `qwen/qwen3.8-27b` | groq | **200,000** | 1,000 | PAID-PLAN | 155.1 |
-| `qwen/qwen3.6-27b` | groq | **200,000** | 1,000 | PAID-PLAN | 122.3 |
-| `openai/gpt-oss-120b` | groq | **200,000** | 1,000 | PAID-PLAN | 69.2 |
-| `openai/gpt-oss-20b` | groq | **200,000** | 1,000 | PAID-PLAN | 47.1 |
-| `minimax/minimax-m3:free` | openrouter | **25,000** | 50 | DECLARED | 91.8 |
-| `minimax/minimax-m2.7:free` | openrouter | **25,000** | 50 | DECLARED | 82.4 |
-| `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **25,000** | 50 | DECLARED | 77.2 |
-| `gemini-3.8-flash` | google | **10,000** | 20 | DECLARED | 67.3 |
+| `minimax/minimax-m2.7:free` | xkiro | **5,000,000** | ? | MEASURED | 105.2 |
+| `qwen-3.8-27b` | cerebras | **1,000,000** | 2,400 | MEASURED | 224.8 |
+| `gemma-4-31b` | cerebras | **1,000,000** | 2,400 | MEASURED | 143.3 |
+| `gpt-oss-120b` | cerebras | **1,000,000** | 2,400 | MEASURED | 100.4 |
+| `gemini-3.5-flash-lite` | google | **250,000** | 500 | DECLARED | 133.1 |
+| `qwen/qwen3.8-27b` | groq | **200,000** | 1,000 | PAID-PLAN | 177.3 |
+| `qwen/qwen3.6-27b` | groq | **200,000** | 1,000 | PAID-PLAN | 139.8 |
+| `openai/gpt-oss-120b` | groq | **200,000** | 1,000 | PAID-PLAN | 79.1 |
+| `openai/gpt-oss-20b` | groq | **200,000** | 1,000 | PAID-PLAN | 53.9 |
+| `minimax/minimax-m3:free` | openrouter | **25,000** | 50 | DECLARED | 100.1 |
+| `minimax/minimax-m2.7:free` | openrouter | **25,000** | 50 | DECLARED | 0.0 |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **25,000** | 50 | DECLARED | 0.0 |
+| `gemini-3.8-flash` | google | **10,000** | 20 | DECLARED | 0.0 |
 
 ## 4. Needs no key at all
 
-| Model | Provider | Coding | Req/day |
+| Model | Provider | Coding | Tokens/day |
 |---|---|---|---|
 | `gpt-oss-120b` | ovhcloud | 30.4 | ? |
 | `Qwen3.5-397B-A17B` | ovhcloud | 48.2 | ? |

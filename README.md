@@ -5,10 +5,12 @@
 <!--HEADLINE-->
 | | |
 |---|---|
-| **Tokens per 24h**, confirmed | **6,475,000** |
+| **Tokens per 24h we MEASURED ourselves** | **6,000,000** |
+| Also claimed by providers, sourced, not measured | 275,000 |
+| Published only for a PAID plan, excluded from both | 200,000 |
 | Endpoints answering today | **30 of 37 tested** |
 | Providers whose quota nobody publishes | **7 of 12** |
-| Distance to 1,000,000,000 tokens/day | **154x** |
+| Distance to 1,000,000,000 measured tokens/day | **167x** |
 <!--/HEADLINE-->
 
 **Where this is going, out loud: one billion free tokens a day.** That is the number the list is being
@@ -16,10 +18,18 @@ built towards, and the box above measures the distance to it every single day - 
 does not move. Growth comes from new providers, not from polishing the ones already here, and
 [IMPROVEMENTS.md](IMPROVEMENTS.md) tracks it as an open item with our name on it.
 
-That total is the **confirmed minimum, and it is an undercount** — 5 of the 10 providers publish no
-quota at all, so their capacity is real and uncounted. We would rather understate than invent. It also
-moved five-fold in one afternoon when we stopped reading marketing pages and asked the providers
-directly: one of them exposes 5M tokens a day behind an endpoint nobody had thought to call.
+**Three numbers, not one, and this is the whole argument of the repo.** For two days that box showed a
+single total of 6,475,000 labelled *confirmed*. It was not: 275,000 of it was a figure copied off a
+provider's own page and 200,000 of it belonged to a **paid** plan — three lines under a sentence that
+says *Nothing here is copied*. Now they are separated by code, in
+[`data/capacity.json`](data/capacity.json), and only the measured one is added up or used to measure
+the distance to the target. The correction cost us 475,000 tokens of headline and one place in our own
+ranking, which is the point: a number you can lower is a number you can believe.
+
+The measured total is still an **undercount** — 7 of the 12 providers publish no quota at all, so
+their capacity is real and uncounted. It moved five-fold in one afternoon when we stopped reading
+marketing pages and asked the providers directly: one of them exposes 5M tokens a day behind an
+endpoint nobody had thought to call.
 
 ## We read every other list first. Then we measured all of it again.
 
@@ -59,13 +69,15 @@ the table below. If a day is missing, the file shows it missing.
 
 ### The five best free endpoints today
 
+<!--TOP5-->
 | # | Model | Provider | Value | Coding | Tokens/day |
 |---|---|---|---|---|---|
 | 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 |
-| 2 | `minimax/minimax-m2.7:free` | xkiro | **210.4** | 52.6 | 5,000,000 |
-| 3 | `qwen-3.8-27b` | cerebras | **206.2** | 68.1 | 1,000,000 |
-| 4 | `qwen/qwen3.8-27b` | groq | **155.1** | 68.1 | 200,000 |
-| 5 | `gemma-4-31b` | cerebras | **131.4** | 43.4 | 1,000,000 |
+| 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 |
+| 3 | `qwen/qwen3.8-27b` | groq | **177.3** | 68.1 | 200,000 |
+| 4 | `gemma-4-31b` | cerebras | **143.3** | 43.4 | 1,000,000 |
+| 5 | `qwen/qwen3.6-27b` | groq | **139.8** | 53.7 | 200,000 |
+<!--/TOP5-->
 
 **Value = quality x volume x how often it actually answers.** Volume is in **tokens**, not requests,
 because a request cap and a token cap are the same shelf in different units and the smaller one is your
@@ -80,22 +92,22 @@ Full ranking of the top 30: below. **Every single endpoint we track, nothing fil
 ## The full ranking, top 30
 
 <!--RANKING-->
-| # | Model | Provider | Value | Auth | Coding | Req/day | Note |
+| # | Model | Provider | Value | Auth | Coding | Tokens/day | Note |
 |---|---|---|---|---|---|---|---|
-| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | key | 58.6 | 5,000,000 | answers 100% of the time |
-| 2 | `minimax/minimax-m2.7:free` | xkiro | **210.4** | key | 52.6 | 5,000,000 | answers 100% of the time |
-| 3 | `qwen-3.8-27b` | cerebras | **206.2** | key | 68.1 | 1,000,000 | **answers blank unless you turn thinking off** |
-| 4 | `qwen/qwen3.8-27b` | groq | **155.1** | key | 68.1 | 200,000 | answers 88% of the time |
-| 5 | `gemma-4-31b` | cerebras | **131.4** | key | 43.4 | 1,000,000 | answers 92% of the time |
-| 6 | `qwen/qwen3.6-27b` | groq | **122.3** | key | 53.7 | 200,000 | answers 88% of the time |
-| 7 | `gpt-oss-120b` | cerebras | **92.0** | key | 30.4 | 1,000,000 | answers 92% of the time |
-| 8 | `minimax/minimax-m3:free` | openrouter | **91.8** | key | 58.6 | 25,000 | answers 92% of the time |
-| 9 | `gemini-3.5-flash-lite` | google | **88.8** | key | 49.3 | 250,000 | **trains on your prompts** |
-| 10 | `minimax/minimax-m2.7:free` | openrouter | **82.4** | key | 52.6 | 25,000 | answers 92% of the time |
-| 11 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **77.2** | key | 49.3 | 25,000 | answers 92% of the time |
-| 12 | `openai/gpt-oss-120b` | groq | **69.2** | key | 30.4 | 200,000 | answers 88% of the time |
-| 13 | `gemini-3.8-flash` | google | **67.3** | key | 76.3 | 10,000 | **trains on your prompts** |
-| 14 | `openai/gpt-oss-20b` | groq | **47.1** | key | 20.7 | 200,000 | answers 88% of the time |
+| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | key | 58.6 | 5,000,000 | answered 2 of 2 radar probes in the last 14 days |
+| 2 | `qwen-3.8-27b` | cerebras | **224.8** | key | 68.1 | 1,000,000 | **answers blank unless you turn thinking off** |
+| 3 | `qwen/qwen3.8-27b` | groq | **177.3** | key | 68.1 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
+| 4 | `gemma-4-31b` | cerebras | **143.3** | key | 43.4 | 1,000,000 | answered 2 of 2 radar probes in the last 14 days |
+| 5 | `qwen/qwen3.6-27b` | groq | **139.8** | key | 53.7 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
+| 6 | `gemini-3.5-flash-lite` | google | **133.1** | key | 49.3 | 250,000 | **trains on your prompts** |
+| 7 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | key | 52.6 | 5,000,000 | answered 1 of 2 radar probes in the last 14 days |
+| 8 | `gpt-oss-120b` | cerebras | **100.4** | key | 30.4 | 1,000,000 | answered 2 of 2 radar probes in the last 14 days |
+| 9 | `minimax/minimax-m3:free` | openrouter | **100.1** | key | 58.6 | 25,000 | answered 2 of 2 radar probes in the last 14 days |
+| 10 | `openai/gpt-oss-120b` | groq | **79.1** | key | 30.4 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
+| 11 | `openai/gpt-oss-20b` | groq | **53.9** | key | 20.7 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
+| 12 | `gemini-3.8-flash` | google | **0.0** | key | 76.3 | 10,000 | **trains on your prompts** |
+| 13 | `minimax/minimax-m2.7:free` | openrouter | **0.0** | key | 52.6 | 25,000 | answered 0 of 2 radar probes in the last 14 days |
+| 14 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** | key | 49.3 | 25,000 | answered 0 of 2 radar probes in the last 14 days |
 <!--/RANKING-->
 
 Every endpoint we track, ranked or not, scored or not: **[ALL-ENDPOINTS.md](ALL-ENDPOINTS.md)**.

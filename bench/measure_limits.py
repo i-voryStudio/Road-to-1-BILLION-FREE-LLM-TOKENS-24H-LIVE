@@ -34,6 +34,7 @@ from urllib.parse import urlparse
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from gate_contributions import ALLOWED_HOSTS, ALLOWED_URL_PLACEHOLDERS
+from http_safe import open_url
 
 UA = "free-llm-benchmark/1.0 (+https://github.com/i-voryStudio)"
 
@@ -66,7 +67,7 @@ def get_json(url, key, timeout=45):
         headers["Authorization"] = "Bearer " + key
     req = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as f:
+        with open_url(req, timeout) as f:
             return json.loads(f.read(400000).decode("utf-8", "replace")), None
     except urllib.error.HTTPError as e:
         return None, "HTTP %s" % e.code
@@ -84,7 +85,7 @@ def probe_headers(url, key, model, extra_body, timeout=45):
         headers["Authorization"] = "Bearer " + key
     req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as f:
+        with open_url(req, timeout) as f:
             f.read(20000)
             return {k.lower(): v for k, v in f.headers.items()}, None
     except urllib.error.HTTPError as e:
@@ -115,8 +116,22 @@ def main():
             print("%-12s no key set, skipped" % name)
             continue
 
-        # 1. usage endpoint, where one is documented
+        # 1. usage endpoint, where one is documented.
+        #
+        # This table is a SECOND list of destinations for the same keys, and being inside ALLOWED_HOSTS
+        # is not enough: every host in that set is allowed for SOME key, and this call attaches THIS
+        # provider's. So the usage endpoint must sit on the provider's own registrable domain, checked
+        # here against the endpoint we already trust it with.
         if name in USAGE_ENDPOINT:
+            u_host = urlparse(USAGE_ENDPOINT[name]).hostname or ""
+            api_host = urlparse(p["url"]).hostname or ""
+            def registrable(h):
+                bits = (h or "").lower().split(".")
+                return ".".join(bits[-2:]) if len(bits) >= 2 else (h or "").lower()
+            if registrable(u_host) != registrable(api_host):
+                print("%-12s REFUSED: usage endpoint %s is not on %s's own domain (%s). This call "
+                      "carries %s's key." % (name, u_host, name, api_host, name))
+                continue
             data, err = get_json(USAGE_ENDPOINT[name], key)
             if data:
                 found.setdefault(name, {})["usage_endpoint"] = {"url": USAGE_ENDPOINT[name], "body": data}

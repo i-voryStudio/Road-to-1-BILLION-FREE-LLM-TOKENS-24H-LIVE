@@ -37,6 +37,7 @@ from urllib.parse import urlparse
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from gate_contributions import ALLOWED_HOSTS, ALLOWED_URL_PLACEHOLDERS
+from http_safe import open_url
 
 UA = "free-llm-benchmark/1.0 (+https://github.com/i-voryStudio)"
 PROMPT = "Say OK."
@@ -56,7 +57,7 @@ def probe(url, key, model, extra_body, timeout=45):
     started = time.time()
     try:
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
-        with urllib.request.urlopen(req, timeout=timeout) as f:
+        with open_url(req, timeout) as f:
             data = json.loads(f.read(200000).decode("utf-8", "replace"))
         msg = (data.get("choices") or [{}])[0].get("message", {}) if isinstance(data, dict) else {}
         text = (msg.get("content") or "").strip()
@@ -69,7 +70,13 @@ def probe(url, key, model, extra_body, timeout=45):
         # 402 is not an outage. The endpoint answered; what ran out is the money or the free
         # allowance on the calling account, and calling that "down" would blame the provider for our
         # empty pocket - and would start the 14-day death clock on a healthy endpoint.
-        state = {429: "rate_limited", 503: "overloaded", 402: "payment_required"}.get(e.code, "down")
+        # "They are down" and "they refused the caller" are different facts and only one of them belongs to
+        # the provider. 401/403 is the key or the caller's IP; 451 is a legal block on the caller's region; 406 is a bot
+        # wall. Recording any of those as `down` starts a 14-day death clock on a healthy endpoint and
+        # ends in a public, dated, false death notice - which for a list whose whole claim is honesty
+        # is the worst thing it can print. `blocked` is neither up nor down: it is a fact about the caller.
+        state = {429: "rate_limited", 503: "overloaded", 402: "payment_required",
+                 401: "blocked", 403: "blocked", 406: "blocked", 451: "blocked"}.get(e.code, "down")
         return state, e.code, secs, ""
     except Exception as e:
         return "down", 0, round(time.time() - started, 2), type(e).__name__

@@ -1,18 +1,18 @@
 provider,model,value,auth,coding_index,intelligence_index,arena_elo,requests_per_day,volume_confidence,trains_on_free_tier,region_restriction,measured_at
 xkiro,minimax/minimax-m3:free,234.4,KEY,58.6,35.7,1267,,MEASURED,UNKNOWN,UNKNOWN,2026-09-07
-xkiro,minimax/minimax-m2.7:free,210.4,KEY,52.6,,1251,,MEASURED,UNKNOWN,UNKNOWN,2026-09-07
-cerebras,qwen-3.8-27b,206.2,KEY,68.1,41.4,,2400,MEASURED,UNKNOWN,UNKNOWN,2026-09-07
-groq,qwen/qwen3.8-27b,155.1,KEY,68.1,41.4,,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
-cerebras,gemma-4-31b,131.4,KEY,43.4,,,2400,MEASURED,UNKNOWN,UNKNOWN,2026-09-07
-groq,qwen/qwen3.6-27b,122.3,KEY,53.7,,,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
-cerebras,gpt-oss-120b,92.0,KEY,30.4,15.6,980,2400,MEASURED,UNKNOWN,UNKNOWN,2026-09-07
-openrouter,minimax/minimax-m3:free,91.8,KEY,58.6,35.7,1267,50,DECLARED,UNKNOWN,UNKNOWN,2026-09-07
-google,gemini-3.5-flash-lite,88.8,KEY,49.3,27.6,,500,DECLARED,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-07
-openrouter,minimax/minimax-m2.7:free,82.4,KEY,52.6,,1251,50,DECLARED,UNKNOWN,UNKNOWN,2026-09-07
-openrouter,nvidia/nemotron-3-ultra-550b-a55b:free,77.2,KEY,49.3,,1153,50,DECLARED,UNKNOWN,UNKNOWN,2026-09-07
-groq,openai/gpt-oss-120b,69.2,KEY,30.4,15.6,980,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
-google,gemini-3.8-flash,67.3,KEY,76.3,47.1,1320,20,DECLARED,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-07
-groq,openai/gpt-oss-20b,47.1,KEY,20.7,,,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
+cerebras,qwen-3.8-27b,224.8,KEY,68.1,41.4,,2400,MEASURED,UNKNOWN,UNKNOWN,2026-09-07
+groq,qwen/qwen3.8-27b,177.3,KEY,68.1,41.4,,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
+cerebras,gemma-4-31b,143.3,KEY,43.4,,,2400,MEASURED,UNKNOWN,UNKNOWN,2026-09-07
+groq,qwen/qwen3.6-27b,139.8,KEY,53.7,,,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
+google,gemini-3.5-flash-lite,133.1,KEY,49.3,27.6,,500,DECLARED,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-07
+xkiro,minimax/minimax-m2.7:free,105.2,KEY,52.6,,1251,,MEASURED,UNKNOWN,UNKNOWN,2026-09-07
+cerebras,gpt-oss-120b,100.4,KEY,30.4,15.6,980,2400,MEASURED,UNKNOWN,UNKNOWN,2026-09-07
+openrouter,minimax/minimax-m3:free,100.1,KEY,58.6,35.7,1267,50,DECLARED,UNKNOWN,UNKNOWN,2026-09-07
+groq,openai/gpt-oss-120b,79.1,KEY,30.4,15.6,980,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
+groq,openai/gpt-oss-20b,53.9,KEY,20.7,,,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
+google,gemini-3.8-flash,0.0,KEY,76.3,47.1,1320,20,DECLARED,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-07
+openrouter,minimax/minimax-m2.7:free,0.0,KEY,52.6,,1251,50,DECLARED,UNKNOWN,UNKNOWN,2026-09-07
+openrouter,nvidia/nemotron-3-ultra-550b-a55b:free,0.0,KEY,49.3,,1153,50,DECLARED,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/openai/gpt-oss-120b,,KEY,30.4,15.6,980,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/meta/llama-3.3-70b-instruct-fp8-fast,,KEY,11.9,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/google/gemma-4-26b-a4b-it,,KEY,39.3,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07

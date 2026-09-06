@@ -28,6 +28,7 @@ from urllib.parse import urlparse
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from gate_contributions import ALLOWED_HOSTS
+from http_safe import open_url
 SEED = 20260905  # fixed so anyone re-running gets the same P-numbers from the same input
 
 GRID = """Score 0 to 10, where 0 means the text fails completely on this lens and 10 means it could not
@@ -73,7 +74,7 @@ def call_judge(judge, key, prompt, timeout=180):
                "User-Agent": "free-llm-benchmark/1.0"}
     try:
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
-        with urllib.request.urlopen(req, timeout=timeout) as f:
+        with open_url(req, timeout) as f:
             data = json.load(f)
         text = (data.get("choices") or [{}])[0].get("message", {}).get("content") or ""
         m = re.search(r"\{.*\}", text, re.S)

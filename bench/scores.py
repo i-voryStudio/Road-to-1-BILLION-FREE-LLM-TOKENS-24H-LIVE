@@ -82,21 +82,33 @@ def normalise(model_id):
     return re.sub(r"[^a-z0-9.]", "", s)
 
 
-def same_model(a, b):
-    """True when two normalised ids name the same weights.
+# Two spellings of the same weights, VERIFIED ONE AT A TIME AND WRITTEN DOWN HERE, in code, where a
+# reviewer sees them. This replaces a rule that inferred the join from the shape of the id, and the
+# rule was wrong: it answered TRUE for `kimi-k3` against `kimi-k3-8b`, a 2.8-trillion-parameter model
+# against an 8-billion distill. A pattern cannot tell "the provider spells out the size the benchmark
+# omits" apart from "the provider serves a smaller sibling", because both look identical. So the join
+# is a decision, taken once, with the evidence beside it - never a regex.
+#
+# Each key is OUR endpoint's normalised id, each value the benchmark's, with how it was checked.
+VERIFIED_ALIASES = {
+    # NVIDIA serves `nemotron-3.5-lightning-30b-a3b`; the benchmark publishes `nemotron-3.5-lightning`.
+    # Checked 2026-09-07 against the source catalogue: `lightning` exists there in exactly two entries,
+    # `nvidia/nemotron-3.5-lightning` and its `:free` tier, and in no other size. One published size
+    # means the omitted suffix cannot be ambiguous.
+    "nemotron3.5lightning30ba3b": "nemotron3.5lightning",
+}
 
-    Exact match, or one is the other plus a parameter-shape tail the provider spells out and the
-    benchmark does not (`nemotron-3.5-lightning-30b-a3b` against `nemotron-3.5-lightning`). The tail
-    must look like a size or MoE shape - never arbitrary extra words, because attaching one model's
-    reputation to another model's endpoint is the worst error this file could make.
+
+def same_model(a, b):
+    """True only when the join has been verified by a human and written into VERIFIED_ALIASES.
+
+    Deliberately NOT clever. The cost of being conservative here is a row that reads UNSCORED, which is
+    honest. The cost of being clever is one model's published reputation attached to another model's
+    endpoint, which is a lie a reader cannot check.
     """
     if a == b:
         return True
-    long, short = (a, b) if len(a) > len(b) else (b, a)
-    if not long.startswith(short):
-        return False
-    tail = long[len(short):]
-    return bool(re.fullmatch(r"[0-9]{1,3}[bm](a[0-9]{1,3}b)?", tail))
+    return VERIFIED_ALIASES.get(a) == b or VERIFIED_ALIASES.get(b) == a
 
 
 def build_index(models):

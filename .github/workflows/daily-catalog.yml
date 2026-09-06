@@ -41,6 +41,7 @@ jobs:
         run: |
           python bench/gate_contributions.py
           python bench/test_contributions.py
+          python bench/test_scores.py
 
       # Quality is imported, not run by us: a new provider inherits its models' published scores.
       # Reliability and the reasoning trap are measured from our own runs and feed the ranking.

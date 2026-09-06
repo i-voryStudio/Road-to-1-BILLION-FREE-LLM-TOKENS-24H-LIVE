@@ -91,14 +91,45 @@ def registrable(host):
     return ".".join(parts[-2:]) if len(parts) >= 2 else host
 
 
-def check_providers(path, problems):
+# One map for the whole house, not one per file. providers.json and judges.json both hand an API key to
+# a host, and they used to be checked by two functions with two private maps - so ZAI_API_KEY, bound to
+# api.z.ai as a judge, could be claimed by a contributed PROVIDER pointing anywhere in ALLOWED_HOSTS,
+# and neither check would notice. The binding is a property of the key, not of the file it appears in.
+def new_bindings():
+    """A fresh pair of maps for one run. Module-level state would leak between runs and make the
+    gate's answer depend on what it checked before, which is how a test file starts passing for the
+    wrong reason."""
+    return {"key_to_host": {}, "host_to_key": {}}
+
+
+def bind_key(where, key_env, host, problems, maps):
+    """Enforce: one key variable, one host, forever - across every file that names a credential."""
+    KEY_TO_HOST, HOST_TO_KEY = maps["key_to_host"], maps["host_to_key"]
+    prev_host = KEY_TO_HOST.get(key_env)
+    if prev_host and registrable(prev_host) != registrable(host):
+        problems.append((where,
+                         "key_env %s is already bound to %s, and this entry points it at %s. "
+                         "An API key belongs to exactly one provider: sending it anywhere else "
+                         "hands that provider's credential to a third party."
+                         % (key_env, prev_host, host)))
+    KEY_TO_HOST.setdefault(key_env, host)
+
+    prev_key = HOST_TO_KEY.get(registrable(host))
+    if prev_key and prev_key != key_env:
+        problems.append((where, "host %s already uses key_env %s; two key variables for one host "
+                                "is how a typo becomes a leak" % (host, prev_key)))
+    HOST_TO_KEY.setdefault(registrable(host), key_env)
+
+
+def check_providers(path, problems, maps=None):
     data = json.loads(path.read_text(encoding="utf-8"))
     providers = data.get("providers", [])
     if not providers:
         problems.append((path.name, "no providers defined"))
         return
 
-    key_to_host, host_to_key, names = {}, {}, set()
+    maps = maps if maps is not None else new_bindings()
+    names = set()
     for p in providers:
         name, url, key_env = p.get("name", ""), p.get("url", ""), p.get("key_env", "")
         auth = p.get("auth", "key")
@@ -163,21 +194,8 @@ def check_providers(path, problems):
             # Every check in this block binds a credential to a host. A keyless endpoint has no
             # credential to bind - but the host allowlist above and the model checks below still
             # apply to it, so this narrows rather than exempts.
-            # --- THE RULE: one key variable, one host. Forever.
-            prev_host = key_to_host.get(key_env)
-            if prev_host and registrable(prev_host) != registrable(host):
-                problems.append((where,
-                                 "key_env %s is already bound to %s, and this entry points it at %s. "
-                                 "An API key belongs to exactly one provider: sending it anywhere else "
-                                 "hands that provider's credential to a third party."
-                                 % (key_env, prev_host, host)))
-            key_to_host.setdefault(key_env, host)
-
-            prev_key = host_to_key.get(registrable(host))
-            if prev_key and prev_key != key_env:
-                problems.append((where, "host %s already uses key_env %s; two key variables for one host "
-                                        "is how a typo becomes a leak" % (host, prev_key)))
-            host_to_key.setdefault(registrable(host), key_env)
+            # --- THE RULE: one key variable, one host. Forever. Shared with judges.json.
+            bind_key(where, key_env, host, problems, maps)
 
             # --- the key variable must belong to this provider, by name or by a declared alias
             stem = re.sub(r"[^A-Z0-9]", "", name.upper())
@@ -252,7 +270,7 @@ def check_language(path, problems):
                                 "name to build the agent ranking"))
 
 
-def check_judges(path, problems):
+def check_judges(path, problems, maps=None):
     """A judge receives an API key too, so it gets the same treatment as a provider.
 
     Plus one rule of its own: at least one judge must be reachable by API. A jury made only of judges
@@ -266,6 +284,7 @@ def check_judges(path, problems):
     if not judges:
         problems.append((path.name, "no judges defined"))
         return
+    maps = maps if maps is not None else new_bindings()
     families, api_judges = set(), 0
     for j in judges:
         where = "%s: judge %r" % (path.name, j.get("name", "<unnamed>"))
@@ -281,6 +300,10 @@ def check_judges(path, problems):
                                         "Authorization header just like a provider does." % host))
             if not j.get("key_env"):
                 problems.append((where, "an api judge needs key_env"))
+            elif host:
+                # Same map as the providers. A judge's key is a credential like any other, and the
+                # paid one in this house is a judge's.
+                bind_key(where, j["key_env"], host, problems, maps)
         if not j.get("family"):
             problems.append((where, "every judge must declare its model family, so a reader can see "
                                     "whether it is scoring a relative"))
@@ -312,13 +335,58 @@ def check_limits(path, problems):
                                     "as advice to evade a quota."))
 
 
+def check_privacy(path, problems):
+    """privacy.json says whether a provider trains on your prompts. Nothing checked it until now.
+
+    Its own header states the stakes: "inventing a no here would be the most damaging kind of wrong
+    answer this repo could publish: somebody sends customer data on the strength of it". A field that
+    can send someone's customer data to a training set does not get to be an unsourced opinion, so:
+
+      - anything other than UNKNOWN needs a source on the provider's own domain, a read_on date, and
+        at least one verbatim quote;
+      - a "no" - the answer that invites trust - needs a quote that actually contains a negation, so
+        the sentence a reader would want to see is on the page rather than in our summary of it.
+    """
+    if not path.exists():
+        problems.append((path.name, "privacy.json is missing; the privacy column would publish blanks"))
+        return
+    d = json.loads(path.read_text(encoding="utf-8"))
+    claims = ("trains_on_free_tier", "logs_prompts", "human_review", "retention", "region_restriction")
+    NEGATIONS = ("not", "no ", "never", "n't", "without", "does not", "excluded", "opt out", "opt-out")
+    for name, p in (d.get("providers") or {}).items():
+        where = "%s: provider %r" % (path.name, name)
+        stated = {k: v for k, v in p.items() if k in claims and str(v).strip().upper() != "UNKNOWN"}
+        if not stated:
+            continue
+        src, read_on = p.get("source", ""), p.get("read_on", "")
+        quotes = [q for q in (p.get("quotes") or []) if isinstance(q, str) and q.strip()]
+        if not src or urlparse(src).scheme != "https":
+            problems.append((where, "states %s but has no https source. An unsourced privacy claim is "
+                                    "the one kind of wrong answer in this repo that can cost a reader "
+                                    "their customers' data." % ", ".join(sorted(stated))))
+        if not read_on:
+            problems.append((where, "needs read_on: terms change, and an undated reading of them is a "
+                                    "rumour about a moving target"))
+        if not quotes:
+            problems.append((where, "states %s with no verbatim quote. The quote IS the evidence; our "
+                                    "paraphrase is not." % ", ".join(sorted(stated))))
+        for field, value in stated.items():
+            if str(value).strip().lower() == "no":
+                if not any(n in q.lower() for q in quotes for n in NEGATIONS):
+                    problems.append((where, "answers 'no' to %s, but not one quoted sentence contains a "
+                                            "negation. A 'no' is the answer people act on; it has to be "
+                                            "their words, not ours." % field))
+
+
 def main():
     root = HERE
     problems = []
     try:
-        check_providers(root / "providers.json", problems)
-        check_judges(root / "judges.json", problems)
+        maps = new_bindings()
+        check_providers(root / "providers.json", problems, maps)
+        check_judges(root / "judges.json", problems, maps)
         check_limits(root / "limits.json", problems)
+        check_privacy(root / "privacy.json", problems)
         langs = sorted((root / "languages").glob("*.json"))
         if not langs:
             problems.append(("bench/languages", "no language packs found"))
@@ -331,7 +399,8 @@ def main():
         print("gate could not run: %s: %s" % (type(e).__name__, e))
         return 2
 
-    print("checked providers.json, judges.json, limits.json and %d language pack(s)" % len(langs))
+    print("checked providers.json, judges.json, limits.json, privacy.json and %d language pack(s)"
+          % len(langs))
     if not problems:
         print("CLEAN - contributions are safe to merge.")
         return 0

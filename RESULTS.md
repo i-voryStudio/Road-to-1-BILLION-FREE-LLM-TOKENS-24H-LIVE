@@ -10,18 +10,18 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 
 | # | Model | Provider | Value | Auth | Coding | Req/day | Evidence | Privacy |
 |---|---|---|---|---|---|---|---|---|
-| 1 | `qwen-3.8-27b` | cerebras | **230.2** | key | 68.1 | 2,400 | MEASURED | unknown |
-| 2 | `qwen/qwen3.8-27b` | groq | **204.3** | key | 68.1 | 1,000 | PAID-PLAN | unknown |
-| 3 | `qwen/qwen3.6-27b` | groq | **161.1** | key | 53.7 | 1,000 | PAID-PLAN | unknown |
-| 4 | `gemma-4-31b` | cerebras | **146.7** | key | 43.4 | 2,400 | MEASURED | unknown |
-| 5 | `gemini-3.5-flash-lite` | google | **133.1** | key | 49.3 | 500 | DECLARED | **trains on your prompts** |
-| 6 | `gpt-oss-120b` | cerebras | **102.8** | key | 30.4 | 2,400 | MEASURED | unknown |
-| 7 | `gemini-3.8-flash` | google | **100.9** | key | 76.3 | 20 | DECLARED | **trains on your prompts** |
-| 8 | `minimax/minimax-m3:free` | openrouter | **100.1** | key | 58.6 | 50 | DECLARED | unknown |
-| 9 | `openai/gpt-oss-120b` | groq | **91.2** | key | 30.4 | 1,000 | PAID-PLAN | unknown |
-| 10 | `minimax/minimax-m2.7:free` | openrouter | **89.8** | key | 52.6 | 50 | DECLARED | unknown |
-| 11 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **84.2** | key | 49.3 | 50 | DECLARED | unknown |
-| 12 | `openai/gpt-oss-20b` | groq | **62.1** | key | 20.7 | 1,000 | PAID-PLAN | unknown |
+| 1 | `qwen-3.8-27b` | cerebras | **211.1** | key | 68.1 | 2,400 | MEASURED | unknown |
+| 2 | `qwen/qwen3.8-27b` | groq | **178.8** | key | 68.1 | 1,000 | PAID-PLAN | unknown |
+| 3 | `qwen/qwen3.6-27b` | groq | **141.0** | key | 53.7 | 1,000 | PAID-PLAN | unknown |
+| 4 | `gemma-4-31b` | cerebras | **134.5** | key | 43.4 | 2,400 | MEASURED | unknown |
+| 5 | `gpt-oss-120b` | cerebras | **94.2** | key | 30.4 | 2,400 | MEASURED | unknown |
+| 6 | `minimax/minimax-m3:free` | openrouter | **91.8** | key | 58.6 | 50 | DECLARED | unknown |
+| 7 | `gemini-3.5-flash-lite` | google | **88.8** | key | 49.3 | 500 | DECLARED | **trains on your prompts** |
+| 8 | `minimax/minimax-m2.7:free` | openrouter | **82.4** | key | 52.6 | 50 | DECLARED | unknown |
+| 9 | `openai/gpt-oss-120b` | groq | **79.8** | key | 30.4 | 1,000 | PAID-PLAN | unknown |
+| 10 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **77.2** | key | 49.3 | 50 | DECLARED | unknown |
+| 11 | `gemini-3.8-flash` | google | **67.3** | key | 76.3 | 20 | DECLARED | **trains on your prompts** |
+| 12 | `openai/gpt-oss-20b` | groq | **54.3** | key | 20.7 | 1,000 | PAID-PLAN | unknown |
 
 ## 2. By quality alone (official benchmark scores)
 
@@ -57,18 +57,18 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 
 | Model | Provider | Req/day | Evidence | Value |
 |---|---|---|---|---|
-| `qwen-3.8-27b` | cerebras | **2,400** | MEASURED | 230.2 |
-| `gemma-4-31b` | cerebras | **2,400** | MEASURED | 146.7 |
-| `gpt-oss-120b` | cerebras | **2,400** | MEASURED | 102.8 |
-| `qwen/qwen3.8-27b` | groq | **1,000** | PAID-PLAN | 204.3 |
-| `qwen/qwen3.6-27b` | groq | **1,000** | PAID-PLAN | 161.1 |
-| `openai/gpt-oss-120b` | groq | **1,000** | PAID-PLAN | 91.2 |
-| `openai/gpt-oss-20b` | groq | **1,000** | PAID-PLAN | 62.1 |
-| `gemini-3.5-flash-lite` | google | **500** | DECLARED | 133.1 |
-| `minimax/minimax-m3:free` | openrouter | **50** | DECLARED | 100.1 |
-| `minimax/minimax-m2.7:free` | openrouter | **50** | DECLARED | 89.8 |
-| `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **50** | DECLARED | 84.2 |
-| `gemini-3.8-flash` | google | **20** | DECLARED | 100.9 |
+| `qwen-3.8-27b` | cerebras | **2,400** | MEASURED | 211.1 |
+| `gemma-4-31b` | cerebras | **2,400** | MEASURED | 134.5 |
+| `gpt-oss-120b` | cerebras | **2,400** | MEASURED | 94.2 |
+| `qwen/qwen3.8-27b` | groq | **1,000** | PAID-PLAN | 178.8 |
+| `qwen/qwen3.6-27b` | groq | **1,000** | PAID-PLAN | 141.0 |
+| `openai/gpt-oss-120b` | groq | **1,000** | PAID-PLAN | 79.8 |
+| `openai/gpt-oss-20b` | groq | **1,000** | PAID-PLAN | 54.3 |
+| `gemini-3.5-flash-lite` | google | **500** | DECLARED | 88.8 |
+| `minimax/minimax-m3:free` | openrouter | **50** | DECLARED | 91.8 |
+| `minimax/minimax-m2.7:free` | openrouter | **50** | DECLARED | 82.4 |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **50** | DECLARED | 77.2 |
+| `gemini-3.8-flash` | google | **20** | DECLARED | 67.3 |
 
 ## 4. Needs no key at all
 
@@ -90,6 +90,48 @@ Training on your prompts, human review, and legal limits on where you may serve 
 | alibaba | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
 | xkiro | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
 | siliconflow | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
+
+## 6. Does it actually answer, and does it answer with anything
+
+A published quota is not availability, and a `200` is not an answer. Both are measured across every call in every published run - one sample, the calling accounts, not an uptime guarantee.
+
+| Provider | Answered | Empty 200 | 429 | 503 | Timeout | Reading |
+|---|---|---|---|---|---|---|
+| alibaba | **100%** | 0 | 0 | 0 | 0 | answers reliably |
+| ollama | **100%** | 0 | 0 | 0 | 0 | answers reliably |
+| xkiro | **100%** | 0 | 0 | 0 | 0 | answers reliably |
+| cerebras | **92%** | 1 | 0 | 0 | 0 | occasionally refuses or returns nothing |
+| openrouter | **92%** | 1 | 0 | 0 | 0 | occasionally refuses or returns nothing |
+| cloudflare | **90%** | 2 | 0 | 0 | 0 | occasionally refuses or returns nothing |
+| groq | **88%** | 0 | 2 | 0 | 0 | occasionally refuses or returns nothing |
+| google | **67%** | 1 | 0 | 3 | 0 | unreliable in our measurements - see the counts |
+| nvidia | **65%** | 0 | 0 | 3 | 4 | unreliable in our measurements - see the counts |
+| siliconflow | **0%** | 0 | 0 | 0 | 0 | unreliable in our measurements - see the counts |
+
+### The reasoning trap
+
+A model that reasons can spend its entire token budget thinking and return an **empty message with HTTP 200**. The status code says success. There is no text in it. This is the single most expensive surprise on a free tier, because nothing looks wrong.
+
+Each provider family takes a different switch, and some take none:
+
+```
+reasoning_effort                             gpt-oss family on Groq, Cerebras, Ollama and OpenRouter
+chat_template_kwargs.enable_thinking         NVIDIA nemotron, on NVIDIA and via OpenRouter
+enable_thinking                              Alibaba Qwen on DashScope
+thinking.type                                z.ai GLM
+```
+
+Measured in our runs: **5 empty 200s, 4 of them on models where no switch was set.**
+
+| Model | Provider | Switch was set | Probe |
+|---|---|---|---|
+| `@cf/google/gemma-4-26b-a4b-it` | cloudflare | **no** | D |
+| `qwen-3.8-27b` | cerebras | **no** | D |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | yes, and ignored | B |
+| `@cf/qwen/qwen3.8-27b` | cloudflare | **no** | D |
+| `gemma-4-31b-it` | google | **no** | D |
+
+We already turn thinking off for **12** of the models we call. Those switches are in [`bench/providers.json`](bench/providers.json) and are the cheapest thing to copy out of this repo.
 
 ## Not ranked, and why
 

@@ -40,10 +40,14 @@ jobs:
       - name: Contribution data must still be sane
         run: python bench/gate_contributions.py
 
-      # The daily habit, measured. If nobody has written in the journal for two weeks, this job goes
-      # red - which is the point: a repo drifting shows up here before it shows up anywhere else.
-      # Prose does not get to state a score. Every model->quality pair published in a table must
-      # match data/models.json, and every file a document claims is "in this repo" must exist.
+      # Quality is imported, not run by us: a new provider inherits its models' published scores.
+      # Reliability and the reasoning trap are measured from our own runs and feed the ranking.
+      - name: Refresh imported scores and measured reliability
+        run: |
+          python bench/scores.py --out data/scores.json --date "$(date -u +%F)"
+          python bench/reliability.py --out data/reliability.json --date "$(date -u +%F)"
+          python bench/rank.py --date "$(date -u +%F)" --out .
+
       - name: Published numbers must exist in the data
         run: python bench/gate_claims.py
 
@@ -57,11 +61,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet data/catalog.json; then
-            echo "catalog unchanged, nothing to commit"
+          if git diff --quiet data/ README.md RESULTS.md; then
+            echo "nothing changed today - no commit. A commit that moves only a timestamp is noise."
           else
-            git add data/catalog.json
-            git commit -m "catalog: $(date -u +%F) automatic check"
+            git add data/ README.md RESULTS.md
+            git commit -m "daily: $(date -u +%F) catalogue, scores and reliability"
             # Somebody may have pushed while this job was running; rebase rather than fail.
             git pull --rebase --autostash origin main
             git push

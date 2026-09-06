@@ -8,18 +8,20 @@ Measured on **2026-09-06**. Quality is imported from official benchmarks; everyt
 
 ## The ranking
 
+<!--RANKING-->
 | # | Model | Provider | Value | Auth | Coding | Req/day | Note |
 |---|---|---|---|---|---|---|---|
-| 1 | `qwen-3.8-27b` | cerebras | **230.2** | key | 68.1 | 2,400 | MEASURED |
-| 2 | `qwen/qwen3.8-27b` | groq | **204.3** | key | 68.1 | 1,000 | PAID-PLAN |
-| 3 | `qwen/qwen3.6-27b` | groq | **161.1** | key | 53.7 | 1,000 | PAID-PLAN |
-| 4 | `gemma-4-31b` | cerebras | **146.7** | key | 43.4 | 2,400 | MEASURED |
-| 5 | `gemini-3.5-flash-lite` | google | **133.1** | key | 49.3 | 500 | **trains on your prompts** |
-| 6 | `gpt-oss-120b` | cerebras | **102.8** | key | 30.4 | 2,400 | MEASURED |
-| 7 | `gemini-3.8-flash` | google | **100.9** | key | 76.3 | 20 | **trains on your prompts** |
-| 8 | `minimax/minimax-m3:free` | openrouter | **100.1** | key | 58.6 | 50 | DECLARED |
-| 9 | `openai/gpt-oss-120b` | groq | **91.2** | key | 30.4 | 1,000 | PAID-PLAN |
-| 10 | `minimax/minimax-m2.7:free` | openrouter | **89.8** | key | 52.6 | 50 | DECLARED |
+| 1 | `qwen-3.8-27b` | cerebras | **211.1** | key | 68.1 | 2,400 | returns empty 200s |
+| 2 | `qwen/qwen3.8-27b` | groq | **178.8** | key | 68.1 | 1,000 | 88% answered |
+| 3 | `qwen/qwen3.6-27b` | groq | **141.0** | key | 53.7 | 1,000 | 88% answered |
+| 4 | `gemma-4-31b` | cerebras | **134.5** | key | 43.4 | 2,400 | 92% answered |
+| 5 | `gpt-oss-120b` | cerebras | **94.2** | key | 30.4 | 2,400 | 92% answered |
+| 6 | `minimax/minimax-m3:free` | openrouter | **91.8** | key | 58.6 | 50 | 92% answered |
+| 7 | `gemini-3.5-flash-lite` | google | **88.8** | key | 49.3 | 500 | **trains on your prompts** |
+| 8 | `minimax/minimax-m2.7:free` | openrouter | **82.4** | key | 52.6 | 50 | 92% answered |
+| 9 | `openai/gpt-oss-120b` | groq | **79.8** | key | 30.4 | 1,000 | 88% answered |
+| 10 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **77.2** | key | 49.3 | 50 | 92% answered |
+<!--/RANKING-->
 
 **Read the first two rows against row 7.** `gemini-3.8-flash` has the best coding score in the whole list — **76.3** —
 and sits at number 7, because Google gives you **20 requests a day**. The model at number 1 scores
@@ -34,7 +36,7 @@ Full tables, all five filters: **[RESULTS.md](RESULTS.md)** · machine-readable:
 
 | | Filter | Where it comes from |
 |---|---|---|
-| **1** | **Value = quality x volume** | the headline ranking |
+| **1** | **Value = quality x volume x reliability** | the headline ranking |
 | 2 | Quality | **imported** from official benchmarks, never our own |
 | 3 | Volume | measured by us, or declared with a source |
 | 4 | Needs a key, or not | no-key endpoints get a declared bonus |
@@ -52,23 +54,50 @@ whoever publishes the ranking is exactly what a careful reader should distrust.
 So a new provider costs nothing to rate. Serve `qwen3.8-27b` and it inherits that model's published
 scores the day we add the endpoint. That is what makes this list able to keep up.
 
-### Filter 5, which nobody else publishes
+### The trap that costs you most: a `200` with nothing in it
 
-Free often means you are paying with your prompts. Google's own terms, quoted, not paraphrased:
+A model that reasons can spend its **entire token budget thinking** and return an empty message — with
+HTTP 200. The status code says success. There is no text. Your quota is gone and nothing looks wrong.
 
-> When you use Unpaid Services... Google uses the content you submit... to provide, improve, and
-> develop Google products and services and machine learning technologies
+Every provider family takes a different switch, and some take none at all:
 
-> human reviewers may read, annotate, and process your API input and output
+```
+reasoning_effort: low                            gpt-oss on Groq, Cerebras, Ollama
+chat_template_kwargs: {enable_thinking: false}   NVIDIA nemotron
+enable_thinking: false                           Alibaba Qwen
+thinking: {type: disabled}                       z.ai GLM
+```
 
-And the one that should stop any European reader cold:
+Measured in our own run: **5 empty 200s, 4 of them on models where no switch was set.** We already
+set the switch for 12 of the models we call — those are in
+[`bench/providers.json`](bench/providers.json) and are the cheapest thing to copy out of this repo.
 
-> **You may use only Paid Services when making API Clients available to users in the European
-> Economic Area, Switzerland, or the United Kingdom.**
+### And a quota you cannot draw on is not a quota
 
-The free Gemini tier is contractually unusable for an app with EU users. No other free-LLM list carries
-this. Most rows in filter 5 say `UNKNOWN`, because nobody has read those terms yet — and `UNKNOWN` is
-the honest default: inventing a "no" would be the most damaging wrong answer this repo could publish.
+The fast providers are not always up. Measured across every call we made:
+
+| Provider | Answered | What went wrong |
+|---|---|---|
+| alibaba | **100%** | answers reliably |
+| ollama | **100%** | answers reliably |
+| xkiro | **100%** | answers reliably |
+| cerebras | **92%** | occasionally refuses or returns nothing |
+| openrouter | **92%** | occasionally refuses or returns nothing |
+| cloudflare | **90%** | occasionally refuses or returns nothing |
+
+That rate multiplies into the ranking. A provider that refuses a third of your calls is worth a third
+less than its paper number, and ranking on advertised figures alone rewards whoever advertises hardest.
+
+### Filter 5: what it costs you that is not money
+
+Free often means you are paying with your prompts. Google's terms say free-tier content is used to
+"provide, improve, and develop Google products... and machine learning technologies", that "human
+reviewers may read, annotate, and process your API input and output", and that the free tier may not be
+used for apps serving users in the EEA, Switzerland or the UK. Quoted, not paraphrased —
+[the full table is in RESULTS.md](RESULTS.md).
+
+Most rows there say `UNKNOWN`, because nobody has read those terms yet. `UNKNOWN` is the honest
+default: inventing a "no" is the most damaging wrong answer this repo could publish.
 
 ---
 
@@ -119,6 +148,11 @@ No API key needed for either: the scores come from a public endpoint.
 The most valuable pull request you can send is **reading one provider's terms and filling in filter 5**,
 or **correcting a quota with its source**. Turning a wrong number into an honest `UNKNOWN` counts as a
 real contribution here. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+
+## Where all of this comes from
+
+Every source, every repo we read, every provider page and every benchmark we evaluated and rejected — with what we took from each and what we deliberately did not:
+**[SOURCES.md](SOURCES.md)**.
 
 ## Licence
 

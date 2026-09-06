@@ -30,14 +30,16 @@ A new provider costs nothing to rate. Serve `qwen3.8-27b` and you inherit its pu
 
 THE VALUE FORMULA, stated so it can be argued with:
 
-    value = coding_index x log10(1 + requests_per_day) x auth_bonus
+    value = coding_index x log10(1 + requests_per_day) x auth_bonus x answered_rate
 
 log10 because the difference between 20 and 2,400 requests a day matters enormously, and the
 difference between 2,400 and 24,000 much less: past a point you stop being the bottleneck.
-auth_bonus is 1.25 for an endpoint needing no key at all. Both are choices, both are visible here,
-and a row with UNKNOWN volume is NOT ranked - it goes in its own table rather than being guessed at.
+auth_bonus is 1.25 for an endpoint needing no key at all. answered_rate is how often that provider
+actually returned something when probed - a paper quota you cannot draw on is not a quota.
+All three are choices, all three are visible here, and a row with UNKNOWN volume is NOT ranked: it
+goes in its own table rather than being guessed at.
 """
-import argparse, csv, json, math, sys
+import argparse, csv, json, math, re, sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -93,14 +95,24 @@ def main():
     ap.add_argument("--limits", default=str(HERE / "limits.json"))
     ap.add_argument("--privacy", default=str(HERE / "privacy.json"))
     ap.add_argument("--scores", default="data/scores.json")
+    ap.add_argument("--reliability", default="data/reliability.json")
     a = ap.parse_args()
 
     providers = load(a.providers, "endpoints")
     limits = load(a.limits, "quotas")
     privacy = load(a.privacy, "privacy cost")
     scores = load(a.scores, "official benchmark scores - run bench/scores.py first")
+    rel = load(a.reliability, "answered rates - run bench/reliability.py first") or {"providers": []}
     if not all([providers, limits, privacy, scores]):
         return 2
+    # A published quota is not availability. A provider that refuses a third of your calls is worth a
+    # third less than its paper number, and ranking on advertised figures alone rewards whoever
+    # advertises hardest. Missing measurement means no penalty - we do not punish what we did not test.
+    answered = {r["provider"]: r["answered_rate"] for r in rel.get("providers", [])}
+    rel_note = {r["provider"]: r["note"] for r in rel.get("providers", [])}
+    trap = rel.get("reasoning_trap", {})
+    trapped = {(t["provider"], t["model"]) for t in trap.get("observed", []) if not t["had_switch"]}
+    switched = {(t["provider"], t["model"]) for t in trap.get("already_switched_off_by_us", [])}
     out = Path(a.out)
 
     by_model = {(r["provider"], r["model"]): r for r in scores.get("matched", [])}
@@ -131,13 +143,19 @@ def main():
                 "human_review": priv.get("human_review", "UNKNOWN"),
                 "region_restriction": priv.get("region_restriction", "UNKNOWN"),
                 "privacy_source": priv.get("source"),
+                "answered_rate": answered.get(p["name"]),
+                "reliability_note": rel_note.get(p["name"]),
+                "returned_empty_200": (p["name"], m["id"]) in trapped,
+                "thinking_switch": m.get("extra_body") if (p["name"], m["id"]) in switched else None,
                 "measured_at": a.date,
             }
             # Rankable only with BOTH halves. Half a fact is not a rank.
             if coding is not None and rpd:
                 bonus = NOAUTH_BONUS if not needs_key else 1.0
-                row["value"] = round(coding * math.log10(1 + rpd) * bonus, 1)
+                reliability = answered.get(p["name"], 1.0)   # untested means unpenalised
+                row["value"] = round(coding * math.log10(1 + rpd) * bonus * reliability, 1)
                 row["noauth_bonus_applied"] = bonus != 1.0
+                row["reliability_applied"] = reliability
                 rows.append(row)
             else:
                 row["value"] = None
@@ -238,6 +256,38 @@ def main():
                     pv.get("region_restriction", "UNKNOWN"),
                     "[terms](%s)" % src if src else "not read yet"))
 
+    L += ["", "## 6. Does it actually answer, and does it answer with anything", "",
+          "A published quota is not availability, and a `200` is not an answer. Both are measured across "
+          "every call in every published run - one sample, the calling accounts, not an uptime guarantee.", "",
+          "| Provider | Answered | Empty 200 | 429 | 503 | Timeout | Reading |",
+          "|---|---|---|---|---|---|---|"]
+    for r in rel.get("providers", []):
+        L.append("| %s | **%.0f%%** | %d | %d | %d | %d | %s |"
+                 % (r["provider"], 100 * r["answered_rate"], r["empty_200"], r["rate_limited"],
+                    r["overloaded"], r["timeout"], r["note"]))
+    obs = trap.get("observed", [])
+    if obs:
+        L += ["", "### The reasoning trap", "",
+              "A model that reasons can spend its entire token budget thinking and return an **empty "
+              "message with HTTP 200**. The status code says success. There is no text in it. This is the "
+              "single most expensive surprise on a free tier, because nothing looks wrong.", "",
+              "Each provider family takes a different switch, and some take none:", "", "```"]
+        for k, v in (trap.get("switches") or {}).items():
+            L.append("%-44s %s" % (k, v))
+        L += ["```", "",
+              "Measured in our runs: **%d empty 200s, %d of them on models where no switch was set.**"
+              % (len(obs), sum(1 for t in obs if not t["had_switch"])), "",
+              "| Model | Provider | Switch was set | Probe |", "|---|---|---|---|"]
+        for t in obs:
+            L.append("| `%s` | %s | %s | %s |" % (t["model"], t["provider"],
+                                                  "yes, and ignored" if t["had_switch"] else "**no**",
+                                                  t["probe"]))
+        sw = trap.get("already_switched_off_by_us", [])
+        if sw:
+            L += ["", "We already turn thinking off for **%d** of the models we call. Those switches are "
+                      "in [`bench/providers.json`](bench/providers.json) and are the cheapest thing to "
+                      "copy out of this repo." % len(sw)]
+
     if unranked:
         L += ["", "## Not ranked, and why", "",
               "A row needs both halves to be ranked: an official score AND a known quota. Half a fact "
@@ -248,6 +298,28 @@ def main():
 
     (out / "RESULTS.md").write_text("\n".join(L) + "\n", encoding="utf-8", newline="\n")
 
+    # The README table is GENERATED between markers. Hand-editing it is how a published number
+    # drifts away from the data, which gate_claims.py then catches. Better to make drift impossible.
+    readme = out / "README.md"
+    if readme.exists() and rows:
+        text = readme.read_text(encoding="utf-8")
+        if "<!--RANKING-->" in text and "<!--/RANKING-->" in text:
+            head = ("| # | Model | Provider | Value | Auth | Coding | Req/day | Note |\n"
+                    "|---|---|---|---|---|---|---|---|\n")
+            body = ""
+            for i, r in enumerate(rows[:10], 1):
+                note = ("**trains on your prompts**" if r["trains_on_free_tier"] == "yes"
+                        else "returns empty 200s" if r["returned_empty_200"]
+                        else "%.0f%% answered" % (100 * r["answered_rate"]) if r.get("answered_rate")
+                        else r["volume_confidence"])
+                body += "| %d | `%s` | %s | **%s** | %s | %s | %s | %s |\n" % (
+                    i, r["model"], r["provider"], r["value"],
+                    "**no key**" if r["auth"] == "NO KEY" else "key",
+                    r["coding_index"], "{:,}".format(r["requests_per_day"]), note)
+            block = "<!--RANKING-->" + chr(10) + head + body + "<!--/RANKING-->"
+            text = re.sub(r"<!--RANKING-->.*?<!--/RANKING-->", lambda _: block, text, flags=re.S)
+            readme.write_text(text, encoding="utf-8", newline=chr(10))
+            print("regenerated the README table between its markers")
     print("ranked %d endpoints, %d unranked" % (len(rows), len(unranked)))
     if rows:
         print("  top: %s @ %s  value=%s (coding %s, %s/day%s)"

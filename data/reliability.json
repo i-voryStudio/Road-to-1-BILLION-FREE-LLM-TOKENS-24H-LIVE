@@ -1,0 +1,276 @@
+{
+ "measured_at": "2026-09-06",
+ "runs_included": [
+  "2026-09-06"
+ ],
+ "how": "Every call in every published run, counted by outcome. answered_rate is 200-with-text over total calls. This is one sample on the calling accounts, not an uptime guarantee - a small sample from one afternoon says less than a month of daily probes will.",
+ "reasoning_trap": {
+  "what": "A reasoning model can spend its whole token budget thinking and return an empty message with HTTP 200. The status code says success. There is no text.",
+  "switches": {
+   "reasoning_effort": "gpt-oss family on Groq, Cerebras, Ollama and OpenRouter",
+   "chat_template_kwargs.enable_thinking": "NVIDIA nemotron, on NVIDIA and via OpenRouter",
+   "enable_thinking": "Alibaba Qwen on DashScope",
+   "thinking.type": "z.ai GLM"
+  },
+  "observed": [
+   {
+    "provider": "cloudflare",
+    "model": "@cf/google/gemma-4-26b-a4b-it",
+    "probe": "D",
+    "had_switch": false,
+    "switch": null,
+    "run": "2026-09-06"
+   },
+   {
+    "provider": "cerebras",
+    "model": "qwen-3.8-27b",
+    "probe": "D",
+    "had_switch": false,
+    "switch": null,
+    "run": "2026-09-06"
+   },
+   {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "probe": "B",
+    "had_switch": true,
+    "switch": {
+     "chat_template_kwargs": {
+      "enable_thinking": false
+     }
+    },
+    "run": "2026-09-06"
+   },
+   {
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "probe": "D",
+    "had_switch": false,
+    "switch": null,
+    "run": "2026-09-06"
+   },
+   {
+    "provider": "google",
+    "model": "gemma-4-31b-it",
+    "probe": "D",
+    "had_switch": false,
+    "switch": null,
+    "run": "2026-09-06"
+   }
+  ],
+  "already_switched_off_by_us": [
+   {
+    "provider": "alibaba",
+    "model": "qwen-flash",
+    "switch": {
+     "enable_thinking": false
+    }
+   },
+   {
+    "provider": "alibaba",
+    "model": "qwen-plus",
+    "switch": {
+     "enable_thinking": false
+    }
+   },
+   {
+    "provider": "alibaba",
+    "model": "qwen-turbo",
+    "switch": {
+     "enable_thinking": false
+    }
+   },
+   {
+    "provider": "alibaba",
+    "model": "qwen3.5-flash",
+    "switch": {
+     "enable_thinking": false
+    }
+   },
+   {
+    "provider": "cerebras",
+    "model": "gpt-oss-120b",
+    "switch": {
+     "reasoning_effort": "low"
+    }
+   },
+   {
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "switch": {
+     "reasoning_effort": "low"
+    }
+   },
+   {
+    "provider": "groq",
+    "model": "openai/gpt-oss-20b",
+    "switch": {
+     "reasoning_effort": "low"
+    }
+   },
+   {
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "switch": {
+     "chat_template_kwargs": {
+      "enable_thinking": false
+     }
+    }
+   },
+   {
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "switch": {
+     "chat_template_kwargs": {
+      "enable_thinking": false
+     }
+    }
+   },
+   {
+    "provider": "ollama",
+    "model": "gpt-oss:120b",
+    "switch": {
+     "reasoning_effort": "low"
+    }
+   },
+   {
+    "provider": "ollama",
+    "model": "gpt-oss:20b",
+    "switch": {
+     "reasoning_effort": "low"
+    }
+   },
+   {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "switch": {
+     "chat_template_kwargs": {
+      "enable_thinking": false
+     }
+    }
+   }
+  ]
+ },
+ "providers": [
+  {
+   "provider": "alibaba",
+   "calls": 16,
+   "ok": 16,
+   "empty_200": 0,
+   "rate_limited": 0,
+   "overloaded": 0,
+   "timeout": 0,
+   "other": 0,
+   "answered_rate": 1.0,
+   "note": "answers reliably"
+  },
+  {
+   "provider": "ollama",
+   "calls": 12,
+   "ok": 12,
+   "empty_200": 0,
+   "rate_limited": 0,
+   "overloaded": 0,
+   "timeout": 0,
+   "other": 0,
+   "answered_rate": 1.0,
+   "note": "answers reliably"
+  },
+  {
+   "provider": "xkiro",
+   "calls": 8,
+   "ok": 8,
+   "empty_200": 0,
+   "rate_limited": 0,
+   "overloaded": 0,
+   "timeout": 0,
+   "other": 0,
+   "answered_rate": 1.0,
+   "note": "answers reliably"
+  },
+  {
+   "provider": "cerebras",
+   "calls": 12,
+   "ok": 11,
+   "empty_200": 1,
+   "rate_limited": 0,
+   "overloaded": 0,
+   "timeout": 0,
+   "other": 0,
+   "answered_rate": 0.917,
+   "note": "occasionally refuses or returns nothing"
+  },
+  {
+   "provider": "openrouter",
+   "calls": 12,
+   "ok": 11,
+   "empty_200": 1,
+   "rate_limited": 0,
+   "overloaded": 0,
+   "timeout": 0,
+   "other": 0,
+   "answered_rate": 0.917,
+   "note": "occasionally refuses or returns nothing"
+  },
+  {
+   "provider": "cloudflare",
+   "calls": 20,
+   "ok": 18,
+   "empty_200": 2,
+   "rate_limited": 0,
+   "overloaded": 0,
+   "timeout": 0,
+   "other": 0,
+   "answered_rate": 0.9,
+   "note": "occasionally refuses or returns nothing"
+  },
+  {
+   "provider": "groq",
+   "calls": 16,
+   "ok": 14,
+   "empty_200": 0,
+   "rate_limited": 2,
+   "overloaded": 0,
+   "timeout": 0,
+   "other": 0,
+   "answered_rate": 0.875,
+   "note": "occasionally refuses or returns nothing"
+  },
+  {
+   "provider": "google",
+   "calls": 12,
+   "ok": 8,
+   "empty_200": 1,
+   "rate_limited": 0,
+   "overloaded": 3,
+   "timeout": 0,
+   "other": 0,
+   "answered_rate": 0.667,
+   "note": "unreliable in our measurements - see the counts"
+  },
+  {
+   "provider": "nvidia",
+   "calls": 20,
+   "ok": 13,
+   "empty_200": 0,
+   "rate_limited": 0,
+   "overloaded": 3,
+   "timeout": 4,
+   "other": 0,
+   "answered_rate": 0.65,
+   "note": "unreliable in our measurements - see the counts"
+  },
+  {
+   "provider": "siliconflow",
+   "calls": 4,
+   "ok": 0,
+   "empty_200": 0,
+   "rate_limited": 0,
+   "overloaded": 0,
+   "timeout": 0,
+   "other": 4,
+   "answered_rate": 0.0,
+   "note": "unreliable in our measurements - see the counts"
+  }
+ ]
+}

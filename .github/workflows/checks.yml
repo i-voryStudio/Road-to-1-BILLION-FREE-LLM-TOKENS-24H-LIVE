@@ -49,6 +49,14 @@ jobs:
       # it does: stale entries, no location on disk, a fix with no gate to keep it fixed.
       # Prose does not get to state a score. Every model->quality pair published in a table must
       # match data/models.json, and every file a document claims is "in this repo" must exist.
+      # Quality is imported, not run by us: a new provider inherits its models' published scores.
+      # Reliability and the reasoning trap are measured from our own runs and feed the ranking.
+      - name: Refresh imported scores and measured reliability
+        run: |
+          python bench/scores.py --out data/scores.json --date "$(date -u +%F)"
+          python bench/reliability.py --out data/reliability.json --date "$(date -u +%F)"
+          python bench/rank.py --date "$(date -u +%F)" --out .
+
       - name: Published numbers must exist in the data
         run: python bench/gate_claims.py
 

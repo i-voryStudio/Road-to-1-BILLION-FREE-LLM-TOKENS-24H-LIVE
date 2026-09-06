@@ -12,7 +12,7 @@ tells you whether the model can produce a paragraph you would actually publish. 
 |---|---|
 | Arithmetic with one correct answer | **29 / 29** |
 | Rewrite with correct diacritics | **27 / 29** |
-| JSON extraction, right keys and types | **22 / 27** |
+| JSON extraction, right keys and types | **23 / 28** |
 | A paragraph usable at all (checker allows 70-140 words) | **23 / 30** |
 | A paragraph inside the 90-110 words actually asked for | **14 / 30** |
 | Scored above 7/10 on *"sounds like a person wrote it"* | **1 / 23** |

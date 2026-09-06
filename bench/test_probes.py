@@ -66,6 +66,45 @@ CASES = [
 ]
 
 
+# --- generation parameters -------------------------------------------------------------------------
+# Sending these explicitly is what makes a second run comparable with the first. Leaving them out means
+# every provider applies its own default, the defaults differ and change without notice, and the whole
+# ranking quietly stops being reproducible. These cases pin the wiring, offline.
+
+def check_generation():
+    fails = []
+    gen = {"temperature": 0, "top_p": 1, "seed": 20260906}
+
+    body, applied, dropped = B.build_body("m", "p", None, 100, gen, [])
+    for k, v in gen.items():
+        if body.get(k) != v:
+            fails.append("%s missing from the request body: a parameter we do not send is a parameter "
+                         "the provider chooses for us" % k)
+    if dropped:
+        fails.append("nothing was declared unsupported, yet %s was dropped" % dropped)
+
+    body, applied, dropped = B.build_body("m", "p", None, 100, gen, ["seed"])
+    if "seed" in body:
+        fails.append("seed was sent to a provider that declares it unsupported: measured on 2026-09-06, "
+                     "Google returns HTTP 400 for it and the whole run would fail")
+    if dropped != ["seed"] or "seed" in applied:
+        fails.append("a dropped parameter must be reported as dropped, not as applied: the results file "
+                     "has to say which settings each model was actually measured under")
+    if body.get("temperature") != 0:
+        fails.append("dropping one parameter must not drop the others")
+
+    # A provider's own extra_body still wins: some models need enable_thinking or reasoning_effort.
+    body, _, _ = B.build_body("m", "p", {"temperature": 0.7}, 100, gen, [])
+    if body["temperature"] != 0.7:
+        fails.append("a provider's explicit extra_body must override the language default")
+
+    for f in fails:
+        print("FAIL generation: %s" % f)
+    if not fails:
+        print("ok   generation      parameters sent explicitly, declared-unsupported ones dropped")
+    return fails
+
+
 def main():
     failures = []
     for probe, lang, text, should_pass, why in CASES:
@@ -77,7 +116,10 @@ def main():
         print("%s %s/%s  expected %-5s got %-5s  %s"
               % (mark, lang["code"], probe, should_pass, got, why))
 
-    print("\n%d cases, %d failures" % (len(CASES), len(failures)))
+    print()
+    failures += [("generation", "build_body", f, "") for f in check_generation()]
+
+    print("\n%d cases, %d failures" % (len(CASES) + 1, len(failures)))
     for probe, code, why, want, got, note in failures:
         print("  %s/%s expected %s, got %s (%s) - %s" % (code, probe, want, got, note, why))
     return 1 if failures else 0

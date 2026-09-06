@@ -41,6 +41,11 @@ jobs:
 
       # A public "things to improve" list is the easiest file in any repo to let rot. This fails when
       # it does: stale entries, no location on disk, a fix with no gate to keep it fixed.
+      # Prose does not get to state a score. Every model->quality pair published in a table must
+      # match data/models.json, and every file a document claims is "in this repo" must exist.
+      - name: Published numbers must exist in the data
+        run: python bench/gate_claims.py
+
       - name: Improvements journal must be alive
         run: python bench/gate_improvements.py --today "$(date -u +%F)"
 

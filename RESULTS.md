@@ -13,26 +13,26 @@ Only models whose paragraph passed the mechanical check are here: they are the o
 |---|---|---|---|---|---|---|---|---|
 | 1 | `gemini-3.5-flash-lite` | google | **9.2** | 4/4 | 6 / 9 / 10 | 500 | DECLARED | 0.8 s |
 | 2 | `qwen3.5-flash` | alibaba | **9.0** | 4/4 | 5 / 9 / 10 | ? | UNKNOWN | 1.5 s |
-| 3 | `minimax/minimax-m3:free` | openrouter | **8.5** | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
+| 3 | `minimax/minimax-m3:free` | openrouter | **8.5**<br><sub>7.2-8.5</sub> | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
 | 4 | `minimax/minimax-m2.7:free` | xkiro | **8.5** | 4/4 | 3 / 8 / 10 | ? | UNKNOWN | 16.4 s |
 | 5 | `minimax/minimax-m2.7:free` | openrouter | **8.5** | 4/4 | 3 / 8 / 10 | 50 | DECLARED | 20.4 s |
 | 6 | `openai/gpt-oss-20b` | groq | **8.3** | 4/4 | 3 / 7 / 10 | 1,000 | PAID-PLAN | 0.4 s |
 | 7 | `@cf/openai/gpt-oss-120b` | cloudflare | **8.3** | 4/4 | 2 / 8 / 10 | ? | UNKNOWN | 5.2 s |
-| 8 | `openai/gpt-oss-120b` | groq | **8.2** | 4/4 | 3 / 7 / 9 | 1,000 | PAID-PLAN | 0.5 s |
+| 8 | `openai/gpt-oss-120b` | groq | **8.2**<br><sub>6.9-8.2</sub> | 4/4 | 3 / 7 / 9 | 1,000 | PAID-PLAN | 0.5 s |
 | 9 | `gemma-4-31b` | cerebras | **7.8** | 4/4 | 3 / 5 / 9 | 2,400 | MEASURED | 0.4 s |
 | 10 | `gemma4:31b` | ollama | **7.8** | 4/4 | 3 / 5 / 9 | ? | UNKNOWN | 0.8 s |
 | 11 | `minimax/minimax-m3:free` | xkiro | **7.8** | 4/4 | 4 / 9 / 4 | ? | UNKNOWN | 11.2 s |
 | 12 | `@cf/mistralai/mistral-small-3.1-24b-instruct` | cloudflare | **7.7** | 4/4 | 2 / 4 / 10 | ? | UNKNOWN | 2.2 s |
-| 13 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | **7.3** | 2/2 ⚠ | 6 / 3 / 5 | ? | UNKNOWN | 40.1 s |
-| 14 | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | **7.2** | 4/4 | 2 / 8 / 3 | ? | UNKNOWN | 1.4 s |
+| 13 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | **7.3**<br><sub>4.8-7.3</sub> | 2/2 ⚠ | 6 / 3 / 5 | ? | UNKNOWN | 40.1 s |
+| 14 | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | **7.2**<br><sub>5.9-7.2</sub> | 4/4 | 2 / 8 / 3 | ? | UNKNOWN | 1.4 s |
 | 15 | `qwen/qwen3.8-27b` | groq | **7.0** | 4/4 | 1 / 1 / 10 | 1,000 | PAID-PLAN | 0.4 s |
-| 16 | `gpt-oss-120b` | cerebras | **6.9** | 3/4 | 3 / 6 / 10 | 2,400 | MEASURED | 0.4 s |
+| 16 | `gpt-oss-120b` | cerebras | **6.9**<br><sub>5.7-6.9</sub> | 3/4 | 3 / 6 / 10 | 2,400 | MEASURED | 0.4 s |
 | 17 | `qwen-turbo` | alibaba | **6.9** | 3/4 | 4 / 7 / 8 | ? | UNKNOWN | 1.3 s |
 | 18 | `gpt-oss:20b` | ollama | **6.8** | 4/4 | 2 / 1 / 8 | ? | UNKNOWN | 2.0 s |
-| 19 | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | nvidia | **6.8** | 4/4 | 2 / 0 / 9 | ? | UNKNOWN | 8.6 s |
-| 20 | `qwen-flash` | alibaba | **6.4** | 3/4 | 5 / 9 / 2 | ? | UNKNOWN | 1.2 s |
+| 19 | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | nvidia | **6.8**<br><sub>5.6-6.8</sub> | 4/4 | 2 / 0 / 9 | ? | UNKNOWN | 8.6 s |
+| 20 | `qwen-flash` | alibaba | **6.4**<br><sub>5.2-6.4</sub> | 3/4 | 5 / 9 / 2 | ? | UNKNOWN | 1.2 s |
 | 21 | `qwen-plus` | alibaba | **5.9** | 3/4 | 2 / 7 / 4 | ? | UNKNOWN | 2.4 s |
-| 22 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **5.9** | 3/4 | 8 / 3 / 2 | 50 | DECLARED | 48.6 s |
+| 22 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **5.9**<br><sub>4.7-5.9</sub> | 3/4 | 8 / 3 / 2 | 50 | DECLARED | 48.6 s |
 | 23 | `nvidia/nemotron-3-super-120b-a12b` | nvidia | **5.5** | 3/3 ⚠ | 1 / 1 / 1 | ? | UNKNOWN | 1.3 s |
 
 ⚠ = one or more probes never received an answer (503, 429, 402 or a timeout). Those probes are excluded from the score rather than counted as failures, because an unavailable endpoint is not a bad model. The `Probes` column shows passes out of probes actually answered; the HTTP codes are in `data/models.json`.
@@ -43,14 +43,16 @@ Only models whose paragraph passed the mechanical check are here: they are the o
 | # | Model | Provider | Quality | Probes | sounds human / language correctness / follows instruction | Req/day | Evidence | Speed |
 |---|---|---|---|---|---|---|---|---|
 | 1 | `gemini-3.5-flash-lite` | google | **9.2** | 4/4 | 6 / 9 / 10 | 500 | DECLARED | 0.8 s |
-| 2 | `minimax/minimax-m3:free` | openrouter | **8.5** | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
+| 2 | `minimax/minimax-m3:free` | openrouter | **8.5**<br><sub>7.2-8.5</sub> | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
 | 3 | `minimax/minimax-m2.7:free` | openrouter | **8.5** | 4/4 | 3 / 8 / 10 | 50 | DECLARED | 20.4 s |
 | 4 | `openai/gpt-oss-20b` | groq | **8.3** | 4/4 | 3 / 7 / 10 | 1,000 | PAID-PLAN | 0.4 s |
-| 5 | `openai/gpt-oss-120b` | groq | **8.2** | 4/4 | 3 / 7 / 9 | 1,000 | PAID-PLAN | 0.5 s |
+| 5 | `openai/gpt-oss-120b` | groq | **8.2**<br><sub>6.9-8.2</sub> | 4/4 | 3 / 7 / 9 | 1,000 | PAID-PLAN | 0.5 s |
 | 6 | `gemma-4-31b` | cerebras | **7.8** | 4/4 | 3 / 5 / 9 | 2,400 | MEASURED | 0.4 s |
 | 7 | `qwen/qwen3.8-27b` | groq | **7.0** | 4/4 | 1 / 1 / 10 | 1,000 | PAID-PLAN | 0.4 s |
-| 8 | `gpt-oss-120b` | cerebras | **6.9** | 3/4 | 3 / 6 / 10 | 2,400 | MEASURED | 0.4 s |
-| 9 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **5.9** | 3/4 | 8 / 3 / 2 | 50 | DECLARED | 48.6 s |
+| 8 | `gpt-oss-120b` | cerebras | **6.9**<br><sub>5.7-6.9</sub> | 3/4 | 3 / 6 / 10 | 2,400 | MEASURED | 0.4 s |
+| 9 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **5.9**<br><sub>4.7-5.9</sub> | 3/4 | 8 / 3 / 2 | 50 | DECLARED | 48.6 s |
+
+The smaller number under a score is the RANGE across repeated attempts: the low end counts only probes that passed every time, the high end those that passed at least once. A score with no range under it was identical on every attempt. **4 of 9 models here were not.**
 
 
 ## 3. Quality for agent work (drops the 'sounds human' lens)
@@ -65,23 +67,23 @@ For extraction, classification and tool calls, prose voice is irrelevant and cor
 | 4 | `minimax/minimax-m2.7:free` | xkiro | **9.5** | 4/4 | 3 / 8 / 10 | ? | UNKNOWN | 16.4 s |
 | 5 | `minimax/minimax-m2.7:free` | openrouter | **9.5** | 4/4 | 3 / 8 / 10 | 50 | DECLARED | 20.4 s |
 | 6 | `openai/gpt-oss-20b` | groq | **9.2** | 4/4 | 3 / 7 / 10 | 1,000 | PAID-PLAN | 0.4 s |
-| 7 | `openai/gpt-oss-120b` | groq | **9.0** | 4/4 | 3 / 7 / 9 | 1,000 | PAID-PLAN | 0.5 s |
+| 7 | `openai/gpt-oss-120b` | groq | **9.0**<br><sub>6.9-8.2</sub> | 4/4 | 3 / 7 / 9 | 1,000 | PAID-PLAN | 0.5 s |
 | 8 | `gemma-4-31b` | cerebras | **8.5** | 4/4 | 3 / 5 / 9 | 2,400 | MEASURED | 0.4 s |
 | 9 | `gemma4:31b` | ollama | **8.5** | 4/4 | 3 / 5 / 9 | ? | UNKNOWN | 0.8 s |
 | 10 | `@cf/mistralai/mistral-small-3.1-24b-instruct` | cloudflare | **8.5** | 4/4 | 2 / 4 / 10 | ? | UNKNOWN | 2.2 s |
-| 11 | `minimax/minimax-m3:free` | openrouter | **8.5** | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
+| 11 | `minimax/minimax-m3:free` | openrouter | **8.5**<br><sub>7.2-8.5</sub> | 4/4 | 7 / 10 / 4 | 50 | DECLARED | 3.5 s |
 | 12 | `minimax/minimax-m3:free` | xkiro | **8.2** | 4/4 | 4 / 9 / 4 | ? | UNKNOWN | 11.2 s |
 | 13 | `qwen/qwen3.8-27b` | groq | **7.8** | 4/4 | 1 / 1 / 10 | 1,000 | PAID-PLAN | 0.4 s |
-| 14 | `gpt-oss-120b` | cerebras | **7.8** | 3/4 | 3 / 6 / 10 | 2,400 | MEASURED | 0.4 s |
-| 15 | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | **7.8** | 4/4 | 2 / 8 / 3 | ? | UNKNOWN | 1.4 s |
+| 14 | `gpt-oss-120b` | cerebras | **7.8**<br><sub>5.7-6.9</sub> | 3/4 | 3 / 6 / 10 | 2,400 | MEASURED | 0.4 s |
+| 15 | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | **7.8**<br><sub>5.9-7.2</sub> | 4/4 | 2 / 8 / 3 | ? | UNKNOWN | 1.4 s |
 | 16 | `qwen-turbo` | alibaba | **7.5** | 3/4 | 4 / 7 / 8 | ? | UNKNOWN | 1.3 s |
 | 17 | `gpt-oss:20b` | ollama | **7.2** | 4/4 | 2 / 1 / 8 | ? | UNKNOWN | 2.0 s |
-| 18 | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | nvidia | **7.2** | 4/4 | 2 / 0 / 9 | ? | UNKNOWN | 8.6 s |
-| 19 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | **7.0** | 2/2 ⚠ | 6 / 3 / 5 | ? | UNKNOWN | 40.1 s |
-| 20 | `qwen-flash` | alibaba | **6.5** | 3/4 | 5 / 9 / 2 | ? | UNKNOWN | 1.2 s |
+| 18 | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | nvidia | **7.2**<br><sub>5.6-6.8</sub> | 4/4 | 2 / 0 / 9 | ? | UNKNOWN | 8.6 s |
+| 19 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | **7.0**<br><sub>4.8-7.3</sub> | 2/2 ⚠ | 6 / 3 / 5 | ? | UNKNOWN | 40.1 s |
+| 20 | `qwen-flash` | alibaba | **6.5**<br><sub>5.2-6.4</sub> | 3/4 | 5 / 9 / 2 | ? | UNKNOWN | 1.2 s |
 | 21 | `qwen-plus` | alibaba | **6.5** | 3/4 | 2 / 7 / 4 | ? | UNKNOWN | 2.4 s |
 | 22 | `nvidia/nemotron-3-super-120b-a12b` | nvidia | **5.5** | 3/3 ⚠ | 1 / 1 / 1 | ? | UNKNOWN | 1.3 s |
-| 23 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **5.0** | 3/4 | 8 / 3 / 2 | 50 | DECLARED | 48.6 s |
+| 23 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **5.0**<br><sub>4.7-5.9</sub> | 3/4 | 8 / 3 / 2 | 50 | DECLARED | 48.6 s |
 
 ⚠ = one or more probes never received an answer (503, 429, 402 or a timeout). Those probes are excluded from the score rather than counted as failures, because an unavailable endpoint is not a bad model. The `Probes` column shows passes out of probes actually answered; the HTTP codes are in `data/models.json`.
 

@@ -132,7 +132,31 @@ class NoCrossHostRedirect(urllib.request.HTTPRedirectHandler):
 OPENER = urllib.request.build_opener(NoCrossHostRedirect)
 
 
-def call(url, key, model, prompt, extra_body, max_tokens, timeout):
+def build_body(model, prompt, extra_body, max_tokens, generation, unsupported):
+    """The exact JSON sent to a provider. Separated from call() so a test can inspect it without a network.
+
+    Generation parameters are sent EXPLICITLY. Leaving them out means each provider applies its own
+    default, the defaults differ between providers and change without notice, and two runs of the same
+    battery are then not comparable - which quietly makes the whole ranking unreproducible. It is the
+    first thing anyone technical will ask about, and they are right to.
+
+    `unsupported` lists parameters a given provider rejects (some return 400 on a key they do not know).
+    Those are dropped for that provider only, and the drop is recorded in the results so a reader can
+    see which models were measured under exactly which settings.
+    """
+    body = {"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": max_tokens}
+    applied, dropped = {}, []
+    for k, v in (generation or {}).items():
+        if k in (unsupported or []):
+            dropped.append(k)
+        else:
+            body[k] = v
+            applied[k] = v
+    body.update(extra_body or {})
+    return body, applied, dropped
+
+
+def call(url, key, model, prompt, extra_body, max_tokens, timeout, generation=None, unsupported=None):
     host = urlparse(url).hostname or ""
     if host not in ALLOWED_HOSTS:
         # Belt and braces: gate_contributions.py blocks this in CI, and this blocks it at request time,
@@ -140,8 +164,7 @@ def call(url, key, model, prompt, extra_body, max_tokens, timeout):
         return {"http": 0, "seconds": 0.0, "text": "",
                 "error": "refused: %r is not in ALLOWED_HOSTS. This sends a real API key in a header, "
                          "so destinations are declared in code." % host}
-    body = {"model": model, "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": max_tokens, **(extra_body or {})}
+    body, applied, dropped = build_body(model, prompt, extra_body, max_tokens, generation, unsupported)
     headers = {"Content-Type": "application/json", "User-Agent": UA, "Authorization": "Bearer " + key}
     started = time.time()
     try:
@@ -162,7 +185,8 @@ def call(url, key, model, prompt, extra_body, max_tokens, timeout):
         text = re.sub(r"<think>.*?</think>|<thought>.*?</thought>", "", text, flags=re.S).strip()
         return {"http": 200, "seconds": round(time.time() - started, 1), "text": text,
                 "reasoning_field": bool(msg.get("reasoning") or msg.get("reasoning_content")),
-                "thought_out_loud": thought_out_loud}
+                "thought_out_loud": thought_out_loud,
+                "generation_applied": applied, "generation_dropped": dropped}
     except urllib.error.HTTPError as e:
         return {"http": e.code, "seconds": round(time.time() - started, 1), "text": "",
                 "error": redact(e.read().decode("utf-8", "replace"))[:200]}
@@ -170,7 +194,9 @@ def call(url, key, model, prompt, extra_body, max_tokens, timeout):
         return {"http": 0, "seconds": round(time.time() - started, 1), "text": "", "error": redact(str(e))[:160]}
 
 
-def run_provider(prov, lang, rows, lock, repeat_paragraph):
+def run_provider(prov, lang, rows, lock, repeat, repeat_paragraph):
+    generation = lang.get("generation") or {}
+    unsupported = prov.get("unsupported_params") or []
     url, key = prov["url"], os.environ[prov["key_env"]]
     # Only declared placeholders may be substituted. Without this, a contributed URL such as
     # https://evil.example/{OPENROUTER_API_KEY}/ would put a second key straight into the request path.
@@ -186,12 +212,15 @@ def run_provider(prov, lang, rows, lock, repeat_paragraph):
     for model in prov["models"]:
         for name, spec in lang["probes"].items():
             max_tokens = model.get("max_tokens", spec.get("max_tokens", 1200))
-            # The paragraph probe is the only one a model can fail by accident, and the only one a jury
-            # scores. Running it more than once and taking the majority is free and kills most of the noise.
-            tries = repeat_paragraph if spec["kind"] == "paragraph" else 1
+            # Every probe runs more than once. A single call cannot tell a model that fails from a model
+            # that had one bad moment, and publishing one number per model implies a confidence we would
+            # not have earned. The paragraph probe can be given a higher count of its own, since it is
+            # the only one a jury also scores.
+            tries = repeat_paragraph if spec["kind"] == "paragraph" else repeat
             attempts = []
             for i in range(tries):
-                r = call(url, key, model["id"], spec["prompt"], model.get("extra_body"), max_tokens, timeout)
+                r = call(url, key, model["id"], spec["prompt"], model.get("extra_body"), max_tokens,
+                         timeout, generation, unsupported)
                 if r["http"] == 200:
                     ok, note = check(name, spec, r["text"], lang)
                 else:
@@ -199,11 +228,13 @@ def run_provider(prov, lang, rows, lock, repeat_paragraph):
                 attempts.append({"passed": ok, "note": note, "http": r["http"], "seconds": r["seconds"],
                                  "reasoning_field": r.get("reasoning_field"),
                                  "thought_out_loud": r.get("thought_out_loud"),
+                                 "generation_applied": r.get("generation_applied"),
+                                 "generation_dropped": r.get("generation_dropped"),
                                  "text": r.get("text", "")[:2500 if spec["kind"] == "paragraph" else 400]})
                 if i + 1 < tries:
                     time.sleep(prov.get("pause_seconds", 2))
             wins = sum(1 for a in attempts if a["passed"])
-            passed = wins * 2 > tries
+            passed = wins * 2 > tries    # majority; a tie counts as a failure
             # Report the attempt that decided the verdict, so text and note match the pass/fail.
             best = next((a for a in attempts if a["passed"] == passed), attempts[0])
             row = {"provider": prov["name"], "model": model["id"], "probe": name, "kind": spec["kind"],
@@ -211,6 +242,8 @@ def run_provider(prov, lang, rows, lock, repeat_paragraph):
                    "seconds": round(sum(a["seconds"] for a in attempts) / len(attempts), 1),
                    "attempts": tries, "attempts_passed": wins,
                    "reasoning_field": best["reasoning_field"], "thought_out_loud": best["thought_out_loud"],
+                   "generation_applied": best.get("generation_applied"),
+                   "generation_dropped": best.get("generation_dropped"),
                    "text": best["text"],
                    "all_texts": [a["text"] for a in attempts] if tries > 1 else None}
             with lock:
@@ -244,10 +277,18 @@ def recheck(results_path, lang, out_path):
         if not spec:
             continue
         was = row["passed"]
-        now, note = check(row["probe"], spec, row.get("text", ""), lang)
+        # Re-score every attempt, not just the one that was reported. attempts_passed feeds the score
+        # RANGE in rank.py, so leaving it stale would publish a corrected verdict with an uncorrected
+        # spread beside it - two numbers about the same model that disagree.
+        texts = row.get("all_texts") or [row.get("text", "")]
+        verdicts = [check(row["probe"], spec, t, lang) for t in texts if t is not None]
+        wins = sum(1 for ok, _ in verdicts if ok)
+        now = wins * 2 > len(verdicts) if verdicts else False
+        note = next((n for ok, n in verdicts if ok == now), verdicts[0][1] if verdicts else "empty")
         if now != was:
             changed.append((row["provider"], row["model"], row["probe"], was, now, row.get("text", "")[:60]))
         row["passed"], row["note"] = now, note
+        row["attempts"], row["attempts_passed"] = len(verdicts), wins
     data["rechecked"] = True
     Path(out_path).write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n",
                               encoding="utf-8", newline="\n")
@@ -270,9 +311,12 @@ def main():
     ap.add_argument("--language", default="ro", help="probe set from bench/languages/ (default: ro)")
     ap.add_argument("--only", default="", help="comma-separated provider names, e.g. groq,cerebras")
     ap.add_argument("--providers", default=str(HERE / "providers.json"))
-    ap.add_argument("--repeat-paragraph", type=int, default=3, metavar="N",
-                    help="run the paragraph probe N times and take the majority verdict (default: 3). "
-                         "The other three probes are deterministic enough to run once.")
+    ap.add_argument("--repeat", type=int, default=3, metavar="N",
+                    help="run EVERY probe N times and take the majority verdict (default: 3). One call "
+                         "cannot separate a model that fails from a model that had a bad moment, and the "
+                         "spread between runs is published rather than hidden.")
+    ap.add_argument("--repeat-paragraph", type=int, default=None, metavar="N",
+                    help="a different count for the paragraph probe only (default: same as --repeat)")
     a = ap.parse_args()
 
     if not re.fullmatch(r"[a-z]{2,8}", a.language or ""):
@@ -295,13 +339,19 @@ def main():
             print("  %-12s %-22s %s" % (name, env, signup))
         return 1
 
-    print("language: %s | probes: %s | paragraph probe run %dx | providers: %s\n"
-          % (lang["language"], ", ".join(lang["probes"]), a.repeat_paragraph,
-             ", ".join("%s(%d)" % (p["name"], len(p["models"])) for p in live)))
+    gen = lang.get("generation") or {}
+    repeat_par = a.repeat_paragraph if a.repeat_paragraph is not None else a.repeat
+    print("language: %s | probes: %s | every probe run %dx, paragraph %dx"
+          % (lang["language"], ", ".join(lang["probes"]), a.repeat, repeat_par))
+    print("generation: %s"
+          % (", ".join("%s=%s" % kv for kv in sorted(gen.items())) if gen
+             else "NONE SET - every provider will use its own default and results will NOT be reproducible"))
+    print("providers: %s\n" % ", ".join("%s(%d)" % (p["name"], len(p["models"])) for p in live))
 
     rows, lock, threads = [], threading.Lock(), []
     for p in live:
-        t = threading.Thread(target=run_provider, args=(p, lang, rows, lock, a.repeat_paragraph), daemon=True)
+        t = threading.Thread(target=run_provider,
+                             args=(p, lang, rows, lock, a.repeat, repeat_par), daemon=True)
         t.start()
         threads.append(t)
     for t in threads:
@@ -317,7 +367,8 @@ def main():
 
     Path(a.out).write_text(json.dumps({
         "language": lang["code"], "probe_count": len(lang["probes"]),
-        "paragraph_attempts": a.repeat_paragraph, "rows": rows,
+        "generation": lang.get("generation") or {},
+        "attempts_per_probe": a.repeat, "paragraph_attempts": repeat_par, "rows": rows,
         "mechanical_score": [{"provider": k[0], "model": k[1], "passed": v["passed"],
                               "of": len(lang["probes"]),
                               "avg_seconds": round(sum(v["seconds"]) / len(v["seconds"]), 1),

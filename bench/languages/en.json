@@ -2,6 +2,12 @@
  "language": "English",
  "code": "en",
  "note": "English control set. Same four probes, same difficulty, no diacritics check (English has none) - probe B checks a mechanical rewrite constraint instead.",
+ "generation_note": "Generation parameters are DATA, not constants buried in code. Without them every provider uses its own default, the defaults differ, and two runs are not comparable - which makes the whole ranking unreproducible. temperature 0 because this measures instruction-following, not creativity.",
+ "generation": {
+  "temperature": 0,
+  "top_p": 1,
+  "seed": 20260906
+ },
  "diacritics": "",
  "wrong_diacritics": "",
  "wrong_diacritics_note": "",
@@ -9,14 +15,27 @@
   "A": {
    "kind": "arithmetic",
    "prompt": "A subscription costs 96,000 euro per year. The discount is 15%. What is the discount and what is left to pay? Answer with ONLY the two amounts in euro, as whole numbers, separated by a comma, no other text.",
-   "expect_numbers": [14400, 81600],
+   "expect_numbers": [
+    14400,
+    81600
+   ],
    "max_tokens": 1200
   },
   "B": {
    "kind": "constrained_rewrite",
    "prompt": "Rewrite this sentence in the past tense, keeping the meaning identical and using no contractions: 'if you want to buy an annual subscription you need to have the money ready'. Answer with ONLY the rewritten sentence.",
-   "must_contain": ["subscription"],
-   "must_not_contain": ["'ll", "'re", "n't", "'ve", "'d", "'m", "'s"],
+   "must_contain": [
+    "subscription"
+   ],
+   "must_not_contain": [
+    "'ll",
+    "'re",
+    "n't",
+    "'ve",
+    "'d",
+    "'m",
+    "'s"
+   ],
    "min_chars": 50,
    "max_chars": 220,
    "max_tokens": 1200
@@ -24,8 +43,16 @@
   "C": {
    "kind": "json_extraction",
    "prompt": "From the text: 'Meridian series, 2 modules, 54 W, revision 3, 89,900 units' extract a JSON object with exactly these keys: series, modules, watts, revision, units (numbers as numbers, not as text). Answer with ONLY the valid JSON, no explanation and no code fence.",
-   "expect": {"series": "meridian", "modules": 2, "watts": 54, "revision": 3, "units": 89900},
-   "string_keys": ["series"],
+   "expect": {
+    "series": "meridian",
+    "modules": 2,
+    "watts": 54,
+    "revision": 3,
+    "units": 89900
+   },
+   "string_keys": [
+    "series"
+   ],
    "max_tokens": 1200
   },
   "D": {

@@ -100,7 +100,10 @@ def main():
         d["of"] += 1
         d["seconds"].append(row["seconds"])
         d["http"].append(row["http"])
-        d["probes"][row["probe"]] = {"passed": row["passed"], "note": row["note"], "kind": row["kind"]}
+        d["probes"][row["probe"]] = {"passed": row["passed"], "note": row["note"], "kind": row["kind"],
+                                     "attempts": row.get("attempts", 1),
+                                     "attempts_passed": row.get("attempts_passed",
+                                                                1 if row["passed"] else 0)}
 
     models, unreachable = [], []
     for (provider, model), d in sorted(per.items()):
@@ -119,7 +122,16 @@ def main():
         if provider in excluded:
             continue
         # Score on the probes that actually ran, not on the ones the network ate.
-        mech = d["passed"] / max(1, d["of"] - blocked) * 10
+        answered = max(1, d["of"] - blocked)
+        mech = d["passed"] / answered * 10
+        # Every probe runs several times, so the mechanical half is a range, not a point. The low end
+        # counts only probes that passed EVERY attempt; the high end counts those that passed at least
+        # one. A model whose two ends are far apart is unstable, and that is worth seeing.
+        always = sum(1 for v in d["probes"].values()
+                     if v["attempts"] and v["attempts_passed"] == v["attempts"])
+        ever = sum(1 for v in d["probes"].values() if v["attempts_passed"] > 0)
+        mech_low, mech_high = always / answered * 10, min(ever, answered) / answered * 10
+        stability = {p: "%d/%d" % (v["attempts_passed"], v["attempts"]) for p, v in d["probes"].items()}
         j = by_model.get("%s | %s" % (provider, model), {})
         scored = [j[l] for l in lenses if l in j]
         scored_agent = [j[l] for l in agent_lenses if l in j]
@@ -135,6 +147,10 @@ def main():
             "quality": round(0.5 * mech + 0.5 * jury_mean, 1) if judged else round(mech, 1),
             "quality_for_agents": round(0.5 * mech + 0.5 * jury_agent, 1) if jury_agent is not None else round(mech, 1),
             "scale": "probes+jury" if judged else "probes only",
+            "quality_low": round(0.5 * mech_low + 0.5 * jury_mean, 1) if judged else round(mech_low, 1),
+            "quality_high": round(0.5 * mech_high + 0.5 * jury_mean, 1) if judged else round(mech_high, 1),
+            "probe_stability": stability,
+            "unstable": any(0 < v["attempts_passed"] < v["attempts"] for v in d["probes"].values()),
             "judged": judged,
             "probes_passed": d["passed"], "probes_total": d["of"], "probes_answered": d["of"] - blocked,
             "http_failures": blocked, "http_codes": d["http"],
@@ -184,10 +200,21 @@ def main():
             probes = "%d/%d" % (m["probes_passed"], m["probes_answered"])
             if m["http_failures"]:
                 probes += " ⚠"  # some probes never got an answer; see the footnote
-            body += "| %d | `%s` | %s | **%s** | %s | %s | %s | %s | %.1f s |\n" % (
-                i, m["model"], m["provider"], m[quality_key], probes,
+            # A single number claims a confidence we did not earn. Show the range whenever the model
+            # did not return the same verdict on every attempt.
+            score = "**%s**" % m[quality_key]
+            if m.get("unstable") and m.get("quality_low") is not None:
+                score += "<br><sub>%s-%s</sub>" % (m["quality_low"], m["quality_high"])
+            body += "| %d | `%s` | %s | %s | %s | %s | %s | %s | %.1f s |\n" % (
+                i, m["model"], m["provider"], score, probes,
                 jury_cell, rpd, m["volume_confidence"], m["avg_seconds"])
         note = ""
+        if any(m.get("unstable") for m in rows):
+            note += ("\nThe smaller number under a score is the RANGE across repeated attempts: the low end "
+                     "counts only probes that passed every time, the high end those that passed at least "
+                     "once. A score with no range under it was identical on every attempt. **%d of %d "
+                     "models here were not.**\n"
+                     % (sum(1 for m in rows if m.get("unstable")), len(rows)))
         if any(m["http_failures"] for m in rows):
             note = ("\n⚠ = one or more probes never received an answer (503, 429, 402 or a timeout). Those "
                     "probes are excluded from the score rather than counted as failures, because an "

@@ -2,6 +2,12 @@
  "language": "Romanian",
  "code": "ro",
  "note": "These are the exact prompts used to produce the published results. Nothing was reworded afterwards, so a re-run reproduces the same conditions.",
+ "generation_note": "Generation parameters are DATA, not constants buried in code. Without them every provider uses its own default, the defaults differ, and two runs are not comparable - which makes the whole ranking unreproducible. temperature 0 because this measures instruction-following, not creativity.",
+ "generation": {
+  "temperature": 0,
+  "top_p": 1,
+  "seed": 20260906
+ },
  "diacritics": "ăâîșțĂÂÎȘȚ",
  "wrong_diacritics": "şţŞŢ",
  "wrong_diacritics_note": "Romanian s and t take a COMMA below (ș ț, U+0219/U+021B). The cedilla forms (ş ţ, U+015F/U+0163) are a legacy Turkish-alphabet mistake that a lot of models still emit. A model that ships cedillas fails probe B even if the sentence is otherwise perfect.",
@@ -9,14 +15,19 @@
   "A": {
    "kind": "arithmetic",
    "prompt": "Un abonament costă 96.000 de euro pe an. Reducerea este de 15%. Cât e reducerea și cât rămâne de plată? Răspunde DOAR cu cele două sume în euro, ca numere întregi, separate prin virgulă, fără alt text.",
-   "expect_numbers": [14400, 81600],
+   "expect_numbers": [
+    14400,
+    81600
+   ],
    "max_tokens": 1200
   },
   "B": {
    "kind": "diacritics_rewrite",
    "prompt": "Rescrie propoziția următoare în română corectă, cu diacritice (a cu căciulă, a cu circumflex, i cu circumflex, s cu virgulă, t cu virgulă), fără să schimbi sensul: 'daca vrei sa cumperi un abonament anual trebuie sa ai suma pregatita'. Răspunde DOAR cu propoziția rescrisă.",
    "min_diacritics": 4,
-   "must_contain": ["abonament"],
+   "must_contain": [
+    "abonament"
+   ],
    "min_chars": 50,
    "max_chars": 220,
    "max_tokens": 1200
@@ -24,8 +35,16 @@
   "C": {
    "kind": "json_extraction",
    "prompt": "Din textul: 'Seria Meridian, 2 module, 54 W, revizia 3, 89.900 de unități' extrage un obiect JSON cu cheile exact: serie, module, watti, revizie, unitati (numerele ca numere, nu ca text). Răspunde DOAR cu JSON-ul valid, fără explicații și fără bloc de cod.",
-   "expect": {"serie": "meridian", "module": 2, "watti": 54, "revizie": 3, "unitati": 89900},
-   "string_keys": ["serie"],
+   "expect": {
+    "serie": "meridian",
+    "module": 2,
+    "watti": 54,
+    "revizie": 3,
+    "unitati": 89900
+   },
+   "string_keys": [
+    "serie"
+   ],
    "max_tokens": 1200
   },
   "D": {

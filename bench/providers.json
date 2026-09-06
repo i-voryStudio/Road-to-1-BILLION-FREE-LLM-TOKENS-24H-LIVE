@@ -6,7 +6,11 @@
   "the runner gives each provider its own thread, so a slow provider does not hold up the others.",
   "extra_body carries the per-provider switch that turns reasoning down or off. Leaving it out is the",
   "single most common reason a 200 comes back with an empty message: the model spent its whole token",
-  "budget thinking. See README, 'Why a model returns 200 and nothing else'."
+  "budget thinking. See README, 'Why a model returns 200 and nothing else'.",
+  "",
+  "unsupported_params: parameters this provider REJECTS with a 400. Measured, one provider at a",
+  "time, by sending each parameter and seeing what comes back - not guessed. They are dropped for",
+  "that provider only, and every result records which parameters were actually applied to it."
  ],
  "providers": [
   {
@@ -16,10 +20,20 @@
    "signup": "https://aistudio.google.com/apikey",
    "pause_seconds": 13,
    "models": [
-    {"id": "gemini-3.8-flash"},
-    {"id": "gemini-3.5-flash-lite"},
-    {"id": "gemma-4-31b-it"}
-   ]
+    {
+     "id": "gemini-3.8-flash"
+    },
+    {
+     "id": "gemini-3.5-flash-lite"
+    },
+    {
+     "id": "gemma-4-31b-it"
+    }
+   ],
+   "unsupported_params": [
+    "seed"
+   ],
+   "unsupported_measured_on": "2026-09-06"
   },
   {
    "name": "cerebras",
@@ -28,9 +42,18 @@
    "signup": "https://cloud.cerebras.ai",
    "pause_seconds": 13,
    "models": [
-    {"id": "gemma-4-31b"},
-    {"id": "gpt-oss-120b", "extra_body": {"reasoning_effort": "low"}},
-    {"id": "qwen-3.8-27b"}
+    {
+     "id": "gemma-4-31b"
+    },
+    {
+     "id": "gpt-oss-120b",
+     "extra_body": {
+      "reasoning_effort": "low"
+     }
+    },
+    {
+     "id": "qwen-3.8-27b"
+    }
    ]
   },
   {
@@ -40,10 +63,24 @@
    "signup": "https://console.groq.com/keys",
    "pause_seconds": 4,
    "models": [
-    {"id": "qwen/qwen3.8-27b"},
-    {"id": "openai/gpt-oss-120b", "extra_body": {"reasoning_effort": "low"}},
-    {"id": "openai/gpt-oss-20b", "extra_body": {"reasoning_effort": "low"}},
-    {"id": "qwen/qwen3.6-27b"}
+    {
+     "id": "qwen/qwen3.8-27b"
+    },
+    {
+     "id": "openai/gpt-oss-120b",
+     "extra_body": {
+      "reasoning_effort": "low"
+     }
+    },
+    {
+     "id": "openai/gpt-oss-20b",
+     "extra_body": {
+      "reasoning_effort": "low"
+     }
+    },
+    {
+     "id": "qwen/qwen3.6-27b"
+    }
    ]
   },
   {
@@ -53,9 +90,22 @@
    "signup": "https://openrouter.ai/keys",
    "pause_seconds": 4,
    "models": [
-    {"id": "minimax/minimax-m3:free", "max_tokens": 4000},
-    {"id": "minimax/minimax-m2.7:free", "max_tokens": 4000},
-    {"id": "nvidia/nemotron-3-ultra-550b-a55b:free", "extra_body": {"chat_template_kwargs": {"enable_thinking": false}}}
+    {
+     "id": "minimax/minimax-m3:free",
+     "max_tokens": 4000
+    },
+    {
+     "id": "minimax/minimax-m2.7:free",
+     "max_tokens": 4000
+    },
+    {
+     "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
+     "extra_body": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    }
    ]
   },
   {
@@ -65,11 +115,21 @@
    "signup": "https://dash.cloudflare.com/profile/api-tokens",
    "pause_seconds": 2,
    "models": [
-    {"id": "@cf/openai/gpt-oss-120b"},
-    {"id": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"},
-    {"id": "@cf/google/gemma-4-26b-a4b-it"},
-    {"id": "@cf/qwen/qwen3.8-27b"},
-    {"id": "@cf/mistralai/mistral-small-3.1-24b-instruct"}
+    {
+     "id": "@cf/openai/gpt-oss-120b"
+    },
+    {
+     "id": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+    },
+    {
+     "id": "@cf/google/gemma-4-26b-a4b-it"
+    },
+    {
+     "id": "@cf/qwen/qwen3.8-27b"
+    },
+    {
+     "id": "@cf/mistralai/mistral-small-3.1-24b-instruct"
+    }
    ]
   },
   {
@@ -80,11 +140,34 @@
    "pause_seconds": 3,
    "timeout_seconds": 180,
    "models": [
-    {"id": "nvidia/nemotron-3-super-120b-a12b", "extra_body": {"chat_template_kwargs": {"enable_thinking": false}}},
-    {"id": "nvidia/nemotron-3-ultra-550b-a55b", "extra_body": {"chat_template_kwargs": {"enable_thinking": false}}},
-    {"id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning", "max_tokens": 2500},
-    {"id": "nvidia/nemotron-3.5-lightning-30b-a3b", "max_tokens": 2500},
-    {"id": "moonshotai/kimi-k3", "max_tokens": 2500}
+    {
+     "id": "nvidia/nemotron-3-super-120b-a12b",
+     "extra_body": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    {
+     "id": "nvidia/nemotron-3-ultra-550b-a55b",
+     "extra_body": {
+      "chat_template_kwargs": {
+       "enable_thinking": false
+      }
+     }
+    },
+    {
+     "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+     "max_tokens": 2500
+    },
+    {
+     "id": "nvidia/nemotron-3.5-lightning-30b-a3b",
+     "max_tokens": 2500
+    },
+    {
+     "id": "moonshotai/kimi-k3",
+     "max_tokens": 2500
+    }
    ]
   },
   {
@@ -94,9 +177,21 @@
    "signup": "https://ollama.com/settings/keys",
    "pause_seconds": 2,
    "models": [
-    {"id": "gemma4:31b"},
-    {"id": "gpt-oss:120b", "extra_body": {"reasoning_effort": "low"}},
-    {"id": "gpt-oss:20b", "extra_body": {"reasoning_effort": "low"}}
+    {
+     "id": "gemma4:31b"
+    },
+    {
+     "id": "gpt-oss:120b",
+     "extra_body": {
+      "reasoning_effort": "low"
+     }
+    },
+    {
+     "id": "gpt-oss:20b",
+     "extra_body": {
+      "reasoning_effort": "low"
+     }
+    }
    ]
   },
   {
@@ -106,10 +201,30 @@
    "signup": "https://modelstudio.console.alibabacloud.com",
    "pause_seconds": 2,
    "models": [
-    {"id": "qwen-flash", "extra_body": {"enable_thinking": false}},
-    {"id": "qwen-plus", "extra_body": {"enable_thinking": false}},
-    {"id": "qwen-turbo", "extra_body": {"enable_thinking": false}},
-    {"id": "qwen3.5-flash", "extra_body": {"enable_thinking": false}}
+    {
+     "id": "qwen-flash",
+     "extra_body": {
+      "enable_thinking": false
+     }
+    },
+    {
+     "id": "qwen-plus",
+     "extra_body": {
+      "enable_thinking": false
+     }
+    },
+    {
+     "id": "qwen-turbo",
+     "extra_body": {
+      "enable_thinking": false
+     }
+    },
+    {
+     "id": "qwen3.5-flash",
+     "extra_body": {
+      "enable_thinking": false
+     }
+    }
    ]
   },
   {
@@ -119,8 +234,14 @@
    "signup": "https://xkiro.com",
    "pause_seconds": 3,
    "models": [
-    {"id": "minimax/minimax-m2.7:free", "max_tokens": 4000},
-    {"id": "minimax/minimax-m3:free", "max_tokens": 4000}
+    {
+     "id": "minimax/minimax-m2.7:free",
+     "max_tokens": 4000
+    },
+    {
+     "id": "minimax/minimax-m3:free",
+     "max_tokens": 4000
+    }
    ]
   },
   {
@@ -130,7 +251,9 @@
    "signup": "https://siliconflow.com",
    "pause_seconds": 2,
    "models": [
-    {"id": "Qwen/Qwen3-Coder-30B-A3B-Instruct"}
+    {
+     "id": "Qwen/Qwen3-Coder-30B-A3B-Instruct"
+    }
    ]
   }
  ]

@@ -21,12 +21,14 @@ Measured **2026-09-07**. `?` means we do not know, and we would rather write tha
 | `gemini-3.8-flash` | google | 67.3 | key | 76.3 | 47.1 | 41.2 | 1320 | 10,000 | 20 | DECLARED | 67% | yes | May not be used for apps serving users in the EEA, Switzerland or the UK |
 | `openai/gpt-oss-20b` | groq | 47.1 | key | 20.7 | ? | 1.4 | ? | 200,000 | 1,000 | PAID-PLAN | 88% | UNKNOWN | we send `{"reasoning_effort": "low"}` |
 | `@cf/openai/gpt-oss-120b` | cloudflare | not ranked | key | 30.4 | 15.6 | 6.3 | 980 | ? | ? | UNKNOWN | 90% | UNKNOWN | daily volume unknown - see LIMITS.md |
+| `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | not ranked | key | 11.9 | ? | ? | ? | ? | ? | UNKNOWN | 90% | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `@cf/google/gemma-4-26b-a4b-it` | cloudflare | not ranked | key | 39.3 | ? | ? | ? | ? | ? | UNKNOWN | 90% | UNKNOWN | answers blank unless thinking is off; daily volume unknown - see LIMITS.md |
 | `@cf/qwen/qwen3.8-27b` | cloudflare | not ranked | key | 68.1 | 41.4 | 46.8 | ? | ? | ? | UNKNOWN | 90% | UNKNOWN | answers blank unless thinking is off; daily volume unknown - see LIMITS.md |
 | `gemma-4-31b-it` | google | not ranked | key | 43.4 | ? | 6.8 | ? | ? | ? | UNKNOWN | 67% | yes | answers blank unless thinking is off; daily volume unknown - see LIMITS.md; May not be used for apps serving users in the EEA, Switzerland or the UK |
 | `nvidia/nemotron-3-super-120b-a12b` | nvidia | not ranked | key | 37.7 | ? | 4.2 | ? | ? | ? | UNKNOWN | 65% | UNKNOWN | we send `{"chat_template_kwargs": {"enable_thinking": false}}`; daily volume unknown - see LIMITS.md |
 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | not ranked | key | 49.3 | ? | 21.7 | 1153 | ? | ? | UNKNOWN | 65% | UNKNOWN | we send `{"chat_template_kwargs": {"enable_thinking": false}}`; daily volume unknown - see LIMITS.md |
 | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | nvidia | not ranked | key | 13.8 | ? | ? | ? | ? | ? | UNKNOWN | 65% | UNKNOWN | daily volume unknown - see LIMITS.md |
+| `nvidia/nemotron-3.5-lightning-30b-a3b` | nvidia | not ranked | key | 26.8 | ? | ? | ? | ? | ? | UNKNOWN | 65% | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `moonshotai/kimi-k3` | nvidia | not ranked | key | 76.2 | 50.2 | 50.9 | 1392 | ? | ? | UNKNOWN | 65% | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `gemma4:31b` | ollama | not ranked | key | 43.4 | ? | 6.8 | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `gpt-oss:120b` | ollama | not ranked | key | 30.4 | 15.6 | 6.3 | 980 | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"reasoning_effort": "low"}`; daily volume unknown - see LIMITS.md |
@@ -35,9 +37,7 @@ Measured **2026-09-07**. `?` means we do not know, and we would rather write tha
 | `qwen-plus` | alibaba | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"enable_thinking": false}`; no official benchmark score published for this model |
 | `qwen-turbo` | alibaba | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"enable_thinking": false}`; no official benchmark score published for this model |
 | `qwen3.5-flash` | alibaba | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"enable_thinking": false}`; no official benchmark score published for this model |
-| `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 90% | UNKNOWN | no official benchmark score published for this model |
 | `@cf/mistralai/mistral-small-3.1-24b-instruct` | cloudflare | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 90% | UNKNOWN | no official benchmark score published for this model |
-| `nvidia/nemotron-3.5-lightning-30b-a3b` | nvidia | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 65% | UNKNOWN | no official benchmark score published for this model |
 | `Qwen/Qwen3-Coder-30B-A3B-Instruct` | siliconflow | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
 
 ## What the columns mean

@@ -1,5 +1,5 @@
 {
- "fetched_on": "2026-09-06",
+ "fetched_on": "2026-09-07",
  "source": "https://openrouter.ai/api/v1/models",
  "source_note": "Scores are republished by OpenRouter from Artificial Analysis and Design Arena. We do not run them ourselves and do not modify them. See CREDITS.md.",
  "benchmarks": {
@@ -268,6 +268,14 @@
   },
   {
    "provider": "cloudflare",
+   "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+   "matched_as": "meta-llama/llama-3.3-70b-instruct",
+   "artificial_analysis": {
+    "coding_index": 11.9
+   }
+  },
+  {
+   "provider": "cloudflare",
    "model": "@cf/google/gemma-4-26b-a4b-it",
    "matched_as": "google/gemma-4-26b-a4b-it:free",
    "artificial_analysis": {
@@ -325,6 +333,14 @@
    "matched_as": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
    "artificial_analysis": {
     "coding_index": 13.8
+   }
+  },
+  {
+   "provider": "nvidia",
+   "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+   "matched_as": "nvidia/nemotron-3.5-lightning:free",
+   "artificial_analysis": {
+    "coding_index": 26.8
    }
   },
   {
@@ -475,15 +491,7 @@
  "unmatched": [
   {
    "provider": "cloudflare",
-   "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
-  },
-  {
-   "provider": "cloudflare",
    "model": "@cf/mistralai/mistral-small-3.1-24b-instruct"
-  },
-  {
-   "provider": "nvidia",
-   "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
   },
   {
    "provider": "alibaba",

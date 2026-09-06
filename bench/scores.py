@@ -48,7 +48,31 @@ def normalise(model_id):
     s = re.sub(r":free$|:batch$|:extended$|:thinking$|-latest$", "", s)
     s = s.split("/")[-1]
     s = s.replace(":", "-")                 # ollama's gpt-oss:120b -> gpt-oss-120b
+    # Serving suffixes describe HOW a provider runs the weights, not WHICH weights. Cloudflare's
+    # `llama-3.3-70b-instruct-fp8-fast` and OpenRouter's `llama-3.3-70b-instruct` are the same model,
+    # and leaving these on cost us three published scores that were sitting right there.
+    for suffix in ("-fp8-fast", "-fp8", "-fp16", "-bf16", "-awq", "-gptq", "-int8", "-int4",
+                   "-instruct", "-it", "-chat", "-hf", "-fast", "-turbo-instruct"):
+        if s.endswith(suffix):
+            s = s[: -len(suffix)]
     return re.sub(r"[^a-z0-9.]", "", s)
+
+
+def same_model(a, b):
+    """True when two normalised ids name the same weights.
+
+    Exact match, or one is the other plus a parameter-shape tail the provider spells out and the
+    benchmark does not (`nemotron-3.5-lightning-30b-a3b` against `nemotron-3.5-lightning`). The tail
+    must look like a size or MoE shape - never arbitrary extra words, because attaching one model's
+    reputation to another model's endpoint is the worst error this file could make.
+    """
+    if a == b:
+        return True
+    long, short = (a, b) if len(a) > len(b) else (b, a)
+    if not long.startswith(short):
+        return False
+    tail = long[len(short):]
+    return bool(re.fullmatch(r"[0-9]{1,3}[bm](a[0-9]{1,3}b)?", tail))
 
 
 def build_index(models):
@@ -103,9 +127,9 @@ def main():
             key = normalise(m["id"])
             hit = idx.get(key)
             if not hit:
-                # Second pass: a containment match, but only when the lengths are close. Loose matching
-                # here would silently attach one model's reputation to another one's endpoint.
-                cands = [k for k in idx if key and (key in k or k in key) and abs(len(k) - len(key)) <= 5]
+                # Second pass: same weights under a different spelling. Only accepted when exactly one
+                # candidate matches - an ambiguous match is no match, and is reported as UNSCORED.
+                cands = [k for k in idx if same_model(key, k)]
                 hit = idx[cands[0]] if len(cands) == 1 else None
             if hit:
                 rows.append({"provider": p["name"], "model": m["id"], "matched_as": hit["source_id"],

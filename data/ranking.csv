@@ -14,12 +14,14 @@ groq,openai/gpt-oss-120b,69.2,KEY,30.4,15.6,980,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2
 google,gemini-3.8-flash,67.3,KEY,76.3,47.1,1320,20,DECLARED,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-07
 groq,openai/gpt-oss-20b,47.1,KEY,20.7,,,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/openai/gpt-oss-120b,,KEY,30.4,15.6,980,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+cloudflare,@cf/meta/llama-3.3-70b-instruct-fp8-fast,,KEY,11.9,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/google/gemma-4-26b-a4b-it,,KEY,39.3,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/qwen/qwen3.8-27b,,KEY,68.1,41.4,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 google,gemma-4-31b-it,,KEY,43.4,,,,UNKNOWN,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-07
 nvidia,nvidia/nemotron-3-super-120b-a12b,,KEY,37.7,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 nvidia,nvidia/nemotron-3-ultra-550b-a55b,,KEY,49.3,,1153,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 nvidia,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning,,KEY,13.8,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+nvidia,nvidia/nemotron-3.5-lightning-30b-a3b,,KEY,26.8,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 nvidia,moonshotai/kimi-k3,,KEY,76.2,50.2,1392,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 ollama,gemma4:31b,,KEY,43.4,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 ollama,gpt-oss:120b,,KEY,30.4,15.6,980,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
@@ -28,7 +30,5 @@ alibaba,qwen-flash,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 alibaba,qwen-plus,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 alibaba,qwen-turbo,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 alibaba,qwen3.5-flash,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
-cloudflare,@cf/meta/llama-3.3-70b-instruct-fp8-fast,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/mistralai/mistral-small-3.1-24b-instruct,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
-nvidia,nvidia/nemotron-3.5-lightning-30b-a3b,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 siliconflow,Qwen/Qwen3-Coder-30B-A3B-Instruct,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07

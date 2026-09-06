@@ -1,225 +1,129 @@
-# Free LLM APIs, Rated by Quality and Volume
+# Free LLM APIs, Ranked by What You Can Actually Get Done
 
-**33 free models from 10 providers, put through the same four machine-checked probes and a blind
-three-lens jury — in Romanian, not English.**
+**Every other list ranks free LLM APIs by rate limit. This one ranks them by quality times volume —
+because a brilliant model you may call 20 times a day is worth less than a decent one you may call
+2,400 times.**
 
-Every other free-LLM list ranks by rate limit. They tell you how many requests you get. None of them
-tells you whether the model can produce a paragraph you would actually publish. So we measured that.
+Measured on **2026-09-06**. Quality is imported from official benchmarks; everything else we measure ourselves.
 
-**Every one of them can do the arithmetic. Almost none of them can write.**
+## The ranking
 
-| Probe | Passed |
-|---|---|
-| Arithmetic with one correct answer | **29 / 29** |
-| Rewrite with correct diacritics | **27 / 29** |
-| JSON extraction, right keys and types | **23 / 28** |
-| A paragraph usable at all (checker allows 70-140 words) | **23 / 30** |
-| A paragraph inside the 90-110 words actually asked for | **14 / 30** |
-| Best score any model reached on *"sounds like a person wrote it"* | **5.5 / 10** |
+| # | Model | Provider | Value | Auth | Coding | Req/day | Note |
+|---|---|---|---|---|---|---|---|
+| 1 | `qwen-3.8-27b` | cerebras | **230.2** | key | 68.1 | 2,400 | MEASURED |
+| 2 | `qwen/qwen3.8-27b` | groq | **204.3** | key | 68.1 | 1,000 | PAID-PLAN |
+| 3 | `qwen/qwen3.6-27b` | groq | **161.1** | key | 53.7 | 1,000 | PAID-PLAN |
+| 4 | `gemma-4-31b` | cerebras | **146.7** | key | 43.4 | 2,400 | MEASURED |
+| 5 | `gemini-3.5-flash-lite` | google | **133.1** | key | 49.3 | 500 | **trains on your prompts** |
+| 6 | `gpt-oss-120b` | cerebras | **102.8** | key | 30.4 | 2,400 | MEASURED |
+| 7 | `gemini-3.8-flash` | google | **100.9** | key | 76.3 | 20 | **trains on your prompts** |
+| 8 | `minimax/minimax-m3:free` | openrouter | **100.1** | key | 58.6 | 50 | DECLARED |
+| 9 | `openai/gpt-oss-120b` | groq | **91.2** | key | 30.4 | 1,000 | PAID-PLAN |
+| 10 | `minimax/minimax-m2.7:free` | openrouter | **89.8** | key | 52.6 | 50 | DECLARED |
 
-The curve falls the moment the task stops being mechanical. Two judges from different model families
-scored the paragraphs blind: the mean on "sounds human" is **3.1 out of 10**, and not one model of
-the 23 reached 6. That is the number no rate-limit table can show you.
+**Read the first two rows against row 7.** `gemini-3.8-flash` has the best coding score in the whole list — **76.3** —
+and sits at number 7, because Google gives you **20 requests a day**. The model at number 1 scores
+lower and wins anyway. That is the entire argument for ranking this way.
 
-And a warning about our own method, up front rather than buried: **the two judges barely agree on that
-lens** — they correlate at −0.07 on "sounds human" while agreeing at 0.93 on whether the Romanian is
-correct. So treat the language and instruction columns as measurements, and the human-sounding column
-as two opinions that happen to point the same way. The full breakdown, including the paragraphs they
-split hardest on, is in [agreement.md](results/2026-09-06/agreement.md).
-
-Run on **6 September 2026**. Script, prompts, raw answers and every jury score are in this repo. Nothing here is
-copied from a provider's documentation without being labelled `DECLARED`.
+Full tables, all five filters: **[RESULTS.md](RESULTS.md)** · machine-readable:
+[`data/ranking.json`](data/ranking.json), [`data/ranking.csv`](data/ranking.csv)
 
 ---
 
-## Why this exists
+## The five filters
 
-There are at least eight of these lists. We read all of them before writing this one. They publish
-roughly the same five columns: context window, max output, modality, rate limit, credit card yes/no.
-
-The good ones verify **availability**: [mnfst](https://github.com/mnfst/awesome-free-llm-apis) states
-that every row answered a live request inside a dated window;
-[12britz](https://github.com/12britz/awesome-free-models) re-checks hundreds of URLs and publishes the
-failures too. That is real work and it is genuinely useful.
-
-But none of them measures **quality**, and none of them tests in any language other than English. Where
-quality scores appear at all, they are links to somebody else's leaderboard, or benchmark numbers copied
-out of the provider's own launch post.
-
-That is the gap. A rate limit tells you how often you may call a model. It does not tell you that the
-model will answer in cedillas, return `89.9` when the text said `89.900`, or hand you 381 words when you
-asked for 100. All three happened during this run.
-
-### Why Romanian
-
-Because it is where models fail in ways an English benchmark cannot see. A model that reasons perfectly
-in English will confidently emit `ş` (cedilla, from an old Turkish-alphabet mapping) where Romanian
-requires `ș` (comma below). A native reader clocks it instantly; a benchmark scored in English never
-sees it at all.
-
-This is the repo's strength and its honest limit. Romanian is one language, and our numbers are Romanian
-numbers. The fix is not for us to guess about yours — it is for the probes to live in a JSON file
-anybody can copy. See **[Add your language](bench/languages/README.md)**.
-
----
-
-## Results
-
-Full tables: **[RESULTS.md](RESULTS.md)** · Rate limits with sources: **[LIMITS.md](LIMITS.md)** ·
-Method and its weaknesses: **[METHOD.md](METHOD.md)** · What is still wrong with this repo:
-**[IMPROVEMENTS.md](IMPROVEMENTS.md)** · How your keys are handled: **[SECURITY.md](SECURITY.md)** ·
-Machine-readable: [`data/models.json`](data/models.json), [`data/models.csv`](data/models.csv)
-
-### Top 10 by quality
-
-| # | Model | Provider | Quality | Probes | human / language / brief | Req/day | Evidence | Speed |
-|---|---|---|---|---|---|---|---|---|
-| 1 | `gemini-3.5-flash-lite` | google | **8.8** | 4/4 | 4.0 / 9.0 / 10.0 | 500 | DECLARED | 0.8 s |
-| 2 | `qwen3.5-flash` | alibaba | **8.8** | 4/4 | 3.5 / 9.5 / 10.0 | ? | UNKNOWN | 1.5 s |
-| 3 | `@cf/openai/gpt-oss-120b` | cloudflare | **8.6** | 4/4 | 2.5 / 9.0 / 10.0 | ? | UNKNOWN | 5.2 s |
-| 4 | `minimax/minimax-m2.7:free` | xkiro | **8.6** | 4/4 | 3.0 / 8.5 / 10.0 | ? | UNKNOWN | 16.4 s |
-| 5 | `minimax/minimax-m2.7:free` | openrouter | **8.5** | 4/4 | 3.0 / 8.0 / 10.0 | 50 | DECLARED | 20.4 s |
-| 6 | `openai/gpt-oss-20b` | groq | **8.3** | 4/4 | 2.5 / 7.5 / 10.0 | 1,000 | PAID-PLAN | 0.4 s |
-| 7 | `minimax/minimax-m3:free` | openrouter | **8.3**<br><sub>7.1-8.3</sub> | 4/4 | 5.0 / 10.0 / 5.0 | 50 | DECLARED | 3.5 s |
-| 8 | `openai/gpt-oss-120b` | groq | **8.1**<br><sub>6.8-8.1</sub> | 4/4 | 2.0 / 7.0 / 9.5 | 1,000 | PAID-PLAN | 0.5 s |
-| 9 | `gemma4:31b` | ollama | **8.1** | 4/4 | 2.5 / 6.5 / 9.5 | ? | UNKNOWN | 0.8 s |
-| 10 | `gemma-4-31b` | cerebras | **8.0** | 4/4 | 3.0 / 5.5 / 9.5 | 2,400 | MEASURED | 0.4 s |
-
-*Jury columns are the mean of TWO judges from different model families, 0-10 on three separate
-lenses. Read [agreement.md](results/2026-09-06/agreement.md) before trusting them: the judges
-correlate at 0.93 on language correctness and at **-0.07** on whether a text sounds human.*
-
-*`Evidence` says how we know the requests-per-day figure: MEASURED by us, DECLARED by the
-provider, **PAID-PLAN** when the only published number belongs to a paid tier rather than the free
-one, UNKNOWN when nobody publishes it — which is **19 of 30 models**, and is itself the finding.
-A smaller number under a score is the range across repeated attempts.*
-
-All 30 ranked models, the 7 that never reached the jury, and the 3 that never answered:
-**[RESULTS.md](RESULTS.md)**.
----
-
-## Three things we found that no list prints
-
-**1. Groq's public rate-limit table is the Developer plan, not the free tier.** The page says it: *"the
-limits shown below are the base limits for the Developer plan"*. Free-tier values are not published
-anywhere public. Lists that reprint 1,000 requests/day as a free-tier number are reprinting a paid
-plan's figure.
-
-**2. The limit that stops you at Groq is tokens, not requests.** 8,000 tokens per minute against 1,000
-requests per day. An article-length prompt returns 413 long before request count matters. Groq's own
-docs make the point — *"you can hit any limit type depending on which threshold you reach first"* — and
-the token column is the one the lists leave out.
-
-**3. Catalogues rot in hours, not months.** We read OpenRouter's public model list twice on one
-afternoon. Between the two readings `z-ai/glm-5.2:free` disappeared: 431 models and 19 free became 430
-and 18. Both readings, with every model id, are in
-[`results/2026-09-06/openrouter-catalogue-drift.md`](results/2026-09-06/openrouter-catalogue-drift.md),
-and you can reproduce it with one `curl`. This is why [`data/catalog.json`](data/catalog.json) is
-regenerated daily by CI — a table hand-written in August is fiction by October.
-
-A fourth, about our own numbers: **rate limits are per organization or per project at most providers.**
-Groq's docs: *"Rate limits apply at the organization level, not individual users."* Google's are per
-project. So a second API key raises nothing. You will not find a multiplied figure anywhere in this
-repo, and the publication gate rejects one if anybody tries to add it.
-
----
-
-## The four probes
-
-Full text in [`bench/languages/ro.json`](bench/languages/ro.json), exactly as sent.
-
-| Probe | Decided by | What it catches |
+| | Filter | Where it comes from |
 |---|---|---|
-| **A. Arithmetic** | code | A percentage, and whether "answer with only the numbers" is obeyed. Every model that answered got it right, 29/29 — which is exactly why the probe earns its place: it establishes that what fails later is not competence. |
-| **B. Rewrite with diacritics** | code | The writing-system trap. At least four correct diacritics, and **zero** cedillas. Separates models trained on edited Romanian from models trained on scraped Romanian. |
-| **C. JSON extraction** | code, via a real parser | Right keys, right types. One model returned `"unitati": 89.9` for **89.900** — valid JSON, wrong by a factor of a thousand. |
-| **D. Paragraph, 90–110 words** | code, then a blind jury | Whether it can write publishable prose to a length. The prompt asks for 90-110 words; the checker allows 70-140, so the score is generous about length and the README reports both numbers. Run three times, majority verdict. |
+| **1** | **Value = quality x volume** | the headline ranking |
+| 2 | Quality | **imported** from official benchmarks, never our own |
+| 3 | Volume | measured by us, or declared with a source |
+| 4 | Needs a key, or not | no-key endpoints get a declared bonus |
+| 5 | **What it costs you that is not money** | read from the provider's own terms |
 
-```
-quality            = 50% × (probes passed / 4 × 10)  +  50% × (jury mean over 3 lenses)
-quality_for_agents = the same, minus the "sounds human" lens
-```
+### Why quality is imported and everything else is measured
 
-Two numbers because they answer different questions. A model that writes stiff but correct prose is
-useless for a blog post and perfectly good for an extraction step, and one number would hide that.
+We used to run our own quality benchmark. It does not scale: free providers appear weekly, and each
+would have to go through a full battery before it could be listed at all. Worse, a benchmark run by
+whoever publishes the ranking is exactly what a careful reader should distrust.
 
-**The jury is a language model, which is a conflict of interest.** We cannot remove it, so we expose it:
-the judge is named in the results, and every judged paragraph is published. `judge.py --export` hands
-you the anonymised corpus and the exact prompts so you can re-judge the lot with a different model. If
-your jury disagrees with ours, [open an issue with your numbers](CONTRIBUTING.md) — that is a better
-outcome for this repo than agreement. The mechanical half of every score needs no jury at all.
+    imported   what the MODEL can do        <- Artificial Analysis, Design Arena
+    measured   what the PROVIDER gives you  <- quota, uptime, auth, privacy
+
+So a new provider costs nothing to rate. Serve `qwen3.8-27b` and it inherits that model's published
+scores the day we add the endpoint. That is what makes this list able to keep up.
+
+### Filter 5, which nobody else publishes
+
+Free often means you are paying with your prompts. Google's own terms, quoted, not paraphrased:
+
+> When you use Unpaid Services... Google uses the content you submit... to provide, improve, and
+> develop Google products and services and machine learning technologies
+
+> human reviewers may read, annotate, and process your API input and output
+
+And the one that should stop any European reader cold:
+
+> **You may use only Paid Services when making API Clients available to users in the European
+> Economic Area, Switzerland, or the United Kingdom.**
+
+The free Gemini tier is contractually unusable for an app with EU users. No other free-LLM list carries
+this. Most rows in filter 5 say `UNKNOWN`, because nobody has read those terms yet — and `UNKNOWN` is
+the honest default: inventing a "no" would be the most damaging wrong answer this repo could publish.
 
 ---
 
-## What this does NOT measure
+## What we measure, and what we refuse to guess
 
-- **One day.** A dated snapshot. Providers change models under the same name.
-- **One prompt per probe.** This measures instruction-following on a specific instruction — which is what
-  you get in production — not capability in general.
-- **One language.** Ours. A model that scores badly here may be excellent in English.
-- **Not reasoning, code, long context or tool use.** Four narrow probes. Better benchmarks exist for the rest.
-- **n=1 on probes A–C.** Only the paragraph is repeated. One 429 at the wrong moment shows up as a
-  failure: NVIDIA's `kimi-k3` answered in 13 seconds in an earlier run and timed out repeatedly in this
-  one. Both facts are in the repo, neither is hidden.
+- **A row needs both halves to be ranked**: an official score AND a known quota. 12 endpoints are
+  ranked; the rest are listed separately with what is missing. Half a fact is not a rank.
+- **Every row carries `measured_at`.** Free tiers die in months, not years — the catalogue we cross-check
+  against lost six providers between March and August 2026. A number with no date is a rumour.
+- **A quota in tokens without the model it was measured on is a false number**, because some providers
+  apply a per-model multiplier. We publish the model or nothing.
+- **Quotas in proprietary units** ("100,000 ANY Tokens", "10 Neutrinos") are quoted as text, never
+  converted into a number that would look comparable.
 
-The long version, with the failure modes of the method itself, is in [METHOD.md](METHOD.md).
+## Zero of the endpoints here work without a key
+
+That is a gap, not a feature, and it is the next thing being added — no-key endpoints exist. See
+[IMPROVEMENTS.md](IMPROVEMENTS.md).
+
+---
+
+## Bonus: how these models write a language that is not English
+
+Before this became a ranking of endpoints, we ran our own benchmark of how well free models write
+**Romanian** — four machine-checked probes and a blind jury of two judges from different model families.
+It is no longer the headline, but it is still the only measurement anywhere of these models on a small
+language, and the finding stands: they can all do arithmetic, and almost none of them can write.
+
+The two judges correlated at **0.93** on whether the Romanian was correct and at **-0.07** on whether it
+sounded human — so we publish that disagreement too.
+
+Full run: [results/2026-09-06/](results/2026-09-06/) · method: [METHOD.md](METHOD.md) · judge
+agreement: [agreement.md](results/2026-09-06/agreement.md)
 
 ---
 
 ## Run it yourself
 
 ```bash
-export GROQ_API_KEY=...          # any subset — providers with no key are skipped, not failed
-python bench/benchmark.py --out results.json --language ro
-python bench/judge.py results.json --export judged/    # writes the anonymised paragraphs + prompts
-#   ...judge them with any model, save the scores as jury.json in the shape of results/2026-09-06/jury.json
-#   or skip the jury entirely and let rank.py score the mechanical half alone:
-python bench/rank.py results.json --date $(date -u +%F) --out .          # no jury
-python bench/rank.py results.json --jury jury.json --date $(date -u +%F) --out .   # with one
+python bench/scores.py --out data/scores.json --date $(date -u +%F)   # import official scores
+python bench/rank.py --date $(date -u +%F) --out .                     # rebuild every table
 ```
 
-20–60 minutes, mostly waiting on the slowest providers. Each runs in its own thread with its own pacing.
-No dependencies beyond the Python standard library.
+No API key needed for either: the scores come from a public endpoint.
 
-```bash
-python bench/test_probes.py      # checkers, offline, both directions. Must exit 0.
-python bench/gate_publish.py .   # blocks keys, account state, private paths. Must exit 0.
-```
+## Contributing
 
----
-
-## Add your language
-
-A language pack is one JSON file: four prompts, the pass conditions, three jury questions. The guide is
-**[bench/languages/README.md](bench/languages/README.md)**, and it walks through finding the
-writing-system trap that makes probe B worth running for your language — the German ß, Greek Latin
-lookalikes, Vietnamese tone marks, full-width punctuation in Japanese.
-
-Covered so far: **Romanian** (`ro`), **English** (`en`, control set).
-
----
-
-## The other lists, and what each does better than us
-
-Genuinely useful, all of them. We are one column they do not have, not a replacement.
-
-| Repo | Stars | What it does better |
-|---|---|---|
-| [tashfeenahmed/freellmapi](https://github.com/tashfeenahmed/freellmapi) | 24.5k | Not a list — installable software that routes across 34 providers behind one endpoint. Different thing entirely. |
-| [mnfst/awesome-free-llm-apis](https://github.com/mnfst/awesome-free-llm-apis) | 7.4k | Verifies every row against a live request inside a dated window. Far more providers than we test. |
-| [open-free-llm-api/awesome-freellm-apis](https://github.com/open-free-llm-api/awesome-freellm-apis) | 2.8k | 134+ APIs from 40+ providers, refreshed daily, with one-click config snippets. The best pure catalogue. |
-| [12britz/awesome-free-models](https://github.com/12britz/awesome-free-models) | 2.1k | Re-checks hundreds of endpoints and publishes the failures, not just the successes. Honest in the way that costs work. |
-| [nejib1/Free-LLM](https://github.com/nejib1/Free-LLM) | 361 | Credit-card transparency per provider, and ready-to-run code per entry. |
-| [amardeeplakshkar/awesome-free-llm-apis](https://github.com/amardeeplakshkar/awesome-free-llm-apis) | 158 | Permanent-free only: no trial credits, no time-limited promos. A stricter definition than ours. |
-| [raullenchai/free-llm-api-resources](https://github.com/raullenchai/free-llm-api-resources) | — | Keeps alive the fork of `cheahjs/free-llm-api-resources`, the original, which now 404s. |
-| [zukixa/cool-ai-stuff](https://github.com/zukixa/cool-ai-stuff) | 1.2k | Was thorough. Last updated October 2025 — included as the cautionary tale for what this repo becomes without maintenance. |
-
----
+The most valuable pull request you can send is **reading one provider's terms and filling in filter 5**,
+or **correcting a quota with its source**. Turning a wrong number into an honest `UNKNOWN` counts as a
+real contribution here. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
 ## Licence
 
-Code (`bench/`) under **MIT**. Data and tables (`data/`, `RESULTS.md`, `LIMITS.md`) under
-**[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)** — use them anywhere, with a link back.
+Code (`bench/`) under **MIT**. Data and tables under
+**[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)**. Benchmark scores belong to their authors
+and are attributed in [CREDITS.md](CREDITS.md).
 
-Built by **[i-vory Studio](https://i-vory.studio)**, because we needed to know which free models could
-write Romanian well enough to ship, and no list would tell us.
+Built by **[i-vory Studio](https://i-vory.studio)**.

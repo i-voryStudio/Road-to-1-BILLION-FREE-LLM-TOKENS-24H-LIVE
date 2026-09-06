@@ -1,0 +1,505 @@
+{
+ "fetched_on": "2026-09-06",
+ "source": "https://openrouter.ai/api/v1/models",
+ "source_note": "Scores are republished by OpenRouter from Artificial Analysis and Design Arena. We do not run them ourselves and do not modify them. See CREDITS.md.",
+ "benchmarks": {
+  "artificial_analysis": "intelligence_index, coding_index and agentic_index, 0-100. Higher is better.",
+  "design_arena": "ELO, win rate and rank per category, from head-to-head comparisons."
+ },
+ "matched": [
+  {
+   "provider": "google",
+   "model": "gemini-3.8-flash",
+   "matched_as": "google/gemini-3.8-flash:batch",
+   "artificial_analysis": {
+    "intelligence_index": 47.1,
+    "coding_index": 76.3,
+    "agentic_index": 41.2
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1320,
+     "win_rate": 57.6,
+     "rank": 8
+    },
+    "gamedev": {
+     "elo": 1347,
+     "win_rate": 60.7,
+     "rank": 6
+    },
+    "website": {
+     "elo": 1312,
+     "win_rate": 56.5,
+     "rank": 8
+    }
+   }
+  },
+  {
+   "provider": "google",
+   "model": "gemini-3.5-flash-lite",
+   "matched_as": "google/gemini-3.5-flash-lite:batch",
+   "artificial_analysis": {
+    "intelligence_index": 27.6,
+    "coding_index": 49.3,
+    "agentic_index": 16.1
+   }
+  },
+  {
+   "provider": "google",
+   "model": "gemma-4-31b-it",
+   "matched_as": "google/gemma-4-31b-it:batch",
+   "artificial_analysis": {
+    "coding_index": 43.4,
+    "agentic_index": 6.8
+   }
+  },
+  {
+   "provider": "cerebras",
+   "model": "gemma-4-31b",
+   "matched_as": "google/gemma-4-31b-it:batch",
+   "artificial_analysis": {
+    "coding_index": 43.4,
+    "agentic_index": 6.8
+   }
+  },
+  {
+   "provider": "cerebras",
+   "model": "gpt-oss-120b",
+   "matched_as": "openai/gpt-oss-120b:batch",
+   "artificial_analysis": {
+    "intelligence_index": 15.6,
+    "coding_index": 30.4,
+    "agentic_index": 6.3
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 980,
+     "win_rate": 33.4,
+     "rank": 113
+    },
+    "gamedev": {
+     "elo": 1021,
+     "win_rate": 40.5,
+     "rank": 104
+    },
+    "website": {
+     "elo": 981,
+     "win_rate": 32.5,
+     "rank": 116
+    }
+   }
+  },
+  {
+   "provider": "cerebras",
+   "model": "qwen-3.8-27b",
+   "matched_as": "qwen/qwen3.8-27b",
+   "artificial_analysis": {
+    "intelligence_index": 41.4,
+    "coding_index": 68.1,
+    "agentic_index": 46.8
+   }
+  },
+  {
+   "provider": "groq",
+   "model": "qwen/qwen3.8-27b",
+   "matched_as": "qwen/qwen3.8-27b",
+   "artificial_analysis": {
+    "intelligence_index": 41.4,
+    "coding_index": 68.1,
+    "agentic_index": 46.8
+   }
+  },
+  {
+   "provider": "groq",
+   "model": "openai/gpt-oss-120b",
+   "matched_as": "openai/gpt-oss-120b:batch",
+   "artificial_analysis": {
+    "intelligence_index": 15.6,
+    "coding_index": 30.4,
+    "agentic_index": 6.3
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 980,
+     "win_rate": 33.4,
+     "rank": 113
+    },
+    "gamedev": {
+     "elo": 1021,
+     "win_rate": 40.5,
+     "rank": 104
+    },
+    "website": {
+     "elo": 981,
+     "win_rate": 32.5,
+     "rank": 116
+    }
+   }
+  },
+  {
+   "provider": "groq",
+   "model": "openai/gpt-oss-20b",
+   "matched_as": "openai/gpt-oss-20b:batch",
+   "artificial_analysis": {
+    "coding_index": 20.7,
+    "agentic_index": 1.4
+   },
+   "design_arena": {
+    "website": {
+     "elo": 865,
+     "win_rate": 27.9,
+     "rank": 124
+    }
+   }
+  },
+  {
+   "provider": "groq",
+   "model": "qwen/qwen3.6-27b",
+   "matched_as": "qwen/qwen3.6-27b",
+   "artificial_analysis": {
+    "coding_index": 53.7,
+    "agentic_index": 20.1
+   }
+  },
+  {
+   "provider": "openrouter",
+   "model": "minimax/minimax-m3:free",
+   "matched_as": "minimax/minimax-m3:batch",
+   "artificial_analysis": {
+    "intelligence_index": 35.7,
+    "coding_index": 58.6,
+    "agentic_index": 31
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1267,
+     "win_rate": 52.4,
+     "rank": 28
+    },
+    "gamedev": {
+     "elo": 1242,
+     "win_rate": 47.8,
+     "rank": 36
+    },
+    "website": {
+     "elo": 1272,
+     "win_rate": 52.9,
+     "rank": 27
+    }
+   }
+  },
+  {
+   "provider": "openrouter",
+   "model": "minimax/minimax-m2.7:free",
+   "matched_as": "minimax/minimax-m2.7:free",
+   "artificial_analysis": {
+    "coding_index": 52.6
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1251,
+     "win_rate": 52,
+     "rank": 36
+    },
+    "gamedev": {
+     "elo": 1237,
+     "win_rate": 51.4,
+     "rank": 38
+    },
+    "website": {
+     "elo": 1258,
+     "win_rate": 52.5,
+     "rank": 34
+    }
+   }
+  },
+  {
+   "provider": "openrouter",
+   "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+   "matched_as": "nvidia/nemotron-3-ultra-550b-a55b:free",
+   "artificial_analysis": {
+    "coding_index": 49.3,
+    "agentic_index": 21.7
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1153,
+     "win_rate": 36.3,
+     "rank": 77
+    },
+    "gamedev": {
+     "elo": 1156,
+     "win_rate": 37,
+     "rank": 70
+    },
+    "website": {
+     "elo": 1142,
+     "win_rate": 34.3,
+     "rank": 82
+    }
+   }
+  },
+  {
+   "provider": "cloudflare",
+   "model": "@cf/openai/gpt-oss-120b",
+   "matched_as": "openai/gpt-oss-120b:batch",
+   "artificial_analysis": {
+    "intelligence_index": 15.6,
+    "coding_index": 30.4,
+    "agentic_index": 6.3
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 980,
+     "win_rate": 33.4,
+     "rank": 113
+    },
+    "gamedev": {
+     "elo": 1021,
+     "win_rate": 40.5,
+     "rank": 104
+    },
+    "website": {
+     "elo": 981,
+     "win_rate": 32.5,
+     "rank": 116
+    }
+   }
+  },
+  {
+   "provider": "cloudflare",
+   "model": "@cf/google/gemma-4-26b-a4b-it",
+   "matched_as": "google/gemma-4-26b-a4b-it:free",
+   "artificial_analysis": {
+    "coding_index": 39.3
+   }
+  },
+  {
+   "provider": "cloudflare",
+   "model": "@cf/qwen/qwen3.8-27b",
+   "matched_as": "qwen/qwen3.8-27b",
+   "artificial_analysis": {
+    "intelligence_index": 41.4,
+    "coding_index": 68.1,
+    "agentic_index": 46.8
+   }
+  },
+  {
+   "provider": "nvidia",
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "matched_as": "nvidia/nemotron-3-super-120b-a12b:free",
+   "artificial_analysis": {
+    "coding_index": 37.7,
+    "agentic_index": 4.2
+   }
+  },
+  {
+   "provider": "nvidia",
+   "model": "nvidia/nemotron-3-ultra-550b-a55b",
+   "matched_as": "nvidia/nemotron-3-ultra-550b-a55b:free",
+   "artificial_analysis": {
+    "coding_index": 49.3,
+    "agentic_index": 21.7
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1153,
+     "win_rate": 36.3,
+     "rank": 77
+    },
+    "gamedev": {
+     "elo": 1156,
+     "win_rate": 37,
+     "rank": 70
+    },
+    "website": {
+     "elo": 1142,
+     "win_rate": 34.3,
+     "rank": 82
+    }
+   }
+  },
+  {
+   "provider": "nvidia",
+   "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+   "matched_as": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+   "artificial_analysis": {
+    "coding_index": 13.8
+   }
+  },
+  {
+   "provider": "nvidia",
+   "model": "moonshotai/kimi-k3",
+   "matched_as": "moonshotai/kimi-k3:batch",
+   "artificial_analysis": {
+    "intelligence_index": 50.2,
+    "coding_index": 76.2,
+    "agentic_index": 50.9
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1392,
+     "win_rate": 65.3,
+     "rank": 1
+    },
+    "gamedev": {
+     "elo": 1419,
+     "win_rate": 65.8,
+     "rank": 2
+    },
+    "website": {
+     "elo": 1356,
+     "win_rate": 61.5,
+     "rank": 2
+    }
+   }
+  },
+  {
+   "provider": "ollama",
+   "model": "gemma4:31b",
+   "matched_as": "google/gemma-4-31b-it:batch",
+   "artificial_analysis": {
+    "coding_index": 43.4,
+    "agentic_index": 6.8
+   }
+  },
+  {
+   "provider": "ollama",
+   "model": "gpt-oss:120b",
+   "matched_as": "openai/gpt-oss-120b:batch",
+   "artificial_analysis": {
+    "intelligence_index": 15.6,
+    "coding_index": 30.4,
+    "agentic_index": 6.3
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 980,
+     "win_rate": 33.4,
+     "rank": 113
+    },
+    "gamedev": {
+     "elo": 1021,
+     "win_rate": 40.5,
+     "rank": 104
+    },
+    "website": {
+     "elo": 981,
+     "win_rate": 32.5,
+     "rank": 116
+    }
+   }
+  },
+  {
+   "provider": "ollama",
+   "model": "gpt-oss:20b",
+   "matched_as": "openai/gpt-oss-20b:batch",
+   "artificial_analysis": {
+    "coding_index": 20.7,
+    "agentic_index": 1.4
+   },
+   "design_arena": {
+    "website": {
+     "elo": 865,
+     "win_rate": 27.9,
+     "rank": 124
+    }
+   }
+  },
+  {
+   "provider": "xkiro",
+   "model": "minimax/minimax-m2.7:free",
+   "matched_as": "minimax/minimax-m2.7:free",
+   "artificial_analysis": {
+    "coding_index": 52.6
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1251,
+     "win_rate": 52,
+     "rank": 36
+    },
+    "gamedev": {
+     "elo": 1237,
+     "win_rate": 51.4,
+     "rank": 38
+    },
+    "website": {
+     "elo": 1258,
+     "win_rate": 52.5,
+     "rank": 34
+    }
+   }
+  },
+  {
+   "provider": "xkiro",
+   "model": "minimax/minimax-m3:free",
+   "matched_as": "minimax/minimax-m3:batch",
+   "artificial_analysis": {
+    "intelligence_index": 35.7,
+    "coding_index": 58.6,
+    "agentic_index": 31
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1267,
+     "win_rate": 52.4,
+     "rank": 28
+    },
+    "gamedev": {
+     "elo": 1242,
+     "win_rate": 47.8,
+     "rank": 36
+    },
+    "website": {
+     "elo": 1272,
+     "win_rate": 52.9,
+     "rank": 27
+    }
+   }
+  },
+  {
+   "provider": "siliconflow",
+   "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+   "matched_as": "qwen/qwen3-coder-30b-a3b-instruct",
+   "artificial_analysis": {},
+   "design_arena": {
+    "website": {
+     "elo": 1100,
+     "win_rate": 57.1,
+     "rank": 95
+    }
+   }
+  }
+ ],
+ "unmatched": [
+  {
+   "provider": "cloudflare",
+   "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+  },
+  {
+   "provider": "cloudflare",
+   "model": "@cf/mistralai/mistral-small-3.1-24b-instruct"
+  },
+  {
+   "provider": "nvidia",
+   "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
+  },
+  {
+   "provider": "alibaba",
+   "model": "qwen-flash"
+  },
+  {
+   "provider": "alibaba",
+   "model": "qwen-plus"
+  },
+  {
+   "provider": "alibaba",
+   "model": "qwen-turbo"
+  },
+  {
+   "provider": "alibaba",
+   "model": "qwen3.5-flash"
+  }
+ ]
+}

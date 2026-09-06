@@ -1,0 +1,130 @@
+{
+ "_comment": [
+  "Filter 5: what a free tier costs you in things that are not money.",
+  "",
+  "Every other free-LLM list stops at the rate limit. But 'free' often means you are paying with the",
+  "prompts you send: some providers train on free-tier traffic, some log every request, some keep it",
+  "for a stated period, some for an unstated one. If you are sending customer data, a provider that",
+  "trains on it is more expensive than one that charges money.",
+  "",
+  "This file is DECLARED data, not measured: it comes from reading a provider's own terms, and it is",
+  "worth exactly as much as the source and the date beside it. Same discipline as limits.json:",
+  "",
+  "  trains_on_free_tier   yes | no | UNKNOWN   - does free-tier traffic feed model training",
+  "  logs_prompts          yes | no | UNKNOWN   - are prompts retained beyond serving the request",
+  "  retention             a period, or UNKNOWN",
+  "  source                the page we read it on",
+  "  read_on               the date we read it",
+  "",
+  "UNKNOWN IS THE HONEST DEFAULT AND MOST ROWS ARE UNKNOWN. We have not read every provider's terms,",
+  "and inventing a 'no' here would be the most damaging kind of wrong answer this repo could publish:",
+  "somebody sends customer data on the strength of it. An entry moves off UNKNOWN only when someone",
+  "reads the terms and quotes them, which is the single most useful pull request you can send us.",
+  "",
+  "  region_restriction    a legal limit on WHERE you may serve users from the free tier, or UNKNOWN",
+  "",
+  "That last field was added after reading Google's terms, which turn out to forbid the free tier",
+  "outright for apps serving the EEA, Switzerland or the UK. No other free-LLM list carries this, and",
+  "for a European reader it matters more than any benchmark score."
+ ],
+ "read_on": "2026-09-06",
+ "providers": {
+  "google": {
+   "trains_on_free_tier": "yes",
+   "logs_prompts": "yes",
+   "human_review": "yes",
+   "retention": "UNKNOWN",
+   "region_restriction": "May not be used for apps serving users in the EEA, Switzerland or the UK",
+   "source": "https://ai.google.dev/gemini-api/terms",
+   "read_on": "2026-09-06",
+   "quotes": [
+    "When you use Unpaid Services, including, for example, Google AI Studio and the unpaid quota on Gemini API, Google uses the content you submit to the Services and any generated responses to provide, improve, and develop Google products and services and machine learning technologies",
+    "To help with quality and improve our products, human reviewers may read, annotate, and process your API input and output.",
+    "You may use only Paid Services when making API Clients available to users in the European Economic Area, Switzerland, or the United Kingdom."
+   ],
+   "note": "The single clearest example of why this column exists. Same endpoint, same model, and a completely different bargain depending on whether you pay: the free tier trains on your prompts, humans may read them, and it is contractually unusable for an app with European users. Nothing here is inferred - all three are quoted from their terms."
+  },
+  "groq": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "source": null,
+   "read_on": null,
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN"
+  },
+  "cerebras": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "source": null,
+   "read_on": null,
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN"
+  },
+  "openrouter": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "source": null,
+   "read_on": null,
+   "note": "OpenRouter routes to upstream providers, so the answer depends on which upstream served the request, and their account settings control part of it. Needs reading before anything is claimed.",
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN"
+  },
+  "cloudflare": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "source": null,
+   "read_on": null,
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN"
+  },
+  "nvidia": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "source": null,
+   "read_on": null,
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN"
+  },
+  "ollama": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "source": null,
+   "read_on": null,
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN"
+  },
+  "alibaba": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "source": null,
+   "read_on": null,
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN"
+  },
+  "xkiro": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "source": null,
+   "read_on": null,
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN"
+  },
+  "siliconflow": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "source": null,
+   "read_on": null,
+   "human_review": "UNKNOWN",
+   "region_restriction": "UNKNOWN"
+  }
+ }
+}

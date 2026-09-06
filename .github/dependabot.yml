@@ -1,0 +1,17 @@
+# This repo has no Python dependencies, on purpose - that is its main security property.
+# But it has four GitHub Actions, and those are dependencies too: they run with access to the
+# repository. They are pinned to full SHAs, which means they cannot move under us, and which also
+# means nothing updates them unless something tells us to. That is what this file is for.
+#
+# Weekly, not daily: four pinned actions produce a pull request roughly once a month. A daily
+# schedule would be an empty run six days out of seven.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"

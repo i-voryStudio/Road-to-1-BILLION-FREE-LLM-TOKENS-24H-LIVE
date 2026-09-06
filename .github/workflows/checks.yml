@@ -45,6 +45,16 @@ jobs:
       - name: Contribution gate
         run: python bench/gate_contributions.py
 
+      # And the contribution gate is itself tested in both directions, because it now admits a NEW
+      # shape - an endpoint declaring it needs no key, which earns a bonus in the ranking. A claim
+      # worth faking needs a gate that has been watched refusing the fakes.
+      - name: Contribution gate, tested
+        run: python bench/test_contributions.py
+
+      # One reading per endpoint per day, and no day the provider did not actually fail.
+      - name: Uptime history and the fourteen-day rule
+        run: python bench/gate_viability.py --today "$(date -u +%F)"
+
       # A public "things to improve" list is the easiest file in any repo to let rot. This fails when
       # it does: stale entries, no location on disk, a fix with no gate to keep it fixed.
       # Prose does not get to state a score. Every model->quality pair published in a table must

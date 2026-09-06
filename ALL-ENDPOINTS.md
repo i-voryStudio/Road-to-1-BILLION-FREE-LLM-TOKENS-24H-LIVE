@@ -1,6 +1,6 @@
 # Every endpoint we track
 
-All 33 of them, ranked or not, scored or not, alive or not. The tables in [RESULTS.md](RESULTS.md) filter and sort; this one never does.
+All 40 of them, ranked or not, scored or not, alive or not. The tables in [RESULTS.md](RESULTS.md) filter and sort; this one never does.
 
 Measured **2026-09-07**. `?` means we do not know, and we would rather write that than guess.
 
@@ -33,11 +33,18 @@ Measured **2026-09-07**. `?` means we do not know, and we would rather write tha
 | `gemma4:31b` | ollama | not ranked | key | 43.4 | ? | 6.8 | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `gpt-oss:120b` | ollama | not ranked | key | 30.4 | 15.6 | 6.3 | 980 | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"reasoning_effort": "low"}`; daily volume unknown - see LIMITS.md |
 | `gpt-oss:20b` | ollama | not ranked | key | 20.7 | ? | 1.4 | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"reasoning_effort": "low"}`; daily volume unknown - see LIMITS.md |
+| `gpt-oss-120b` | ovhcloud | not ranked | no key | 30.4 | 15.6 | 6.3 | 980 | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
+| `Qwen3.5-397B-A17B` | ovhcloud | not ranked | no key | 48.2 | ? | 10.6 | 1196 | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
+| `Meta-Llama-3_3-70B-Instruct` | ovhcloud | not ranked | no key | 11.9 | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
+| `Qwen3.8-27B` | ovhcloud | not ranked | no key | 68.1 | 41.4 | 46.8 | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
+| `Lorbus/Qwen3.6-27B-int4-AutoRound` | uncloseai | not ranked | no key | 53.7 | ? | 20.1 | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `qwen-flash` | alibaba | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"enable_thinking": false}`; no official benchmark score published for this model |
 | `qwen-plus` | alibaba | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"enable_thinking": false}`; no official benchmark score published for this model |
 | `qwen-turbo` | alibaba | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"enable_thinking": false}`; no official benchmark score published for this model |
 | `qwen3.5-flash` | alibaba | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"enable_thinking": false}`; no official benchmark score published for this model |
 | `@cf/mistralai/mistral-small-3.1-24b-instruct` | cloudflare | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 90% | UNKNOWN | no official benchmark score published for this model |
+| `Qwen3-Coder-30B-A3B-Instruct` | ovhcloud | not ranked | no key | ? | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
+| `Mistral-Small-3.2-24B-Instruct-2506` | ovhcloud | not ranked | no key | ? | ? | ? | 924 | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
 | `Qwen/Qwen3-Coder-30B-A3B-Instruct` | siliconflow | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
 
 ## What the columns mean

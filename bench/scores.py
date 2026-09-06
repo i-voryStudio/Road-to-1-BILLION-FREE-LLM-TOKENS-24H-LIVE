@@ -48,13 +48,37 @@ def normalise(model_id):
     s = re.sub(r":free$|:batch$|:extended$|:thinking$|-latest$", "", s)
     s = s.split("/")[-1]
     s = s.replace(":", "-")                 # ollama's gpt-oss:120b -> gpt-oss-120b
+    # OVHcloud writes the version with an underscore: Meta-Llama-3_3-70B-Instruct. The underscore is a
+    # decimal point, and only between two digits - anywhere else it is just a separator and gets dropped
+    # with the rest of the punctuation below.
+    s = re.sub(r"(?<=\d)_(?=\d)", ".", s)
     # Serving suffixes describe HOW a provider runs the weights, not WHICH weights. Cloudflare's
     # `llama-3.3-70b-instruct-fp8-fast` and OpenRouter's `llama-3.3-70b-instruct` are the same model,
     # and leaving these on cost us three published scores that were sitting right there.
-    for suffix in ("-fp8-fast", "-fp8", "-fp16", "-bf16", "-awq", "-gptq", "-int8", "-int4",
-                   "-instruct", "-it", "-chat", "-hf", "-fast", "-turbo-instruct"):
-        if s.endswith(suffix):
-            s = s[: -len(suffix)]
+    # A vendor prefix written with a hyphen instead of a slash. OVHcloud serves
+    # `Meta-Llama-3_3-70B-Instruct`; the benchmark knows it as `meta-llama/llama-3.3-70b-instruct`, whose
+    # last path segment is `llama-3.3-70b-instruct`. Only organisation names are listed, never a model
+    # family, so nothing here can merge two different models.
+    for vendor in ("meta-", "mistralai-", "nvidia-", "openai-", "google-",
+                   "deepseek-ai-", "moonshotai-"):
+        if s.startswith(vendor) and len(s) > len(vendor) + 2:
+            s = s[len(vendor):]
+            break
+    # An instruct build carrying its release date: `mistral-small-3.2-24b-instruct-2506`. The date is
+    # dropped ONLY when `-instruct` sits in front of it, because a bare trailing number can be the model
+    # version itself - `mistral-small-2603` is a different model, not a dated build of `mistral-small`.
+    s = re.sub(r"-instruct-\d{4}$", "-instruct", s)
+    # Serving suffixes describe HOW a provider runs the weights, not WHICH weights, and they stack:
+    # `Qwen3.6-27B-int4-AutoRound` is two of them on one model. Strip until nothing changes, or the
+    # outer one hides the inner one and the score stays lost.
+    for _ in range(6):
+        before = s
+        for suffix in ("-fp8-fast", "-fp8", "-fp16", "-bf16", "-awq", "-gptq", "-int8", "-int4",
+                       "-autoround", "-instruct", "-it", "-chat", "-hf", "-fast", "-turbo-instruct"):
+            if s.endswith(suffix) and len(s) > len(suffix) + 2:
+                s = s[: -len(suffix)]
+        if s == before:
+            break
     return re.sub(r"[^a-z0-9.]", "", s)
 
 

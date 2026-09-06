@@ -204,6 +204,29 @@
    "all_models": {
     "rpd": null
    }
+  },
+  "uncloseai": {
+   "scope": "unknown",
+   "confidence": "UNKNOWN",
+   "caveat": "No key, so there is no account to read a quota against, and the response carried no rate-limit headers at all. We measured that it answers; how much it will answer is genuinely unknown, and that is what the row says.",
+   "all_models": {
+    "rpd": null,
+    "tpd": null
+   },
+   "binding_limit": "Unknown. The one thing measured is that a request with no credential returns a real completion."
+  },
+  "ovhcloud": {
+   "scope": "anonymous, and shared",
+   "confidence": "MEASURED",
+   "measured_on": "2026-09-07",
+   "measured_how": "Response headers on an anonymous POST: ratelimit-limit 2, x-ratelimit-limit-minute 2, the per-minute allowance header at 0, ratelimit-reset 44. Two attempts 90 seconds apart, both 429, both showing 0 left in the minute: the anonymous bucket is shared with every caller and was already empty both times.",
+   "caveat": "The per-minute ceiling is MEASURED. The daily figure is NOT, and multiplying 2 per minute by 1440 minutes would publish 2,880 requests a day that nobody can actually have: the bucket is shared with every anonymous caller on the internet and it was already empty both times we looked. rpd and tpd stay null on purpose.",
+   "all_models": {
+    "rpd": null,
+    "tpd": null,
+    "rpm": 2
+   },
+   "binding_limit": "Requests per minute, at 2, shared with everyone. This is what a free tier with no sign-up actually costs: you are queueing behind the whole internet."
   }
  }
 }

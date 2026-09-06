@@ -255,6 +255,50 @@
      "id": "Qwen/Qwen3-Coder-30B-A3B-Instruct"
     }
    ]
+  },
+  {
+   "name": "uncloseai",
+   "url": "https://hermes.ai.unturf.com/v1/chat/completions",
+   "auth": "none",
+   "auth_measured_on": "2026-09-07",
+   "auth_measured_how": "POST /v1/chat/completions with no Authorization header returned 200 and a real completion in 4.1s. Not a catalogue answering: an actual generation.",
+   "pause_seconds": 6,
+   "timeout_seconds": 90,
+   "models": [
+    {
+     "id": "Lorbus/Qwen3.6-27B-int4-AutoRound",
+     "max_tokens": 900
+    }
+   ]
+  },
+  {
+   "name": "ovhcloud",
+   "url": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions",
+   "auth": "none",
+   "auth_measured_on": "2026-09-07",
+   "auth_measured_how": "The endpoint takes no credential, but the anonymous bucket is 2 requests per minute and it answered 429 with x-ratelimit-remaining-minute 0 on both attempts, 90 seconds apart. Keyless and unusable are different facts and both are recorded.",
+   "pause_seconds": 35,
+   "timeout_seconds": 90,
+   "models": [
+    {
+     "id": "gpt-oss-120b"
+    },
+    {
+     "id": "Qwen3.5-397B-A17B"
+    },
+    {
+     "id": "Meta-Llama-3_3-70B-Instruct"
+    },
+    {
+     "id": "Qwen3-Coder-30B-A3B-Instruct"
+    },
+    {
+     "id": "Mistral-Small-3.2-24B-Instruct-2506"
+    },
+    {
+     "id": "Qwen3.8-27B"
+    }
+   ]
   }
  ]
 }

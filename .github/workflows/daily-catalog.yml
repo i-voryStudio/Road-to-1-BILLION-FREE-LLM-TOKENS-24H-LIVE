@@ -38,7 +38,9 @@ jobs:
         run: python bench/test_gate.py
 
       - name: Contribution data must still be sane
-        run: python bench/gate_contributions.py
+        run: |
+          python bench/gate_contributions.py
+          python bench/test_contributions.py
 
       # Quality is imported, not run by us: a new provider inherits its models' published scores.
       # Reliability and the reasoning trap are measured from our own runs and feed the ranking.

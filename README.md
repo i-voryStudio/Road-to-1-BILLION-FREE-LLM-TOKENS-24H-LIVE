@@ -2,16 +2,60 @@
 
 ## What is on the table right now
 
+<!--HEADLINE-->
 | | |
 |---|---|
 | **Tokens per 24h**, confirmed | **6,475,000** |
-| Endpoints answering today | **28 of 33** |
-| Providers whose quota nobody publishes | **5 of 10** |
+| Endpoints answering today | **30 of 37 tested** |
+| Providers whose quota nobody publishes | **7 of 12** |
+| Distance to 1,000,000,000 tokens/day | **154x** |
+<!--/HEADLINE-->
+
+**Where this is going, out loud: one billion free tokens a day.** That is the number the list is being
+built towards, and the box above measures the distance to it every single day - including the days it
+does not move. Growth comes from new providers, not from polishing the ones already here, and
+[IMPROVEMENTS.md](IMPROVEMENTS.md) tracks it as an open item with our name on it.
 
 That total is the **confirmed minimum, and it is an undercount** — 5 of the 10 providers publish no
 quota at all, so their capacity is real and uncounted. We would rather understate than invent. It also
 moved five-fold in one afternoon when we stopped reading marketing pages and asked the providers
 directly: one of them exposes 5M tokens a day behind an endpoint nobody had thought to call.
+
+## We read every other list first. Then we measured all of it again.
+
+You already know these lists exist. [OmniRoute](https://github.com/diegosouzapw/OmniRoute) routes across
+hundreds of providers, `awesome-free-llm-apis` and seven more are catalogued in
+[SOURCES.md](SOURCES.md) — with what each one does better than us, because that is also true. We went
+through every one of them line by line. This is not a ninth copy of the same table: everything that got
+in here went through our own mill first, and the mill is the whole product.
+
+**Nothing here is copied.** Quality comes from official benchmarks, by attribution, because a benchmark
+run by the people publishing the ranking is worth nothing. Everything else — whether the endpoint
+answered today, what the quota really is, whether it takes a key, what it costs you in things that are
+not money — we measure ourselves, and every number carries how we know it: MEASURED, DECLARED,
+PAID-PLAN, or UNKNOWN. UNKNOWN stays UNKNOWN. We never fill a hole with someone else's number.
+
+**What that catches, concretely, today.** OmniRoute's registry (219 provider entries, read from the
+v3.8.49 release) marks 16 endpoints as needing no key or treating it as optional. Eight of those are
+ordinary HTTP APIs we could call. We called all eight with no `Authorization` header:
+
+| What we found | How many |
+|---|---|
+| Returned a real completion with no key | **1** — `hermes.ai.unturf.com` |
+| No key required, but the shared anonymous bucket was empty both times | **1** — OVHcloud, 2 requests/minute |
+| Answered `401`: the catalogue is public, the inference is not | 3 — including one serving 860 models |
+| Answered `402 Payment Required` | 3 |
+
+So of sixteen keyless endpoints on the best-known list, **one actually answers**. That is not a
+criticism of them — free endpoints close quietly, and a list nobody re-runs is a list that decays. It
+is the reason this one gets re-run.
+
+**And it is re-run every day.** A scheduled job re-reads the public catalogues, re-imports the official
+scores, recomputes the ranking, applies the fourteen-day death rule, and commits the difference —
+[`daily-catalog.yml`](.github/workflows/daily-catalog.yml), 06:17 UTC, no secrets, so it runs on your
+fork too. The liveness probe needs API keys, so it runs where the keys are and appends to
+[`data/uptime.jsonl`](data/uptime.jsonl), which is the history behind every "answers X% of the time" in
+the table below. If a day is missing, the file shows it missing.
 
 ### The five best free endpoints today
 

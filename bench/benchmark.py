@@ -165,7 +165,9 @@ def call(url, key, model, prompt, extra_body, max_tokens, timeout, generation=No
                 "error": "refused: %r is not in ALLOWED_HOSTS. This sends a real API key in a header, "
                          "so destinations are declared in code." % host}
     body, applied, dropped = build_body(model, prompt, extra_body, max_tokens, generation, unsupported)
-    headers = {"Content-Type": "application/json", "User-Agent": UA, "Authorization": "Bearer " + key}
+    headers = {"Content-Type": "application/json", "User-Agent": UA}
+    if key:                       # keyless providers are called with no Authorization header at all
+        headers["Authorization"] = "Bearer " + key
     started = time.time()
     try:
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
@@ -197,7 +199,8 @@ def call(url, key, model, prompt, extra_body, max_tokens, timeout, generation=No
 def run_provider(prov, lang, rows, lock, repeat, repeat_paragraph):
     generation = lang.get("generation") or {}
     unsupported = prov.get("unsupported_params") or []
-    url, key = prov["url"], os.environ[prov["key_env"]]
+    url = prov["url"]
+    key = os.environ[prov["key_env"]] if prov.get("key_env") else ""
     # Only declared placeholders may be substituted. Without this, a contributed URL such as
     # https://evil.example/{OPENROUTER_API_KEY}/ would put a second key straight into the request path.
     for placeholder in re.findall(r"\{([A-Za-z_][A-Za-z0-9_]*)\}", url):
@@ -331,8 +334,9 @@ def main():
         wanted = {x.strip() for x in a.only.split(",")}
         all_providers = [p for p in all_providers if p["name"] in wanted]
 
-    live = [p for p in all_providers if os.environ.get(p["key_env"])]
-    skipped = [(p["name"], p["key_env"], p.get("signup", "")) for p in all_providers if not os.environ.get(p["key_env"])]
+    live = [p for p in all_providers if not p.get("key_env") or os.environ.get(p["key_env"])]
+    skipped = [(p["name"], p["key_env"], p.get("signup", "")) for p in all_providers
+               if p.get("key_env") and not os.environ.get(p["key_env"])]
     if not live:
         print("No API keys found in the environment. Set at least one, e.g.:\n  export GROQ_API_KEY=...")
         for name, env, signup in skipped:

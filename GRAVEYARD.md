@@ -4,13 +4,9 @@ Endpoints removed from the main ranking after **14 consecutive days** with no an
 
 Free endpoints die in months, not years, and usually without an announcement. A list that never removes anything is a list of things that used to work.
 
-History so far: **2 day(s)** of measurements, 33 endpoints tracked.
+History so far: **2 day(s)** of measurements, 40 endpoints tracked.
 
 **Nothing buried yet.** Either everything is answering, or there is not yet 14 days of history to bury anything with. The counts below say which.
-
-## Flaky: missed the last 1 day(s)
-
-- `Qwen/Qwen3-Coder-30B-A3B-Instruct` at siliconflow, down 1 day(s) since 2026-09-06
 
 ---
 

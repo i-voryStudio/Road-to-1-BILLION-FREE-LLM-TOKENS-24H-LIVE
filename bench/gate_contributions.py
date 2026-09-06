@@ -50,6 +50,8 @@ ALLOWED_HOSTS = {
     "dashscope-intl.aliyuncs.com",
     "api.xkiro.com",
     "api.siliconflow.com",
+    "hermes.ai.unturf.com",  # keyless: measured answering with no Authorization header, 2026-09-07
+    "oai.endpoints.kepler.ai.cloud.ovh.net",  # keyless, anonymous tier: measured 2026-09-07
     "api.z.ai",              # judge, not a benchmarked provider: see bench/judges.json
 }
 
@@ -99,10 +101,28 @@ def check_providers(path, problems):
     key_to_host, host_to_key, names = {}, {}, set()
     for p in providers:
         name, url, key_env = p.get("name", ""), p.get("url", ""), p.get("key_env", "")
+        auth = p.get("auth", "key")
         where = "%s: provider %r" % (path.name, name or "<unnamed>")
 
-        if not name or not url or not key_env:
-            problems.append((where, "needs name, url and key_env"))
+        if auth not in ("key", "none"):
+            problems.append((where, "auth must be \"key\" or \"none\", got %r" % auth))
+            continue
+        if not name or not url:
+            problems.append((where, "needs name and url"))
+            continue
+        # An endpoint that needs no key is the most valuable row in this repo and the formula pays it a
+        # bonus, so the claim has to be declared out loud rather than inferred from a missing field: a
+        # dropped key_env would otherwise silently promote a provider AND stop sending its credential.
+        if auth == "none":
+            if key_env:
+                problems.append((where, "auth is \"none\" but key_env is set. One or the other: a keyless "
+                                        "entry must not name a credential, or a reader cannot tell which "
+                                        "of the two the ranking believed."))
+                continue
+        elif not key_env:
+            problems.append((where, "needs key_env, or auth: \"none\" if the endpoint genuinely takes no "
+                                    "credential. Omitting both would rank it as keyless, which pays a "
+                                    "%s bonus - that claim is declared, never inferred." % "1.25x"))
             continue
         if name in names:
             problems.append((where, "duplicate provider name"))
@@ -121,10 +141,12 @@ def check_providers(path, problems):
         if FORBIDDEN_HOST.match(host):
             problems.append((where, "url points at %r, which is not a public provider host" % host))
         if host not in ALLOWED_HOSTS:
-            problems.append((where, "host %r is not in ALLOWED_HOSTS. This benchmark sends a real API key "
-                                    "in an Authorization header, so every destination is declared in code, "
-                                    "not in data. If this provider is genuine, add the host to "
-                                    "ALLOWED_HOSTS in this gate in the same pull request." % host))
+            problems.append((where, "host %r is not in ALLOWED_HOSTS. This benchmark sends real API keys "
+                                    "in Authorization headers, so every destination it can reach is "
+                                    "declared in code, not in data - and a keyless entry is no exception, "
+                                    "because the next edit to it can add a key_env. If this provider is "
+                                    "genuine, add the host to ALLOWED_HOSTS in this gate in the same pull "
+                                    "request." % host))
         if urlparse(url).query or urlparse(url).fragment:
             problems.append((where, "url carries a query string or fragment; endpoints here are plain paths"))
 
@@ -136,34 +158,39 @@ def check_providers(path, problems):
                                         "as plain text, which is how a second key leaks."
                                  % (ph, ", ".join(sorted(ALLOWED_URL_PLACEHOLDERS)))))
 
-        # --- THE RULE: one key variable, one host. Forever.
-        prev_host = key_to_host.get(key_env)
-        if prev_host and registrable(prev_host) != registrable(host):
-            problems.append((where,
-                             "key_env %s is already bound to %s, and this entry points it at %s. "
-                             "An API key belongs to exactly one provider: sending it anywhere else "
-                             "hands that provider's credential to a third party."
-                             % (key_env, prev_host, host)))
-        key_to_host.setdefault(key_env, host)
 
-        prev_key = host_to_key.get(registrable(host))
-        if prev_key and prev_key != key_env:
-            problems.append((where, "host %s already uses key_env %s; two key variables for one host "
-                                    "is how a typo becomes a leak" % (host, prev_key)))
-        host_to_key.setdefault(registrable(host), key_env)
+        if key_env:
+            # Every check in this block binds a credential to a host. A keyless endpoint has no
+            # credential to bind - but the host allowlist above and the model checks below still
+            # apply to it, so this narrows rather than exempts.
+            # --- THE RULE: one key variable, one host. Forever.
+            prev_host = key_to_host.get(key_env)
+            if prev_host and registrable(prev_host) != registrable(host):
+                problems.append((where,
+                                 "key_env %s is already bound to %s, and this entry points it at %s. "
+                                 "An API key belongs to exactly one provider: sending it anywhere else "
+                                 "hands that provider's credential to a third party."
+                                 % (key_env, prev_host, host)))
+            key_to_host.setdefault(key_env, host)
 
-        # --- the key variable must belong to this provider, by name or by a declared alias
-        stem = re.sub(r"[^A-Z0-9]", "", name.upper())
-        env_stem = re.sub(r"[^A-Z0-9]", "", key_env.upper())
-        aliased = key_env in KNOWN_KEY_ALIASES.get(name, set())
-        if stem and stem not in env_stem and not aliased:
-            problems.append((where, "key_env %s does not name this provider and is not a declared alias. "
-                                    "A provider called %r must read its own variable (e.g. %s_API_KEY). "
-                                    "If this provider genuinely brands its key differently, add the pair "
-                                    "to KNOWN_KEY_ALIASES in this gate, in the same pull request, so a "
-                                    "reviewer sees it." % (key_env, name, stem)))
-        if not re.fullmatch(r"[A-Z][A-Z0-9_]{2,60}", key_env):
-            problems.append((where, "key_env %r is not a plain uppercase environment variable name" % key_env))
+            prev_key = host_to_key.get(registrable(host))
+            if prev_key and prev_key != key_env:
+                problems.append((where, "host %s already uses key_env %s; two key variables for one host "
+                                        "is how a typo becomes a leak" % (host, prev_key)))
+            host_to_key.setdefault(registrable(host), key_env)
+
+            # --- the key variable must belong to this provider, by name or by a declared alias
+            stem = re.sub(r"[^A-Z0-9]", "", name.upper())
+            env_stem = re.sub(r"[^A-Z0-9]", "", key_env.upper())
+            aliased = key_env in KNOWN_KEY_ALIASES.get(name, set())
+            if stem and stem not in env_stem and not aliased:
+                problems.append((where, "key_env %s does not name this provider and is not a declared alias. "
+                                        "A provider called %r must read its own variable (e.g. %s_API_KEY). "
+                                        "If this provider genuinely brands its key differently, add the pair "
+                                        "to KNOWN_KEY_ALIASES in this gate, in the same pull request, so a "
+                                        "reviewer sees it." % (key_env, name, stem)))
+            if not re.fullmatch(r"[A-Z][A-Z0-9_]{2,60}", key_env):
+                problems.append((where, "key_env %r is not a plain uppercase environment variable name" % key_env))
 
         # --- signup link should be the provider's own site, so nobody is sent to a lookalike
         signup = p.get("signup", "")

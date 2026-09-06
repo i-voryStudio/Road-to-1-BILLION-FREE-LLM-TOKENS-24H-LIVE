@@ -34,14 +34,17 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 | `qwen-3.8-27b` | cerebras | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `qwen/qwen3.8-27b` | groq | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `@cf/qwen/qwen3.8-27b` | cloudflare | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
+| `Qwen3.8-27B` | ovhcloud | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `minimax/minimax-m3:free` | xkiro | **58.6** | 35.7 | 31 | 1267 | `minimax/minimax-m3:batch` |
 | `minimax/minimax-m3:free` | openrouter | **58.6** | 35.7 | 31 | 1267 | `minimax/minimax-m3:batch` |
 | `qwen/qwen3.6-27b` | groq | **53.7** | ? | 20.1 | ? | `qwen/qwen3.6-27b` |
+| `Lorbus/Qwen3.6-27B-int4-AutoRound` | uncloseai | **53.7** | ? | 20.1 | ? | `qwen/qwen3.6-27b` |
 | `minimax/minimax-m2.7:free` | xkiro | **52.6** | ? | ? | 1251 | `minimax/minimax-m2.7:free` |
 | `minimax/minimax-m2.7:free` | openrouter | **52.6** | ? | ? | 1251 | `minimax/minimax-m2.7:free` |
 | `gemini-3.5-flash-lite` | google | **49.3** | 27.6 | 16.1 | ? | `google/gemini-3.5-flash-lite:batch` |
 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **49.3** | ? | 21.7 | 1153 | `nvidia/nemotron-3-ultra-550b-a55b:free` |
 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | **49.3** | ? | 21.7 | 1153 | `nvidia/nemotron-3-ultra-550b-a55b:free` |
+| `Qwen3.5-397B-A17B` | ovhcloud | **48.2** | ? | 10.6 | 1196 | `qwen/qwen3.5-397b-a17b` |
 | `gemma-4-31b` | cerebras | **43.4** | ? | 6.8 | ? | `google/gemma-4-31b-it:batch` |
 | `gemma-4-31b-it` | google | **43.4** | ? | 6.8 | ? | `google/gemma-4-31b-it:batch` |
 | `gemma4:31b` | ollama | **43.4** | ? | 6.8 | ? | `google/gemma-4-31b-it:batch` |
@@ -51,11 +54,13 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 | `openai/gpt-oss-120b` | groq | **30.4** | 15.6 | 6.3 | 980 | `openai/gpt-oss-120b:batch` |
 | `@cf/openai/gpt-oss-120b` | cloudflare | **30.4** | 15.6 | 6.3 | 980 | `openai/gpt-oss-120b:batch` |
 | `gpt-oss:120b` | ollama | **30.4** | 15.6 | 6.3 | 980 | `openai/gpt-oss-120b:batch` |
+| `gpt-oss-120b` | ovhcloud | **30.4** | 15.6 | 6.3 | 980 | `openai/gpt-oss-120b:batch` |
 | `nvidia/nemotron-3.5-lightning-30b-a3b` | nvidia | **26.8** | ? | ? | ? | `nvidia/nemotron-3.5-lightning:free` |
 | `openai/gpt-oss-20b` | groq | **20.7** | ? | 1.4 | ? | `openai/gpt-oss-20b:batch` |
 | `gpt-oss:20b` | ollama | **20.7** | ? | 1.4 | ? | `openai/gpt-oss-20b:batch` |
 | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | nvidia | **13.8** | ? | ? | ? | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` |
 | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | **11.9** | ? | ? | ? | `meta-llama/llama-3.3-70b-instruct` |
+| `Meta-Llama-3_3-70B-Instruct` | ovhcloud | **11.9** | ? | ? | ? | `meta-llama/llama-3.3-70b-instruct` |
 
 ## 3. By volume: what you get to burn in a day
 
@@ -80,7 +85,15 @@ Tokens, not requests: whichever of the two limits binds first, converted at 500 
 
 ## 4. Needs no key at all
 
-**None yet.** Every provider we measure today wants a key. Endpoints that need none exist and are the most useful thing this list could add - see IMPROVEMENTS.md.
+| Model | Provider | Coding | Req/day |
+|---|---|---|---|
+| `gpt-oss-120b` | ovhcloud | 30.4 | ? |
+| `Qwen3.5-397B-A17B` | ovhcloud | 48.2 | ? |
+| `Meta-Llama-3_3-70B-Instruct` | ovhcloud | 11.9 | ? |
+| `Qwen3.8-27B` | ovhcloud | 68.1 | ? |
+| `Lorbus/Qwen3.6-27B-int4-AutoRound` | uncloseai | 53.7 | ? |
+| `Qwen3-Coder-30B-A3B-Instruct` | ovhcloud | ? | ? |
+| `Mistral-Small-3.2-24B-Instruct-2506` | ovhcloud | ? | ? |
 
 ## 5. What the free tier costs you that is not money
 
@@ -160,9 +173,16 @@ A row needs both halves to be ranked: an official score AND a known quota. Half 
 | `gemma4:31b` | ollama | daily volume unknown - see LIMITS.md |
 | `gpt-oss:120b` | ollama | daily volume unknown - see LIMITS.md |
 | `gpt-oss:20b` | ollama | daily volume unknown - see LIMITS.md |
+| `gpt-oss-120b` | ovhcloud | daily volume unknown - see LIMITS.md |
+| `Qwen3.5-397B-A17B` | ovhcloud | daily volume unknown - see LIMITS.md |
+| `Meta-Llama-3_3-70B-Instruct` | ovhcloud | daily volume unknown - see LIMITS.md |
+| `Qwen3.8-27B` | ovhcloud | daily volume unknown - see LIMITS.md |
+| `Lorbus/Qwen3.6-27B-int4-AutoRound` | uncloseai | daily volume unknown - see LIMITS.md |
 | `qwen-flash` | alibaba | no official benchmark score published for this model |
 | `qwen-plus` | alibaba | no official benchmark score published for this model |
 | `qwen-turbo` | alibaba | no official benchmark score published for this model |
 | `qwen3.5-flash` | alibaba | no official benchmark score published for this model |
 | `@cf/mistralai/mistral-small-3.1-24b-instruct` | cloudflare | no official benchmark score published for this model |
+| `Qwen3-Coder-30B-A3B-Instruct` | ovhcloud | no official benchmark score published for this model |
+| `Mistral-Small-3.2-24B-Instruct-2506` | ovhcloud | no official benchmark score published for this model |
 | `Qwen/Qwen3-Coder-30B-A3B-Instruct` | siliconflow | no official benchmark score published for this model |

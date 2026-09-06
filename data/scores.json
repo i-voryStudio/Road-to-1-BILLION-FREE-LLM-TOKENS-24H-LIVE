@@ -486,6 +486,122 @@
      "rank": 95
     }
    }
+  },
+  {
+   "provider": "uncloseai",
+   "model": "Lorbus/Qwen3.6-27B-int4-AutoRound",
+   "matched_as": "qwen/qwen3.6-27b",
+   "artificial_analysis": {
+    "coding_index": 53.7,
+    "agentic_index": 20.1
+   }
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "gpt-oss-120b",
+   "matched_as": "openai/gpt-oss-120b:batch",
+   "artificial_analysis": {
+    "intelligence_index": 15.6,
+    "coding_index": 30.4,
+    "agentic_index": 6.3
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 980,
+     "win_rate": 33.4,
+     "rank": 113
+    },
+    "gamedev": {
+     "elo": 1021,
+     "win_rate": 40.5,
+     "rank": 104
+    },
+    "website": {
+     "elo": 981,
+     "win_rate": 32.5,
+     "rank": 116
+    }
+   }
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Qwen3.5-397B-A17B",
+   "matched_as": "qwen/qwen3.5-397b-a17b",
+   "artificial_analysis": {
+    "coding_index": 48.2,
+    "agentic_index": 10.6
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1196,
+     "win_rate": 52.6,
+     "rank": 52
+    },
+    "gamedev": {
+     "elo": 1169,
+     "win_rate": 50.1,
+     "rank": 61
+    },
+    "website": {
+     "elo": 1204,
+     "win_rate": 52.5,
+     "rank": 54
+    }
+   }
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Meta-Llama-3_3-70B-Instruct",
+   "matched_as": "meta-llama/llama-3.3-70b-instruct",
+   "artificial_analysis": {
+    "coding_index": 11.9
+   }
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Qwen3-Coder-30B-A3B-Instruct",
+   "matched_as": "qwen/qwen3-coder-30b-a3b-instruct",
+   "artificial_analysis": {},
+   "design_arena": {
+    "website": {
+     "elo": 1100,
+     "win_rate": 57.1,
+     "rank": 95
+    }
+   }
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Mistral-Small-3.2-24B-Instruct-2506",
+   "matched_as": "mistralai/mistral-small-3.2-24b-instruct",
+   "artificial_analysis": {},
+   "design_arena": {
+    "codecategories": {
+     "elo": 924,
+     "win_rate": 39.8,
+     "rank": 118
+    },
+    "gamedev": {
+     "elo": 918,
+     "win_rate": 39.4,
+     "rank": 119
+    },
+    "website": {
+     "elo": 909,
+     "win_rate": 38.3,
+     "rank": 121
+    }
+   }
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Qwen3.8-27B",
+   "matched_as": "qwen/qwen3.8-27b",
+   "artificial_analysis": {
+    "intelligence_index": 41.4,
+    "coding_index": 68.1,
+    "agentic_index": 46.8
+   }
   }
  ],
  "unmatched": [

@@ -10,8 +10,8 @@
    "provider": "alibaba",
    "model": "qwen-flash",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -19,8 +19,8 @@
    "provider": "alibaba",
    "model": "qwen-plus",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -28,8 +28,8 @@
    "provider": "alibaba",
    "model": "qwen-turbo",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -37,8 +37,8 @@
    "provider": "alibaba",
    "model": "qwen3.5-flash",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -46,8 +46,8 @@
    "provider": "cerebras",
    "model": "gemma-4-31b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -55,8 +55,8 @@
    "provider": "cerebras",
    "model": "gpt-oss-120b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -64,8 +64,8 @@
    "provider": "cerebras",
    "model": "qwen-3.8-27b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -73,8 +73,8 @@
    "provider": "cloudflare",
    "model": "@cf/google/gemma-4-26b-a4b-it",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -82,8 +82,8 @@
    "provider": "cloudflare",
    "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -91,8 +91,8 @@
    "provider": "cloudflare",
    "model": "@cf/mistralai/mistral-small-3.1-24b-instruct",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -100,8 +100,8 @@
    "provider": "cloudflare",
    "model": "@cf/openai/gpt-oss-120b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -109,8 +109,8 @@
    "provider": "cloudflare",
    "model": "@cf/qwen/qwen3.8-27b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -145,8 +145,8 @@
    "provider": "groq",
    "model": "openai/gpt-oss-120b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -154,8 +154,8 @@
    "provider": "groq",
    "model": "openai/gpt-oss-20b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -163,8 +163,8 @@
    "provider": "groq",
    "model": "qwen/qwen3.6-27b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -172,8 +172,8 @@
    "provider": "groq",
    "model": "qwen/qwen3.8-27b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -181,8 +181,8 @@
    "provider": "nvidia",
    "model": "moonshotai/kimi-k3",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -190,8 +190,8 @@
    "provider": "nvidia",
    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -199,8 +199,8 @@
    "provider": "nvidia",
    "model": "nvidia/nemotron-3-super-120b-a12b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -208,8 +208,8 @@
    "provider": "nvidia",
    "model": "nvidia/nemotron-3-ultra-550b-a55b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -217,8 +217,8 @@
    "provider": "nvidia",
    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -226,8 +226,8 @@
    "provider": "ollama",
    "model": "gemma4:31b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -235,8 +235,8 @@
    "provider": "ollama",
    "model": "gpt-oss:120b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -244,8 +244,8 @@
    "provider": "ollama",
    "model": "gpt-oss:20b",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -253,8 +253,8 @@
    "provider": "openrouter",
    "model": "minimax/minimax-m2.7:free",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -262,8 +262,8 @@
    "provider": "openrouter",
    "model": "minimax/minimax-m3:free",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -271,17 +271,89 @@
    "provider": "openrouter",
    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
+   "down_since": null
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Meta-Llama-3_3-70B-Instruct",
+   "days_down": 0,
+   "last_alive": "2026-09-07",
+   "probed_days": 1,
+   "first_probe": "2026-09-07",
+   "down_since": null
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Mistral-Small-3.2-24B-Instruct-2506",
+   "days_down": 0,
+   "last_alive": "2026-09-07",
+   "probed_days": 1,
+   "first_probe": "2026-09-07",
+   "down_since": null
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Qwen3-Coder-30B-A3B-Instruct",
+   "days_down": 0,
+   "last_alive": "2026-09-07",
+   "probed_days": 1,
+   "first_probe": "2026-09-07",
+   "down_since": null
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Qwen3.5-397B-A17B",
+   "days_down": 0,
+   "last_alive": "2026-09-07",
+   "probed_days": 1,
+   "first_probe": "2026-09-07",
+   "down_since": null
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "Qwen3.8-27B",
+   "days_down": 0,
+   "last_alive": "2026-09-07",
+   "probed_days": 1,
+   "first_probe": "2026-09-07",
+   "down_since": null
+  },
+  {
+   "provider": "ovhcloud",
+   "model": "gpt-oss-120b",
+   "days_down": 0,
+   "last_alive": "2026-09-07",
+   "probed_days": 1,
+   "first_probe": "2026-09-07",
+   "down_since": null
+  },
+  {
+   "provider": "siliconflow",
+   "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+   "days_down": 0,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
+   "first_probe": "2026-09-06",
+   "down_since": null
+  },
+  {
+   "provider": "uncloseai",
+   "model": "Lorbus/Qwen3.6-27B-int4-AutoRound",
+   "days_down": 0,
+   "last_alive": "2026-09-07",
+   "probed_days": 1,
+   "first_probe": "2026-09-07",
    "down_since": null
   },
   {
    "provider": "xkiro",
    "model": "minimax/minimax-m2.7:free",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   },
@@ -289,23 +361,13 @@
    "provider": "xkiro",
    "model": "minimax/minimax-m3:free",
    "days_down": 0,
-   "last_alive": "2026-09-06",
-   "probed_days": 1,
+   "last_alive": "2026-09-07",
+   "probed_days": 2,
    "first_probe": "2026-09-06",
    "down_since": null
   }
  ],
- "flaky": [
-  {
-   "provider": "siliconflow",
-   "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
-   "days_down": 1,
-   "last_alive": null,
-   "probed_days": 1,
-   "first_probe": "2026-09-06",
-   "down_since": "2026-09-06"
-  }
- ],
+ "flaky": [],
  "degraded": [],
  "buried": []
 }

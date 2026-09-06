@@ -326,9 +326,58 @@ def main():
 
     (out / "RESULTS.md").write_text("\n".join(L) + "\n", encoding="utf-8", newline="\n")
 
+    # ---- the headline box, also generated. It carries the number this repo lives or dies by, so it
+    # is the last place that should be typed by hand: the first version of it was, and it went stale
+    # the same afternoon the ranking moved.
+    #
+    # A quota belongs to the ACCOUNT, not to each model on it, so a provider contributes the LARGEST
+    # daily figure among its models exactly once. Summing per model would let a provider with six
+    # models on one 200k allowance report 1.2M, which is how these lists end up advertising capacity
+    # nobody has.
+    readme = out / "README.md"
+    per_provider = {}
+    for r in rows + unranked:
+        v = r.get("daily_tokens")
+        if v:
+            per_provider[r["provider"]] = max(per_provider.get(r["provider"], 0), v)
+    confirmed = sum(per_provider.values())
+    n_providers = len({r["provider"] for r in rows + unranked})
+    silent = n_providers - len(per_provider)
+
+    # Today's answers, straight from the radar's own history.
+    today_alive = today_total = 0
+    up = out / "data" / "uptime.jsonl"
+    if up.exists():
+        for line in up.read_text(encoding="utf-8").split(chr(10)):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if row.get("date") != a.date or row.get("state") == "no_key":
+                continue
+            today_total += 1
+            today_alive += 1 if row.get("state") == "alive" else 0
+
+    if readme.exists() and "<!--HEADLINE-->" in readme.read_text(encoding="utf-8"):
+        TARGET = 1000000000
+        gap = TARGET / confirmed if confirmed else 0
+        H = ["| | |", "|---|---|",
+             "| **Tokens per 24h**, confirmed | **%s** |" % num(confirmed),
+             "| Endpoints answering today | **%d of %d tested** |" % (today_alive, today_total),
+             "| Providers whose quota nobody publishes | **%d of %d** |" % (silent, n_providers),
+             "| Distance to 1,000,000,000 tokens/day | **%.0fx** |" % gap]
+        text = readme.read_text(encoding="utf-8")
+        block = "<!--HEADLINE-->" + chr(10) + chr(10).join(H) + chr(10) + "<!--/HEADLINE-->"
+        text = re.sub(r"<!--HEADLINE-->.*?<!--/HEADLINE-->", lambda _: block, text, flags=re.S)
+        readme.write_text(text, encoding="utf-8", newline=chr(10))
+        print("headline: %s tokens/24h confirmed, %d of %d answering, %.0fx to the target"
+              % (num(confirmed), today_alive, today_total, gap))
+
     # The README table is GENERATED between markers. Hand-editing it is how a published number
     # drifts away from the data, which gate_claims.py then catches. Better to make drift impossible.
-    readme = out / "README.md"
     if readme.exists() and rows:
         text = readme.read_text(encoding="utf-8")
         if "<!--RANKING-->" in text and "<!--/RANKING-->" in text:

@@ -47,7 +47,12 @@ def probe(url, key, model, extra_body, timeout=45):
         return "down", 0, 0.0, "host not in ALLOWED_HOSTS"
     body = {"model": model, "messages": [{"role": "user", "content": PROMPT}],
             "max_tokens": 64, "temperature": 0, **(extra_body or {})}
-    headers = {"Content-Type": "application/json", "User-Agent": UA, "Authorization": "Bearer " + key}
+    headers = {"Content-Type": "application/json", "User-Agent": UA}
+    # A keyless endpoint gets NO Authorization header at all. Sending "Bearer " with nothing after it
+    # is not the same request a reader would make, and the answer to a different request is not
+    # evidence about this one.
+    if key:
+        headers["Authorization"] = "Bearer " + key
     started = time.time()
     try:
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
@@ -61,7 +66,10 @@ def probe(url, key, model, extra_body, timeout=45):
         return ("alive" if text else "empty"), 200, secs, ""
     except urllib.error.HTTPError as e:
         secs = round(time.time() - started, 2)
-        state = {429: "rate_limited", 503: "overloaded"}.get(e.code, "down")
+        # 402 is not an outage. The endpoint answered; what ran out is the money or the free
+        # allowance on the calling account, and calling that "down" would blame the provider for our
+        # empty pocket - and would start the 14-day death clock on a healthy endpoint.
+        state = {429: "rate_limited", 503: "overloaded", 402: "payment_required"}.get(e.code, "down")
         return state, e.code, secs, ""
     except Exception as e:
         return "down", 0, round(time.time() - started, 2), type(e).__name__
@@ -82,7 +90,8 @@ def main():
 
     lines, counts = [], {}
     for p in provs:
-        key = os.environ.get(p["key_env"], "")
+        needs_key = bool(p.get("key_env"))
+        key = os.environ.get(p["key_env"], "") if needs_key else ""
         url = p["url"]
         skip = ""
         for ph in set(__import__("re").findall(r"\{([A-Za-z_][A-Za-z0-9_]*)\}", url)):
@@ -90,7 +99,7 @@ def main():
                 skip = "url interpolates an undeclared variable"
             url = url.replace("{%s}" % ph, os.environ.get(ph, ""))
         for m in p["models"]:
-            if not key or skip:
+            if (needs_key and not key) or skip:
                 state, code, secs, note = "no_key", None, None, skip or "no key set in this environment"
             else:
                 state, code, secs, note = probe(url, key, m["id"], m.get("extra_body"),

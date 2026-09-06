@@ -61,7 +61,10 @@ USAGE_ENDPOINT = {
 def get_json(url, key, timeout=45):
     if (urlparse(url).hostname or "") not in ALLOWED_HOSTS:
         return None, "host not in ALLOWED_HOSTS"
-    req = urllib.request.Request(url, headers={"Authorization": "Bearer " + key, "User-Agent": UA})
+    headers = {"User-Agent": UA}
+    if key:
+        headers["Authorization"] = "Bearer " + key
+    req = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as f:
             return json.loads(f.read(400000).decode("utf-8", "replace")), None
@@ -76,9 +79,10 @@ def probe_headers(url, key, model, extra_body, timeout=45):
         return None, "host not in ALLOWED_HOSTS"
     body = {"model": model, "messages": [{"role": "user", "content": "hi"}],
             "max_tokens": 8, "temperature": 0, **(extra_body or {})}
-    req = urllib.request.Request(url, data=json.dumps(body).encode(),
-                                 headers={"Content-Type": "application/json",
-                                          "Authorization": "Bearer " + key, "User-Agent": UA})
+    headers = {"Content-Type": "application/json", "User-Agent": UA}
+    if key:
+        headers["Authorization"] = "Bearer " + key
+    req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as f:
             f.read(20000)
@@ -105,8 +109,9 @@ def main():
     found = {}
     for p in provs:
         name = p["name"]
-        key = os.environ.get(p["key_env"], "")
-        if not key:
+        needs_key = bool(p.get("key_env"))
+        key = os.environ.get(p["key_env"], "") if needs_key else ""
+        if needs_key and not key:
             print("%-12s no key set, skipped" % name)
             continue
 

@@ -50,7 +50,8 @@ ALLOWED_HOSTS = {
     "dashscope-intl.aliyuncs.com",
     "api.xkiro.com",
     "api.siliconflow.com",
-    "api.mistral.ai",        # free tier, measured 2026-09-07: 625,000 tokens/minute in their headers
+    "api.mistral.ai",        # free tier that switches itself on and off: see bench/limits.json
+    "api.unorouter.com",     # 163 models marked :free, measured answering 2026-09-07
     "kenari.id",             # 13 models marked :free, measured answering 2026-09-07
     "aihubmix.com",          # 54 models marked -free, measured answering 2026-09-07
     "model.inferx.net",      # free inference, measured answering 2026-09-07

@@ -12,18 +12,21 @@
 | Also claimed by providers, sourced, not measured | 275,000 |
 | Published only for a PAID plan, excluded from all of it | 200,000 |
 | Endpoints answering today | **30 of 37 tested** |
-| Providers whose quota nobody publishes | **11 of 16** |
+| Providers whose quota nobody publishes | **12 of 17** |
 | Distance to 1,000,000,000 measured tokens/day | **167x** |
 <!--/HEADLINE-->
 
 **Where this is going, out loud: one billion free tokens a day.** That is the number the list is
 built towards, and the box above measures the distance to it every day.
 
-**The biggest ceiling on this list is measured per minute, not per day.** Mistral's free tier
-answered a normal completion with a per-minute token ceiling header of 625,000. That is the largest
-figure anywhere here and it is deliberately **not** turned into a daily number: multiplying it by 1,440
-minutes would publish 900 million tokens a day that nobody has. Where a provider's binding limit is per
-minute and they publish no daily cap, the row says so and stays out of the daily total.
+**A ceiling you saw once is not a ceiling.** Mistral's free tier answered one of our calls with
+a per-minute token ceiling header of 625,000 — the largest figure we have measured anywhere. Half an hour
+later, five readings a minute apart all said a per-minute request ceiling header of 0 and every call was
+refused. A limit of zero is not a limit reached, it is a tier that is not switched on, and what turns
+it on is on no page we could find. So that 625,000 is recorded with its timestamps and published as
+**nothing**: a number that swings between zero and six hundred thousand within an hour is not capacity
+anyone can plan on. Every reading is in [`bench/limits.json`](bench/limits.json) with the hour it was
+taken.
 
 **Free comes in two kinds, and mixing them is how these lists mislead you.** One is *recurring*: it
 is there every morning, forever. The other is *one-time*: a bundle handed over once when you sign up,

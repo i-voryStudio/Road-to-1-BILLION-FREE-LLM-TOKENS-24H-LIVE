@@ -393,6 +393,25 @@
      "id": "deepseek-v4-flash"
     }
    ]
+  },
+  {
+   "name": "unorouter",
+   "url": "https://api.unorouter.com/v1/chat/completions",
+   "key_env": "UNOROUTER_API_KEY",
+   "signup": "https://unorouter.com/",
+   "pause_seconds": 5,
+   "timeout_seconds": 90,
+   "models": [
+    {
+     "id": "aion-2.0:free"
+    },
+    {
+     "id": "deepseek-v4-flash:free"
+    },
+    {
+     "id": "deepseek-v4-pro:free"
+    }
+   ]
   }
  ]
 }

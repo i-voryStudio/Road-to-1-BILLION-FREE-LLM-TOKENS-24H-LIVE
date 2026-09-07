@@ -282,15 +282,49 @@
    "scope": "account",
    "confidence": "MEASURED",
    "measured_on": "2026-09-07",
-   "measured_how": "rate-limit response headers on a normal completion reported a token ceiling of 625,000 a minute and a request ceiling of 125 a minute.",
-   "caveat": "The per-MINUTE ceiling is measured and it is the largest we have seen anywhere. The per-DAY figure is NOT: multiplying 625,000 by 1,440 minutes would publish 900 million tokens a day that nobody has, which is the arithmetic every other list gets wrong. It stays null until they publish a daily cap or we measure one. Measured earlier the same day, before the account was verified, the same headers read 0: this tier switches on only after a phone number is confirmed.",
+   "volatile": true,
+   "measured_how": "Their own rate-limit headers, read seven times on 2026-09-07. The ceiling the calling account is given MOVES, and not slowly: at 00:05 UTC the headers said x-ratelimit-limit-tokens-minute 625000 and the call returned a completion. Five readings between 00:39 and 00:43 UTC, one minute apart, all said x-ratelimit-limit-req-minute 0 and every call was refused with 429. Earlier the same day, before that, the headers also said 0.",
+   "caveat": "A limit of ZERO is not a limit reached, it is a tier that is not switched on. the calling account swung from 0 to 625,000 tokens a minute and back to 0 within an hour, so the large figure is NOT capacity you can plan on and it is not published here as one. Whatever conditions turn this tier on - phone verification, region, a queue - are not stated on any page we could find, and their tier documentation URL now returns 404.",
    "all_models": {
     "rpd": null,
     "tpd": null,
-    "rpm": 125,
-    "tpm": 625000
+    "rpm": null,
+    "tpm": null
    },
-   "binding_limit": "Tokens per minute, at 625,000. On a single stream you will hit latency long before you hit that."
+   "readings": [
+    {
+     "utc": "2026-09-07T00:05Z",
+     "http": 200,
+     "limit_tokens_minute": 625000,
+     "limit_req_minute": 125
+    },
+    {
+     "utc": "2026-09-07T00:39Z",
+     "http": 429,
+     "limit_req_minute": 0
+    },
+    {
+     "utc": "2026-09-07T00:40Z",
+     "http": 429,
+     "limit_req_minute": 0
+    },
+    {
+     "utc": "2026-09-07T00:41Z",
+     "http": 429,
+     "limit_req_minute": 0
+    },
+    {
+     "utc": "2026-09-07T00:42Z",
+     "http": 429,
+     "limit_req_minute": 0
+    },
+    {
+     "utc": "2026-09-07T00:43Z",
+     "http": 429,
+     "limit_req_minute": 0
+    }
+   ],
+   "binding_limit": "Whether the tier is on at all. Six of our seven readings today were refused."
   },
   "kenari": {
    "scope": "account",
@@ -322,6 +356,16 @@
    "scope": "account",
    "confidence": "UNKNOWN",
    "caveat": "The endpoint answered with the key and returned a real completion. No rate-limit headers, no usage endpoint, nothing published we could find.",
+   "all_models": {
+    "rpd": null,
+    "tpd": null
+   },
+   "binding_limit": "Unknown."
+  },
+  "unorouter": {
+   "scope": "account",
+   "confidence": "UNKNOWN",
+   "caveat": "163 of their 262 models carry a :free suffix. The endpoint answered a real completion on 2026-09-07 and returned no rate-limit headers of any kind, so how much of it you may use is unknown. Image models on the same catalogue answer 'invalid api type' - the free text models are the ones listed here.",
    "all_models": {
     "rpd": null,
     "tpd": null

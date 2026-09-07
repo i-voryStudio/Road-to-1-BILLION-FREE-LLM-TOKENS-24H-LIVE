@@ -67,8 +67,8 @@
    "confidence": "MEASURED"
   }
  },
- "providers_tracked": 16,
- "providers_with_no_published_quota": 11,
+ "providers_tracked": 17,
+ "providers_with_no_published_quota": 12,
  "target_tokens_per_day": 1000000000,
  "target_date": "2026-11-07",
  "multiple_still_needed": 166.7,

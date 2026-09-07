@@ -157,6 +157,14 @@
    "retention": "UNKNOWN",
    "region_restriction": "UNKNOWN",
    "note": "Nobody has read this provider's terms yet. UNKNOWN is the honest answer."
+  },
+  "unorouter": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "note": "Nobody has read this provider's terms yet. UNKNOWN is the honest answer."
   }
  }
 }

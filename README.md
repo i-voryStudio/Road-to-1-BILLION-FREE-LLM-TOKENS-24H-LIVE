@@ -5,9 +5,12 @@
 <!--HEADLINE-->
 | | |
 |---|---|
-| **Tokens per 24h we MEASURED ourselves** | **6,000,000** |
+| **Tokens to burn in your first 24 hours** | **10,000,000** |
+| **Every day after that**, measured by us | **6,000,000** |
+| One-time, handed over once at sign-up | 4,000,000 |
+| One-time credits, in money, not converted to tokens | $6 |
 | Also claimed by providers, sourced, not measured | 275,000 |
-| Published only for a PAID plan, excluded from both | 200,000 |
+| Published only for a PAID plan, excluded from all of it | 200,000 |
 | Endpoints answering today | **30 of 37 tested** |
 | Providers whose quota nobody publishes | **7 of 12** |
 | Distance to 1,000,000,000 measured tokens/day | **167x** |
@@ -15,6 +18,14 @@
 
 **Where this is going, out loud: one billion free tokens a day.** That is the number the list is
 built towards, and the box above measures the distance to it every day.
+
+**Free comes in two kinds, and mixing them is how these lists mislead you.** One is *recurring*: it
+is there every morning, forever. The other is *one-time*: a bundle handed over once when you sign up,
+real on day one and gone on day two. Alibaba, for instance, grants a free quota **per model** that is
+valid for 90 days and cannot be merged across models; Cerebras and SiliconFlow hand you credits in
+money instead of tokens. Added together they make a number that stops being true after 24 hours, so
+the box above keeps them apart: what you can burn today, and what you have every day. A grant made in
+money is never converted into tokens — that needs the provider's own price, and we do not invent one.
 
 **Three numbers, not one, and this is the whole argument.** Measured means we saw it: a response
 header, a usage endpoint, a 429 we walked into. Claimed means the provider says so on a page we read,

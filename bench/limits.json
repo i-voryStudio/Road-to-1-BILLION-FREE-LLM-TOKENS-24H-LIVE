@@ -14,7 +14,16 @@
   "or per PROJECT does not get bigger when you make another key.",
   "",
   "`volatile: true` means this number moved under us at least once, or the provider stopped publishing it.",
-  "Re-measure before quoting it."
+  "Re-measure before quoting it.",
+  "",
+  "TWO KINDS OF FREE, AND THEY ARE NOT THE SAME SHELF:",
+  "  RECURRING  what you get every day, forever. This is what `all_models` and `models` describe.",
+  "  ONE-TIME   a bundle handed over once at sign-up: a pot of tokens, or credits in money. Real",
+  "             on day one, gone on day two. It lives in `one_time` and is NEVER added to the",
+  "             daily figure - every list that adds them together is quoting a number that stops",
+  "             being true after 24 hours.",
+  "A one-time grant in MONEY is not converted into tokens unless the provider publishes a price we",
+  "read ourselves. $5 of credits is $5 of credits until then."
  ],
  "read_on": "2026-09-06",
  "providers": {
@@ -80,7 +89,17 @@
     "rpd": 2400,
     "tpd": 1000000
    },
-   "binding_limit": "5 requests per minute. Two calls inside the same minute need roughly 13 s between them."
+   "binding_limit": "5 requests per minute. Two calls inside the same minute need roughly 13 s between them.",
+   "one_time": {
+    "tokens": null,
+    "credits_usd": 5,
+    "confidence": "DECLARED",
+    "source": "https://www.cerebras.ai/pricing",
+    "read_on": "2026-09-06",
+    "quote": "Free Trial: $5 in free credits after making an account",
+    "expires": "UNKNOWN",
+    "note": "Their pricing page describes free access ONLY as this trial and publishes no daily free-tier ceiling. The 1,000,000 tokens/day above came from the calling account's headers and may be this trial rather than a standing tier."
+   }
   },
   "google": {
    "scope": "project",
@@ -172,7 +191,17 @@
    "all_models": {
     "rpd": null
    },
-   "concurrency": "assume 1 - concurrent execution is sold as a paid-plan feature"
+   "concurrency": "assume 1 - concurrent execution is sold as a paid-plan feature",
+   "one_time": {
+    "tokens": null,
+    "credits_usd": null,
+    "confidence": "DECLARED",
+    "source": "https://ollama.com/pricing",
+    "read_on": "2026-09-07",
+    "quote": "Free accounts include a starter amount of usage for a smaller set of starter models. Adding extra credits unlocks all models.",
+    "expires": "UNKNOWN",
+    "note": "They say a starter bundle exists and do not say how big it is. That is exactly what the row records: a grant we know about, with no number, because they publish none."
+   }
   },
   "alibaba": {
    "scope": "account",
@@ -180,6 +209,17 @@
    "caveat": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited.",
    "all_models": {
     "rpd": null
+   },
+   "one_time": {
+    "tokens": 4000000,
+    "credits_usd": null,
+    "confidence": "DECLARED",
+    "source": "https://www.alibabacloud.com/help/en/model-studio/new-free-quota",
+    "read_on": "2026-09-07",
+    "quote": "Each model (such as qwen-plus, qwen3.6-plus, or qwen3.6-plus-2026-04-02) has its own independent free quota (typically 1,000,000 tokens). Quota cannot be merged or transferred across models.",
+    "expires": "90 days from activation",
+    "expires_quote": "The free quota is valid for 90 days, starting from the date you activate Alibaba Cloud Model Studio, the model is released, or your model request is approved (whichever is later).",
+    "note": "1,000,000 per model, and we track 4 of their models, so 4,000,000. The per-model split is THEIR rule, quoted above, not our multiplication: their own sentence says the quotas are independent and cannot be merged. Singapore region only, and calls stop when it is exhausted unless you complete account details, at which point you are billed."
    }
   },
   "xkiro": {
@@ -203,6 +243,16 @@
    "caveat": "NOT TESTED, and this is about the caller, not about them: the key was answered with 402, so every call returned 402. That says nothing about the provider's free tier and SiliconFlow is therefore excluded from the quality ranking rather than scored zero.",
    "all_models": {
     "rpd": null
+   },
+   "one_time": {
+    "tokens": null,
+    "credits_usd": 1,
+    "confidence": "DECLARED",
+    "source": "https://siliconflow.com/pricing",
+    "read_on": "2026-09-07",
+    "quote": "Flexible token pricing, high usage limits, and postpaid billing - plus $1 in free credits to get you started!",
+    "expires": "UNKNOWN",
+    "note": "One dollar, in money, not tokens. We do not convert it: that needs their per-token price and a made-up conversion is a confident wrong number. On 2026-09-07 the endpoint answered HTTP 402 Payment Required, so the dollar is one-time and the endpoint stops serving after it."
    }
   },
   "uncloseai": {

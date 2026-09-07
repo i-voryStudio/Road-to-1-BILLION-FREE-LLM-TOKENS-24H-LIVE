@@ -1,5 +1,47 @@
 {
  "date": "2026-09-07",
+ "first_24h_tokens": 10000000,
+ "recurring_measured_tokens_per_day": 6000000,
+ "one_time_tokens": 4000000,
+ "one_time_credits_usd": 6.0,
+ "one_time_grants": [
+  {
+   "provider": "alibaba",
+   "tokens": 4000000,
+   "credits_usd": null,
+   "confidence": "DECLARED",
+   "source": "https://www.alibabacloud.com/help/en/model-studio/new-free-quota",
+   "quote": "Each model (such as qwen-plus, qwen3.6-plus, or qwen3.6-plus-2026-04-02) has its own independent free quota (typically 1,000,000 tokens). Quota cannot be merged or transferred across models.",
+   "expires": "90 days from activation"
+  },
+  {
+   "provider": "cerebras",
+   "tokens": null,
+   "credits_usd": 5,
+   "confidence": "DECLARED",
+   "source": "https://www.cerebras.ai/pricing",
+   "quote": "Free Trial: $5 in free credits after making an account",
+   "expires": "UNKNOWN"
+  },
+  {
+   "provider": "ollama",
+   "tokens": null,
+   "credits_usd": null,
+   "confidence": "DECLARED",
+   "source": "https://ollama.com/pricing",
+   "quote": "Free accounts include a starter amount of usage for a smaller set of starter models. Adding extra credits unlocks all models.",
+   "expires": "UNKNOWN"
+  },
+  {
+   "provider": "siliconflow",
+   "tokens": null,
+   "credits_usd": 1,
+   "confidence": "DECLARED",
+   "source": "https://siliconflow.com/pricing",
+   "quote": "Flexible token pricing, high usage limits, and postpaid billing - plus $1 in free credits to get you started!",
+   "expires": "UNKNOWN"
+  }
+ ],
  "measured_tokens_per_day": 6000000,
  "declared_tokens_per_day": 275000,
  "paid_plan_tokens_per_day_excluded": 200000,
@@ -30,5 +72,5 @@
  "target_tokens_per_day": 1000000000,
  "target_date": "2026-11-07",
  "multiple_still_needed": 166.7,
- "note": "MEASURED is the only figure the headline and the target distance use. DECLARED is the provider's own claim, sourced and dated, and is never added to it. PAID-PLAN is a number published for a paid tier and is excluded from both - reprinting one as free capacity is the mistake this repo names in its own README."
+ "note": "first_24h_tokens is recurring PLUS one-time, and it is true exactly once. recurring_measured_tokens_per_day is what is there every morning, and it is the figure the target distance uses. One-time grants in money are NOT converted into tokens: that needs the provider's own price, and inventing the conversion is the kind of confident wrong number this list exists to avoid. MEASURED is the only figure the headline and the target distance use. DECLARED is the provider's own claim, sourced and dated, and is never added to it. PAID-PLAN is a number published for a paid tier and is excluded from both - reprinting one as free capacity is the mistake this repo names in its own README."
 }

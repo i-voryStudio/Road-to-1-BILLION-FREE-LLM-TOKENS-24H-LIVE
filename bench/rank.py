@@ -445,6 +445,29 @@ def main():
         return sum(v for v, c in per_provider.values() if c == kind)
 
     measured, declared, paid = total("MEASURED"), total("DECLARED"), total("PAID-PLAN")
+
+    # THE SECOND KIND OF FREE. A daily quota and a sign-up bundle are both real and they are not the
+    # same shelf: one is there every morning, the other is there once. Adding them gives a number that
+    # stops being true after 24 hours, which is why the two are counted separately and only ever meet
+    # in a line that says "first 24 hours" out loud.
+    #
+    # A bundle handed over in MONEY is not converted into tokens. Doing that needs the provider's own
+    # per-token price, and a made-up conversion is exactly the sort of confident wrong number this
+    # list exists to avoid. Five dollars of credits stays five dollars of credits.
+    one_time_tokens, one_time_credits, one_time_who = 0, 0.0, []
+    for name, entry in sorted((limits.get("providers") or {}).items()):
+        ot = entry.get("one_time")
+        if not isinstance(ot, dict) or ot.get("confidence") not in ("MEASURED", "DECLARED"):
+            continue
+        if ot.get("tokens"):
+            one_time_tokens += ot["tokens"]
+        if ot.get("credits_usd"):
+            one_time_credits += ot["credits_usd"]
+        one_time_who.append({"provider": name, "tokens": ot.get("tokens"),
+                             "credits_usd": ot.get("credits_usd"),
+                             "confidence": ot["confidence"], "source": ot.get("source"),
+                             "quote": ot.get("quote"), "expires": ot.get("expires")})
+    first_24h = measured + one_time_tokens
     n_providers = len({r["provider"] for r in rows + unranked})
     silent = n_providers - len(per_provider)
 
@@ -469,9 +492,13 @@ def main():
         TARGET = 1000000000
         gap = TARGET / measured if measured else 0
         H = ["| | |", "|---|---|",
-             "| **Tokens per 24h we MEASURED ourselves** | **%s** |" % num(measured),
+             "| **Tokens to burn in your first 24 hours** | **%s** |" % num(first_24h),
+             "| **Every day after that**, measured by us | **%s** |" % num(measured),
+             "| One-time, handed over once at sign-up | %s |" % num(one_time_tokens),
+             "| One-time credits, in money, not converted to tokens | %s |"
+             % ("$%g" % one_time_credits if one_time_credits else "0"),
              "| Also claimed by providers, sourced, not measured | %s |" % num(declared),
-             "| Published only for a PAID plan, excluded from both | %s |" % num(paid),
+             "| Published only for a PAID plan, excluded from all of it | %s |" % num(paid),
              "| Endpoints answering today | **%d of %d tested** |" % (today_alive, today_total),
              "| Providers whose quota nobody publishes | **%d of %d** |" % (silent, n_providers),
              "| Distance to 1,000,000,000 measured tokens/day | **%.0fx** |" % gap]
@@ -485,6 +512,11 @@ def main():
     # The same three numbers as data, so a gate can check the prose against them instead of trusting it.
     (out / "data" / "capacity.json").write_text(json.dumps({
         "date": a.date,
+        "first_24h_tokens": first_24h,
+        "recurring_measured_tokens_per_day": measured,
+        "one_time_tokens": one_time_tokens,
+        "one_time_credits_usd": one_time_credits,
+        "one_time_grants": one_time_who,
         "measured_tokens_per_day": measured,
         "declared_tokens_per_day": declared,
         "paid_plan_tokens_per_day_excluded": paid,
@@ -494,11 +526,35 @@ def main():
         "target_tokens_per_day": 1000000000,
         "target_date": "2026-11-07",
         "multiple_still_needed": round(1000000000 / measured, 1) if measured else None,
-        "note": "MEASURED is the only figure the headline and the target distance use. DECLARED is the "
+        "note": "first_24h_tokens is recurring PLUS one-time, and it is true exactly once. "
+                "recurring_measured_tokens_per_day is what is there every morning, and it is the "
+                "figure the target distance uses. One-time grants in money are NOT converted into "
+                "tokens: that needs the provider's own price, and inventing the conversion is the "
+                "kind of confident wrong number this list exists to avoid. "
+                "MEASURED is the only figure the headline and the target distance use. DECLARED is the "
                 "provider's own claim, sourced and dated, and is never added to it. PAID-PLAN is a "
                 "number published for a paid tier and is excluded from both - reprinting one as free "
                 "capacity is the mistake this repo names in its own README.",
     }, indent=1, ensure_ascii=False) + chr(10), encoding="utf-8", newline=chr(10))
+
+    # The one-time grants, generated into LIMITS.md so the two kinds of free cannot drift apart in
+    # prose while they are separated in code.
+    lim_md = out / "LIMITS.md"
+    if lim_md.exists() and "<!--ONE-TIME-->" in lim_md.read_text(encoding="utf-8"):
+        O = ["| Provider | One-time | Expires | Their words |", "|---|---|---|---|"]
+        for g in one_time_who:
+            size = (num(g["tokens"]) + " tokens" if g.get("tokens")
+                    else "$%g in credits" % g["credits_usd"] if g.get("credits_usd")
+                    else "size not published")
+            O.append("| %s | %s | %s | %s |"
+                     % (g["provider"], size, g.get("expires") or "UNKNOWN",
+                        (g.get("quote") or "").replace("|", "/")))
+        if not one_time_who:
+            O = ["Nothing recorded yet."]
+        text = lim_md.read_text(encoding="utf-8")
+        blk = "<!--ONE-TIME-->" + chr(10) + chr(10).join(O) + chr(10) + "<!--/ONE-TIME-->"
+        text = re.sub(r"<!--ONE-TIME-->.*?<!--/ONE-TIME-->", lambda _: blk, text, flags=re.S)
+        lim_md.write_text(text, encoding="utf-8", newline=chr(10))
 
     # The five at the top, generated too. Hand-typed, this table drifted from the ranking the first
     # time the formula changed, and gate_claims.py caught four wrong numbers on the front page.

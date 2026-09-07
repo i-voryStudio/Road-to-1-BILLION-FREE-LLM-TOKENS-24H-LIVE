@@ -328,6 +328,35 @@ def check_limits(path, problems):
             problems.append((where, "DECLARED needs a source URL: that is what makes it checkable"))
         if conf == "MEASURED" and not p.get("measured_on"):
             problems.append((where, "MEASURED needs measured_on: an undated measurement is a rumour"))
+        # A one-time grant is a different shelf from a daily quota, and the whole value of separating
+        # them is lost the moment one can be written without evidence. It also may not carry both a
+        # token figure and a money figure at once: those are two different claims and a reader adding
+        # them would double-count the same grant.
+        ot = p.get("one_time")
+        if ot is not None:
+            if not isinstance(ot, dict):
+                problems.append((where, "one_time must be an object"))
+            else:
+                oconf = ot.get("confidence")
+                if oconf not in ("MEASURED", "DECLARED", "UNKNOWN"):
+                    problems.append((where, "one_time.confidence must be MEASURED, DECLARED or UNKNOWN"))
+                if oconf in ("MEASURED", "DECLARED"):
+                    if not ot.get("source") or not ot.get("read_on"):
+                        problems.append((where, "a stated one-time grant needs source and read_on. It is "
+                                                "the number people sign up for; it does not get to be "
+                                                "unsourced."))
+                    if oconf == "DECLARED" and not ot.get("quote"):
+                        problems.append((where, "a DECLARED one-time grant needs the provider's own "
+                                                "sentence as `quote`. Our paraphrase of a giveaway is "
+                                                "how a marketing figure becomes a fact."))
+                for f in ("tokens", "credits_usd"):
+                    if ot.get(f) is not None and not isinstance(ot[f], (int, float)):
+                        problems.append((where, "one_time.%s must be a number or null" % f))
+                if ot.get("tokens") and ot.get("credits_usd"):
+                    problems.append((where, "one_time states BOTH tokens and credits_usd. Pick the one "
+                                            "the provider actually grants: carrying both invites adding "
+                                            "the same gift to the total twice."))
+
         blob = json.dumps(p)
         if re.search(r"(?i)(x\s*\d+\s*(keys|accounts)|\d+\s*(keys|accounts)\s*[x*])", blob):
             problems.append((where, "a limit multiplied across keys or accounts. Most limits apply per "

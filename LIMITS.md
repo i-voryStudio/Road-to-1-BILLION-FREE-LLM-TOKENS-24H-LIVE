@@ -8,6 +8,21 @@ Three confidence levels, and the difference matters more than the numbers:
 - **DECLARED** - the provider says so on a page we read, with the date we read it.
 - **UNKNOWN** - nobody publishes it and we did not measure it. It stays unknown. We do not copy a figure from another list to fill the gap, and unknown does not mean unlimited.
 
+## One-time grants, kept apart from the daily numbers
+
+A sign-up bundle is not a daily quota. It is real once, and every figure below carries the provider's
+own sentence, because a giveaway described in our words is a marketing claim with our name on it. A
+grant made in money stays in money: converting it into tokens needs the provider's published price.
+
+<!--ONE-TIME-->
+| Provider | One-time | Expires | Their words |
+|---|---|---|---|
+| alibaba | 4,000,000 tokens | 90 days from activation | Each model (such as qwen-plus, qwen3.6-plus, or qwen3.6-plus-2026-04-02) has its own independent free quota (typically 1,000,000 tokens). Quota cannot be merged or transferred across models. |
+| cerebras | $5 in credits | UNKNOWN | Free Trial: $5 in free credits after making an account |
+| ollama | size not published | UNKNOWN | Free accounts include a starter amount of usage for a smaller set of starter models. Adding extra credits unlocks all models. |
+| siliconflow | $1 in credits | UNKNOWN | Flexible token pricing, high usage limits, and postpaid billing - plus $1 in free credits to get you started! |
+<!--/ONE-TIME-->
+
 ## groq
 
 - **Confidence:** DECLARED

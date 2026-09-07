@@ -152,6 +152,52 @@ PRIVACY_MUST_PASS = [
 ]
 
 
+def check_limits_entry(entry):
+    """Run only the quota half of the gate over one provider entry."""
+    problems = []
+    tmp = HERE / "_test_limits.json"
+    tmp.write_text(json.dumps({"providers": {"someprovider": entry}}), encoding="utf-8")
+    try:
+        G.check_limits(tmp, problems)
+    finally:
+        tmp.unlink()
+    return problems
+
+
+BASE = {"confidence": "UNKNOWN", "all_models": {"rpd": None, "tpd": None}}
+
+ONE_TIME_MUST_REFUSE = [
+    ("a sign-up bundle with no source and no date",
+     dict(BASE, one_time={"tokens": 5000000, "confidence": "DECLARED", "quote": "5M free tokens"})),
+    ("a declared bundle with no quote from the provider",
+     dict(BASE, one_time={"tokens": 5000000, "confidence": "DECLARED",
+                          "source": "https://example.com/pricing", "read_on": "2026-09-07"})),
+    ("a bundle carrying both tokens and money, which double-counts the same gift",
+     dict(BASE, one_time={"tokens": 5000000, "credits_usd": 5, "confidence": "DECLARED",
+                          "source": "https://example.com/pricing", "read_on": "2026-09-07",
+                          "quote": "5M tokens or $5"})),
+    ("a bundle whose size is a string",
+     dict(BASE, one_time={"tokens": "five million", "confidence": "UNKNOWN"})),
+    ("an invented confidence value",
+     dict(BASE, one_time={"tokens": 100, "confidence": "PROBABLY"})),
+]
+
+ONE_TIME_MUST_PASS = [
+    ("a sourced, dated, quoted bundle in tokens",
+     dict(BASE, one_time={"tokens": 5000000, "confidence": "DECLARED",
+                          "source": "https://example.com/pricing", "read_on": "2026-09-07",
+                          "quote": "New accounts receive 5,000,000 free tokens."})),
+    ("a sourced, dated, quoted bundle in money",
+     dict(BASE, one_time={"credits_usd": 5, "confidence": "DECLARED",
+                          "source": "https://example.com/pricing", "read_on": "2026-09-07",
+                          "quote": "Free Trial: $5 in free credits after making an account"})),
+    ("a bundle we know exists but have not measured",
+     dict(BASE, one_time={"tokens": None, "credits_usd": None, "confidence": "UNKNOWN"})),
+    ("no bundle at all is not a problem",
+     dict(BASE)),
+]
+
+
 def main():
     bad = 0
     print("planted pull requests that MUST be refused:")
@@ -204,8 +250,29 @@ def main():
             for _, what in problems:
                 print("         -> %s" % what[:150])
 
+    print()
+    print("one-time sign-up bundles that MUST be refused:")
+    for label, entry in ONE_TIME_MUST_REFUSE:
+        problems = check_limits_entry(entry)
+        ok = bool(problems)
+        print("  %-4s %s" % ("ok" if ok else "MISS", label))
+        if not ok:
+            bad += 1
+
+    print()
+    print("one-time bundles that MUST pass:")
+    for label, entry in ONE_TIME_MUST_PASS:
+        problems = check_limits_entry(entry)
+        ok = not problems
+        print("  %-4s %s" % ("ok" if ok else "FAIL", label))
+        if not ok:
+            bad += 1
+            for _, what in problems:
+                print("         -> %s" % what[:150])
+
     total = (len(MUST_REFUSE) + len(MUST_PASS) + len(CROSS_FILE_MUST_REFUSE)
-             + len(PRIVACY_MUST_REFUSE) + len(PRIVACY_MUST_PASS))
+             + len(PRIVACY_MUST_REFUSE) + len(PRIVACY_MUST_PASS)
+             + len(ONE_TIME_MUST_REFUSE) + len(ONE_TIME_MUST_PASS))
     print("\n%d of %d cases behaved as required" % (total - bad, total))
     if bad:
         print("THE GATE IS MISCALIBRATED. Fix it before merging anything.")

@@ -277,6 +277,56 @@
     "rpm": 2
    },
    "binding_limit": "Requests per minute, at 2, shared with everyone. This is what a free tier with no sign-up actually costs: you are queueing behind the whole internet."
+  },
+  "mistral": {
+   "scope": "account",
+   "confidence": "MEASURED",
+   "measured_on": "2026-09-07",
+   "measured_how": "rate-limit response headers on a normal completion reported a token ceiling of 625,000 a minute and a request ceiling of 125 a minute.",
+   "caveat": "The per-MINUTE ceiling is measured and it is the largest we have seen anywhere. The per-DAY figure is NOT: multiplying 625,000 by 1,440 minutes would publish 900 million tokens a day that nobody has, which is the arithmetic every other list gets wrong. It stays null until they publish a daily cap or we measure one. Measured earlier the same day, before the account was verified, the same headers read 0: this tier switches on only after a phone number is confirmed.",
+   "all_models": {
+    "rpd": null,
+    "tpd": null,
+    "rpm": 125,
+    "tpm": 625000
+   },
+   "binding_limit": "Tokens per minute, at 625,000. On a single stream you will hit latency long before you hit that."
+  },
+  "kenari": {
+   "scope": "account",
+   "confidence": "MEASURED",
+   "measured_on": "2026-09-07",
+   "measured_how": "response headers on a normal completion: a limit header of 5 with a reset timestamp. The unit is not stated in the header name.",
+   "caveat": "13 of their 72 models carry a :free suffix and those are the only ones listed here. The rest are pay-as-you-go, and a catalogue that reports zero cost for all 72 is reporting missing prices, not a giveaway.",
+   "all_models": {
+    "rpd": null,
+    "tpd": null
+   },
+   "headers_seen": {
+    "x-ratelimit-limit": "5",
+    "reset_header": "present"
+   },
+   "binding_limit": "Unknown. A limit of 5 with no unit could be per minute or per something else, and we will not guess which."
+  },
+  "aihubmix": {
+   "scope": "account",
+   "confidence": "UNKNOWN",
+   "caveat": "54 of their 417 models carry a -free suffix; only those are listed. Their billing endpoint reports a hard limit of $100,000,000, which is a placeholder rather than a quota, so it is not recorded as one.",
+   "all_models": {
+    "rpd": null,
+    "tpd": null
+   },
+   "binding_limit": "Unknown. Nothing they expose says how much of the free models you may use."
+  },
+  "inferx": {
+   "scope": "account",
+   "confidence": "UNKNOWN",
+   "caveat": "The endpoint answered with the key and returned a real completion. No rate-limit headers, no usage endpoint, nothing published we could find.",
+   "all_models": {
+    "rpd": null,
+    "tpd": null
+   },
+   "binding_limit": "Unknown."
   }
  }
 }

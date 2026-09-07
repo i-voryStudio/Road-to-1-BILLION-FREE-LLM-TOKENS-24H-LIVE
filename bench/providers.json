@@ -299,6 +299,100 @@
      "id": "Qwen3.8-27B"
     }
    ]
+  },
+  {
+   "name": "mistral",
+   "url": "https://api.mistral.ai/v1/chat/completions",
+   "key_env": "MISTRAL_API_KEY",
+   "signup": "https://console.mistral.ai/",
+   "pause_seconds": 3,
+   "timeout_seconds": 90,
+   "models": [
+    {
+     "id": "mistral-small-2603"
+    },
+    {
+     "id": "codestral-2508"
+    },
+    {
+     "id": "mistral-medium-latest"
+    },
+    {
+     "id": "magistral-small-latest"
+    }
+   ]
+  },
+  {
+   "name": "kenari",
+   "url": "https://kenari.id/v1/chat/completions",
+   "key_env": "KENARI_API_KEY",
+   "signup": "https://kenari.id/",
+   "pause_seconds": 6,
+   "timeout_seconds": 90,
+   "models": [
+    {
+     "id": "nemotron-3-ultra-550b-a55b:free"
+    },
+    {
+     "id": "nemotron-3-super-120b-a12b:free"
+    },
+    {
+     "id": "glm-4-7-flash:free"
+    },
+    {
+     "id": "mimo-v2-5:free"
+    },
+    {
+     "id": "mistral-medium-3-5:free"
+    }
+   ]
+  },
+  {
+   "name": "aihubmix",
+   "url": "https://aihubmix.com/v1/chat/completions",
+   "key_env": "AIHUBMIX_API_KEY",
+   "signup": "https://aihubmix.com/",
+   "pause_seconds": 4,
+   "timeout_seconds": 90,
+   "models": [
+    {
+     "id": "gemini-3.8-flash-free"
+    },
+    {
+     "id": "coding-glm-5.3-free"
+    },
+    {
+     "id": "coding-kimi-k3-free"
+    },
+    {
+     "id": "coding-minimax-m3-free"
+    },
+    {
+     "id": "gemma-4-26b-a4b-it-free"
+    }
+   ]
+  },
+  {
+   "name": "inferx",
+   "url": "https://model.inferx.net/endpoints/v1/chat/completions",
+   "key_env": "INFERX_API_KEY",
+   "signup": "https://model.inferx.net/",
+   "pause_seconds": 4,
+   "timeout_seconds": 90,
+   "models": [
+    {
+     "id": "Qwen3.8-27B-FP8"
+    },
+    {
+     "id": "Qwen3-Coder-Next-FP8"
+    },
+    {
+     "id": "Qwen3.6-35B-A3B-FP8"
+    },
+    {
+     "id": "deepseek-v4-flash"
+    }
+   ]
   }
  ]
 }

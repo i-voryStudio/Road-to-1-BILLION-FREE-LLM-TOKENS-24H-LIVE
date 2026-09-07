@@ -45,7 +45,9 @@ def normalise(model_id):
     """
     s = model_id.lower()
     s = re.sub(r"^@cf/", "", s)
-    s = re.sub(r":free$|:batch$|:extended$|:thinking$|-latest$", "", s)
+    # Tier markers, not models. `-free` is the same statement as `:free`, written with the separator
+    # the provider happened to pick.
+    s = re.sub(r":free$|:batch$|:extended$|:thinking$|-latest$|-free$", "", s)
     s = s.split("/")[-1]
     s = s.replace(":", "-")                 # ollama's gpt-oss:120b -> gpt-oss-120b
     # OVHcloud writes the version with an underscore: Meta-Llama-3_3-70B-Instruct. The underscore is a
@@ -96,6 +98,19 @@ VERIFIED_ALIASES = {
     # `nvidia/nemotron-3.5-lightning` and its `:free` tier, and in no other size. One published size
     # means the omitted suffix cannot be ambiguous.
     "nemotron3.5lightning30ba3b": "nemotron3.5lightning",
+
+    # AiHubMix prefixes a model with `coding-` when it routes through their coding plan. Checked
+    # 2026-09-07 against their own catalogue, which lists BOTH forms side by side - `glm-5.3` and
+    # `coding-glm-5.3` and `coding-glm-5.3-free` - so the prefix is a route, not different weights.
+    "codingglm5.3": "glm5.3",
+    "codingkimik3": "kimik3",
+    "codingminimaxm3": "minimaxm3",
+
+    # Kenari writes version numbers with hyphens where the benchmark uses dots. Checked 2026-09-07:
+    # the source catalogue holds exactly one `glm-4.7-flash`, and `mimo-v2.5` distinct from
+    # `mimo-v2.5-pro` - kenari's id carries no `pro`, so it is the plain one.
+    "glm47flash": "glm4.7flash",
+    "mimov25": "mimov2.5",
 }
 
 

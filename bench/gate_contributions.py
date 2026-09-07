@@ -50,6 +50,10 @@ ALLOWED_HOSTS = {
     "dashscope-intl.aliyuncs.com",
     "api.xkiro.com",
     "api.siliconflow.com",
+    "api.mistral.ai",        # free tier, measured 2026-09-07: 625,000 tokens/minute in their headers
+    "kenari.id",             # 13 models marked :free, measured answering 2026-09-07
+    "aihubmix.com",          # 54 models marked -free, measured answering 2026-09-07
+    "model.inferx.net",      # free inference, measured answering 2026-09-07
     "hermes.ai.unturf.com",  # keyless: measured answering with no Authorization header, 2026-09-07
     "oai.endpoints.kepler.ai.cloud.ovh.net",  # keyless, anonymous tier: measured 2026-09-07
     "api.z.ai",              # judge, not a benchmarked provider: see bench/judges.json

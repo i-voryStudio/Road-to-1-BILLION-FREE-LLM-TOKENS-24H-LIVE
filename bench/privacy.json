@@ -125,6 +125,38 @@
    "read_on": null,
    "human_review": "UNKNOWN",
    "region_restriction": "UNKNOWN"
+  },
+  "mistral": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "note": "Nobody has read this provider's terms yet. UNKNOWN is the honest answer."
+  },
+  "kenari": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "note": "Nobody has read this provider's terms yet. UNKNOWN is the honest answer."
+  },
+  "aihubmix": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "note": "Nobody has read this provider's terms yet. UNKNOWN is the honest answer."
+  },
+  "inferx": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "note": "Nobody has read this provider's terms yet. UNKNOWN is the honest answer."
   }
  }
 }

@@ -12,12 +12,18 @@
 | Also claimed by providers, sourced, not measured | 275,000 |
 | Published only for a PAID plan, excluded from all of it | 200,000 |
 | Endpoints answering today | **30 of 37 tested** |
-| Providers whose quota nobody publishes | **7 of 12** |
+| Providers whose quota nobody publishes | **11 of 16** |
 | Distance to 1,000,000,000 measured tokens/day | **167x** |
 <!--/HEADLINE-->
 
 **Where this is going, out loud: one billion free tokens a day.** That is the number the list is
 built towards, and the box above measures the distance to it every day.
+
+**The biggest ceiling on this list is measured per minute, not per day.** Mistral's free tier
+answered a normal completion with a per-minute token ceiling header of 625,000. That is the largest
+figure anywhere here and it is deliberately **not** turned into a daily number: multiplying it by 1,440
+minutes would publish 900 million tokens a day that nobody has. Where a provider's binding limit is per
+minute and they publish no daily cap, the row says so and stays out of the daily total.
 
 **Free comes in two kinds, and mixing them is how these lists mislead you.** One is *recurring*: it
 is there every morning, forever. The other is *one-time*: a bundle handed over once when you sign up,

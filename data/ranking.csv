@@ -10,19 +10,33 @@ cerebras,gpt-oss-120b,100.4,KEY,30.4,15.6,980,2400,MEASURED,UNKNOWN,UNKNOWN,2026
 openrouter,minimax/minimax-m3:free,100.1,KEY,58.6,35.7,1267,50,DECLARED,UNKNOWN,UNKNOWN,2026-09-07
 groq,openai/gpt-oss-120b,79.1,KEY,30.4,15.6,980,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
 groq,openai/gpt-oss-20b,53.9,KEY,20.7,,,1000,PAID-PLAN,UNKNOWN,UNKNOWN,2026-09-07
-google,gemini-3.8-flash,0.0,KEY,76.3,47.1,1320,20,DECLARED,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-07
+google,gemini-3.8-flash,0.0,KEY,76.3,47.1,1321,20,DECLARED,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-07
 openrouter,minimax/minimax-m2.7:free,0.0,KEY,52.6,,1251,50,DECLARED,UNKNOWN,UNKNOWN,2026-09-07
 openrouter,nvidia/nemotron-3-ultra-550b-a55b:free,0.0,KEY,49.3,,1153,50,DECLARED,UNKNOWN,UNKNOWN,2026-09-07
+aihubmix,gemini-3.8-flash-free,,KEY,76.3,47.1,1321,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+aihubmix,coding-glm-5.3-free,,KEY,74.8,48.6,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+aihubmix,coding-kimi-k3-free,,KEY,76.2,50.2,1393,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+aihubmix,coding-minimax-m3-free,,KEY,58.6,35.7,1267,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+aihubmix,gemma-4-26b-a4b-it-free,,KEY,39.3,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/openai/gpt-oss-120b,,KEY,30.4,15.6,980,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/meta/llama-3.3-70b-instruct-fp8-fast,,KEY,11.9,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/google/gemma-4-26b-a4b-it,,KEY,39.3,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/qwen/qwen3.8-27b,,KEY,68.1,41.4,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 google,gemma-4-31b-it,,KEY,43.4,,,,UNKNOWN,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-07
+inferx,Qwen3.8-27B-FP8,,KEY,68.1,41.4,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+inferx,Qwen3-Coder-Next-FP8,,KEY,36.2,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+inferx,Qwen3.6-35B-A3B-FP8,,KEY,41.9,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+inferx,deepseek-v4-flash,,KEY,56.2,,1222,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+kenari,nemotron-3-ultra-550b-a55b:free,,KEY,49.3,,1153,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+kenari,nemotron-3-super-120b-a12b:free,,KEY,37.7,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+kenari,mimo-v2-5:free,,KEY,56.8,,1277,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+kenari,mistral-medium-3-5:free,,KEY,46.9,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+mistral,mistral-small-2603,,KEY,26.6,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 nvidia,nvidia/nemotron-3-super-120b-a12b,,KEY,37.7,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 nvidia,nvidia/nemotron-3-ultra-550b-a55b,,KEY,49.3,,1153,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 nvidia,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning,,KEY,13.8,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 nvidia,nvidia/nemotron-3.5-lightning-30b-a3b,,KEY,26.8,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
-nvidia,moonshotai/kimi-k3,,KEY,76.2,50.2,1392,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+nvidia,moonshotai/kimi-k3,,KEY,76.2,50.2,1393,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 ollama,gemma4:31b,,KEY,43.4,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 ollama,gpt-oss:120b,,KEY,30.4,15.6,980,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 ollama,gpt-oss:20b,,KEY,20.7,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
@@ -36,6 +50,10 @@ alibaba,qwen-plus,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 alibaba,qwen-turbo,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 alibaba,qwen3.5-flash,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 cloudflare,@cf/mistralai/mistral-small-3.1-24b-instruct,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+kenari,glm-4-7-flash:free,,KEY,,,1194,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+mistral,codestral-2508,,KEY,,,1024,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+mistral,mistral-medium-latest,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
+mistral,magistral-small-latest,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 ovhcloud,Qwen3-Coder-30B-A3B-Instruct,,NO KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 ovhcloud,Mistral-Small-3.2-24B-Instruct-2506,,NO KEY,,,924,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07
 siliconflow,Qwen/Qwen3-Coder-30B-A3B-Instruct,,KEY,,,,,UNKNOWN,UNKNOWN,UNKNOWN,2026-09-07

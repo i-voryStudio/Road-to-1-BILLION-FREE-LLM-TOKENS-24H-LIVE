@@ -29,33 +29,47 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 
 | Model | Provider | Coding | Intelligence | Agentic | Arena ELO | Scored as |
 |---|---|---|---|---|---|---|
-| `gemini-3.8-flash` | google | **76.3** | 47.1 | 41.2 | 1320 | `google/gemini-3.8-flash:batch` |
-| `moonshotai/kimi-k3` | nvidia | **76.2** | 50.2 | 50.9 | 1392 | `moonshotai/kimi-k3:batch` |
+| `gemini-3.8-flash` | google | **76.3** | 47.1 | 41.2 | 1321 | `google/gemini-3.8-flash:batch` |
+| `gemini-3.8-flash-free` | aihubmix | **76.3** | 47.1 | 41.2 | 1321 | `google/gemini-3.8-flash:batch` |
+| `coding-kimi-k3-free` | aihubmix | **76.2** | 50.2 | 50.9 | 1393 | `moonshotai/kimi-k3:batch` |
+| `moonshotai/kimi-k3` | nvidia | **76.2** | 50.2 | 50.9 | 1393 | `moonshotai/kimi-k3:batch` |
+| `coding-glm-5.3-free` | aihubmix | **74.8** | 48.6 | 53.6 | ? | `z-ai/glm-5.3` |
 | `qwen-3.8-27b` | cerebras | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `qwen/qwen3.8-27b` | groq | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `@cf/qwen/qwen3.8-27b` | cloudflare | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
+| `Qwen3.8-27B-FP8` | inferx | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `Qwen3.8-27B` | ovhcloud | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `minimax/minimax-m3:free` | xkiro | **58.6** | 35.7 | 31 | 1267 | `minimax/minimax-m3:batch` |
 | `minimax/minimax-m3:free` | openrouter | **58.6** | 35.7 | 31 | 1267 | `minimax/minimax-m3:batch` |
+| `coding-minimax-m3-free` | aihubmix | **58.6** | 35.7 | 31 | 1267 | `minimax/minimax-m3:batch` |
+| `mimo-v2-5:free` | kenari | **56.8** | ? | ? | 1277 | `xiaomi/mimo-v2.5` |
+| `deepseek-v4-flash` | inferx | **56.2** | ? | 23.8 | 1222 | `deepseek/deepseek-v4-flash` |
 | `qwen/qwen3.6-27b` | groq | **53.7** | ? | 20.1 | ? | `qwen/qwen3.6-27b` |
 | `Lorbus/Qwen3.6-27B-int4-AutoRound` | uncloseai | **53.7** | ? | 20.1 | ? | `qwen/qwen3.6-27b` |
 | `minimax/minimax-m2.7:free` | xkiro | **52.6** | ? | ? | 1251 | `minimax/minimax-m2.7:free` |
 | `minimax/minimax-m2.7:free` | openrouter | **52.6** | ? | ? | 1251 | `minimax/minimax-m2.7:free` |
 | `gemini-3.5-flash-lite` | google | **49.3** | 27.6 | 16.1 | ? | `google/gemini-3.5-flash-lite:batch` |
 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **49.3** | ? | 21.7 | 1153 | `nvidia/nemotron-3-ultra-550b-a55b:free` |
+| `nemotron-3-ultra-550b-a55b:free` | kenari | **49.3** | ? | 21.7 | 1153 | `nvidia/nemotron-3-ultra-550b-a55b:free` |
 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | **49.3** | ? | 21.7 | 1153 | `nvidia/nemotron-3-ultra-550b-a55b:free` |
 | `Qwen3.5-397B-A17B` | ovhcloud | **48.2** | ? | 10.6 | 1196 | `qwen/qwen3.5-397b-a17b` |
+| `mistral-medium-3-5:free` | kenari | **46.9** | ? | 9.4 | ? | `mistralai/mistral-medium-3-5:batch` |
 | `gemma-4-31b` | cerebras | **43.4** | ? | 6.8 | ? | `google/gemma-4-31b-it:batch` |
 | `gemma-4-31b-it` | google | **43.4** | ? | 6.8 | ? | `google/gemma-4-31b-it:batch` |
 | `gemma4:31b` | ollama | **43.4** | ? | 6.8 | ? | `google/gemma-4-31b-it:batch` |
+| `Qwen3.6-35B-A3B-FP8` | inferx | **41.9** | ? | ? | ? | `qwen/qwen3.6-35b-a3b` |
+| `gemma-4-26b-a4b-it-free` | aihubmix | **39.3** | ? | ? | ? | `google/gemma-4-26b-a4b-it:free` |
 | `@cf/google/gemma-4-26b-a4b-it` | cloudflare | **39.3** | ? | ? | ? | `google/gemma-4-26b-a4b-it:free` |
+| `nemotron-3-super-120b-a12b:free` | kenari | **37.7** | ? | 4.2 | ? | `nvidia/nemotron-3-super-120b-a12b:free` |
 | `nvidia/nemotron-3-super-120b-a12b` | nvidia | **37.7** | ? | 4.2 | ? | `nvidia/nemotron-3-super-120b-a12b:free` |
+| `Qwen3-Coder-Next-FP8` | inferx | **36.2** | ? | ? | ? | `qwen/qwen3-coder-next` |
 | `gpt-oss-120b` | cerebras | **30.4** | 15.6 | 6.3 | 980 | `openai/gpt-oss-120b:batch` |
 | `openai/gpt-oss-120b` | groq | **30.4** | 15.6 | 6.3 | 980 | `openai/gpt-oss-120b:batch` |
 | `@cf/openai/gpt-oss-120b` | cloudflare | **30.4** | 15.6 | 6.3 | 980 | `openai/gpt-oss-120b:batch` |
 | `gpt-oss:120b` | ollama | **30.4** | 15.6 | 6.3 | 980 | `openai/gpt-oss-120b:batch` |
 | `gpt-oss-120b` | ovhcloud | **30.4** | 15.6 | 6.3 | 980 | `openai/gpt-oss-120b:batch` |
 | `nvidia/nemotron-3.5-lightning-30b-a3b` | nvidia | **26.8** | ? | ? | ? | `nvidia/nemotron-3.5-lightning:free` |
+| `mistral-small-2603` | mistral | **26.6** | ? | ? | ? | `mistralai/mistral-small-2603` |
 | `openai/gpt-oss-20b` | groq | **20.7** | ? | 1.4 | ? | `openai/gpt-oss-20b:batch` |
 | `gpt-oss:20b` | ollama | **20.7** | ? | 1.4 | ? | `openai/gpt-oss-20b:batch` |
 | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | nvidia | **13.8** | ? | ? | ? | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` |
@@ -111,6 +125,10 @@ Training on your prompts, human review, and legal limits on where you may serve 
 | alibaba | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
 | xkiro | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
 | siliconflow | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
+| mistral | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
+| kenari | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
+| aihubmix | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
+| inferx | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
 
 ## 6. Does it actually answer, and does it answer with anything
 
@@ -160,11 +178,25 @@ A row needs both halves to be ranked: an official score AND a known quota. Half 
 
 | Model | Provider | Missing |
 |---|---|---|
+| `gemini-3.8-flash-free` | aihubmix | daily volume unknown - see LIMITS.md |
+| `coding-glm-5.3-free` | aihubmix | daily volume unknown - see LIMITS.md |
+| `coding-kimi-k3-free` | aihubmix | daily volume unknown - see LIMITS.md |
+| `coding-minimax-m3-free` | aihubmix | daily volume unknown - see LIMITS.md |
+| `gemma-4-26b-a4b-it-free` | aihubmix | daily volume unknown - see LIMITS.md |
 | `@cf/openai/gpt-oss-120b` | cloudflare | daily volume unknown - see LIMITS.md |
 | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | daily volume unknown - see LIMITS.md |
 | `@cf/google/gemma-4-26b-a4b-it` | cloudflare | daily volume unknown - see LIMITS.md |
 | `@cf/qwen/qwen3.8-27b` | cloudflare | daily volume unknown - see LIMITS.md |
 | `gemma-4-31b-it` | google | daily volume unknown - see LIMITS.md |
+| `Qwen3.8-27B-FP8` | inferx | daily volume unknown - see LIMITS.md |
+| `Qwen3-Coder-Next-FP8` | inferx | daily volume unknown - see LIMITS.md |
+| `Qwen3.6-35B-A3B-FP8` | inferx | daily volume unknown - see LIMITS.md |
+| `deepseek-v4-flash` | inferx | daily volume unknown - see LIMITS.md |
+| `nemotron-3-ultra-550b-a55b:free` | kenari | daily volume unknown - see LIMITS.md |
+| `nemotron-3-super-120b-a12b:free` | kenari | daily volume unknown - see LIMITS.md |
+| `mimo-v2-5:free` | kenari | daily volume unknown - see LIMITS.md |
+| `mistral-medium-3-5:free` | kenari | daily volume unknown - see LIMITS.md |
+| `mistral-small-2603` | mistral | daily volume unknown - see LIMITS.md |
 | `nvidia/nemotron-3-super-120b-a12b` | nvidia | daily volume unknown - see LIMITS.md |
 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | daily volume unknown - see LIMITS.md |
 | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | nvidia | daily volume unknown - see LIMITS.md |
@@ -183,6 +215,10 @@ A row needs both halves to be ranked: an official score AND a known quota. Half 
 | `qwen-turbo` | alibaba | no official benchmark score published for this model |
 | `qwen3.5-flash` | alibaba | no official benchmark score published for this model |
 | `@cf/mistralai/mistral-small-3.1-24b-instruct` | cloudflare | no official benchmark score published for this model |
+| `glm-4-7-flash:free` | kenari | no official benchmark score published for this model |
+| `codestral-2508` | mistral | no official benchmark score published for this model |
+| `mistral-medium-latest` | mistral | no official benchmark score published for this model |
+| `magistral-small-latest` | mistral | no official benchmark score published for this model |
 | `Qwen3-Coder-30B-A3B-Instruct` | ovhcloud | no official benchmark score published for this model |
 | `Mistral-Small-3.2-24B-Instruct-2506` | ovhcloud | no official benchmark score published for this model |
 | `Qwen/Qwen3-Coder-30B-A3B-Instruct` | siliconflow | no official benchmark score published for this model |

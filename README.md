@@ -1,4 +1,13 @@
-# Free LLM APIs, Ranked by What You Can Actually Get Done
+# ROAD TO 1 BILLION FREE LLM TOKENS/DAY
+
+<!--ROAD-->
+`██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **14.40%**
+
+**100,000** of **694,444** output tokens per minute, which is what 1,000,000,000 a day comes to. Measured 2026-09-07, from 3 providers that publish a per-minute ceiling.
+<!--/ROAD-->
+
+A live, measured list of every free LLM API we can find, ranked by what you can actually get done with
+it. Every figure carries how we know it, and the ones nobody publishes say so.
 
 ## What is on the table right now
 

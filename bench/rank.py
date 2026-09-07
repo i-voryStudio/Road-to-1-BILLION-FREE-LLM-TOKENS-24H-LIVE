@@ -520,6 +520,26 @@ def main():
             today_total += 1
             today_alive += 1 if row.get("state") == "alive" else 0
 
+    # The first line of the repo is the target and how far along it is, drawn as a bar. It is
+    # generated, so it can never say something the data does not.
+    if readme.exists() and "<!--ROAD-->" in readme.read_text(encoding="utf-8"):
+        target_min = 1000000000 / 1440.0
+        got = 0
+        for name, entry in ((limits.get("providers") or {}).items()):
+            am = entry.get("all_models") or {}
+            got += am.get("tpm_output") or am.get("tpm") or 0
+        pct = 100.0 * got / target_min if target_min else 0
+        filled = int(round(pct / 100.0 * 40))
+        bar = "█" * max(0, min(40, filled)) + "░" * max(0, 40 - filled)
+        R = ["`%s`  **%.2f%%**" % (bar, pct), "",
+             "**%s** of **%s** output tokens per minute, which is what 1,000,000,000 a day comes to. "
+             "Measured %s, from %d providers that publish a per-minute ceiling."
+             % (num(got), num(int(target_min)), a.date, len(per_minute_who))]
+        text = readme.read_text(encoding="utf-8")
+        blk = "<!--ROAD-->" + chr(10) + chr(10).join(R) + chr(10) + "<!--/ROAD-->"
+        text = re.sub(r"<!--ROAD-->.*?<!--/ROAD-->", lambda _: blk, text, flags=re.S)
+        readme.write_text(text, encoding="utf-8", newline=chr(10))
+
     if readme.exists() and "<!--HEADLINE-->" in readme.read_text(encoding="utf-8"):
         TARGET = 1000000000
         gap = TARGET / measured if measured else 0

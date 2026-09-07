@@ -2,12 +2,32 @@
  "date": "2026-09-07",
  "first_24h_tokens": 10000000,
  "recurring_measured_tokens_per_day": 6000000,
+ "official_metric": "output tokens per minute",
  "output_tokens_per_minute": 100000,
+ "input_tokens_per_minute": 4000000,
+ "requests_per_minute": 17,
+ "target_output_tokens_per_minute": 694444,
  "per_minute_providers": [
+  {
+   "provider": "cerebras",
+   "output_tokens_per_minute": null,
+   "input_tokens_per_minute": null,
+   "requests_per_minute": 5,
+   "confidence": "MEASURED"
+  },
   {
    "provider": "hetzner",
    "output_tokens_per_minute": 100000,
+   "input_tokens_per_minute": 4000000,
+   "requests_per_minute": 10,
    "confidence": "DECLARED"
+  },
+  {
+   "provider": "ovhcloud",
+   "output_tokens_per_minute": null,
+   "input_tokens_per_minute": null,
+   "requests_per_minute": 2,
+   "confidence": "MEASURED"
   }
  ],
  "one_time_tokens": 4000000,

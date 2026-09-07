@@ -5,48 +5,58 @@
 <!--HEADLINE-->
 | | |
 |---|---|
-| **Tokens to burn in your first 24 hours** | **10,000,000** |
-| **Every day after that**, measured by us | **6,000,000** |
-| Output tokens per **minute**, where that is the published ceiling | 100,000 |
-| One-time, handed over once at sign-up | 4,000,000 |
-| One-time credits, in money, not converted to tokens | $6 |
-| Also claimed by providers, sourced, not measured | 275,000 |
-| Published only for a PAID plan, excluded from all of it | 200,000 |
+| **Output tokens per minute** | **100,000** |
+| **Input tokens per minute** | **4,000,000** |
+| Requests per minute | 17 |
+| Providers publishing a per-minute ceiling | **3 of 18** |
 | Endpoints answering today | **30 of 37 tested** |
-| Providers whose quota nobody publishes | **13 of 18** |
-| Distance to 1,000,000,000 measured tokens/day | **167x** |
+| Distance to the target, in output tokens per minute | **7x** |
+| | |
+| *Unofficial, below:* | *what a daily figure would say* |
+| Tokens per day, where a provider publishes one at all | 6,000,000 |
+| Once, at sign-up, across every account | 4,000,000 |
+| One-time credits, in money | $6 |
+| Claimed by providers, sourced, not measured | 275,000 |
+| Published only for a PAID plan | 200,000 |
 <!--/HEADLINE-->
 
 ### Every provider, and what it actually gives you
 
-Three columns because there are three kinds of free, and adding them together is what makes other
-lists wrong. `-` means they publish nothing on that shelf, and nothing is what we write.
+**Per minute first, because that is the unit this market publishes in.** Almost no provider tells you
+a daily figure; the ones that do are the small ones. Order a list by daily tokens and the largest
+capacity on it counts as zero — Hetzner hands out four million input tokens a minute and has no daily
+row at all.
+
+Per minute is also the only unit that can be **checked**: it arrives in a response header on a call you
+make yourself. A daily number is almost always somebody's marketing page. Nothing here is ever
+multiplied out — 100,000 output tokens a minute is a fact, 144 million a day is a number nobody will
+be allowed to spend. `-` means they publish nothing on that shelf, and nothing is what we write.
 
 <!--CAPACITY-->
-| Provider | Per day | Per minute | Once, at sign-up | Key | How we know |
+| Provider | Per minute | Per day | Once, at sign-up | Key | How we know |
 |---|---|---|---|---|---|
-| **xkiro** | 5,000,000 | - | - | yes | MEASURED |
-| **cerebras** | 1,000,000 | 5 req | $5 | yes | MEASURED |
-| **google** | 250,000 | - | - | yes | DECLARED |
-| **groq** | 200,000 | - | - | yes | PAID-PLAN |
-| **openrouter** | 25,000 | - | - | yes | DECLARED |
+| **hetzner** | 4,000,000 in / 100,000 out | - | - | yes | DECLARED |
+| **xkiro** | - | 5,000,000 | - | yes | MEASURED |
+| **cerebras** | 5 req | 1,000,000 | $5 | yes | MEASURED |
+| **google** | - | 250,000 | - | yes | DECLARED |
+| **groq** | - | 200,000 | - | yes | PAID-PLAN |
+| **openrouter** | - | 25,000 | - | yes | DECLARED |
 | **aihubmix** | - | - | - | yes | UNKNOWN |
 | **alibaba** | - | - | 4,000,000 | yes | UNKNOWN |
 | **cloudflare** | - | - | - | yes | DECLARED |
-| **hetzner** | - | 4,000,000 in / 100,000 out | - | yes | DECLARED |
 | **inferx** | - | - | - | yes | UNKNOWN |
 | **kenari** | - | - | - | yes | MEASURED |
 | **mistral** | - | - | - | yes | MEASURED |
 | **nvidia** | - | - | - | yes | UNKNOWN |
 | **ollama** | - | - | yes, size not published | yes | UNKNOWN |
-| **ovhcloud** | - | 2 req | - | **no key** | MEASURED |
+| **ovhcloud** | 2 req | - | - | **no key** | MEASURED |
 | **siliconflow** | - | - | $1 | yes | UNKNOWN |
 | **uncloseai** | - | - | - | **no key** | UNKNOWN |
 | **unorouter** | - | - | - | yes | UNKNOWN |
 <!--/CAPACITY-->
 
-**Where this is going, out loud: one billion free tokens a day.** That is the number the list is
-built towards, and the box above measures the distance to it every day.
+**Where this is going, out loud: one billion free tokens a day.** In the unit this list measures in,
+that is **694,444 output tokens a minute**, and the box above measures the distance to it every day.
 
 **A ceiling you saw once is not a ceiling.** Mistral's free tier answered one of our calls with
 a per-minute token ceiling header of 625,000 — the largest figure we have measured anywhere. Half an hour

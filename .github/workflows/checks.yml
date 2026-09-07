@@ -42,6 +42,8 @@ jobs:
         run: python bench/test_draw.py
       - name: Claims gate, both directions
         run: python bench/test_claims.py
+      - name: The headline recomputed from the raw files, without rank.py
+        run: python bench/test_shelf.py
 
       # 2. The gates, on what is actually committed.
       - name: Nothing private may ship
@@ -52,6 +54,17 @@ jobs:
         run: python bench/gate_drift.py --check data/scores.json --today "$(date -u +%F)"
       - name: Every published number is in the data, checked on the COMMITTED pages
         run: python bench/gate_claims.py
+      # The gate computes its page list from the tree, but a list nobody compares with the tree is a
+      # promise. Every *.md at the root must be on it, or a new BEST.md is a page nobody opens.
+      - name: Every page at the root is on the claims gate's list
+        run: |
+          python bench/gate_claims.py --list-pages | sort > /tmp/gate-pages.txt
+          ls -1 *.md | sort > /tmp/root-pages.txt
+          UNCHECKED=$(comm -23 /tmp/root-pages.txt /tmp/gate-pages.txt)
+          if [ -n "$UNCHECKED" ]; then
+            echo "at the root, and the claims gate does not open them:"; echo "$UNCHECKED"; exit 1
+          fi
+          echo "every page at the root is on the list:"; cat /tmp/gate-pages.txt
       - name: Uptime history is well-formed
         run: python bench/gate_viability.py --today "$(date -u +%F)" --out /tmp/GRAVEYARD-check.md
 
@@ -64,3 +77,9 @@ jobs:
           python bench/gate_viability.py --today "$DATE"
           python bench/rank.py --date "$DATE" --out .
           git diff --exit-code -- README.md RESULTS.md ALL-ENDPOINTS.md LIMITS.md GRAVEYARD.md data/ranking.json data/ranking.csv data/capacity.json data/viability.json
+
+      # 4. The claims gate again, on what the generator just wrote. The step above proves the committed
+      #    pages equal the generator's output; this one proves the generator's output is in the data. A
+      #    provider-specific branch in rank.py passes the first and has to face the second.
+      - name: Every published number is in the data, checked again on the REGENERATED pages
+        run: python bench/gate_claims.py --root .

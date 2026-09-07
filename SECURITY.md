@@ -7,7 +7,13 @@
 - **Zero dependencies.** Python standard library only. No `pip install`, no `requirements.txt`, no
   lockfile, no transitive package that can be taken over next month. This is the single most important
   security property here, and any pull request that adds a dependency has to justify itself against it.
-- **No `eval`, no `exec`, no `pickle`, no `shell=True`.** Grep for them. The only child processes are `git ls-files`, which the publication gate asks for the files git would ignore, and the test runners calling the scripts they test.
+- **No `eval`, no `exec`, no `pickle`, no `shell=True`.** Grep for them. Every child process is a list of
+  arguments, never a shell string, and this is the complete set: the publication gate runs `git ls-files`
+  to learn which files git would ignore, and in `--history` mode `git log --all --reflog -p` to read every
+  commit still reachable; the test runners spawn the scripts they test with the interpreter that is running
+  them, and `test_gate.py` builds a scratch git repository (`git init`, `add`, `commit`, `rm`) inside a
+  temporary directory to exercise the history mode. Nothing else forks, and nothing forks anything it
+  found in data.
 - **It sends HTTP requests only to the hosts listed in code**, in
   `ALLOWED_HOSTS` in [`bench/gate_contributions.py`](bench/gate_contributions.py). `benchmark.py`
   refuses any other destination at request time, and a redirect that changes host is refused too,
@@ -37,9 +43,15 @@ What stops it is checked by [`bench/gate_contributions.py`](bench/gate_contribut
 pull request, and every rule below has a planted pull request in `bench/test_contributions.py` that it must
 refuse, next to an honest one it must admit:
 
-1. **A key variable is bound to one host, and one role.** A variable already in the file may never appear
-   again pointing somewhere else, a provider may never claim a judge's key, and a judge may never claim a
-   provider's.
+1. **A key variable is bound to one host, and one role, in a committed registry.**
+   [`bench/key_bindings.json`](bench/key_bindings.json) lists every key variable with the one host and the
+   one role it may serve; it is the registry the contribution gate checks `providers.json` against, so a
+   URL swap is refused. The binding used to be rebuilt from `providers.json` on every run, which meant a
+   pull request that exchanged the URLs of existing providers, key variables untouched, produced no
+   finding and would have sent each runner's key to the other host. Now the host a variable may reach is
+   written in a file the same pull request cannot rewrite as a side effect; a provider may never claim a
+   judge's key, a judge may never claim a provider's, and adding a provider means adding its line in the
+   registry, in the same pull request, where a reviewer sees both.
 2. **Destinations live in code, not in data.** A JSON-only pull request cannot add a host. Adding one is
    an edit to the gate, in the same PR, where a reviewer sees it. The URL path must be the one shape the
    runner speaks, so a key cannot be aimed at another endpoint of an allowed host either.
@@ -57,6 +69,14 @@ refuse, next to an honest one it must admit:
    edit to a data file put any number on the front page.
 7. **A redirect may not change host, scheme or port.** `bench/http_safe.py` refuses it, because the
    Authorization header would travel with it; the test greps every key-carrying script for the guard.
+8. **A sustained draw is checked against what the program that wrote it could have written.**
+   `data/drawn.jsonl` carries the largest single figure on the front-page bar, multiplied out to a day,
+   and it is committed by the daily job with write rights, so one appended row was the shortest path to
+   a false front page. The gate now reads that file by the rules of `bench/draw_day.py` itself: the
+   provider and model must be ones the catalogue knows, the date may not be in the future, the hourly
+   rate must follow from the tokens drawn over the minutes actually run, and both the pace and the token
+   count must sit under the ceilings the program enforces on itself. A row that `draw_day.py` could not
+   have produced is refused before `rank.py` ever multiplies it.
 
 The same host and placeholder checks run again inside `benchmark.py` at request time, for anyone running a
 modified `providers.json` on their own machine.
@@ -86,12 +106,15 @@ generator is run again on the committed data with the demand that it changes not
 | Check | What it refuses |
 |---|---|
 | `bench/test_probes.py`, `test_gate.py`, `test_contributions.py`, `test_scores.py`, `test_jury.py`, `test_drift.py`, `test_viability.py`, `test_rank.py`, `test_draw.py`, `test_claims.py` | a checker or a gate that has drifted, in either direction |
+| `bench/test_shelf.py` | a headline that bench/rank.py computed but bench/limits.json and data/drawn.jsonl cannot justify: the four shelves are re-added here, figure by figure, with the generator out of the loop |
 | `bench/gate_publish.py` | an API key, an account's state in the first person, a private path or name, a tool trace, a rate limit multiplied across keys |
-| `bench/gate_contributions.py` | a contributed provider, judge, language pack, limit, privacy claim or data row that the rules above refuse |
-| `bench/gate_drift.py --check` | imported scores that are not numeric, or older than fourteen days: the daily job has stopped |
-| `bench/gate_claims.py` | a published number, label, formula, link or count that is not what the data says |
+| `bench/gate_contributions.py` | a contributed provider, judge, language pack, limit, privacy claim, drawn row or data row that the rules above refuse, and a key variable that does not match the registry |
+| `bench/gate_drift.py --check` | imported scores that are not numeric, outside their scale, dated in the future, flattened to one value across distinct models, or older than fourteen days: the daily job has stopped |
+| `bench/gate_claims.py`, on the committed pages | a published number, label, formula, link, door, generated-block marker or count that is not what the data says, on every page at the root and the language-pack README |
+| `bench/gate_claims.py --list-pages` against `ls *.md` | a page at the root that the claims gate does not open |
 | `bench/gate_viability.py` | an uptime history with two readings for one endpoint-day |
 | regeneration, then `git diff --exit-code` | a page edited by hand, or data edited without regenerating the pages |
+| `bench/gate_claims.py`, again on the regenerated pages | a claim the generator itself would publish that is not in the data |
 
 CI runs on `pull_request`, never `pull_request_target`, so code from a fork runs without access to any
 secret and without write permission, and it makes no network call: the quality scores it ranks with are

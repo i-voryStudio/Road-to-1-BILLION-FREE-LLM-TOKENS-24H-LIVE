@@ -46,7 +46,9 @@ jobs:
           python bench/test_drift.py
           python bench/test_viability.py
           python bench/test_rank.py
+          python bench/test_draw.py
           python bench/test_claims.py
+          python bench/test_shelf.py
 
       - name: Contribution data must still be sane
         run: python bench/gate_contributions.py
@@ -61,8 +63,17 @@ jobs:
       - name: Regenerate every page
         run: python bench/rank.py --date "$(date -u +%F)" --out .
 
-      - name: Published numbers must exist in the data
-        run: python bench/gate_claims.py
+      - name: Published numbers must exist in the data, on the pages just regenerated
+        run: python bench/gate_claims.py --root .
+
+      - name: Every page at the root is on the claims gate's list
+        run: |
+          python bench/gate_claims.py --list-pages | sort > /tmp/gate-pages.txt
+          ls -1 *.md | sort > /tmp/root-pages.txt
+          UNCHECKED=$(comm -23 /tmp/root-pages.txt /tmp/gate-pages.txt)
+          if [ -n "$UNCHECKED" ]; then
+            echo "at the root, and the claims gate does not open them:"; echo "$UNCHECKED"; exit 1
+          fi
 
       - name: Nothing private may ship
         run: python bench/gate_publish.py .

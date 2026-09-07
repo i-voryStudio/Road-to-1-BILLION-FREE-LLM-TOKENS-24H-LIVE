@@ -477,7 +477,7 @@ def main():
     measured_min, measured_who = 0, []
     tpath = out / "data" / "throughput.jsonl"
     if tpath.exists():
-        latest = {}
+        latest, all_rows = {}, {}
         for line in tpath.read_text(encoding="utf-8").split(chr(10)):
             line = line.strip()
             if not line:
@@ -488,12 +488,23 @@ def main():
                 continue
             if r.get("provider"):
                 latest[r["provider"]] = r
+                all_rows.setdefault(r["provider"], []).append(r)
         for name, r in sorted(latest.items()):
             rate = r.get("tokens_per_minute_measured")
             if rate is None:
                 continue
+            # THE LATEST reading, not the best one, and the difference is the whole point. Measured
+            # 2026-09-07: one provider delivered 66,197 tokens a minute on the first burst and 1,446
+            # on the second, minutes later, with no 429 to warn us. A first-burst rate is what a
+            # benchmark gets; the second one is what a working day gets.
+            hist = [x.get("tokens_per_minute_measured") for x in all_rows.get(name, [])
+                    if x.get("tokens_per_minute_measured") is not None]
+            best = max(hist) if hist else rate
             measured_min += rate
             measured_who.append({"provider": name, "tokens_per_minute": rate,
+                                 "best_seen": best, "readings": len(hist),
+                                 "holds_up": (None if len(hist) < 2
+                                              else rate >= 0.5 * best),
                                  "requests_ok": r.get("requests_ok"),
                                  "seconds": r.get("seconds"),
                                  "stopped_because": r.get("stopped_because"),
@@ -707,7 +718,12 @@ def main():
                     else "-")
             needs_key = any(r["auth"] == "KEY" for r in rows_by_prov[name])
             g = got.get(name)
-            recv = num(g["tokens_per_minute"]) if g else "-"
+            if not g:
+                recv = "-"
+            elif g.get("holds_up") is False:
+                recv = "%s (was %s)" % (num(g["tokens_per_minute"]), num(g["best_seen"]))
+            else:
+                recv = num(g["tokens_per_minute"])
             sg = entry.get("signup_requires") or {}
             card = {"no": "no", "yes": "**yes**", "either": "or ID"}.get(sg.get("card"), "?")
             phone = {"no": "no", "yes": "**yes**", "optional": "optional"}.get(sg.get("phone"), "?")

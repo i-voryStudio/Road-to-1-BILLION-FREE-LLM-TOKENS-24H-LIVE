@@ -1,9 +1,9 @@
 # ROAD TO 1 BILLION FREE LLM TOKENS/DAY
 
 <!--ROAD-->
-`████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **30%**
+`████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **20%**
 
-**211,794 tokens a minute**, and this is what 14 providers actually handed us on 2026-09-07, not what they advertise: real requests, in parallel, counted from the response. One billion a day is 694,444 a minute.
+**140,850 tokens a minute**, and this is what 14 providers actually handed us on 2026-09-07, not what they advertise: real requests, in parallel, counted from the response. One billion a day is 694,444 a minute.
 
 *It is a floor. The test stops after 25,000 tokens or half a minute, whichever comes first, because it is spending somebody's free quota to find out. The ceilings these providers publish add up to 9,140,000 a minute - 13 times the target rate - and turning that headroom into delivered tokens is the whole job.*
 <!--/ROAD-->
@@ -16,9 +16,9 @@ it. Every figure carries how we know it, and the ones nobody publishes say so.
 <!--HEADLINE-->
 | | |
 |---|---|
-| **Tokens per minute we actually received** | **211,794** |
+| **Tokens per minute we actually received** | **140,850** |
 | The rate 1,000,000,000 a day would need | 694,444 |
-| **Share of it, measured** | **30%** |
+| **Share of it, measured** | **20%** |
 | Providers that delivered anything | **14 of 18** |
 | Endpoints answering today | **30 of 37 tested** |
 | | |
@@ -46,6 +46,15 @@ or 30 seconds, whichever comes first, because it is spending a free quota to fin
 provider's own rate limit stopped it, the number reported is the whole minute's allowance rather than
 a rate scaled up from two seconds. A `0` means we got nothing: an empty pot, a blocked IP, or no
 capacity behind the endpoint that day, and the row says which.
+
+**0b. And does that rate hold?** This is the question every list like this dodges, so here is the
+measurement. On 2026-09-07 one provider delivered **66,197 tokens a minute** on the first burst and
+**1,446** on the second, taken minutes later, with no `429` in between to warn us — a forty-fivefold
+drop, silently. Two others held their rate almost exactly across the same gap. So a first-burst figure
+is what a benchmark gets, and it is not what a working day gets. The column shows the **latest**
+reading, and where an earlier one was much higher it says so in brackets. Which is also why this list
+publishes no daily total assembled by multiplication: minutes are not interchangeable, and the only
+honest way to know a day is to measure across one.
 
 **1. Per minute, or per day?** These are different shelves and adding them is the commonest mistake in
 this field. A per-minute ceiling says how fast you may go; a daily cap says how much you get before
@@ -91,15 +100,15 @@ be allowed to spend. `-` means they publish nothing on that shelf, and nothing i
 <!--CAPACITY-->
 | Provider | We received /min | They allow /min | Req/min | Per day | Once | Key | Card | Phone |
 |---|---|---|---|---|---|---|---|---|
-| **xkiro** | 66,197 | - | - | 5,000,000 | - | yes | ? | ? |
-| **alibaba** | 58,758 | 5,000,000 | 600 | - | 4,000,000 | yes | ? | **yes** |
-| **cloudflare** | 29,764 | - | 300 | - | - | yes | no | no |
+| **alibaba** | 54,659 | 5,000,000 | 600 | - | 4,000,000 | yes | ? | **yes** |
+| **cloudflare** | 27,670 | - | 300 | - | - | yes | no | no |
 | **inferx** | 22,005 | - | - | - | - | yes | ? | ? |
 | **nvidia** | 13,470 | - | - | - | - | yes | ? | ? |
 | **openrouter** | 7,997 | - | - | 25,000 | - | yes | ? | ? |
 | **aihubmix** | 7,048 | - | 10 | 50,000 | - | yes | no | no |
 | **kenari** | 2,799 | - | 5 | 25,000 | - | yes | no | no |
 | **ollama** | 1,850 | - | - | - | yes, size not published | yes | ? | ? |
+| **xkiro** | 1,446 (was 66,197) | - | - | 5,000,000 | - | yes | ? | ? |
 | **cerebras** | 1,206 | - | 5 | 1,000,000 | $5 | yes | ? | ? |
 | **uncloseai** | 700 | - | 180 | - | - | **no key** | no | no |
 | **hetzner** | 0 | 4,000,000 in / 100,000 out | 10 | - | - | yes | or ID | optional |

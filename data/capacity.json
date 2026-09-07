@@ -3,17 +3,38 @@
  "first_24h_tokens": 10000000,
  "recurring_measured_tokens_per_day": 6000000,
  "official_metric": "output tokens per minute",
- "output_tokens_per_minute": 100000,
+ "output_tokens_per_minute": 5140000,
  "input_tokens_per_minute": 4000000,
- "requests_per_minute": 17,
+ "requests_per_minute": 2113,
  "target_output_tokens_per_minute": 694444,
  "per_minute_providers": [
+  {
+   "provider": "aihubmix",
+   "output_tokens_per_minute": null,
+   "input_tokens_per_minute": null,
+   "requests_per_minute": 10,
+   "confidence": "DECLARED"
+  },
+  {
+   "provider": "alibaba",
+   "output_tokens_per_minute": 5000000,
+   "input_tokens_per_minute": null,
+   "requests_per_minute": 600,
+   "confidence": "DECLARED"
+  },
   {
    "provider": "cerebras",
    "output_tokens_per_minute": null,
    "input_tokens_per_minute": null,
    "requests_per_minute": 5,
    "confidence": "MEASURED"
+  },
+  {
+   "provider": "cloudflare",
+   "output_tokens_per_minute": null,
+   "input_tokens_per_minute": null,
+   "requests_per_minute": 300,
+   "confidence": "DECLARED"
   },
   {
    "provider": "hetzner",
@@ -23,11 +44,39 @@
    "confidence": "DECLARED"
   },
   {
+   "provider": "kenari",
+   "output_tokens_per_minute": null,
+   "input_tokens_per_minute": null,
+   "requests_per_minute": 5,
+   "confidence": "DECLARED"
+  },
+  {
    "provider": "ovhcloud",
    "output_tokens_per_minute": null,
    "input_tokens_per_minute": null,
    "requests_per_minute": 2,
    "confidence": "MEASURED"
+  },
+  {
+   "provider": "siliconflow",
+   "output_tokens_per_minute": 40000,
+   "input_tokens_per_minute": null,
+   "requests_per_minute": 1000,
+   "confidence": "DECLARED"
+  },
+  {
+   "provider": "uncloseai",
+   "output_tokens_per_minute": null,
+   "input_tokens_per_minute": null,
+   "requests_per_minute": 180,
+   "confidence": "DECLARED"
+  },
+  {
+   "provider": "unorouter",
+   "output_tokens_per_minute": null,
+   "input_tokens_per_minute": null,
+   "requests_per_minute": 1,
+   "confidence": "DECLARED"
   }
  ],
  "one_time_tokens": 4000000,
@@ -71,9 +120,13 @@
   }
  ],
  "measured_tokens_per_day": 6000000,
- "declared_tokens_per_day": 275000,
+ "declared_tokens_per_day": 400000,
  "paid_plan_tokens_per_day_excluded": 200000,
  "per_provider": {
+  "aihubmix": {
+   "daily_tokens": 50000,
+   "confidence": "DECLARED"
+  },
   "cerebras": {
    "daily_tokens": 1000000,
    "confidence": "MEASURED"
@@ -86,8 +139,16 @@
    "daily_tokens": 200000,
    "confidence": "PAID-PLAN"
   },
+  "kenari": {
+   "daily_tokens": 25000,
+   "confidence": "DECLARED"
+  },
   "openrouter": {
    "daily_tokens": 25000,
+   "confidence": "DECLARED"
+  },
+  "siliconflow": {
+   "daily_tokens": 50000,
    "confidence": "DECLARED"
   },
   "xkiro": {
@@ -96,7 +157,7 @@
   }
  },
  "providers_tracked": 18,
- "providers_with_no_published_quota": 13,
+ "providers_with_no_published_quota": 10,
  "target_tokens_per_day": 1000000000,
  "target_date": "2026-11-07",
  "multiple_still_needed": 166.7,

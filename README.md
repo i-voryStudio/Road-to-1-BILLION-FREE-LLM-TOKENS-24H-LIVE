@@ -1,9 +1,11 @@
 # ROAD TO 1 BILLION FREE LLM TOKENS/DAY
 
 <!--ROAD-->
-`██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **14.40%**
+`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **0.60%**
 
-**100,000** of **694,444** output tokens per minute, which is what 1,000,000,000 a day comes to. Measured 2026-09-07, from 3 providers that publish a per-minute ceiling.
+**6,000,000** free tokens a day, confirmed: providers that publish a daily figure, added up. The target is one billion.
+
+Above that sits **headroom**: 10 providers publish a per-minute ceiling instead of a daily one, and those ceilings add up to **9,140,000 tokens a minute** - 13 times the rate one billion a day would need. A ceiling is what they allow, not what anyone has held for 24 hours, so it is not in the bar. Turning headroom into confirmed capacity is the whole job.
 <!--/ROAD-->
 
 A live, measured list of every free LLM API we can find, ranked by what you can actually get done with
@@ -14,20 +16,54 @@ it. Every figure carries how we know it, and the ones nobody publishes say so.
 <!--HEADLINE-->
 | | |
 |---|---|
-| **Output tokens per minute** | **100,000** |
-| **Input tokens per minute** | **4,000,000** |
-| Requests per minute | 17 |
-| Providers publishing a per-minute ceiling | **3 of 18** |
+| **Tokens per minute, published ceilings** | **9,140,000** |
+| The rate 1,000,000,000 a day would need | 694,444 |
+| Providers publishing a per-minute ceiling | **10 of 18** |
 | Endpoints answering today | **30 of 37 tested** |
-| Distance to the target, in output tokens per minute | **7x** |
 | | |
-| *Unofficial, below:* | *what a daily figure would say* |
+| *A ceiling is not a promise:* | *no provider here publishes a daily cap, and none says you may hold that rate for 24 hours. We do not multiply it out.* |
+| | |
+| *Below, in daily terms:* | |
 | Tokens per day, where a provider publishes one at all | 6,000,000 |
 | Once, at sign-up, across every account | 4,000,000 |
 | One-time credits, in money | $6 |
-| Claimed by providers, sourced, not measured | 275,000 |
+| Claimed by providers, sourced, not measured | 400,000 |
 | Published only for a PAID plan | 200,000 |
 <!--/HEADLINE-->
+
+## How to read any row of this list
+
+Five things decide whether a free API is worth your time, and every list we have seen collapses them
+into one number. They are kept apart here on purpose.
+
+**1. Per minute, or per day?** These are different shelves and adding them is the commonest mistake in
+this field. A per-minute ceiling says how fast you may go; a daily cap says how much you get before
+the door shuts. Almost nobody publishes both. Where a provider publishes only a per-minute figure, we
+write it there and leave the daily column empty — we never multiply one into the other, because
+100,000 tokens a minute is a fact and 144 million a day is a number nobody will be allowed to spend.
+
+**2. Recurring, or once?** A daily quota comes back every morning. A sign-up bundle — Alibaba's
+1,000,000 tokens per model, Cerebras's $5, SiliconFlow's $1 — arrives once and is gone. Both are real;
+added together they produce a total that stops being true after 24 hours.
+
+**3. Tokens, or requests?** A cap of 100 requests a day is not generous because the tokens are
+uncapped: whichever limit bites first is your real ceiling. Where a provider caps requests, the daily
+token column shows what those requests are actually worth at 500 tokens of output each, and says so.
+
+**4. Card, phone, or nothing?** The `Card` and `Phone` columns are the ones that decide whether you can
+start in the next five minutes. A phone number requirement is a hard wall for some countries. `?`
+means the provider does not say, and we will not guess on your behalf.
+
+**5. How do we know?** Every figure carries its provenance, and the difference matters more than the
+number:
+
+| | |
+|---|---|
+| **MEASURED** | we saw it ourselves — a response header, a usage endpoint, a 429 we walked into |
+| **DECLARED** | the provider says so on a page we read, with the date we read it. Real, and still their word |
+| **DERIVED** | computed from two figures they publish, with the arithmetic shown. Cloudflare's is the only one |
+| **PAID-PLAN** | the only published number belongs to a paid tier, so it is not free capacity at all |
+| **UNKNOWN** | nobody publishes it and we have not measured it. It stays unknown. We do not borrow a number from another list to fill the hole, and unknown does not mean unlimited |
 
 ### Every provider, and what it actually gives you
 
@@ -42,26 +78,26 @@ multiplied out — 100,000 output tokens a minute is a fact, 144 million a day i
 be allowed to spend. `-` means they publish nothing on that shelf, and nothing is what we write.
 
 <!--CAPACITY-->
-| Provider | Per minute | Per day | Once, at sign-up | Key | How we know |
-|---|---|---|---|---|---|
-| **hetzner** | 4,000,000 in / 100,000 out | - | - | yes | DECLARED |
-| **xkiro** | - | 5,000,000 | - | yes | MEASURED |
-| **cerebras** | 5 req | 1,000,000 | $5 | yes | MEASURED |
-| **google** | - | 250,000 | - | yes | DECLARED |
-| **groq** | - | 200,000 | - | yes | PAID-PLAN |
-| **openrouter** | - | 25,000 | - | yes | DECLARED |
-| **aihubmix** | - | - | - | yes | UNKNOWN |
-| **alibaba** | - | - | 4,000,000 | yes | UNKNOWN |
-| **cloudflare** | - | - | - | yes | DECLARED |
-| **inferx** | - | - | - | yes | UNKNOWN |
-| **kenari** | - | - | - | yes | MEASURED |
-| **mistral** | - | - | - | yes | MEASURED |
-| **nvidia** | - | - | - | yes | UNKNOWN |
-| **ollama** | - | - | yes, size not published | yes | UNKNOWN |
-| **ovhcloud** | 2 req | - | - | **no key** | MEASURED |
-| **siliconflow** | - | - | $1 | yes | UNKNOWN |
-| **uncloseai** | - | - | - | **no key** | UNKNOWN |
-| **unorouter** | - | - | - | yes | UNKNOWN |
+| Provider | Tokens/min | Req/min | Per day | Once, at sign-up | Key | Card | Phone |
+|---|---|---|---|---|---|---|---|
+| **alibaba** | 5,000,000 | 600 | - | 4,000,000 | yes | ? | **yes** |
+| **hetzner** | 4,000,000 in / 100,000 out | 10 | - | - | yes | or ID | optional |
+| **siliconflow** | 40,000 | 1,000 | 50,000 | $1 | yes | ? | ? |
+| **cloudflare** | - | 300 | - | - | yes | no | no |
+| **uncloseai** | - | 180 | - | - | **no key** | no | no |
+| **aihubmix** | - | 10 | 50,000 | - | yes | no | no |
+| **cerebras** | - | 5 | 1,000,000 | $5 | yes | ? | ? |
+| **kenari** | - | 5 | 25,000 | - | yes | no | no |
+| **ovhcloud** | - | 2 | - | - | **no key** | **yes** | ? |
+| **unorouter** | - | 1 | - | - | yes | no | ? |
+| **xkiro** | - | - | 5,000,000 | - | yes | ? | ? |
+| **google** | - | - | 250,000 | - | yes | ? | ? |
+| **groq** | - | - | 200,000 | - | yes | ? | ? |
+| **openrouter** | - | - | 25,000 | - | yes | ? | ? |
+| **inferx** | - | - | - | - | yes | ? | ? |
+| **mistral** | - | - | - | - | yes | no | ? |
+| **nvidia** | - | - | - | - | yes | ? | ? |
+| **ollama** | - | - | - | yes, size not published | yes | ? | ? |
 <!--/CAPACITY-->
 
 **Where this is going, out loud: one billion free tokens a day.** In the unit this list measures in,
@@ -148,8 +184,8 @@ the table below. If a day is missing, the file shows it missing.
 | 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 |
 | 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 |
 | 3 | `qwen/qwen3.8-27b` | groq | **177.3** | 68.1 | 200,000 |
-| 4 | `gemma-4-31b` | cerebras | **143.3** | 43.4 | 1,000,000 |
-| 5 | `qwen/qwen3.6-27b` | groq | **139.8** | 53.7 | 200,000 |
+| 4 | `gemini-3.8-flash-free` | aihubmix | **152.9** | 76.3 | 50,000 |
+| 5 | `coding-kimi-k3-free` | aihubmix | **152.7** | 76.2 | 50,000 |
 <!--/TOP5-->
 
 **Value = quality x volume x how often it actually answers.** Volume is in **tokens**, not requests,
@@ -170,17 +206,26 @@ Full ranking of the top 30: below. **Every single endpoint we track, nothing fil
 | 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | key | 58.6 | 5,000,000 | answered 2 of 2 radar probes in the last 14 days |
 | 2 | `qwen-3.8-27b` | cerebras | **224.8** | key | 68.1 | 1,000,000 | **answers blank unless you turn thinking off** |
 | 3 | `qwen/qwen3.8-27b` | groq | **177.3** | key | 68.1 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
-| 4 | `gemma-4-31b` | cerebras | **143.3** | key | 43.4 | 1,000,000 | answered 2 of 2 radar probes in the last 14 days |
-| 5 | `qwen/qwen3.6-27b` | groq | **139.8** | key | 53.7 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
-| 6 | `gemini-3.5-flash-lite` | google | **133.1** | key | 49.3 | 250,000 | **trains on your prompts** |
-| 7 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | key | 52.6 | 5,000,000 | answered 1 of 2 radar probes in the last 14 days |
-| 8 | `gpt-oss-120b` | cerebras | **100.4** | key | 30.4 | 1,000,000 | answered 2 of 2 radar probes in the last 14 days |
-| 9 | `minimax/minimax-m3:free` | openrouter | **100.1** | key | 58.6 | 25,000 | answered 2 of 2 radar probes in the last 14 days |
-| 10 | `openai/gpt-oss-120b` | groq | **79.1** | key | 30.4 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
-| 11 | `openai/gpt-oss-20b` | groq | **53.9** | key | 20.7 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
-| 12 | `gemini-3.8-flash` | google | **0.0** | key | 76.3 | 10,000 | **trains on your prompts** |
-| 13 | `minimax/minimax-m2.7:free` | openrouter | **0.0** | key | 52.6 | 25,000 | answered 0 of 2 radar probes in the last 14 days |
-| 14 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** | key | 49.3 | 25,000 | answered 0 of 2 radar probes in the last 14 days |
+| 4 | `gemini-3.8-flash-free` | aihubmix | **152.9** | key | 76.3 | 50,000 | DECLARED |
+| 5 | `coding-kimi-k3-free` | aihubmix | **152.7** | key | 76.2 | 50,000 | DECLARED |
+| 6 | `coding-glm-5.3-free` | aihubmix | **149.9** | key | 74.8 | 50,000 | DECLARED |
+| 7 | `gemma-4-31b` | cerebras | **143.3** | key | 43.4 | 1,000,000 | answered 2 of 2 radar probes in the last 14 days |
+| 8 | `qwen/qwen3.6-27b` | groq | **139.8** | key | 53.7 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
+| 9 | `gemini-3.5-flash-lite` | google | **133.1** | key | 49.3 | 250,000 | **trains on your prompts** |
+| 10 | `coding-minimax-m3-free` | aihubmix | **117.5** | key | 58.6 | 50,000 | DECLARED |
+| 11 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | key | 52.6 | 5,000,000 | answered 1 of 2 radar probes in the last 14 days |
+| 12 | `gpt-oss-120b` | cerebras | **100.4** | key | 30.4 | 1,000,000 | answered 2 of 2 radar probes in the last 14 days |
+| 13 | `minimax/minimax-m3:free` | openrouter | **100.1** | key | 58.6 | 25,000 | answered 2 of 2 radar probes in the last 14 days |
+| 14 | `mimo-v2-5:free` | kenari | **97.0** | key | 56.8 | 25,000 | DECLARED |
+| 15 | `nemotron-3-ultra-550b-a55b:free` | kenari | **84.2** | key | 49.3 | 25,000 | DECLARED |
+| 16 | `mistral-medium-3-5:free` | kenari | **80.1** | key | 46.9 | 25,000 | DECLARED |
+| 17 | `openai/gpt-oss-120b` | groq | **79.1** | key | 30.4 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
+| 18 | `gemma-4-26b-a4b-it-free` | aihubmix | **78.8** | key | 39.3 | 50,000 | DECLARED |
+| 19 | `nemotron-3-super-120b-a12b:free` | kenari | **64.4** | key | 37.7 | 25,000 | DECLARED |
+| 20 | `openai/gpt-oss-20b` | groq | **53.9** | key | 20.7 | 200,000 | answered 2 of 2 radar probes in the last 14 days |
+| 21 | `gemini-3.8-flash` | google | **0.0** | key | 76.3 | 10,000 | **trains on your prompts** |
+| 22 | `minimax/minimax-m2.7:free` | openrouter | **0.0** | key | 52.6 | 25,000 | answered 0 of 2 radar probes in the last 14 days |
+| 23 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** | key | 49.3 | 25,000 | answered 0 of 2 radar probes in the last 14 days |
 <!--/RANKING-->
 
 Every endpoint we track, ranked or not, scored or not: **[ALL-ENDPOINTS.md](ALL-ENDPOINTS.md)**.

@@ -470,21 +470,27 @@ def main():
     #
     # Nothing here is ever multiplied out to a day. 100,000 output tokens a minute is a fact;
     # 144,000,000 a day is a number nobody will be allowed to spend.
-    out_per_min, in_per_min, req_per_min, per_minute_who = 0, 0, 0, []
+    tok_per_min, out_per_min, req_per_min, per_minute_who = 0, 0, 0, []
     for name, entry in sorted((limits.get("providers") or {}).items()):
         am = entry.get("all_models") or {}
-        o = am.get("tpm_output") or (am.get("tpm") if not am.get("tpm_output") else None)
-        i = am.get("tpm_input")
+        combined = am.get("tpm")
+        split_in, split_out = am.get("tpm_input"), am.get("tpm_output")
+        # A provider publishes EITHER one combined tokens-per-minute figure - their word, "includes
+        # input and output tokens" - OR a split pair. They are added on their own terms and never
+        # mixed: adding somebody's output-only ceiling to somebody else's combined one produces a
+        # number that means nothing.
+        total = combined if combined else ((split_in or 0) + (split_out or 0)) or None
         r = am.get("rpm")
-        if not (o or i or r):
+        if not (total or r):
             continue
-        out_per_min += o or 0
-        in_per_min += i or 0
+        tok_per_min += total or 0
+        out_per_min += split_out or 0
         req_per_min += r or 0
-        per_minute_who.append({"provider": name, "output_tokens_per_minute": o,
-                               "input_tokens_per_minute": i, "requests_per_minute": r,
-                               "confidence": entry.get("confidence")})
-    per_minute_out = out_per_min
+        per_minute_who.append({"provider": name, "tokens_per_minute": total,
+                               "output_tokens_per_minute": split_out,
+                               "requests_per_minute": r, "confidence": entry.get("confidence")})
+
+    per_minute_out = tok_per_min
 
     one_time_tokens, one_time_credits, one_time_who = 0, 0.0, []
     for name, entry in sorted((limits.get("providers") or {}).items()):
@@ -523,18 +529,28 @@ def main():
     # The first line of the repo is the target and how far along it is, drawn as a bar. It is
     # generated, so it can never say something the data does not.
     if readme.exists() and "<!--ROAD-->" in readme.read_text(encoding="utf-8"):
-        target_min = 1000000000 / 1440.0
-        got = 0
+        # The bar measures what is CONFIRMED, not what is allowed. Published per-minute ceilings add
+        # up to many times the target rate, and drawing that as a full bar would be the same trick
+        # every other list plays: quoting the biggest number on the page as if it were delivery.
+        # A ceiling is headroom. It goes beside the bar, not inside it.
+        TARGET = 1000000000
+        ceiling_min = 0
         for name, entry in ((limits.get("providers") or {}).items()):
             am = entry.get("all_models") or {}
-            got += am.get("tpm_output") or am.get("tpm") or 0
-        pct = 100.0 * got / target_min if target_min else 0
-        filled = int(round(pct / 100.0 * 40))
+            ceiling_min += am.get("tpm") or ((am.get("tpm_input") or 0) + (am.get("tpm_output") or 0))
+        pct = 100.0 * measured / TARGET if TARGET else 0
+        filled = int(round(min(pct, 100.0) / 100.0 * 40))
         bar = "█" * max(0, min(40, filled)) + "░" * max(0, 40 - filled)
         R = ["`%s`  **%.2f%%**" % (bar, pct), "",
-             "**%s** of **%s** output tokens per minute, which is what 1,000,000,000 a day comes to. "
-             "Measured %s, from %d providers that publish a per-minute ceiling."
-             % (num(got), num(int(target_min)), a.date, len(per_minute_who))]
+             "**%s** free tokens a day, confirmed: providers that publish a daily figure, added up. "
+             "The target is one billion." % num(measured), "",
+             "Above that sits **headroom**: %d providers publish a per-minute ceiling instead of a "
+             "daily one, and those ceilings add up to **%s tokens a minute** - %s times the rate one "
+             "billion a day would need. A ceiling is what they allow, not what anyone has held for "
+             "24 hours, so it is not in the bar. Turning headroom into confirmed capacity is the "
+             "whole job."
+             % (len(per_minute_who), num(ceiling_min),
+                ("%.0f" % (ceiling_min / (TARGET / 1440.0))) if TARGET else "?")]
         text = readme.read_text(encoding="utf-8")
         blk = "<!--ROAD-->" + chr(10) + chr(10).join(R) + chr(10) + "<!--/ROAD-->"
         text = re.sub(r"<!--ROAD-->.*?<!--/ROAD-->", lambda _: blk, text, flags=re.S)
@@ -546,17 +562,18 @@ def main():
         # 1,000,000,000 tokens a day is the written target. Expressed in the unit this list
         # actually measures in, that is 1e9 / 1440 minutes.
         TARGET_PER_MIN = TARGET / 1440.0
-        gap_min = TARGET_PER_MIN / out_per_min if out_per_min else 0
+        pct_min = 100.0 * tok_per_min / TARGET_PER_MIN if TARGET_PER_MIN else 0
         H = ["| | |", "|---|---|",
-             "| **Output tokens per minute** | **%s** |" % num(out_per_min),
-             "| **Input tokens per minute** | **%s** |" % num(in_per_min),
-             "| Requests per minute | %s |" % num(req_per_min),
+             "| **Tokens per minute, published ceilings** | **%s** |" % num(tok_per_min),
+             "| The rate 1,000,000,000 a day would need | %s |" % num(int(TARGET_PER_MIN)),
              "| Providers publishing a per-minute ceiling | **%d of %d** |"
              % (len(per_minute_who), n_providers),
              "| Endpoints answering today | **%d of %d tested** |" % (today_alive, today_total),
-             "| Distance to the target, in output tokens per minute | **%.0fx** |" % gap_min,
              "| | |",
-             "| *Unofficial, below:* | *what a daily figure would say* |",
+             "| *A ceiling is not a promise:* | *no provider here publishes a daily cap, and none "
+             "says you may hold that rate for 24 hours. We do not multiply it out.* |",
+             "| | |",
+             "| *Below, in daily terms:* | |",
              "| Tokens per day, where a provider publishes one at all | %s |" % num(measured),
              "| Once, at sign-up, across every account | %s |" % num(one_time_tokens),
              "| One-time credits, in money | %s |"
@@ -567,8 +584,8 @@ def main():
         block = "<!--HEADLINE-->" + chr(10) + chr(10).join(H) + chr(10) + "<!--/HEADLINE-->"
         text = re.sub(r"<!--HEADLINE-->.*?<!--/HEADLINE-->", lambda _: block, text, flags=re.S)
         readme.write_text(text, encoding="utf-8", newline=chr(10))
-        print("headline: %s output tokens/min across %d providers, %.0fx to target; "
-              "unofficial daily %s" % (num(out_per_min), len(per_minute_who), gap_min, num(measured)))
+        print("headline: %s tokens/min across %d providers = %.0f%% of the target rate; "
+              "daily figure %s" % (num(tok_per_min), len(per_minute_who), pct_min, num(measured)))
 
     # The same three numbers as data, so a gate can check the prose against them instead of trusting it.
     (out / "data" / "capacity.json").write_text(json.dumps({
@@ -631,34 +648,37 @@ def main():
         rows_by_prov = {}
         for r in rows + unranked:
             rows_by_prov.setdefault(r["provider"], []).append(r)
-        C = ["| Provider | Per minute | Per day | Once, at sign-up | Key | How we know |",
-             "|---|---|---|---|---|---|"]
+        C = ["| Provider | Tokens/min | Req/min | Per day | Once, at sign-up | Key | Card | Phone |",
+             "|---|---|---|---|---|---|---|---|"]
         def sort_key(name):
             entry = (limits.get("providers") or {}).get(name) or {}
             am = entry.get("all_models") or {}
-            out = am.get("tpm_output") or am.get("tpm") or 0
+            out = am.get("tpm") or am.get("tpm_output") or 0
             v = per_provider.get(name)
-            return (-out, -(am.get("tpm_input") or 0), -(v[0] if v else 0), name)
+            return (-out, -(am.get("rpm") or 0), -(v[0] if v else 0), name)
         for name in sorted(rows_by_prov, key=sort_key):
             entry = (limits.get("providers") or {}).get(name) or {}
             am = entry.get("all_models") or {}
             daily = per_provider.get(name)
             ot = entry.get("one_time") or {}
-            per_min = ("%s in / %s out" % (num(am["tpm_input"]), num(am["tpm_output"]))
+            tok_min = (num(am["tpm"]) if am.get("tpm")
+                       else "%s in / %s out" % (num(am["tpm_input"]), num(am["tpm_output"]))
                        if am.get("tpm_input") and am.get("tpm_output")
-                       else num(am["tpm"]) + " out" if am.get("tpm")
-                       else "%s req" % num(am["rpm"]) if am.get("rpm") else "-")
+                       else num(am["tpm_output"]) + " out" if am.get("tpm_output") else "-")
+            req_min = num(am["rpm"]) if am.get("rpm") else "-"
             once = (num(ot["tokens"]) if ot.get("tokens")
                     else "$%g" % ot["credits_usd"] if ot.get("credits_usd")
                     else "yes, size not published" if ot.get("confidence") in ("MEASURED", "DECLARED")
                     else "-")
             needs_key = any(r["auth"] == "KEY" for r in rows_by_prov[name])
-            C.append("| **%s** | %s | %s | %s | %s | %s |"
-                     % (name, per_min,
+            sg = entry.get("signup_requires") or {}
+            card = {"no": "no", "yes": "**yes**", "either": "or ID"}.get(sg.get("card"), "?")
+            phone = {"no": "no", "yes": "**yes**", "optional": "optional"}.get(sg.get("phone"), "?")
+            C.append("| **%s** | %s | %s | %s | %s | %s | %s | %s |"
+                     % (name, tok_min, req_min,
                         num(daily[0]) if daily else "-",
                         once,
-                        "yes" if needs_key else "**no key**",
-                        (daily[1] if daily else entry.get("confidence") or "UNKNOWN")))
+                        "yes" if needs_key else "**no key**", card, phone))
         text = readme.read_text(encoding="utf-8")
         blk = "<!--CAPACITY-->" + chr(10) + chr(10).join(C) + chr(10) + "<!--/CAPACITY-->"
         text = re.sub(r"<!--CAPACITY-->.*?<!--/CAPACITY-->", lambda _: blk, text, flags=re.S)

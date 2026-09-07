@@ -9,22 +9,26 @@ Measured **2026-09-07**. `?` means we do not know, and we would rather write tha
 | `minimax/minimax-m3:free` | xkiro | 234.4 | key | 58.6 | 35.7 | 31 | 1267 | 5,000,000 | ? | MEASURED | 100% | UNKNOWN |  |
 | `qwen-3.8-27b` | cerebras | 224.8 | key | 68.1 | 41.4 | 46.8 | ? | 1,000,000 | 2,400 | MEASURED | 100% | UNKNOWN | answers blank unless thinking is off |
 | `qwen/qwen3.8-27b` | groq | 177.3 | key | 68.1 | 41.4 | 46.8 | ? | 200,000 | 1,000 | PAID-PLAN | 100% | UNKNOWN |  |
+| `gemini-3.8-flash-free` | aihubmix | 152.9 | key | 76.3 | 47.1 | 41.2 | 1321 | 50,000 | 100 | DECLARED | ? | UNKNOWN |  |
+| `coding-kimi-k3-free` | aihubmix | 152.7 | key | 76.2 | 50.2 | 50.9 | 1393 | 50,000 | 100 | DECLARED | ? | UNKNOWN |  |
+| `coding-glm-5.3-free` | aihubmix | 149.9 | key | 74.8 | 48.6 | 53.6 | ? | 50,000 | 100 | DECLARED | ? | UNKNOWN |  |
 | `gemma-4-31b` | cerebras | 143.3 | key | 43.4 | ? | 6.8 | ? | 1,000,000 | 2,400 | MEASURED | 100% | UNKNOWN |  |
 | `qwen/qwen3.6-27b` | groq | 139.8 | key | 53.7 | ? | 20.1 | ? | 200,000 | 1,000 | PAID-PLAN | 100% | UNKNOWN |  |
 | `gemini-3.5-flash-lite` | google | 133.1 | key | 49.3 | 27.6 | 16.1 | ? | 250,000 | 500 | DECLARED | 100% | yes | May not be used for apps serving users in the EEA, Switzerland or the UK |
+| `coding-minimax-m3-free` | aihubmix | 117.5 | key | 58.6 | 35.7 | 31 | 1267 | 50,000 | 100 | DECLARED | ? | UNKNOWN |  |
 | `minimax/minimax-m2.7:free` | xkiro | 105.2 | key | 52.6 | ? | ? | 1251 | 5,000,000 | ? | MEASURED | 50% | UNKNOWN |  |
 | `gpt-oss-120b` | cerebras | 100.4 | key | 30.4 | 15.6 | 6.3 | 980 | 1,000,000 | 2,400 | MEASURED | 100% | UNKNOWN | we send `{"reasoning_effort": "low"}` |
 | `minimax/minimax-m3:free` | openrouter | 100.1 | key | 58.6 | 35.7 | 31 | 1267 | 25,000 | 50 | DECLARED | 100% | UNKNOWN |  |
+| `mimo-v2-5:free` | kenari | 97.0 | key | 56.8 | ? | ? | 1277 | 25,000 | 50 | DECLARED | ? | UNKNOWN |  |
+| `nemotron-3-ultra-550b-a55b:free` | kenari | 84.2 | key | 49.3 | ? | 21.7 | 1153 | 25,000 | 50 | DECLARED | ? | UNKNOWN |  |
+| `mistral-medium-3-5:free` | kenari | 80.1 | key | 46.9 | ? | 9.4 | ? | 25,000 | 50 | DECLARED | ? | UNKNOWN |  |
 | `openai/gpt-oss-120b` | groq | 79.1 | key | 30.4 | 15.6 | 6.3 | 980 | 200,000 | 1,000 | PAID-PLAN | 100% | UNKNOWN | we send `{"reasoning_effort": "low"}` |
+| `gemma-4-26b-a4b-it-free` | aihubmix | 78.8 | key | 39.3 | ? | ? | ? | 50,000 | 100 | DECLARED | ? | UNKNOWN |  |
+| `nemotron-3-super-120b-a12b:free` | kenari | 64.4 | key | 37.7 | ? | 4.2 | ? | 25,000 | 50 | DECLARED | ? | UNKNOWN |  |
 | `openai/gpt-oss-20b` | groq | 53.9 | key | 20.7 | ? | 1.4 | ? | 200,000 | 1,000 | PAID-PLAN | 100% | UNKNOWN | we send `{"reasoning_effort": "low"}` |
 | `gemini-3.8-flash` | google | 0.0 | key | 76.3 | 47.1 | 41.2 | 1321 | 10,000 | 20 | DECLARED | ? | yes | May not be used for apps serving users in the EEA, Switzerland or the UK |
 | `minimax/minimax-m2.7:free` | openrouter | 0.0 | key | 52.6 | ? | ? | 1251 | 25,000 | 50 | DECLARED | ? | UNKNOWN |  |
 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | 0.0 | key | 49.3 | ? | 21.7 | 1153 | 25,000 | 50 | DECLARED | ? | UNKNOWN | we send `{"chat_template_kwargs": {"enable_thinking": false}}` |
-| `gemini-3.8-flash-free` | aihubmix | not ranked | key | 76.3 | 47.1 | 41.2 | 1321 | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
-| `coding-glm-5.3-free` | aihubmix | not ranked | key | 74.8 | 48.6 | 53.6 | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
-| `coding-kimi-k3-free` | aihubmix | not ranked | key | 76.2 | 50.2 | 50.9 | 1393 | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
-| `coding-minimax-m3-free` | aihubmix | not ranked | key | 58.6 | 35.7 | 31 | 1267 | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
-| `gemma-4-26b-a4b-it-free` | aihubmix | not ranked | key | 39.3 | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `@cf/openai/gpt-oss-120b` | cloudflare | not ranked | key | 30.4 | 15.6 | 6.3 | 980 | ? | ? | UNKNOWN | 100% | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | not ranked | key | 11.9 | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `@cf/google/gemma-4-26b-a4b-it` | cloudflare | not ranked | key | 39.3 | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | answers blank unless thinking is off; daily volume unknown - see LIMITS.md |
@@ -36,10 +40,6 @@ Measured **2026-09-07**. `?` means we do not know, and we would rather write tha
 | `Qwen3-Coder-Next-FP8` | inferx | not ranked | key | 36.2 | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `Qwen3.6-35B-A3B-FP8` | inferx | not ranked | key | 41.9 | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `deepseek-v4-flash` | inferx | not ranked | key | 56.2 | ? | 23.8 | 1222 | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
-| `nemotron-3-ultra-550b-a55b:free` | kenari | not ranked | key | 49.3 | ? | 21.7 | 1153 | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
-| `nemotron-3-super-120b-a12b:free` | kenari | not ranked | key | 37.7 | ? | 4.2 | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
-| `mimo-v2-5:free` | kenari | not ranked | key | 56.8 | ? | ? | 1277 | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
-| `mistral-medium-3-5:free` | kenari | not ranked | key | 46.9 | ? | 9.4 | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `mistral-small-2603` | mistral | not ranked | key | 26.6 | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `nvidia/nemotron-3-super-120b-a12b` | nvidia | not ranked | key | 37.7 | ? | 4.2 | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"chat_template_kwargs": {"enable_thinking": false}}`; daily volume unknown - see LIMITS.md |
 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | not ranked | key | 49.3 | ? | 21.7 | 1153 | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"chat_template_kwargs": {"enable_thinking": false}}`; daily volume unknown - see LIMITS.md |
@@ -61,13 +61,13 @@ Measured **2026-09-07**. `?` means we do not know, and we would rather write tha
 | `qwen-turbo` | alibaba | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"enable_thinking": false}`; no official benchmark score published for this model |
 | `qwen3.5-flash` | alibaba | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | we send `{"enable_thinking": false}`; no official benchmark score published for this model |
 | `@cf/mistralai/mistral-small-3.1-24b-instruct` | cloudflare | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | no official benchmark score published for this model |
-| `glm-4-7-flash:free` | kenari | not ranked | key | ? | ? | ? | 1194 | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
+| `glm-4-7-flash:free` | kenari | not ranked | key | ? | ? | ? | 1194 | 25,000 | 50 | DECLARED | ? | UNKNOWN | no official benchmark score published for this model |
 | `codestral-2508` | mistral | not ranked | key | ? | ? | ? | 1024 | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
 | `mistral-medium-latest` | mistral | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
 | `magistral-small-latest` | mistral | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
 | `Qwen3-Coder-30B-A3B-Instruct` | ovhcloud | not ranked | no key | ? | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
 | `Mistral-Small-3.2-24B-Instruct-2506` | ovhcloud | not ranked | no key | ? | ? | ? | 924 | ? | ? | UNKNOWN | 100% | UNKNOWN | no official benchmark score published for this model |
-| `Qwen/Qwen3-Coder-30B-A3B-Instruct` | siliconflow | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
+| `Qwen/Qwen3-Coder-30B-A3B-Instruct` | siliconflow | not ranked | key | ? | ? | ? | ? | 50,000 | 100 | DECLARED | ? | UNKNOWN | no official benchmark score published for this model |
 | `aion-2.0:free` | unorouter | not ranked | key | ? | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | no official benchmark score published for this model |
 
 ## What the columns mean

@@ -13,24 +13,33 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 | 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | key | 58.6 | 5,000,000 | MEASURED | unknown |
 | 2 | `qwen-3.8-27b` | cerebras | **224.8** | key | 68.1 | 1,000,000 | MEASURED | unknown |
 | 3 | `qwen/qwen3.8-27b` | groq | **177.3** | key | 68.1 | 200,000 | PAID-PLAN | unknown |
-| 4 | `gemma-4-31b` | cerebras | **143.3** | key | 43.4 | 1,000,000 | MEASURED | unknown |
-| 5 | `qwen/qwen3.6-27b` | groq | **139.8** | key | 53.7 | 200,000 | PAID-PLAN | unknown |
-| 6 | `gemini-3.5-flash-lite` | google | **133.1** | key | 49.3 | 250,000 | DECLARED | **trains on your prompts** |
-| 7 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | key | 52.6 | 5,000,000 | MEASURED | unknown |
-| 8 | `gpt-oss-120b` | cerebras | **100.4** | key | 30.4 | 1,000,000 | MEASURED | unknown |
-| 9 | `minimax/minimax-m3:free` | openrouter | **100.1** | key | 58.6 | 25,000 | DECLARED | unknown |
-| 10 | `openai/gpt-oss-120b` | groq | **79.1** | key | 30.4 | 200,000 | PAID-PLAN | unknown |
-| 11 | `openai/gpt-oss-20b` | groq | **53.9** | key | 20.7 | 200,000 | PAID-PLAN | unknown |
-| 12 | `gemini-3.8-flash` | google | **0.0** | key | 76.3 | 10,000 | DECLARED | **trains on your prompts** |
-| 13 | `minimax/minimax-m2.7:free` | openrouter | **0.0** | key | 52.6 | 25,000 | DECLARED | unknown |
-| 14 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** | key | 49.3 | 25,000 | DECLARED | unknown |
+| 4 | `gemini-3.8-flash-free` | aihubmix | **152.9** | key | 76.3 | 50,000 | DECLARED | unknown |
+| 5 | `coding-kimi-k3-free` | aihubmix | **152.7** | key | 76.2 | 50,000 | DECLARED | unknown |
+| 6 | `coding-glm-5.3-free` | aihubmix | **149.9** | key | 74.8 | 50,000 | DECLARED | unknown |
+| 7 | `gemma-4-31b` | cerebras | **143.3** | key | 43.4 | 1,000,000 | MEASURED | unknown |
+| 8 | `qwen/qwen3.6-27b` | groq | **139.8** | key | 53.7 | 200,000 | PAID-PLAN | unknown |
+| 9 | `gemini-3.5-flash-lite` | google | **133.1** | key | 49.3 | 250,000 | DECLARED | **trains on your prompts** |
+| 10 | `coding-minimax-m3-free` | aihubmix | **117.5** | key | 58.6 | 50,000 | DECLARED | unknown |
+| 11 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | key | 52.6 | 5,000,000 | MEASURED | unknown |
+| 12 | `gpt-oss-120b` | cerebras | **100.4** | key | 30.4 | 1,000,000 | MEASURED | unknown |
+| 13 | `minimax/minimax-m3:free` | openrouter | **100.1** | key | 58.6 | 25,000 | DECLARED | unknown |
+| 14 | `mimo-v2-5:free` | kenari | **97.0** | key | 56.8 | 25,000 | DECLARED | unknown |
+| 15 | `nemotron-3-ultra-550b-a55b:free` | kenari | **84.2** | key | 49.3 | 25,000 | DECLARED | unknown |
+| 16 | `mistral-medium-3-5:free` | kenari | **80.1** | key | 46.9 | 25,000 | DECLARED | unknown |
+| 17 | `openai/gpt-oss-120b` | groq | **79.1** | key | 30.4 | 200,000 | PAID-PLAN | unknown |
+| 18 | `gemma-4-26b-a4b-it-free` | aihubmix | **78.8** | key | 39.3 | 50,000 | DECLARED | unknown |
+| 19 | `nemotron-3-super-120b-a12b:free` | kenari | **64.4** | key | 37.7 | 25,000 | DECLARED | unknown |
+| 20 | `openai/gpt-oss-20b` | groq | **53.9** | key | 20.7 | 200,000 | PAID-PLAN | unknown |
+| 21 | `gemini-3.8-flash` | google | **0.0** | key | 76.3 | 10,000 | DECLARED | **trains on your prompts** |
+| 22 | `minimax/minimax-m2.7:free` | openrouter | **0.0** | key | 52.6 | 25,000 | DECLARED | unknown |
+| 23 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** | key | 49.3 | 25,000 | DECLARED | unknown |
 
 ## 2. By quality alone (official benchmark scores)
 
 | Model | Provider | Coding | Intelligence | Agentic | Arena ELO | Scored as |
 |---|---|---|---|---|---|---|
-| `gemini-3.8-flash` | google | **76.3** | 47.1 | 41.2 | 1321 | `google/gemini-3.8-flash:batch` |
 | `gemini-3.8-flash-free` | aihubmix | **76.3** | 47.1 | 41.2 | 1321 | `google/gemini-3.8-flash:batch` |
+| `gemini-3.8-flash` | google | **76.3** | 47.1 | 41.2 | 1321 | `google/gemini-3.8-flash:batch` |
 | `coding-kimi-k3-free` | aihubmix | **76.2** | 50.2 | 50.9 | 1393 | `moonshotai/kimi-k3:batch` |
 | `moonshotai/kimi-k3` | nvidia | **76.2** | 50.2 | 50.9 | 1393 | `moonshotai/kimi-k3:batch` |
 | `coding-glm-5.3-free` | aihubmix | **74.8** | 48.6 | 53.6 | ? | `z-ai/glm-5.3` |
@@ -42,8 +51,8 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 | `Qwen3.8-27B` | ovhcloud | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `deepseek-v4-pro:free` | unorouter | **59.4** | ? | 27.9 | 1258 | `deepseek/deepseek-v4-pro` |
 | `minimax/minimax-m3:free` | xkiro | **58.6** | 35.7 | 31 | 1267 | `minimax/minimax-m3:batch` |
-| `minimax/minimax-m3:free` | openrouter | **58.6** | 35.7 | 31 | 1267 | `minimax/minimax-m3:batch` |
 | `coding-minimax-m3-free` | aihubmix | **58.6** | 35.7 | 31 | 1267 | `minimax/minimax-m3:batch` |
+| `minimax/minimax-m3:free` | openrouter | **58.6** | 35.7 | 31 | 1267 | `minimax/minimax-m3:batch` |
 | `mimo-v2-5:free` | kenari | **56.8** | ? | ? | 1277 | `xiaomi/mimo-v2.5` |
 | `deepseek-v4-flash` | inferx | **56.2** | ? | 23.8 | 1222 | `deepseek/deepseek-v4-flash` |
 | `deepseek-v4-flash:free` | unorouter | **56.2** | ? | 23.8 | 1222 | `deepseek/deepseek-v4-flash` |
@@ -52,8 +61,8 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 | `minimax/minimax-m2.7:free` | xkiro | **52.6** | ? | ? | 1251 | `minimax/minimax-m2.7:free` |
 | `minimax/minimax-m2.7:free` | openrouter | **52.6** | ? | ? | 1251 | `minimax/minimax-m2.7:free` |
 | `gemini-3.5-flash-lite` | google | **49.3** | 27.6 | 16.1 | ? | `google/gemini-3.5-flash-lite:batch` |
-| `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **49.3** | ? | 21.7 | 1153 | `nvidia/nemotron-3-ultra-550b-a55b:free` |
 | `nemotron-3-ultra-550b-a55b:free` | kenari | **49.3** | ? | 21.7 | 1153 | `nvidia/nemotron-3-ultra-550b-a55b:free` |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **49.3** | ? | 21.7 | 1153 | `nvidia/nemotron-3-ultra-550b-a55b:free` |
 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | **49.3** | ? | 21.7 | 1153 | `nvidia/nemotron-3-ultra-550b-a55b:free` |
 | `Qwen3.5-397B-A17B` | ovhcloud | **48.2** | ? | 10.6 | 1196 | `qwen/qwen3.5-397b-a17b` |
 | `mistral-medium-3-5:free` | kenari | **46.9** | ? | 9.4 | ? | `mistralai/mistral-medium-3-5:batch` |
@@ -96,7 +105,16 @@ Tokens, not requests: whichever of the two limits binds first, converted at 500 
 | `qwen/qwen3.6-27b` | groq | **200,000** | 1,000 | PAID-PLAN | 139.8 |
 | `openai/gpt-oss-120b` | groq | **200,000** | 1,000 | PAID-PLAN | 79.1 |
 | `openai/gpt-oss-20b` | groq | **200,000** | 1,000 | PAID-PLAN | 53.9 |
+| `gemini-3.8-flash-free` | aihubmix | **50,000** | 100 | DECLARED | 152.9 |
+| `coding-kimi-k3-free` | aihubmix | **50,000** | 100 | DECLARED | 152.7 |
+| `coding-glm-5.3-free` | aihubmix | **50,000** | 100 | DECLARED | 149.9 |
+| `coding-minimax-m3-free` | aihubmix | **50,000** | 100 | DECLARED | 117.5 |
+| `gemma-4-26b-a4b-it-free` | aihubmix | **50,000** | 100 | DECLARED | 78.8 |
 | `minimax/minimax-m3:free` | openrouter | **25,000** | 50 | DECLARED | 100.1 |
+| `mimo-v2-5:free` | kenari | **25,000** | 50 | DECLARED | 97.0 |
+| `nemotron-3-ultra-550b-a55b:free` | kenari | **25,000** | 50 | DECLARED | 84.2 |
+| `mistral-medium-3-5:free` | kenari | **25,000** | 50 | DECLARED | 80.1 |
+| `nemotron-3-super-120b-a12b:free` | kenari | **25,000** | 50 | DECLARED | 64.4 |
 | `minimax/minimax-m2.7:free` | openrouter | **25,000** | 50 | DECLARED | 0.0 |
 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **25,000** | 50 | DECLARED | 0.0 |
 | `gemini-3.8-flash` | google | **10,000** | 20 | DECLARED | 0.0 |
@@ -184,11 +202,6 @@ A row needs both halves to be ranked: an official score AND a known quota. Half 
 
 | Model | Provider | Missing |
 |---|---|---|
-| `gemini-3.8-flash-free` | aihubmix | daily volume unknown - see LIMITS.md |
-| `coding-glm-5.3-free` | aihubmix | daily volume unknown - see LIMITS.md |
-| `coding-kimi-k3-free` | aihubmix | daily volume unknown - see LIMITS.md |
-| `coding-minimax-m3-free` | aihubmix | daily volume unknown - see LIMITS.md |
-| `gemma-4-26b-a4b-it-free` | aihubmix | daily volume unknown - see LIMITS.md |
 | `@cf/openai/gpt-oss-120b` | cloudflare | daily volume unknown - see LIMITS.md |
 | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | daily volume unknown - see LIMITS.md |
 | `@cf/google/gemma-4-26b-a4b-it` | cloudflare | daily volume unknown - see LIMITS.md |
@@ -200,10 +213,6 @@ A row needs both halves to be ranked: an official score AND a known quota. Half 
 | `Qwen3-Coder-Next-FP8` | inferx | daily volume unknown - see LIMITS.md |
 | `Qwen3.6-35B-A3B-FP8` | inferx | daily volume unknown - see LIMITS.md |
 | `deepseek-v4-flash` | inferx | daily volume unknown - see LIMITS.md |
-| `nemotron-3-ultra-550b-a55b:free` | kenari | daily volume unknown - see LIMITS.md |
-| `nemotron-3-super-120b-a12b:free` | kenari | daily volume unknown - see LIMITS.md |
-| `mimo-v2-5:free` | kenari | daily volume unknown - see LIMITS.md |
-| `mistral-medium-3-5:free` | kenari | daily volume unknown - see LIMITS.md |
 | `mistral-small-2603` | mistral | daily volume unknown - see LIMITS.md |
 | `nvidia/nemotron-3-super-120b-a12b` | nvidia | daily volume unknown - see LIMITS.md |
 | `nvidia/nemotron-3-ultra-550b-a55b` | nvidia | daily volume unknown - see LIMITS.md |

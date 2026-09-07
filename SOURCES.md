@@ -71,7 +71,14 @@ exactly as a reader would:
 | `inference.api.nscale.com` | no key | `401 Unauthorized` |
 | `api.aionlabs.ai` | no key | `401 credentials were not provided` |
 
-Six for six. This is not a criticism of the people who wrote those lists — free endpoints close
+Six for six.
+
+And it is not only the keyless rows. A directory with 2,700 stars, updated on 2026-09-06, still lists
+**GitHub Models** as available with no registration required. GitHub retired it on 30 July 2026 — their
+own changelog says *"the playground, model catalog, inference API, and bring your own key (BYOK) are no
+longer available to any customer"* — and the endpoint answers `410 github_models_retirement_brownout`
+today. Five weeks dead, still on the list, updated yesterday. Both that and Meta's retired Llama API
+are in [GRAVEYARD.md](GRAVEYARD.md) with the announcement and what the endpoint returns now. This is not a criticism of the people who wrote those lists — free endpoints close
 quietly and a list nobody re-runs decays within weeks. It is the reason every row here carries the day
 it was called, and the reason the two keyless endpoints we do publish were called without a key before
 they were listed.

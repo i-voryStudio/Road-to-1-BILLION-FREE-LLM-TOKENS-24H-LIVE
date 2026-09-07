@@ -63,6 +63,8 @@ def main():
     ap.add_argument("--today", required=True)
     ap.add_argument("--history", default="data/uptime.jsonl")
     ap.add_argument("--out", default="GRAVEYARD.md")
+    ap.add_argument("--announced", default="bench/announced_deaths.json",
+                    help="providers that published their own retirement notice")
     a = ap.parse_args()
 
     try:
@@ -181,6 +183,29 @@ def main():
           "that is our gap and it does not count against a provider. An `empty` 200 does not count "
           "as down either - the endpoint answered, even if a reasoning switch was missing.", ""]
     Path(a.out).write_text("\n".join(L) + "\n", encoding="utf-8", newline="\n")
+
+    # Deaths that were ANNOUNCED, not measured. A provider that publishes its own retirement
+    # notice is dead the day it says so; waiting fourteen days of silence to notice would be
+    # theatre. Kept in data, with the operator's own sentence, so the page cannot drift from its
+    # evidence.
+    ann_path = Path(a.announced)
+    if ann_path.exists():
+        try:
+            ann = json.loads(ann_path.read_text(encoding="utf-8")).get("providers") or []
+        except ValueError:
+            ann = []
+        if ann:
+            A = ["", "---", "", "## Announced deaths", "",
+                 "These did not fade out - the operator published a retirement notice. Each is "
+                 "still listed as working by at least one directory updated after that notice, "
+                 "which is the whole argument for re-testing rather than reprinting.", ""]
+            for d in ann:
+                A += ["### %s, retired %s" % (d["provider"], d["died_on"]), "",
+                      "> %s" % d["quote"], "",
+                      "Source: %s (read %s)." % (d["source"], d["read_on"]), "",
+                      "Today: %s" % d["endpoint_today"], ""]
+            Path(a.out).write_text(chr(10).join(L + A) + chr(10),
+                                   encoding="utf-8", newline=chr(10))
 
     print("history: %d day(s), %d endpoints" % (span, len(seen)))
     print("  healthy %d | flaky %d | degraded %d | buried %d"

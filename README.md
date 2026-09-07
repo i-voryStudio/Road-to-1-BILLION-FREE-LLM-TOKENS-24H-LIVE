@@ -1,11 +1,11 @@
 # ROAD TO 1 BILLION FREE LLM TOKENS/DAY
 
 <!--ROAD-->
-`████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **20%**
+`████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **~20%**
 
-**140,850 tokens a minute**, and this is what 14 providers actually handed us on 2026-09-07, not what they advertise: real requests, in parallel, counted from the response. One billion a day is 694,444 a minute.
+**Roughly 140,850 tokens a minute** — what 14 providers actually handed us on 2026-09-07, from real requests rather than from their pricing pages. One billion a day works out to 694,444 a minute.
 
-*It is a floor. The test stops after 25,000 tokens or half a minute, whichever comes first, because it is spending somebody's free quota to find out. The ceilings these providers publish add up to 9,140,000 a minute - 13 times the target rate - and turning that headroom into delivered tokens is the whole job.*
+*An order of magnitude, not a promise.* Free tiers move, throttle without warning and close; one provider here dropped forty-five-fold between two readings taken minutes apart. Nothing on this page is guaranteed to you by anyone, us included. What the number is good for is comparing providers and seeing the direction of travel. The ceilings they publish add up to 9,140,000 a minute, 13 times the target rate, so the room is there - reaching it is the work.
 <!--/ROAD-->
 
 A live, measured list of every free LLM API we can find, ranked by what you can actually get done with
@@ -16,7 +16,7 @@ it. Every figure carries how we know it, and the ones nobody publishes say so.
 <!--HEADLINE-->
 | | |
 |---|---|
-| **Tokens per minute we actually received** | **140,850** |
+| **Tokens per minute, roughly** | **~140,850** |
 | The rate 1,000,000,000 a day would need | 694,444 |
 | **Share of it, measured** | **20%** |
 | Providers that delivered anything | **14 of 18** |
@@ -47,14 +47,11 @@ provider's own rate limit stopped it, the number reported is the whole minute's 
 a rate scaled up from two seconds. A `0` means we got nothing: an empty pot, a blocked IP, or no
 capacity behind the endpoint that day, and the row says which.
 
-**0b. And does that rate hold?** This is the question every list like this dodges, so here is the
-measurement. On 2026-09-07 one provider delivered **66,197 tokens a minute** on the first burst and
-**1,446** on the second, taken minutes later, with no `429` in between to warn us — a forty-fivefold
-drop, silently. Two others held their rate almost exactly across the same gap. So a first-burst figure
-is what a benchmark gets, and it is not what a working day gets. The column shows the **latest**
-reading, and where an earlier one was much higher it says so in brackets. Which is also why this list
-publishes no daily total assembled by multiplication: minutes are not interchangeable, and the only
-honest way to know a day is to measure across one.
+**0b. Does the rate hold?** Sometimes, and sometimes not at all. On 2026-09-07 one provider gave
+66,197 tokens a minute on the first burst and 1,446 on the second, minutes later, with no `429` in
+between; two others held their rate almost exactly. So the column shows the **latest** reading, and
+where an earlier one was much higher it says so in brackets. Treat every figure here as an order of
+magnitude for comparing providers, not as an allowance anyone owes you.
 
 **1. Per minute, or per day?** These are different shelves and adding them is the commonest mistake in
 this field. A per-minute ceiling says how fast you may go; a daily cap says how much you get before

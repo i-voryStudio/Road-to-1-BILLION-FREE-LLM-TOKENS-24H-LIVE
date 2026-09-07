@@ -582,15 +582,17 @@ def main():
         pct = 100.0 * measured_min / target_min if target_min else 0
         filled = int(round(min(pct, 100.0) / 100.0 * 40))
         bar = "█" * max(0, min(40, filled)) + "░" * max(0, 40 - filled)
-        R = ["`%s`  **%.0f%%**" % (bar, pct), "",
-             "**%s tokens a minute**, and this is what %d providers actually handed us on %s, not what "
-             "they advertise: real requests, in parallel, counted from the response. One billion a day "
-             "is %s a minute."
+        R = ["`%s`  **~%.0f%%**" % (bar, pct), "",
+             "**Roughly %s tokens a minute** — what %d providers actually handed us on %s, from real "
+             "requests rather than from their pricing pages. One billion a day works out to %s a "
+             "minute."
              % (num(measured_min), len(measured_who), a.date, num(int(target_min))), "",
-             "*It is a floor. The test stops after 25,000 tokens or half a minute, whichever comes "
-             "first, because it is spending somebody's free quota to find out. The ceilings these "
-             "providers publish add up to %s a minute - %s times the target rate - and turning that "
-             "headroom into delivered tokens is the whole job.*"
+             "*An order of magnitude, not a promise.* Free tiers move, throttle without warning and "
+             "close; one provider here dropped forty-five-fold between two readings taken minutes "
+             "apart. Nothing on this page is guaranteed to you by anyone, us included. What the "
+             "number is good for is comparing providers and seeing the direction of travel. The "
+             "ceilings they publish add up to %s a minute, %s times the target rate, so the room is "
+             "there - reaching it is the work."
              % (num(ceiling_min), "%.0f" % (ceiling_min / target_min) if target_min else "?")]
         text = readme.read_text(encoding="utf-8")
         blk = "<!--ROAD-->" + chr(10) + chr(10).join(R) + chr(10) + "<!--/ROAD-->"
@@ -605,7 +607,7 @@ def main():
         TARGET_PER_MIN = TARGET / 1440.0
         pct_meas = 100.0 * measured_min / TARGET_PER_MIN if TARGET_PER_MIN else 0
         H = ["| | |", "|---|---|",
-             "| **Tokens per minute we actually received** | **%s** |" % num(measured_min),
+             "| **Tokens per minute, roughly** | **~%s** |" % num(measured_min),
              "| The rate 1,000,000,000 a day would need | %s |" % num(int(TARGET_PER_MIN)),
              "| **Share of it, measured** | **%.0f%%** |" % pct_meas,
              "| Providers that delivered anything | **%d of %d** |" % (len(measured_who), n_providers),

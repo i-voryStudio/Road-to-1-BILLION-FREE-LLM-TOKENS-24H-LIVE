@@ -3,9 +3,15 @@
  "target_tokens_per_day": 1000000000,
  "quality_floor_coding_index": 45.0,
  "target_date": "2026-11-07",
- "defensible_tokens_per_day": 12218019,
- "share_of_target_pct": 1.22,
- "multiple_still_needed": 81.8,
+ "defensible_tokens_per_day": 11931224,
+ "share_of_target_pct": 1.19,
+ "multiple_still_needed": 83.8,
+ "summable_labels": [
+  "MEASURED",
+  "DECLARED",
+  "DERIVED",
+  "DRAWN"
+ ],
  "daily_shelf": {
   "measured": {
    "tokens_per_day": 6000000,
@@ -18,27 +24,33 @@
   "declared": {
    "tokens_per_day": 0,
    "providers": [],
-   "how": "a daily figure published by the provider in tokens"
+   "how": "a daily figure published by the provider in tokens; aihubmix publishes 1,000,000 a day, but 100 requests bind first, so those figures are counted under DERIVED"
   },
   "derived": {
-   "tokens_per_day": 636795,
+   "tokens_per_day": 350000,
    "providers": [
     "aihubmix",
-    "cloudflare",
     "google",
     "kenari",
     "openrouter"
    ],
-   "how": "a published request cap x 500 tokens a reply, or a published unit price divided into a published allowance; the arithmetic is in each row's volume_evidence"
+   "how": "a published request cap x 500 tokens a reply, or this model's published unit price divided into a published allowance; the arithmetic is in each row's volume_evidence"
   },
   "drawn": {
    "tokens_per_day": 5581224,
    "providers": [
     "hetzner"
    ],
-   "how": "tokens_per_hour_drawn x 24 from data/drawn.jsonl: extrapolated from a 60-minute draw, used only where nothing above exists"
+   "how": "tokens_per_hour_drawn x 24 from data/drawn.jsonl: extrapolated from a 60-minute draw at the published pace, a floor at our pace and not the provider's ceiling, used only where nothing above exists"
   }
  },
+ "published_token_figure_bound_by_requests": [
+  {
+   "provider": "aihubmix",
+   "tokens_per_day_published": 1000000,
+   "requests_per_day": 100
+  }
+ ],
  "per_provider": {
   "aihubmix": {
    "daily_tokens": 50000,
@@ -52,23 +64,19 @@
    "model": "qwen-3.8-27b",
    "evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the response headers of a free-trial key reported between 2026-09-02 and 2026-09-07. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. 1,000,000 tokens/day is the provider's own token figure (MEASURED). Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Applies per ACCOUNT."
   },
-  "cloudflare": {
-   "daily_tokens": 286795,
-   "confidence": "DERIVED",
-   "model": "@cf/qwen/qwen3.8-27b",
-   "evidence": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Where the tracked model's own Neuron price is in `neuron_cost_examples`, rank.py derives that model's figure from it instead; llama-3.3-70b costs six times more per output token than the 8b model. Seven models are excluded from the free tier entirely and need a paid billing method. 10,000 Neurons/day / 34,868 Neurons per 1M output tokens, @cf/meta/llama-3.1-8b-instruct-fp8-fast. This model's own unit price is not on file, so the figure is the provider-level one and this model's real allowance may be lower. Binding limit: Neurons per day, at 10,000. On a small text model that is roughly a quarter of a million output tokens; on a large one, far fewer. Applies per ACCOUNT."
-  },
   "google": {
    "daily_tokens": 250000,
    "confidence": "DERIVED",
    "model": "gemini-3.5-flash-lite",
-   "evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen on 2026-09-06. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. 500 requests/day (DECLARED) x 500 tokens a reply = 250,000 tokens/day. The request cap is the provider's figure; the token figure is arithmetic done here, so it is DERIVED, not DECLARED. Binding limit: Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload. Applies per PROJECT."
+   "evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen on 2026-09-06. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. 500 requests/day (DECLARED) x 500 tokens a reply = 250,000 tokens/day. The request cap is the provider's figure; the token figure is arithmetic done here, so it is DERIVED, not DECLARED. Binding limit: Requests per DAY on the Flash models: 500 a day on 3.5 Flash-Lite, and no daily figure has been read for 3.8 Flash. Applies per PROJECT."
   },
   "hetzner": {
    "daily_tokens": 5581224,
    "confidence": "DRAWN",
    "model": "Qwen3.8-27B",
-   "evidence": "232,551 tokens drawn per hour x 24: extrapolated from a 60-minute draw on 2026-09-07"
+   "pace_rpm": 10,
+   "requests_ok": 333,
+   "evidence": "232,551 tokens drawn per hour x 24: extrapolated from a 60-minute draw on 2026-09-07; drawn at our pace of 10 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling. The same day's 30-second burst received nothing: five failures in a row: no response: timeout or connection failure."
   },
   "kenari": {
    "daily_tokens": 25000,
@@ -95,9 +103,10 @@
  },
  "providers_tracked": 18,
  "endpoints_tracked": 63,
- "endpoints_ranked": 16,
+ "endpoints_ranked": 14,
  "providers_with_no_daily_figure": [
   "alibaba",
+  "cloudflare",
   "groq",
   "inferx",
   "mistral",
@@ -108,6 +117,24 @@
   "uncloseai",
   "unorouter"
  ],
+ "distance": {
+  "gap_tokens_per_day": 988068776,
+  "providers_with_a_daily_figure": 7,
+  "median_daily_figure": 250000,
+  "providers_at_median_to_close_gap": 3953,
+  "ceilings_at_or_above_target_rate": [
+   "alibaba (5,000,000 in+out a minute) drew 699,585 tokens an hour at 30 requests a minute x 700 tokens a call, against a one-time grant, so nothing of it is on the shelf",
+   "hetzner (4,000,000 in / 100,000 out a minute) drew 232,551 tokens an hour at 10 requests a minute x 700 tokens a call, and the same day's 30-second burst received nothing: five failures in a row: no response: timeout or connection failure"
+  ],
+  "meter": {
+   "minutes": 60,
+   "max_pace_rpm": 120,
+   "max_tokens_per_call": 700,
+   "token_cap_per_run": 250000,
+   "max_registrable_tokens_per_hour": 5040000,
+   "max_registrable_tokens_per_day": 120960000
+  }
+ },
  "burst": {
   "what": "30-second burst, per provider, latest reading; bench/throughput.py; a rate, never a day",
   "tokens_per_minute_added_up": 140850,
@@ -148,7 +175,8 @@
     "seconds": 18.0,
     "first_error": "HTTP 429: rate limited",
     "stopped_because": "rate limit reached",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "rate limit reached"
    },
    {
     "provider": "alibaba",
@@ -162,7 +190,8 @@
     "seconds": 30.8,
     "first_error": null,
     "stopped_because": "token budget spent",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "token budget spent"
    },
    {
     "provider": "cerebras",
@@ -176,7 +205,8 @@
     "seconds": 0.8,
     "first_error": null,
     "stopped_because": "rate limit reached",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "rate limit reached"
    },
    {
     "provider": "cloudflare",
@@ -190,7 +220,8 @@
     "seconds": 38.6,
     "first_error": null,
     "stopped_because": "window ended",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "window ended"
    },
    {
     "provider": "inferx",
@@ -204,7 +235,8 @@
     "seconds": 30.5,
     "first_error": null,
     "stopped_because": "window ended",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "window ended"
    },
    {
     "provider": "kenari",
@@ -218,7 +250,8 @@
     "seconds": 30.3,
     "first_error": "HTTP 429: rate limited",
     "stopped_because": "rate limit reached",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "rate limit reached"
    },
    {
     "provider": "nvidia",
@@ -232,7 +265,8 @@
     "seconds": 34.5,
     "first_error": "HTTP 429: rate limited",
     "stopped_because": "rate limit reached",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "rate limit reached"
    },
    {
     "provider": "ollama",
@@ -246,7 +280,8 @@
     "seconds": 10.8,
     "first_error": "HTTP 429: rate limited",
     "stopped_because": "rate limit reached",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "rate limit reached"
    },
    {
     "provider": "openrouter",
@@ -260,7 +295,8 @@
     "seconds": 61.1,
     "first_error": null,
     "stopped_because": "window ended",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "window ended"
    },
    {
     "provider": "uncloseai",
@@ -274,7 +310,8 @@
     "seconds": 32.3,
     "first_error": "HTTP 429: rate limited",
     "stopped_because": "rate limit reached",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "rate limit reached"
    },
    {
     "provider": "xkiro",
@@ -288,7 +325,8 @@
     "seconds": 29.0,
     "first_error": "HTTP 409: the endpoint reported a conflict",
     "stopped_because": "window ended",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "window ended"
    },
    {
     "provider": "hetzner",
@@ -302,7 +340,8 @@
     "seconds": 60.3,
     "first_error": "no response: timeout or connection failure",
     "stopped_because": "five failures in a row: no response: timeout or connection failure",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "five failures in a row: no response: timeout or connection failure"
    },
    {
     "provider": "mistral",
@@ -316,7 +355,8 @@
     "seconds": 0.5,
     "first_error": "HTTP 429: rate limited",
     "stopped_because": "rate limit reached",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "rate limit reached"
    },
    {
     "provider": "ovhcloud",
@@ -330,7 +370,8 @@
     "seconds": 0.8,
     "first_error": "HTTP 429: rate limited",
     "stopped_because": "rate limit reached",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "rate limit reached"
    },
    {
     "provider": "groq",
@@ -344,7 +385,8 @@
     "seconds": 2.3,
     "first_error": "HTTP 403: the endpoint refused the caller",
     "stopped_because": "five failures in a row: HTTP 403: the endpoint refused the caller",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "five failures in a row: HTTP 403: the endpoint refused the caller"
    },
    {
     "provider": "siliconflow",
@@ -358,7 +400,8 @@
     "seconds": 2.5,
     "first_error": "HTTP 402: the endpoint stops serving until a top-up",
     "stopped_because": "five failures in a row: HTTP 402: the endpoint stops serving until a top-up",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "five failures in a row: HTTP 402: the endpoint stops serving until a top-up"
    },
    {
     "provider": "unorouter",
@@ -372,7 +415,8 @@
     "seconds": 9.8,
     "first_error": "HTTP 503: no capacity behind the endpoint",
     "stopped_because": "five failures in a row: HTTP 503: no capacity behind the endpoint",
-    "date": "2026-09-07"
+    "date": "2026-09-07",
+    "why": "five failures in a row: HTTP 503: no capacity behind the endpoint"
    }
   ]
  },
@@ -408,7 +452,7 @@
     "tokens_per_minute_combined": 5000000,
     "tokens_per_minute_input": null,
     "tokens_per_minute_output": null,
-    "per_model_largest_shown": false,
+    "per_model_largest_shown": true,
     "confidence": "DECLARED"
    },
    {
@@ -590,9 +634,12 @@
    "tokens_per_hour_drawn": 699585,
    "tokens_per_day_extrapolated": 16790040,
    "minutes": 21.51,
+   "pace_rpm": 30,
+   "requests_ok": 624,
    "stopped_because": "token cap reached",
+   "caveat": "drawn at our pace of 30 requests a minute x 700 tokens a call for 22 minutes: a floor at that pace, not their ceiling",
    "counted": false,
-   "note": "not counted: the only free capacity here is a one-time grant of 4,000,000 tokens, and at the drawn rate it lasts about 6 hours; a grant is not a day"
+   "note": "not counted: the only free capacity here is a one-time grant of 1,000,000 tokens for this model, and at the drawn rate it lasts about 1.4 hours; a grant is not a day"
   },
   {
    "provider": "hetzner",
@@ -601,9 +648,12 @@
    "tokens_per_hour_drawn": 232551,
    "tokens_per_day_extrapolated": 5581224,
    "minutes": 60.14,
+   "pace_rpm": 10,
+   "requests_ok": 333,
    "stopped_because": "window ended",
+   "caveat": "drawn at our pace of 10 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling",
    "counted": true,
-   "note": "extrapolated from a 60-minute draw"
+   "note": "extrapolated from a 60-minute draw; drawn at our pace of 10 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling"
   },
   {
    "provider": "kenari",
@@ -612,7 +662,10 @@
    "tokens_per_hour_drawn": 29236,
    "tokens_per_day_extrapolated": 701664,
    "minutes": 28.7,
+   "pace_rpm": 5,
+   "requests_ok": 26,
    "stopped_because": "HTTP 429: rate limited",
+   "caveat": "drawn at our pace of 5 requests a minute x 700 tokens a call for 29 minutes: a floor at that pace, not their ceiling",
    "counted": false,
    "note": "not on the shelf: a DERIVED daily figure already exists"
   }
@@ -621,5 +674,5 @@
   "alive": 30,
   "tested": 37
  },
- "note": "defensible_tokens_per_day = MEASURED + DECLARED + DERIVED + DRAWN, largest figure per provider, and it is the only number the bar and the distance use. PAID-PLAN is shown and never counted. Bursts and ceilings are per minute and are never multiplied out to a day. Money is never converted into tokens."
+ "note": "defensible_tokens_per_day = MEASURED + DECLARED + DERIVED + DRAWN, largest figure per provider, and it is the only number the bar and the distance use. PAID-PLAN and UNKNOWN are shown and never counted. Bursts and ceilings are per minute and are never multiplied out to a day. Money is never converted into tokens."
 }

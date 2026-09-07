@@ -1,11 +1,13 @@
 {
  "_comment": [
-  "Providers that published their own retirement notice. A measured death takes fourteen days of",
-  "silence to confirm; an announced one takes a sentence from the operator, and waiting two weeks",
-  "to record it would be theatre.",
+  "Providers with a published retirement notice. A measured death takes fourteen days of silence to",
+  "confirm; an announced one takes a sentence from a notice, and waiting two weeks to record it would",
+  "be theatre.",
   "",
-  "Every entry carries the operator's exact words, the URL, the date we read it, and what the",
-  "endpoint answers today - so a reader can check the death the same way they can check a quota."
+  "Every entry carries the notice's exact words, the URL, the date we read it, who wrote the notice",
+  "(`notice_from`: operator, or third party when the sentence is a report about the operator and not",
+  "the operator's own), and what the endpoint answers today - so a reader can check the death the same",
+  "way they can check a quota, and can see whose word it is."
  ],
  "providers": [
   {
@@ -13,6 +15,7 @@
    "died_on": "2026-07-30",
    "quote": "As of July 30, 2026, GitHub Models is now retired. The playground, model catalog, inference API, and bring your own key (BYOK) are no longer available to any customer, including existing customers with active usage.",
    "source": "https://github.blog/changelog/2026-07-30-github-models-is-now-retired/",
+   "notice_from": "operator",
    "read_on": "2026-09-07",
    "endpoint_today": "HTTP 410 github_models_retirement_brownout on models.github.ai/inference/chat/completions, measured 2026-09-07"
   },
@@ -21,6 +24,7 @@
    "died_on": "2026-07-06",
    "quote": "Meta shut down its hosted Llama API Public Preview on July 6, 2026.",
    "source": "https://rushcommerce.dev/blog/meta-retires-llama-api-open-weights-portability",
+   "notice_from": "third party",
    "read_on": "2026-09-07",
    "endpoint_today": "HTTP 401 Authentication Error on api.llama.com/v1 and /compat/v1, for a freshly issued key, measured 2026-09-07"
   }

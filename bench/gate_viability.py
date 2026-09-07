@@ -67,7 +67,7 @@ def main():
     ap.add_argument("--history", default="data/uptime.jsonl")
     ap.add_argument("--out", default="GRAVEYARD.md")
     ap.add_argument("--announced", default="bench/announced_deaths.json",
-                    help="providers that published their own retirement notice")
+                    help="providers with a published retirement notice, from the operator or from a third party")
     a = ap.parse_args()
 
     try:
@@ -160,7 +160,7 @@ def main():
          "its history intact." % BURY_AT, "",
          "Free endpoints die in months, not years, and usually without an announcement. A list that "
          "never removes anything is a list of things that used to work.", "",
-         "History so far: **%d day(s)** of measurements, %d endpoints tracked."
+         "History so far: **%d day(s)** of measurements, %d endpoints probed by the radar."
          % (span, len(seen)), ""]
     if buried:
         L += ["| Model | Provider | Died | Last answered | Days down |", "|---|---|---|---|---|"]
@@ -187,10 +187,10 @@ def main():
           "as down either - the endpoint answered, even if a reasoning switch was missing.", ""]
     Path(a.out).write_text("\n".join(L) + "\n", encoding="utf-8", newline="\n")
 
-    # Deaths that were ANNOUNCED, not measured. A provider that publishes its own retirement
-    # notice is dead the day it says so; waiting fourteen days of silence to notice would be
-    # theatre. Kept in data, with the operator's own sentence, so the page cannot drift from its
-    # evidence.
+    # Deaths that were ANNOUNCED, not measured. A provider whose retirement is published is dead
+    # the day the notice says so; waiting fourteen days of silence to notice would be theatre. Kept
+    # in data, with the notice's own sentence and who wrote it, so the page cannot drift from its
+    # evidence and a third party's report is never printed as the operator's word.
     ann_path = Path(a.announced)
     if ann_path.exists():
         try:
@@ -199,12 +199,19 @@ def main():
             ann = []
         if ann:
             A = ["", "---", "", "## Announced deaths", "",
-                 "These did not fade out - the operator published a retirement notice. Each is "
-                 "still listed as working by at least one directory updated after that notice, "
-                 "which is the whole argument for re-testing rather than reprinting.", ""]
+                 "These did not fade out: a retirement notice exists for each, and each entry says who "
+                 "wrote it, the operator or a third party reporting on the operator. Each is still "
+                 "listed as working by at least one directory updated after that notice, which is the "
+                 "whole argument for re-testing rather than reprinting.", ""]
             for d in ann:
+                who = d.get("notice_from")
                 A += ["### %s, retired %s" % (d["provider"], d["died_on"]), "",
                       "> %s" % d["quote"], "",
+                      "Notice from: %s." % ("the operator, in its own words" if who == "operator" else
+                                            "a third party, not the operator; the sentence above is that "
+                                            "report's, and the retirement is confirmed here only by what the "
+                                            "endpoint answers today" if who == "third party" else
+                                            "not recorded"), "",
                       "Source: %s (read %s)." % (d["source"], d["read_on"]), "",
                       "Today: %s" % d["endpoint_today"], ""]
             Path(a.out).write_text(chr(10).join(L + A) + chr(10),

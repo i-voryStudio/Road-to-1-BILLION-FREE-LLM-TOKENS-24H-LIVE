@@ -1,23 +1,34 @@
 #!/usr/bin/env python3
-"""The page generator, run against a fixture and compared with what it must produce. Exit 0 clean, 1 not.
+"""The page generator, tested two ways. Exit 0 clean, 1 not.
 
     python bench/test_rank.py             # check
     python bench/test_rank.py --record    # rewrite the golden blocks from the current output (review the diff!)
 
 `bench/rank.py` writes every number on every public page. Until this file existed it had no test, so a
 label could change meaning - DECLARED printed on a figure nobody declared, a paid plan's number ranked at
-#3, a 0% answered rate printed as "?" - and nothing but a reader would notice. Now:
+#3, a 0% answered rate printed as "?" - and nothing but a reader would notice. Then it had a fixture, and
+the fixture was not enough either: a provider-specific multiplier planted in rank.py changed the real
+headline five-fold while the fixture, the claims gate and the regeneration check all stayed green, because
+the fixture has no such provider and the regeneration check compares the generator with itself. So now:
 
-  1. A fixture of five invented providers under bench/tests/fixture/ walks every label path: MEASURED,
-     DECLARED, DERIVED (from a request cap and from a unit price), PAID-PLAN, UNKNOWN, DRAWN; a keyless
-     provider; a degraded endpoint; a 0%-answered endpoint; a 0-rate burst row; a no-rate burst row; a
-     burst row from the older script with no `first_error`; a buried endpoint; a sign-up link on a
-     lookalike domain that must fall back to the API host.
-  2. data/ranking.json fields are asserted one by one.
-  3. The ROAD, HEADLINE and CAPACITY blocks are compared BYTE FOR BYTE with golden files.
-  4. One row's value is recomputed by hand from the numbers in the published formula string.
-  5. rank.py is run twice and every output must be identical: a generator that is not idempotent would
-     make the daily job commit noise.
+  PART ONE, THE FIXTURE (bench/tests/fixture/): five invented providers walk every label path: MEASURED,
+  DECLARED, DERIVED from a request cap, DERIVED from the model's own unit price, a model whose unit price
+  is not on file (UNKNOWN, unranked, with the reason), PAID-PLAN, DRAWN; a keyless provider whose door is
+  its documentation page; a degraded endpoint; a 0%-answered endpoint; a 0-rate burst row; a no-rate burst
+  row; a burst row from the older script with no `first_error`; a buried endpoint; a sign-up link on a
+  lookalike domain that must fall back to the API host. data/ranking.json fields are asserted one by one,
+  one row's value is recomputed by hand from the numbers in the published formula string, the ROAD,
+  HEADLINE and CAPACITY blocks are compared BYTE FOR BYTE with golden files, and rank.py is run twice with
+  every output identical, because a generator that is not idempotent makes the daily job commit noise.
+
+  PART TWO, THE ORACLE, on the COMMITTED data and pages of this repo, not on the fixture: every ranked
+  row's value recomputes from its own fields with the published formula; every per-provider daily figure
+  in data/capacity.json equals a reference recomputation from bench/limits.json written HERE, not a call
+  into rank.py; the defensible sum is the sum of the per-provider figures whose label may be summed; no
+  PAID-PLAN or UNKNOWN row is ranked; no ranked row sits under the quality floor; the DRAWN shelf holds
+  no one-time-grant provider and no unscored model. A multiplier for one provider anywhere in rank.py
+  fails this part, whatever the fixture says, because the numbers on the page are recomputed from the
+  data by code that is not rank.py.
 
 No network, no keys, standard library only.
 """
@@ -28,28 +39,18 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")   # the golden blocks carry the bar glyphs
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
 FIX = HERE / "tests" / "fixture"
 GOLD = FIX / "golden"
 RANK = HERE / "rank.py"
+sys.path.insert(0, str(HERE))
+import rank   # noqa: E402  the constants under test; the pages are produced by running rank.py as a process
 
-README_TEMPLATE = "\n".join([
-    "# fixture README", "",
-    "<!--TOP5-->", "<!--/TOP5-->", "",
-    "<!--FORMULA-->", "<!--/FORMULA-->", "",
-    "<!--LABELS-->", "<!--/LABELS-->", "",
-    "<!--EXAMPLE-->", "<!--/EXAMPLE-->", "",
-    "<!--ROAD-->", "<!--/ROAD-->", "",
-    "<!--HEADLINE-->", "<!--/HEADLINE-->", "",
-    "<!--RANKING-->", "<!--/RANKING-->", "",
-    "<!--COUNTS-->", "<!--/COUNTS-->", "",
-    "<!--CAPACITY-->", "<!--/CAPACITY-->", "",
-    "<!--RELIABILITY-->", "<!--/RELIABILITY-->", "",
-    "<!--TRAP-->", "<!--/TRAP-->", "",
-    "<!--KEYLESS-->", "<!--/KEYLESS-->", "",
-]) + "\n"
+README_TEMPLATE = "# fixture README\n\n" + "".join("<!--%s-->\n<!--/%s-->\n\n" % (m, m) for m in rank.MARKERS)
 
 OUTPUTS = ["README.md", "RESULTS.md", "ALL-ENDPOINTS.md", "LIMITS.md",
            "data/ranking.json", "data/ranking.csv", "data/capacity.json"]
+EVIDENCE = ("MEASURED", "DECLARED")
 
 
 def run_rank(out):
@@ -71,6 +72,111 @@ def block(text, marker):
     return m.group(1) if m else None
 
 
+def read_jsonl(path):
+    rows = []
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").split("\n"):
+            if line.strip():
+                rows.append(json.loads(line))
+    return rows
+
+
+def parse_formula(formula):
+    """(tokens per reply, no-key bonus, degraded penalty) from the printed formula string, or None."""
+    m = re.match(r"coding_index x log10\(1 \+ daily_tokens / (\d+)\) x answered_rate x ([\d.]+) if no key x ([\d.]+) if degraded$",
+                 formula or "")
+    return (int(m.group(1)), float(m.group(2)), float(m.group(3))) if m else None
+
+
+def formula_value(coding, daily, rate, needs_key, degraded, consts):
+    per_reply, bonus, penalty = consts
+    v = coding * math.log10(1 + daily / per_reply) * rate
+    if not needs_key:
+        v *= bonus
+    if degraded:
+        v *= penalty
+    return round(v, 1)
+
+
+# ---------------------------------------------------------------------------------------------------
+# THE REFERENCE, written here and not imported: what limits.json says one endpoint gets in a day.
+# ---------------------------------------------------------------------------------------------------
+def ref_volume(lim, name, model, per_reply):
+    """(daily tokens or None, label) for one endpoint, from bench/limits.json alone.
+
+    The token figure the provider states and the request cap times per_reply are candidates only when
+    their own confidence is MEASURED or DECLARED; the smaller binds. Failing both, a unit price divided
+    into an allowance counts only for THIS model's price, or for a provider-level figure when the provider
+    publishes one price for every model. A paid-plan figure keeps its number under the PAID-PLAN label."""
+    p = (lim.get("providers") or {}).get(name) or {}
+    am = p.get("all_models") or {}
+    e = (p.get("models") or {}).get(model) or am
+    base = p.get("confidence", "UNKNOWN")
+    rpd, tpd = e.get("rpd"), e.get("tpd")
+    rconf, tconf = e.get("rpd_confidence") or base, e.get("tpd_confidence") or base
+    if rpd is None and p.get("free_models_combined"):
+        rpd = min(v["rpd"] for v in p["free_models_combined"].values())
+    cands = []
+    if tpd and tconf in EVIDENCE:
+        cands.append((tpd, tconf))
+    if rpd and rconf in EVIDENCE:
+        cands.append((rpd * per_reply, "DERIVED"))
+    if not cands:
+        neurons = (p.get("free_allocation") or {}).get("neurons_per_day")
+        cost = ((p.get("neuron_cost_examples") or {}).get(model) or {}).get("output_per_million")
+        d = p.get("derived") or {}
+        if neurons and cost:
+            cands.append((int(neurons / cost * 1000000), "DERIVED"))
+        elif d.get("output_tokens_per_day") and d.get("confidence") == "DERIVED" and d.get("one_price_for_all_models") is True:
+            cands.append((d["output_tokens_per_day"], "DERIVED"))
+    if not cands:
+        return None, "UNKNOWN"
+    daily, conf = min(cands, key=lambda c: c[0])
+    if e.get("rpd_is_paid_plan"):
+        conf = "PAID-PLAN"
+    return daily, conf
+
+
+def one_time_only(entry):
+    """True when the only free capacity a provider records is a one-time grant: no recurring figure at all."""
+    ot = entry.get("one_time") or {}
+    am = entry.get("all_models") or {}
+    recurring = (any(am.get(k) for k in ("rpd", "tpd")) or bool(entry.get("monthly")) or bool(entry.get("derived"))
+                 or any((m or {}).get("rpd") or (m or {}).get("tpd") for m in (entry.get("models") or {}).values()))
+    return bool(ot.get("tokens")) and ot.get("confidence") in EVIDENCE and not recurring
+
+
+def ref_shelf(providers, lim, scores, drawn_rows, buried, floor, per_reply, rankable):
+    """{provider: (daily, label)}: the largest rankable figure among the provider's models that clear the
+    floor and are not buried; where there is none, the latest draw x 24 for a scored model, unless the
+    provider's only free capacity is a one-time grant."""
+    coding = {(r["provider"], r["model"]): (r.get("artificial_analysis") or {}).get("coding_index")
+              for r in scores.get("matched", [])}
+    shelf = {}
+    for p in providers["providers"]:
+        best = None
+        for m in p["models"]:
+            key = (p["name"], m["id"])
+            c = coding.get(key)
+            if key in buried or c is None or c < floor:
+                continue
+            daily, conf = ref_volume(lim, p["name"], m["id"], per_reply)
+            if daily and conf in rankable and (best is None or daily > best[0]):
+                best = (daily, conf)
+        if best:
+            shelf[p["name"]] = best
+    latest = {}
+    for r in drawn_rows:
+        if r.get("provider") and r.get("tokens_per_hour_drawn") is not None:
+            latest[r["provider"]] = r
+    for name, r in latest.items():
+        c = coding.get((name, r.get("model")))
+        if name in shelf or c is None or c < floor or one_time_only((lim.get("providers") or {}).get(name) or {}):
+            continue
+        shelf[name] = (int(r["tokens_per_hour_drawn"] * 24), "DRAWN")
+    return shelf
+
+
 def main():
     record = "--record" in sys.argv
     failures = []
@@ -80,6 +186,9 @@ def main():
         if not cond:
             failures.append(what)
 
+    # =============================================================================================
+    # PART ONE: the fixture
+    # =============================================================================================
     with tempfile.TemporaryDirectory() as tmp:
         out = Path(tmp)
         code, log = run_rank(out)
@@ -96,9 +205,9 @@ def main():
         unranked = {r["model"]: r for r in rk["unranked"]}
         buried = {r["model"]: r for r in rk["buried"]}
 
-        # ---- 2. ranking.json, field by field
+        # ---- ranking.json, field by field
         print("\n=== ranking.json ===")
-        check([r["model"] for r in rk["ranked"]] == ["alpha-large", "delta-70b", "delta-7b", "beta-coder", "gamma-chat:free"],
+        check([r["model"] for r in rk["ranked"]] == ["alpha-large", "delta-7b", "beta-coder", "gamma-chat:free"],
               "ranked order: %s" % [r["model"] for r in rk["ranked"]])
         check(ranked["alpha-large"]["volume_confidence"] == "MEASURED" and ranked["alpha-large"]["daily_tokens"] == 1000000,
               "alpha: the token cap (MEASURED, 1,000,000) binds before 4,000 requests x 500")
@@ -111,9 +220,10 @@ def main():
         check(ranked["delta-7b"]["volume_confidence"] == "DERIVED" and ranked["delta-7b"]["daily_tokens"] == 200000
               and "on this model" in ranked["delta-7b"]["volume_evidence"],
               "delta-7b: derived from the model's own unit price")
-        check(ranked["delta-70b"]["volume_confidence"] == "DERIVED" and ranked["delta-70b"]["daily_tokens"] == 200000
-              and "not on file" in ranked["delta-70b"]["volume_evidence"],
-              "delta-70b: derived from the provider-level block, and says the model's own price is not on file")
+        check(unranked["delta-70b"]["volume_confidence"] == "UNKNOWN" and unranked["delta-70b"]["daily_tokens"] is None
+              and unranked["delta-70b"]["why_unranked"] == "daily volume unknown: this model's unit price is not on file - see LIMITS.md"
+              and unranked["delta-70b"]["volume_unknown_reason"] == "this model's unit price is not on file",
+              "delta-70b: no price of its own and the provider prices per model, so UNKNOWN, unranked, with the reason")
         check(unranked["epsilon-pro"]["why_unranked"] == "only a paid-plan figure is published"
               and unranked["epsilon-pro"]["volume_confidence"] == "PAID-PLAN"
               and unranked["epsilon-pro"]["daily_tokens"] == 100000,
@@ -124,7 +234,8 @@ def main():
               "beta-small: scored under the floor, listed and never ranked")
         check(cap["per_provider"]["beta"]["daily_tokens"] == 300000 and cap["per_provider"]["beta"]["model"] == "beta-coder",
               "beta: the account's daily figure stays on the shelf through the model that clears the floor")
-        check(cap["quality_floor_coding_index"] == 45.0, "the floor is written into capacity.json")
+        check(cap["quality_floor_coding_index"] == rank.QUALITY_FLOOR == rk["quality_floor_coding_index"],
+              "the floor is written into capacity.json and ranking.json")
         check("epsilon-lite" in buried and buried["epsilon-lite"]["value"] is None
               and buried["epsilon-lite"]["daily_tokens"] is None,
               "epsilon-lite: buried, out of the ranking and out of every sum")
@@ -135,9 +246,8 @@ def main():
         check(ranked["gamma-chat:free"]["answered_rate"] == 0.0 and ranked["gamma-chat:free"]["value"] == 0.0
               and ranked["gamma-chat:free"]["answers"] == "0 of 2 in 14 days",
               "gamma: two empty 200s are 0 of 2, value 0.0, printed as a measurement")
-        check(ranked["delta-70b"]["answered_rate"] is None and ranked["delta-70b"]["answers"] == "not probed yet"
-              and ranked["delta-70b"]["reliability_applied"] == 1.0,
-              "delta-70b: never probed, not penalised, says so")
+        check(unranked["delta-70b"]["answered_rate"] is None and unranked["delta-70b"]["answers"] == "not probed yet",
+              "delta-70b: never probed, says so")
         check(ranked["alpha-large"]["radar_probes"] == [2, 2],
               "alpha-large: the row from 2026-08-01 is outside the window and ignored")
         check(ranked["beta-coder"]["answered_rate"] == 0.5, "beta: 1 of 2 in the window")
@@ -147,21 +257,25 @@ def main():
         check(ranked["beta-coder"]["get_key"] == "https://inference.beta.example/"
               and ranked["beta-coder"]["get_key_kind"] == "api_host",
               "beta: sign-up link on a lookalike domain is refused, API host used instead")
-        check(ranked["delta-7b"]["get_key"] == "https://open.delta.example/", "delta: keyless, API host printed")
+        check(ranked["delta-7b"]["get_key"] == "https://delta.example/pricing" and ranked["delta-7b"]["get_key_kind"] == "docs",
+              "delta: keyless, so the door is the documentation page from limits.json, on the provider's own domain")
         check(ranked["gamma-chat:free"]["cost"] == "region-restricted; $1 top-up unlocks the daily quota",
               "gamma: Cost carries the region flag and the unlock condition")
         check(ranked["alpha-large"]["cost"] == "**trains on your prompts**", "alpha: Cost carries the privacy flag")
-        check(ranked["alpha-large"]["returned_empty_200"] is True, "alpha: archived empty-200 is carried")
-        check(rk["ranking_formula"] == "coding_index x log10(1 + daily_tokens / 500) x answered_rate x 1.25 if no key x 0.5 if degraded",
+        check(ranked["beta-coder"]["cost"] == "privacy terms not read yet", "beta: unread terms say so in plain words")
+        check(ranked["alpha-large"]["returned_empty_200"] == 1, "alpha: archived empty-200 is carried, as a count")
+        check(rk["ranking_formula"] == rank.FORMULA == "coding_index x log10(1 + daily_tokens / 500) x answered_rate x 1.25 if no key x 0.5 if degraded",
               "the formula string is the agreed one")
+        check(rk["volume_labels"] == list(rank.LABELS) and rk["rankable_volume_labels"] == list(rank.RANKABLE)
+              and rk["summable_volume_labels"] == list(rank.SUMMABLE) == cap["summable_labels"],
+              "the label vocabulary in ranking.json and capacity.json is the one in rank.py")
 
-        # ---- 4. one row by hand, from the numbers in the formula string
+        # ---- one row by hand, from the numbers in the formula string
         print("\n=== the formula, recomputed by hand ===")
-        m = re.match(r"coding_index x log10\(1 \+ daily_tokens / (\d+)\) x answered_rate x ([\d.]+) if no key x ([\d.]+) if degraded$",
-                     rk["ranking_formula"])
-        check(m is not None, "formula string parses into its three constants")
-        if m:
-            per_reply, bonus, penalty = int(m.group(1)), float(m.group(2)), float(m.group(3))
+        consts = parse_formula(rk["ranking_formula"])
+        check(consts is not None, "formula string parses into its three constants")
+        if consts:
+            per_reply, bonus, penalty = consts
             beta = round(60.0 * math.log10(1 + 300000 / per_reply) * 0.5 * penalty, 1)
             check(beta == ranked["beta-coder"]["value"] == 41.7,
                   "beta-coder by hand: 60 x log10(1 + 300000/%d) x 0.5 x %s = %s" % (per_reply, penalty, beta))
@@ -179,15 +293,26 @@ def main():
         check(sh["measured"]["tokens_per_day"] == 1000000 and sh["measured"]["providers"] == ["alpha"], "measured shelf: alpha only")
         check(sh["declared"]["tokens_per_day"] == 300000 and sh["declared"]["providers"] == ["beta"], "declared shelf: beta only")
         check(sh["derived"]["tokens_per_day"] == 250000 and sh["derived"]["providers"] == ["delta", "gamma"],
-              "derived shelf: gamma 50,000 + delta 200,000")
+              "derived shelf: gamma 50,000 + delta 200,000, and delta-70b's borrowed 200,000 is nowhere")
         check(sh["drawn"]["tokens_per_day"] == 480000 and sh["drawn"]["providers"] == ["epsilon"],
               "drawn shelf: epsilon 20,000/h x 24, and NOT alpha, which has a measured figure")
         check(cap["per_provider"]["alpha"]["confidence"] == "MEASURED", "alpha keeps MEASURED over DRAWN")
+        check("drawn at our pace of 2 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling"
+              in cap["per_provider"]["epsilon"]["evidence"],
+              "epsilon: the DRAWN evidence carries the pace, the tokens a call and the floor caveat")
         check(cap["defensible_tokens_per_day"] == 2030000 and cap["share_of_target_pct"] == 0.2
               and cap["multiple_still_needed"] == 492.6,
               "defensible = 2,030,000 = 0.2%% of 1e9, 492.6x still needed")
+        check(cap["defensible_tokens_per_day"] == sum(v["daily_tokens"] for v in cap["per_provider"].values()
+                                                       if v["confidence"] in rank.SUMMABLE),
+              "defensible is the sum of the per-provider figures with a summable label")
         check(cap["paid_plan_tokens_per_day_excluded"] == 100000 and cap["paid_plan_per_provider"] == {"epsilon": 100000},
               "paid-plan figure shown as excluded, not in any sum")
+        dist = cap["distance"]
+        check(dist["gap_tokens_per_day"] == 1000000000 - 2030000 and dist["median_daily_figure"] == 300000
+              and dist["providers_at_median_to_close_gap"] == math.ceil((1000000000 - 2030000) / 300000)
+              and dist["ceilings_at_or_above_target_rate"] == [],
+              "distance: the gap, the median figure and the providers-at-median count are arithmetic on the shelf")
         b = cap["burst"]
         check(b["tokens_per_minute_added_up"] == 22500 and b["providers_delivered"] == ["alpha", "beta", "delta"],
               "burst: 12,000 + 8,000 + 2,500 from three providers that delivered")
@@ -213,10 +338,18 @@ def main():
         print("\n=== pages ===")
         readme = first["README.md"].decode("utf-8")
         check(block(readme, "FORMULA") == "`%s`\n" % rk["ranking_formula"], "README prints the same formula string")
-        check(block(readme, "LABELS").count("| **") == 6, "README legend carries the six labels")
+        check(block(readme, "LABELS").count("| **") == len(rank.LABELS), "README legend carries every label, and only those")
+        bar = block(readme, "BAR")
+        check(("only %s of the %s labels may be on it: %s" % (rank.numword(len(rank.SUMMABLE)), rank.numword(len(rank.LABELS)),
+                                                              rank.words(rank.SUMMABLE))) in bar,
+              "README BAR block names the summable labels from the constants")
         alle = first["ALL-ENDPOINTS.md"].decode("utf-8")
         limits_md = first["LIMITS.md"].decode("utf-8")
         results = first["RESULTS.md"].decode("utf-8")
+        check(rank.LABEL_RULE in limits_md and rank.LABEL_RULE in alle, "LIMITS.md and ALL-ENDPOINTS.md print the one label sentence")
+        check(limits_md.count("\n- **") >= len(rank.LABELS) and all("- **%s** - " % k in limits_md for k in rank.LABELS),
+              "LIMITS.md legend has a bullet per label")
+        check("read on" not in limits_md.split("\n")[2], "LIMITS.md header carries no page-level read date")
         table = [l for l in alle.split("\n") if l.startswith("| `")]
         answers_col = 12   # | Model | Provider | Value | Get key | Coding | Intelligence | Agentic | Arena | Tokens/day | Req/day | Volume | Answers |
         gamma_row = [l for l in table if l.startswith("| `gamma-chat:free`")][0]
@@ -224,22 +357,38 @@ def main():
               and not any(l.split("|")[answers_col].strip() == "?" for l in table),
               "ALL-ENDPOINTS: 0% prints as 0%, and no Answers cell is ever ?")
         d70 = [l for l in alle.split("\n") if l.startswith("| `delta-70b`")][0]
-        check("| not probed yet |" in d70, "ALL-ENDPOINTS: never probed says so")
+        check("| not probed yet |" in d70 and "unit price is not on file" in d70, "ALL-ENDPOINTS: never probed says so; the UNKNOWN reason is in the note")
         top5 = block(readme, "TOP5")
-        check(top5 is not None and top5.count("[get a key](") == 3 and "no key needed: [open.delta.example]" in top5,
-              "TOP5: every row has a door")
-        check("| **0.0** |" in block(readme, "RANKING") and "0 of 2 in 14 days" in block(readme, "RANKING"),
-              "RANKING: the 0.0 row and its cause")
+        check(top5 is not None and top5.count("[get a key](") == 3 and "no key needed: [docs](https://delta.example/pricing)" in top5,
+              "TOP5: every row has a door, and the keyless one points at the docs")
+        check("returned an empty reply once in the archived run" in top5, "TOP5: the archived empty reply is said in plain words")
+        check("## The full ranking: all 4 ranked endpoints" in block(readme, "RANKING-HEAD"), "RANKING-HEAD: the heading carries the count")
+        check("| **0.0** (no answer in 14 days, so no value) |" in block(readme, "RANKING")
+              and "0 of 2 in 14 days" in block(readme, "RANKING"),
+              "RANKING: the 0.0 row says why it is zero, in the cell a stranger reads")
         rel_blk = block(readme, "RELIABILITY")
-        check(rel_blk.count("|") > 0 and "| [delta](https://open.delta.example/) | 1 of 1 (100%) | 1 | 2 |" in rel_blk
+        check("| Endpoints with a verdict | Endpoints probed | Endpoints tracked |" in rel_blk
+              and "| [epsilon](https://console.epsilon.example/) | 1 of 1 (100%) | 1 | 2 | 2 |" in rel_blk
               and all(n in rel_blk for n in ("alpha", "beta", "gamma", "delta", "epsilon")),
-              "RELIABILITY: every provider, from the radar")
+              "RELIABILITY: three counts with three meanings; epsilon has one verdict, two probed, two tracked")
         ex = block(readme, "EXAMPLE")
         check("**70.0**, belongs to `alpha-large`" in ex and "at alpha it sits at #1 with a value of 231.1" in ex,
               "EXAMPLE: the top score and its rank, from data")
         check("1 empty 200s, 1 of them" in block(readme, "TRAP"), "TRAP: counts from the archived run")
-        check("open.delta.example" in block(readme, "KEYLESS") and "2026-09-01" in block(readme, "KEYLESS"),
-              "KEYLESS: the keyless endpoint with its date")
+        kl = block(readme, "KEYLESS")
+        check("https://delta.example/pricing" in kl and "2026-09-01" in kl and "1 of 2 endpoints ranked" in kl
+              and "unit price is not on file" in kl,
+              "KEYLESS: the keyless provider, its date, and where its endpoints sit today with the reason")
+        road = block(readme, "ROAD")
+        check("1 delivered nothing (gamma: rate limit reached)" in road, "ROAD: a zero burst names its cause, and does not say answered")
+        check("*What it would take.*" in road and "3,327 more providers at that median" in road
+              and "capped at %d requests a minute" % rank.MAX_PACE_RPM in road,
+              "ROAD: the distance paragraph is computed from the shelf and the meter's constants")
+        capacity = block(readme, "CAPACITY")
+        check("| DRAWN; drawn at our pace of 2 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling |" in capacity,
+              "CAPACITY: the DRAWN row carries the caveat")
+        check("| **[beta](https://inference.beta.example/)** | 8,000 |  | 400,000 in / 50,000 out | 60 | 300,000 | DECLARED | $5 in credits | - | yes | **yes** | ? |" in capacity,
+              "CAPACITY: a sign-up page that was read and does not say prints ?")
         for name in ("alpha", "beta", "gamma", "delta", "epsilon"):
             check("## [%s](" % name in limits_md, "LIMITS.md has a section for %s" % name)
         check("| [beta](https://inference.beta.example/) | $5 in credits | monthly |" in limits_md, "LIMITS.md monthly table")
@@ -251,10 +400,15 @@ def main():
         check(eps_lite.split("|")[answers_col].strip() == "probed, no verdict yet",
               "ALL-ENDPOINTS: an endpoint that only ever answered 402 or 429 is 'probed, no verdict yet', not 'not probed yet'")
         check("only a paid-plan figure is published" in results, "RESULTS.md: the paid-plan reason")
+        check("%s may be ranked; %s may not." % (rank.words(rank.RANKABLE, "or"), rank.words(rank.NEVER_COUNTED + ("DRAWN",))) in results,
+              "RESULTS.md: which labels rank a row is generated from the constants")
         # Every output must pass the publication gate's own account-state rules, imported rather than
         # restated, so this test cannot drift from the gate and does not have to spell the phrases out.
-        sys.path.insert(0, str(HERE))
-        from gate_publish import RULES, strip_allowed
+        from gate_publish import RULES
+        try:
+            from gate_publish import strip_allowed
+        except ImportError:
+            strip_allowed = lambda line: line   # noqa: E731
         account_rules = [(n, pat) for n, pat, _ in RULES if n.startswith("account")]
         check(len(account_rules) >= 1, "the publication gate still has its account-state rules")
         for f in OUTPUTS:
@@ -262,7 +416,31 @@ def main():
                     for n, pat in account_rules if re.search(pat, strip_allowed(line))]
             check(not hits, "%s carries no account state%s" % (f, "" if not hits else ": %s" % hits[:2]))
 
-        # ---- 3. golden blocks, byte for byte
+        # ---- volume_of, on the rule the fixture cannot reach: one price for every model
+        print("\n=== volume_of: the provider-level derived figure ===")
+        lim = {"providers": {"z": {"confidence": "DECLARED", "derived": {
+            "output_tokens_per_day": 123000, "confidence": "DERIVED", "how": "1,000 units / 8,130 units per 1M output tokens",
+            "one_price_for_all_models": True}}}}
+        v = rank.volume_of("z", "z-any", lim)
+        check(v["daily_tokens"] == 123000 and v["confidence"] == "DERIVED" and "one price for every model" in v["evidence"],
+              "a provider that publishes one price for all its models lends its derived figure to every model")
+        lim["providers"]["z"]["derived"]["one_price_for_all_models"] = False
+        v = rank.volume_of("z", "z-any", lim)
+        check(v["daily_tokens"] is None and v["confidence"] == "UNKNOWN" and v["reason"] == "this model's unit price is not on file",
+              "a provider that prices per model lends nothing: UNKNOWN, with the reason")
+        del lim["providers"]["z"]["derived"]["one_price_for_all_models"]
+        v = rank.volume_of("z", "z-any", lim)
+        check(v["confidence"] == "UNKNOWN", "an undeclared one_price_for_all_models is not a yes")
+        lim2 = {"providers": {"y": {"confidence": "DECLARED", "models": {"y-1": {"rpd": 20, "rpd_confidence": "UNKNOWN"}}}}}
+        v = rank.volume_of("y", "y-1", lim2)
+        check(v["confidence"] == "UNKNOWN" and v["daily_tokens"] is None,
+              "a request cap whose own confidence is UNKNOWN derives nothing")
+        lim3 = {"providers": {"x": {"confidence": "DECLARED", "all_models": {"rpd": 100, "tpd": 1000000}}}}
+        v = rank.volume_of("x", "x-1", lim3)
+        check(v["daily_tokens"] == 50000 and v["confidence"] == "DERIVED" and v["tpd_bound_by_requests"] is True,
+              "a published token figure with a request cap that binds first is DERIVED and flagged as bound")
+
+        # ---- golden blocks, byte for byte
         print("\n=== golden blocks ===")
         GOLD.mkdir(exist_ok=True)
         for marker in ("ROAD", "HEADLINE", "CAPACITY"):
@@ -280,12 +458,128 @@ def main():
                 print(diff[:3000])
             check(got == want, "%s block matches golden/%s.md byte for byte" % (marker, marker))
 
-        # ---- 5. idempotent
+        # ---- idempotent
         print("\n=== idempotence ===")
         code2, log2 = run_rank(out)
         check(code2 == 0, "second run exits 0")
         for f in OUTPUTS:
             check((out / f).read_bytes() == first[f], "%s identical on the second run" % f)
+
+    # =============================================================================================
+    # PART TWO: the oracle, on the committed data and pages
+    # =============================================================================================
+    print("\n=== the committed pages, recomputed from the committed data ===")
+    needed = {"ranking": ROOT / "data" / "ranking.json", "capacity": ROOT / "data" / "capacity.json",
+              "limits": HERE / "limits.json", "providers": HERE / "providers.json", "scores": ROOT / "data" / "scores.json"}
+    missing = [k for k, p in needed.items() if not p.exists()]
+    check(not missing, "the committed data is present: %s" % (", ".join(sorted(needed)) if not missing else "missing " + ", ".join(missing)))
+    if not missing:
+        rk = json.loads(needed["ranking"].read_text(encoding="utf-8"))
+        cap = json.loads(needed["capacity"].read_text(encoding="utf-8"))
+        lim = json.loads(needed["limits"].read_text(encoding="utf-8"))
+        providers = json.loads(needed["providers"].read_text(encoding="utf-8"))
+        scores = json.loads(needed["scores"].read_text(encoding="utf-8"))
+        drawn_rows = read_jsonl(ROOT / "data" / "drawn.jsonl")
+        viab = json.loads((ROOT / "data" / "viability.json").read_text(encoding="utf-8")) if (ROOT / "data" / "viability.json").exists() else {}
+        buried = {(e["provider"], e["model"]) for e in viab.get("buried") or []}
+        floor = cap["quality_floor_coding_index"]
+        consts = parse_formula(rk["ranking_formula"])
+        check(consts is not None, "the committed formula string parses")
+        check(floor == rank.QUALITY_FLOOR and rk["quality_floor_coding_index"] == floor,
+              "the committed floor is the constant in rank.py (%s)" % floor)
+        rankable = tuple(rk["rankable_volume_labels"])
+        summable = tuple(cap["summable_labels"])
+        check(rankable == rank.RANKABLE and summable == rank.SUMMABLE and rk["volume_labels"] == list(rank.LABELS),
+              "the committed label vocabulary is the constants in rank.py")
+        coding = {(r["provider"], r["model"]): (r.get("artificial_analysis") or {}).get("coding_index")
+                  for r in scores.get("matched", [])}
+
+        # every ranked row: formula, label, floor, and its daily figure from limits.json
+        bad_value, bad_label, bad_floor, bad_daily = [], [], [], []
+        for r in rk["ranked"]:
+            if consts:
+                want = formula_value(r["coding_index"], r["daily_tokens"], r["reliability_applied"],
+                                     r["auth"] == "KEY", r["viability"] == "degraded", consts)
+                if want != r["value"]:
+                    bad_value.append((r["provider"], r["model"], r["value"], want))
+            if r["volume_confidence"] not in rankable or r["volume_confidence"] in ("PAID-PLAN", "UNKNOWN"):
+                bad_label.append((r["provider"], r["model"], r["volume_confidence"]))
+            if r["coding_index"] is None or r["coding_index"] < floor or coding.get((r["provider"], r["model"])) != r["coding_index"]:
+                bad_floor.append((r["provider"], r["model"], r["coding_index"]))
+            daily, conf = ref_volume(lim, r["provider"], r["model"], consts[0] if consts else rank.TOKENS_PER_REPLY)
+            if (daily, conf) != (r["daily_tokens"], r["volume_confidence"]):
+                bad_daily.append((r["provider"], r["model"], (r["daily_tokens"], r["volume_confidence"]), (daily, conf)))
+        check(rk["ranked"] and not bad_value, "every ranked row's value recomputes from its own fields with the formula%s"
+              % ("" if not bad_value else ": %s" % bad_value[:3]))
+        check(not bad_label, "no PAID-PLAN or UNKNOWN row is ranked%s" % ("" if not bad_label else ": %s" % bad_label[:3]))
+        check(not bad_floor, "no ranked row sits under the quality floor, and each carries the imported score%s"
+              % ("" if not bad_floor else ": %s" % bad_floor[:3]))
+        check(not bad_daily, "every ranked row's daily figure and label recompute from limits.json%s"
+              % ("" if not bad_daily else ": %s" % bad_daily[:3]))
+        unranked_bad = [(r["provider"], r["model"]) for r in rk["unranked"]
+                        if r["coding_index"] is not None and r["coding_index"] >= floor
+                        and ref_volume(lim, r["provider"], r["model"], consts[0] if consts else rank.TOKENS_PER_REPLY)[1] in rankable
+                        and ref_volume(lim, r["provider"], r["model"], consts[0] if consts else rank.TOKENS_PER_REPLY)[0]
+                        and (r["provider"], r["model"]) not in buried]
+        check(not unranked_bad, "no row that limits.json and the scores would rank is left unranked%s"
+              % ("" if not unranked_bad else ": %s" % unranked_bad[:3]))
+
+        # the daily shelf, provider by provider, against the reference
+        ref = ref_shelf(providers, lim, scores, drawn_rows, buried, floor, consts[0] if consts else rank.TOKENS_PER_REPLY, rankable)
+        got = {k: (v["daily_tokens"], v["confidence"]) for k, v in cap["per_provider"].items()}
+        diff = {k: (got.get(k), ref.get(k)) for k in set(got) | set(ref) if got.get(k) != ref.get(k)}
+        check(not diff, "every per-provider daily figure in capacity.json equals the reference recomputation from limits.json%s"
+              % ("" if not diff else ": %s" % diff))
+        check(cap["defensible_tokens_per_day"] == sum(d for d, c in ref.values() if c in summable) > 0,
+              "the defensible sum is the reference shelf summed over the summable labels")
+        check(cap["defensible_tokens_per_day"] == sum(v["daily_tokens"] for v in cap["per_provider"].values() if v["confidence"] in summable),
+              "the defensible sum is capacity.json's own per-provider figures summed over the summable labels")
+        check(all(v["confidence"] in summable for v in cap["per_provider"].values()),
+              "nothing on the shelf carries a label that may not be summed")
+        want_pct = round(100.0 * cap["defensible_tokens_per_day"] / cap["target_tokens_per_day"], 2)
+        check(cap["share_of_target_pct"] == want_pct, "the share of the target is the shelf over the target")
+
+        # DRAWN: only where nothing else exists, only a scored model, never a one-time grant
+        drawn_bad = []
+        for name, v in cap["per_provider"].items():
+            if v["confidence"] != "DRAWN":
+                continue
+            c = coding.get((name, v["model"]))
+            entry = (lim.get("providers") or {}).get(name) or {}
+            if c is None or c < floor or one_time_only(entry):
+                drawn_bad.append((name, v["model"], c, one_time_only(entry)))
+            if any(ref_volume(lim, name, m["id"], consts[0] if consts else rank.TOKENS_PER_REPLY)[1] in rankable
+                   and (coding.get((name, m["id"])) or 0) >= floor
+                   for p in providers["providers"] if p["name"] == name for m in p["models"]):
+                drawn_bad.append((name, "a rankable figure exists"))
+        for d in cap.get("drawn", []):
+            entry = (lim.get("providers") or {}).get(d["provider"]) or {}
+            if d["counted"] and (one_time_only(entry) or (coding.get((d["provider"], d["model"])) or 0) < floor):
+                drawn_bad.append((d["provider"], "counted", d["note"][:60]))
+            if not d["counted"] and one_time_only(entry) and "one-time grant" not in d["note"]:
+                drawn_bad.append((d["provider"], "grant not named", d["note"][:60]))
+            if d["counted"] and d["provider"] not in cap["daily_shelf"]["drawn"]["providers"]:
+                drawn_bad.append((d["provider"], "counted but not on the drawn shelf"))
+        check(not drawn_bad, "the DRAWN shelf excludes one-time-grant providers and unscored models, and fills only where nothing else exists%s"
+              % ("" if not drawn_bad else ": %s" % drawn_bad[:3]))
+        check(sum(cap["daily_shelf"][k.lower()]["tokens_per_day"] for k in summable) == cap["defensible_tokens_per_day"],
+              "the four shelves in capacity.json add up to the defensible figure")
+
+        # the pages carry the same headline and the same vocabulary
+        readme_text = (ROOT / "README.md").read_text(encoding="utf-8") if (ROOT / "README.md").exists() else ""
+        hb = block(readme_text, "HEADLINE") or ""
+        check("**{:,}**".format(cap["defensible_tokens_per_day"]) in hb and "**%.1f%%**" % cap["share_of_target_pct"] in hb,
+              "README headline prints capacity.json's defensible figure and share")
+        check((block(readme_text, "LABELS") or "").count("| **") == len(rank.LABELS), "README legend carries every label, and only those")
+        rh = block(readme_text, "RANKING-HEAD") or ""
+        check(("all %d ranked endpoint" % len(rk["ranked"])) in rh, "README ranking heading carries the ranked count")
+        for page in ("LIMITS.md", "ALL-ENDPOINTS.md"):
+            t = (ROOT / page).read_text(encoding="utf-8") if (ROOT / page).exists() else ""
+            check(rank.LABEL_RULE in t, "%s prints the one label sentence" % page)
+        contributing = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8") if (ROOT / "CONTRIBUTING.md").exists() else ""
+        check(not re.search(r"\b(?:three|four|five|six|seven)\s+(?:different\s+)?labels\b", contributing, re.I)
+              and "first three" not in contributing,
+              "CONTRIBUTING.md states no label count of its own; the vocabulary lives in rank.py")
 
     print("\n%d failure(s)" % len(failures))
     for f in failures:

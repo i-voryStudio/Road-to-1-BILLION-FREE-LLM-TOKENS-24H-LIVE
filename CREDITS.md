@@ -22,8 +22,8 @@ your numbers, open an issue and we will act on it.
 ## Provider catalogue
 
 The list of free providers we cross-check against was informed by
-**[OmniRoute](https://github.com/diegosouzapw/OmniRoute)** (MIT), which maintains a catalogue of 350+
-providers. We use it as a map of what exists, not as a source of facts: every quota, auth type and
+**[OmniRoute](https://github.com/diegosouzapw/OmniRoute)** (MIT), which maintains the largest
+catalogue of providers we found. We use it as a map of what exists, not as a source of facts: every quota, auth type and
 privacy claim in this repo is either measured by us or read from the provider's own terms, with the
 date beside it.
 

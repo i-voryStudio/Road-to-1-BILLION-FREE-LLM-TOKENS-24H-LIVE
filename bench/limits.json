@@ -38,7 +38,6 @@
   "Nothing in this file describes an account. What an endpoint did is recorded as the HTTP code it",
   "returned and the date it returned it; what a meter read at that moment is not recorded."
  ],
- "read_on": "2026-09-06",
  "providers": {
   "groq": {
    "scope": "organization",
@@ -90,7 +89,7 @@
    },
    "binding_limit": "TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt.",
    "measured": {
-    "note": "Rate-limit response headers read on 2026-09-07 on a key with no paid plan reported x-ratelimit-limit-requests 1000 per day and x-ratelimit-limit-tokens 8000 per minute, the same figures as the published Developer-plan table. Whether that is the free tier or a trial is not published anywhere we could find, so the daily figure keeps the PAID-PLAN label and the row is not ranked on it. The per-minute token ceiling is what actually stops you: a long prompt returns HTTP 413 long before the request count matters.",
+    "note": "Rate-limit response headers read on 2026-09-07 reported x-ratelimit-limit-requests 1000 per day and x-ratelimit-limit-tokens 8000 per minute, the same figures as the published Developer-plan table. Whether those headers describe the free tier or a trial is not published anywhere we could find, so the daily figure keeps the PAID-PLAN label and the row is not ranked on it. The per-minute token ceiling is what actually stops you: a long prompt returns HTTP 413 long before the request count matters.",
     "measured_on": "2026-09-07"
    },
    "rpd_plan": "Developer"
@@ -119,7 +118,8 @@
     "quote": "Free Trial: $5 in free credits after making an account",
     "expires": "UNKNOWN",
     "note": "Their pricing page describes free access ONLY as this trial and publishes no daily free-tier ceiling. The 1,000,000 tokens/day above came from the response headers of a free-trial key and may be this trial rather than a standing tier."
-   }
+   },
+   "read_on": "2026-09-06"
   },
   "google": {
    "scope": "project",
@@ -130,12 +130,13 @@
    "models": {
     "gemini-3.8-flash": {
      "rpm": 5,
-     "rpd": 20,
-     "note": "The 20/day figure was read for 3.7 Flash on the same screen and is assumed to carry over to 3.8. Not separately confirmed. The 5/min WAS measured: a sixth call inside six seconds returned HTTP 429 with 'limit: 5'.",
+     "rpd": null,
+     "note": "The console screen read on 2026-09-06 showed 20 requests a day for 3.7 Flash and no row for 3.8 Flash, so no daily figure is recorded here. The 5/min WAS measured: a sixth call inside six seconds returned HTTP 429 with 'limit: 5'.",
      "rpm_confidence": "MEASURED",
-     "rpd_confidence": "DECLARED",
+     "rpd_confidence": "UNKNOWN",
      "measured_on": "2026-09-06",
-     "measured_how": "a sixth call inside six seconds returned HTTP 429 with 'limit: 5' in the body; recorded in this file on 2026-09-06"
+     "measured_how": "a sixth call inside six seconds returned HTTP 429 with 'limit: 5' in the body; recorded in this file on 2026-09-06",
+     "unknown_reason": "the 20 requests a day on the screen read 2026-09-06 belonged to gemini-3.7-flash; no daily figure for gemini-3.8-flash has been read"
     },
     "gemini-3.5-flash-lite": {
      "rpm": 15,
@@ -154,7 +155,7 @@
     "tpd": null,
     "note": "per model; the largest is shown"
    },
-   "binding_limit": "Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload."
+   "binding_limit": "Requests per DAY on the Flash models: 500 a day on 3.5 Flash-Lite, and no daily figure has been read for 3.8 Flash."
   },
   "openrouter": {
    "scope": "account",
@@ -188,7 +189,7 @@
    "confidence": "DECLARED",
    "source": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
    "read_on": "2026-09-07",
-   "caveat": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Where the tracked model's own Neuron price is in `neuron_cost_examples`, rank.py derives that model's figure from it instead; llama-3.3-70b costs six times more per output token than the 8b model. Seven models are excluded from the free tier entirely and need a paid billing method.",
+   "caveat": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Every model has its own Neuron price, and llama-3.3-70b costs six times more per output token than the 8b model, so that figure belongs to the model it was computed on: a tracked model gets a DERIVED figure only from its own price in neuron_cost_examples, and a tracked model whose price is not on file has an UNKNOWN daily volume rather than another model's number. Seven models are excluded from the free tier entirely and need a paid billing method.",
    "free_allocation": {
     "neurons_per_day": 10000
    },
@@ -211,7 +212,8 @@
    "derived": {
     "output_tokens_per_day": 286795,
     "how": "10,000 Neurons/day / 34,868 Neurons per 1M output tokens, @cf/meta/llama-3.1-8b-instruct-fp8-fast",
-    "confidence": "DERIVED"
+    "confidence": "DERIVED",
+    "one_price_for_all_models": false
    },
    "quotes": [
     "Our free allocation allows anyone to use a total of 10,000 Neurons per day at no charge.",
@@ -290,7 +292,8 @@
     "rpd": null,
     "tpd": null,
     "rpm": 600,
-    "tpm": 5000000
+    "tpm": 5000000,
+    "note": "per model; the largest is shown"
    },
    "one_time": {
     "tokens": 1000000,
@@ -325,7 +328,7 @@
    "scope": "account",
    "confidence": "MEASURED",
    "measured_on": "2026-09-07",
-   "measured_how": "their own usage endpoint, GET https://api.xkiro.com/v1/usage, which reports the daily token allowance",
+   "measured_how": "their own usage endpoint, GET /v1/usage on the API host, which reports the daily token allowance",
    "caveat": "The largest confirmed free token allowance in this list by a wide margin, and it took one GET to find - it was sitting behind an endpoint nobody had asked. Requests per day are NOT published; the ceiling here is tokens.",
    "all_models": {
     "rpd": null,
@@ -339,13 +342,13 @@
   "siliconflow": {
    "scope": "account",
    "confidence": "DECLARED",
-   "caveat": "The daily cap they publish applies to unverified accounts on two specific models, and everything else is per minute. The quotes on file do not name the two models, so whether Qwen/Qwen3-Coder-30B-A3B-Instruct is one of them is not established: the daily figure is UNKNOWN until the page is re-read with the model names. On 2026-09-07 the chat endpoint answered HTTP 402 Payment Required beyond the sign-up credit, so the $1 is one-time and the endpoint stops serving after it.",
+   "caveat": "The daily cap they publish applies to unverified accounts on two specific models, and everything else is per minute. The quotes on file do not name the two models, so whether Qwen/Qwen3-Coder-30B-A3B-Instruct is one of them is not established: the daily figure is UNKNOWN until the page is re-read with the model names. On 2026-09-07 the chat endpoint answered HTTP 402 Payment Required: the $1 is a one-time grant, and a 402 is what this endpoint returns once a grant no longer covers the call.",
    "all_models": {
     "rpd": null,
     "tpd": null,
     "rpm": 1000,
     "tpm": 40000,
-    "note": "rpd is null on purpose: see `unverified_accounts`."
+    "note": "rpd is null on purpose: see unverified_accounts."
    },
    "unverified_accounts": {
     "rpd": 100,
@@ -361,7 +364,7 @@
     "read_on": "2026-09-07",
     "quote": "Flexible token pricing, high usage limits, and postpaid billing - plus $1 in free credits to get you started!",
     "expires": "UNKNOWN",
-    "note": "One dollar, in money, not tokens. We do not convert it: that needs their per-token price and a made-up conversion is a confident wrong number. On 2026-09-07 the chat endpoint returned HTTP 402 Payment Required once the credit was used, which is how a one-time grant behaves."
+    "note": "One dollar, in money, not tokens. We do not convert it: that needs their per-token price and a made-up conversion is a confident wrong number. On 2026-09-07 the chat endpoint answered HTTP 402 Payment Required, which is how a one-time grant looks from the outside after it ends: the endpoint stops serving until a top-up."
    },
    "source": "https://docs.siliconflow.com/en/userguide/rate-limits/rate-limit-and-upgradation",
    "read_on": "2026-09-07",
@@ -405,6 +408,8 @@
    "scope": "anonymous, and shared",
    "confidence": "MEASURED",
    "measured_on": "2026-09-07",
+   "source": "https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities",
+   "read_on": "2026-09-08",
    "measured_how": "Response headers on an anonymous POST: ratelimit-limit 2, x-ratelimit-limit-minute 2, the per-minute allowance header at 0, ratelimit-reset 44. Two attempts 90 seconds apart, both HTTP 429, both showing 0 left in the minute: the anonymous bucket is shared with every caller and was already empty both times.",
    "caveat": "2 requests a minute is the anonymous tier and it is what a reader without an account gets. The authenticated tier is 400 a minute but needs a Public Cloud project with a payment method on file, so it is not a free tier. No daily or monthly cap is published for either.",
    "all_models": {
@@ -435,7 +440,7 @@
    "measured_on": "2026-09-07",
    "volatile": true,
    "measured_how": "Their own rate-limit headers, read seven times on 2026-09-07. The ceiling the headers report MOVES, and not slowly: at 00:05 UTC they said x-ratelimit-limit-tokens-minute 625000 and the call returned a completion. Five readings between 00:39 and 00:43 UTC, one minute apart, all said x-ratelimit-limit-req-minute 0 and every call was refused with HTTP 429. Earlier the same day the headers had also said 0.",
-   "caveat": "Their pricing page answers what the header readings could not: the Free plan grants $10 a month in API credits. That is why the ceiling read 625,000 tokens a minute once and zero six times within an hour: a monthly pot, not a standing rate. A header limit of zero means the monthly pot is empty for the rest of the month, not that the tier is off. No token figure is published, so none is recorded here; the credit is in `monthly`.",
+   "caveat": "Their pricing page answers what the header readings could not: the Free plan grants $10 a month in API credits. That is why the ceiling read 625,000 tokens a minute once and zero six times within an hour: a monthly pot, not a standing rate. A limit header of zero with HTTP 429 on every call is what that pot looks like from the outside for the rest of the month, not the tier being switched off. No token figure is published, so none is recorded here; the credit is in monthly.",
    "all_models": {
     "rpd": null,
     "tpd": null,
@@ -575,7 +580,7 @@
    "read_on": "2026-09-07",
    "quotes": [
     "$0 / month",
-    "Input pricing $0.07 -> $0 / 1M Free - 100% off"
+    "Input pricing $0.07, shown struck through, $0 / 1M Free - 100% off"
    ],
    "signup_requires": {
     "card": "not stated",

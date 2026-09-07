@@ -1,17 +1,11 @@
 {
  "judges": [
   {
-   "name": "claude",
-   "via": "manual",
-   "model": "claude-opus-5",
-   "family": "Anthropic Claude",
-   "note": "Scored by hand through a chat interface, not by API, so a stranger cannot reproduce this judge's scores exactly. Declared as a limitation in METHOD.md rather than hidden."
-  },
-  {
    "name": "glm",
    "via": "api",
    "model": "glm-5.3-flash",
    "url": "https://api.z.ai/api/coding/paas/v4/chat/completions",
+   "key_env": "ZAI_API_KEY",
    "family": "z.ai GLM",
    "pause_seconds": 2,
    "note": "Reachable on the coding-plan endpoint; the general paas/v4 endpoint answered HTTP 429 on 2026-09-06. Thinking is switched OFF: with it on, the model spends the whole token budget reasoning and returns an EMPTY message - 3 of the first 4 calls failed that way. Off, it answers in 1.7s using 42 tokens instead of 11.8s and 238. A judge that thinks out loud is not a better judge, it is an unanswered call.",
@@ -21,6 +15,13 @@
     }
    },
    "max_tokens": 600
+  },
+  {
+   "name": "claude",
+   "via": "manual",
+   "model": "claude-opus-5",
+   "family": "Anthropic Claude",
+   "note": "Scored by hand through a chat interface, not by API, so a stranger cannot reproduce this judge's scores exactly. Declared as a limitation in METHOD.md rather than hidden. Run judge.py --api with two API judges to get a fully reproducible jury."
   }
  ],
  "seed": 20260905,

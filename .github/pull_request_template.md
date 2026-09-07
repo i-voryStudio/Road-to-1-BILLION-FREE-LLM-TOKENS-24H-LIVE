@@ -41,6 +41,9 @@ Adding a provider is two edits in one PR, and the gate refuses either one alone:
 - [ ] The JSON block in `bench/providers.json`: endpoint, `key_env`, `signup`, models, pacing.
 - [ ] The host is added to `ALLOWED_HOSTS` in `bench/gate_contributions.py` **in this same PR**, so a
       reviewer sees the new destination. A JSON-only change cannot add one, by design.
+- [ ] If the sign-up page sits on a different domain from the API, that domain is added to
+      `KNOWN_SIGNUP_HOSTS` in the same file: a door is where people type passwords, so it is declared in
+      code too. Without it the gate refuses the `signup` URL and the ranking falls back to the API host.
 - [ ] An entry in `bench/limits.json` with `all_models` (nulls are fine) and one in `bench/privacy.json`
       (`UNKNOWN` is fine), so the ranking prints a labelled figure rather than a missing one.
 - [ ] `key_env` names your provider and is not already used by another one. An API key is bound to one

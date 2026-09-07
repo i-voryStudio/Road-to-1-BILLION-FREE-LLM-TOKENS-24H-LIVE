@@ -52,7 +52,10 @@ Open a pull request with the results file, the date, and the provider entry for
 request**: the JSON block (endpoint, key variable, sign-up page, model list, pacing) AND the API host
 added to `ALLOWED_HOSTS` in [`bench/gate_contributions.py`](bench/gate_contributions.py). The gate
 refuses a JSON-only addition by design, because this benchmark sends real API keys to every host it
-knows, so every destination is declared in code where a reviewer sees it. A `limits.json` entry
+knows, so every destination is declared in code where a reviewer sees it. If the sign-up page lives
+on a different domain from the API (a console on another host), that domain is a third edit, in
+`KNOWN_SIGNUP_HOSTS` in the same file, for the same reason: a door is where people type passwords,
+so it too is declared in code. A `limits.json` entry
 with `all_models` (every value may be `null`) and a `privacy.json` entry (all `UNKNOWN` is fine)
 complete the row; without them the ranking prints UNKNOWN, which is correct and less useful.
 
@@ -81,17 +84,25 @@ python bench/gate_contributions.py # one key, one host; a new host must be decla
 python bench/test_rank.py          # the page generator against its fixture. Must exit 0.
 ```
 
-CI runs both. The publication gate exists because raw benchmark output is exactly the kind of file
+CI runs all of them. The publication gate exists because raw benchmark output is exactly the kind of file
 nobody reads before committing: it echoes your prompts back, and providers echo your account state back
 inside error bodies.
 
 ## House rules for the data
 
-- **Measured, declared, derived, paid-plan and unknown are five different labels** and a daily
-  figure carries the one its evidence deserves; only the first three may be ranked or summed.
+- **The volume labels are one vocabulary in one place**: the `LABELS` dict in `bench/rank.py`, with
+  `RANKABLE` saying which may rank a row and `SUMMABLE` saying which may be summed into the daily shelf.
+  Every legend and every sentence about them on README.md, LIMITS.md, RESULTS.md and ALL-ENDPOINTS.md is
+  generated from those constants, so this file does not repeat the list or the count. A daily figure
+  carries the label its evidence deserves, and the generated legend says what each label means.
 - **An endpoint that refused the caller is recorded as what it returned**, an HTTP code and a date, never as
   a statement about anyone's account. A `402` says the endpoint stops serving without credit; it
   does not score the provider zero and it does not describe a balance.
-- **Every number on every public page is generated** by `bench/rank.py`: the README blocks between
-  markers, RESULTS.md, ALL-ENDPOINTS.md, LIMITS.md and `data/`. Edit the data, not the Markdown, or
-  your change will be overwritten on the next run.
+- **Every number on every public page is generated**, and by exactly these scripts: `bench/rank.py`
+  writes the README.md blocks between markers, RESULTS.md, ALL-ENDPOINTS.md, LIMITS.md,
+  `data/ranking.json`, `data/ranking.csv` and `data/capacity.json`; `bench/gate_viability.py` writes
+  GRAVEYARD.md and `data/viability.json`; `bench/rank_language.py` writes `data/models.json` and
+  `data/models.csv` for the archived language run, taking its judges block from `bench/judges.json`.
+  SOURCES.md carries hand-typed star counts inside one declared block, dated, and `bench/gate_claims.py`
+  refuses them anywhere else. Edit the data, not the Markdown, or your change will be overwritten on the
+  next run.

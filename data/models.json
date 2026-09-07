@@ -4,17 +4,11 @@
  "paragraph_attempts": 3,
  "judges": [
   {
-   "name": "claude",
-   "via": "manual",
-   "model": "claude-opus-5",
-   "family": "Anthropic Claude",
-   "note": "Scored by hand through a chat interface, not by API, so a stranger cannot reproduce this judge's scores exactly. Declared as a limitation in METHOD.md rather than hidden."
-  },
-  {
    "name": "glm",
    "via": "api",
    "model": "glm-5.3-flash",
    "url": "https://api.z.ai/api/coding/paas/v4/chat/completions",
+   "key_env": "ZAI_API_KEY",
    "family": "z.ai GLM",
    "pause_seconds": 2,
    "note": "Reachable on the coding-plan endpoint; the general paas/v4 endpoint answered HTTP 429 on 2026-09-06. Thinking is switched OFF: with it on, the model spends the whole token budget reasoning and returns an EMPTY message - 3 of the first 4 calls failed that way. Off, it answers in 1.7s using 42 tokens instead of 11.8s and 238. A judge that thinks out loud is not a better judge, it is an unanswered call.",
@@ -24,8 +18,16 @@
     }
    },
    "max_tokens": 600
+  },
+  {
+   "name": "claude",
+   "via": "manual",
+   "model": "claude-opus-5",
+   "family": "Anthropic Claude",
+   "note": "Scored by hand through a chat interface, not by API, so a stranger cannot reproduce this judge's scores exactly. Declared as a limitation in METHOD.md rather than hidden. Run judge.py --api with two API judges to get a fully reproducible jury."
   }
  ],
+ "judges_source": "bench/judges.json",
  "jury_lenses": [
   "sounds_human",
   "language_correctness",
@@ -117,7 +119,7 @@
    "requests_per_day": 500,
    "volume_tier": "MEDIUM",
    "volume_confidence": "DECLARED",
-   "volume_evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. Binding limit: Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload. Limit applies per PROJECT.",
+   "volume_evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen on 2026-09-06. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. Binding limit: Requests per DAY on the Flash models: 500 a day on 3.5 Flash-Lite, and no daily figure has been read for 3.8 Flash. Limit applies per PROJECT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -165,7 +167,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Limit applies per ACCOUNT.",
+   "volume_evidence": "Two different things, and lists confuse them constantly. The 1,000,000 tokens per model is a ONE-TIME grant that expires in 90 days. The rate limits below are RECURRING and apply while that grant lasts: their page states the same RPM and TPM apply to free-quota users as to paying ones. There is no cumulative daily cap; the ceiling is per minute. per model; the largest is shown Binding limit: Tokens per minute, at 5,000,000 on the flash models - and, underneath it, the one-time grant running out. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -213,7 +215,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "volume_evidence": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Every model has its own Neuron price, and llama-3.3-70b costs six times more per output token than the 8b model, so that figure belongs to the model it was computed on: a tracked model gets a DERIVED figure only from its own price in neuron_cost_examples, and a tracked model whose price is not on file has an UNKNOWN daily volume rather than another model's number. Seven models are excluded from the free tier entirely and need a paid billing method. Binding limit: Neurons per day, at 10,000. On a small text model that is roughly a quarter of a million output tokens; on a large one, far fewer. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=69",
@@ -261,7 +263,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "No rate-limit headers returned and no published quota. Limit applies per ACCOUNT.",
+   "volume_evidence": "The largest confirmed free token allowance in this list by a wide margin, and it took one GET to find - it was sitting behind an endpoint nobody had asked. Requests per day are NOT published; the ceiling here is tokens. Binding limit: Tokens, not requests. 5M/day is roughly 3,500 pages of output, so on this provider you will hit model quality or latency long before you hit the quota. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=69",
@@ -308,7 +310,7 @@
    "requests_per_day": 50,
    "volume_tier": "LOW",
    "volume_confidence": "DECLARED",
-   "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. This is what a NEW account gets; it rises to 1000/day once the conditions in LIMITS.md are met. Shared across all free models, not per model. Limit applies per ACCOUNT.",
+   "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. This is what a NEW account gets; it rises to 1000/day once the conditions in LIMITS.md are met. Shared across all free models, not per model. rpd is tiered by lifetime credits purchased: see free_models_combined Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=6 wrong_diacritics=0 chars=70",
@@ -404,7 +406,7 @@
    "requests_per_day": 50,
    "volume_tier": "LOW",
    "volume_confidence": "DECLARED",
-   "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. This is what a NEW account gets; it rises to 1000/day once the conditions in LIMITS.md are met. Shared across all free models, not per model. Limit applies per ACCOUNT.",
+   "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. This is what a NEW account gets; it rises to 1000/day once the conditions in LIMITS.md are met. Shared across all free models, not per model. rpd is tiered by lifetime credits purchased: see free_models_combined Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -499,7 +501,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial. Limit applies per ACCOUNT.",
+   "volume_evidence": "A monthly starter allowance whose size they do not publish, one concurrent request, and no roll-over. That is the whole of what is knowable from their own pages. Binding limit: One request at a time, and a monthly allowance nobody outside Ollama can size. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -547,7 +549,7 @@
    "requests_per_day": 2400,
    "volume_tier": "HIGH",
    "volume_confidence": "MEASURED",
-   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what one account's rate-limit headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the response headers of a free-trial key reported between 2026-09-02 and 2026-09-07. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -595,7 +597,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "volume_evidence": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Every model has its own Neuron price, and llama-3.3-70b costs six times more per output token than the 8b model, so that figure belongs to the model it was computed on: a tracked model gets a DERIVED figure only from its own price in neuron_cost_examples, and a tracked model whose price is not on file has an UNKNOWN daily volume rather than another model's number. Seven models are excluded from the free tier entirely and need a paid billing method. Binding limit: Neurons per day, at 10,000. On a small text model that is roughly a quarter of a million output tokens; on a large one, far fewer. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -691,7 +693,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "No rate-limit headers returned and no published quota. Limit applies per ACCOUNT.",
+   "volume_evidence": "The largest confirmed free token allowance in this list by a wide margin, and it took one GET to find - it was sitting behind an endpoint nobody had asked. Requests per day are NOT published; the ceiling here is tokens. Binding limit: Tokens, not requests. 5M/day is roughly 3,500 pages of output, so on this provider you will hit model quality or latency long before you hit the quota. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -735,7 +737,7 @@
    "requests_per_day": 2400,
    "volume_tier": "HIGH",
    "volume_confidence": "MEASURED",
-   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what one account's rate-limit headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the response headers of a free-trial key reported between 2026-09-02 and 2026-09-07. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -779,7 +781,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial. Limit applies per ACCOUNT.",
+   "volume_evidence": "A monthly starter allowance whose size they do not publish, one concurrent request, and no roll-over. That is the whole of what is knowable from their own pages. Binding limit: One request at a time, and a monthly allowance nobody outside Ollama can size. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -823,7 +825,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "volume_evidence": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Every model has its own Neuron price, and llama-3.3-70b costs six times more per output token than the 8b model, so that figure belongs to the model it was computed on: a tracked model gets a DERIVED figure only from its own price in neuron_cost_examples, and a tracked model whose price is not on file has an UNKNOWN daily volume rather than another model's number. Seven models are excluded from the free tier entirely and need a paid billing method. Binding limit: Neurons per day, at 10,000. On a small text model that is roughly a quarter of a million output tokens; on a large one, far fewer. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -867,7 +869,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. Not published on the screen we read, and not measured. Binding limit: Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload. Limit applies per PROJECT.",
+   "volume_evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen on 2026-09-06. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. Not published on the screen we read, and not measured. Binding limit: Requests per DAY on the Flash models: 500 a day on 3.5 Flash-Lite, and no daily figure has been read for 3.8 Flash. Limit applies per PROJECT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -911,7 +913,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "volume_evidence": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Every model has its own Neuron price, and llama-3.3-70b costs six times more per output token than the 8b model, so that figure belongs to the model it was computed on: a tracked model gets a DERIVED figure only from its own price in neuron_cost_examples, and a tracked model whose price is not on file has an UNKNOWN daily volume rather than another model's number. Seven models are excluded from the free tier entirely and need a paid billing method. Binding limit: Neurons per day, at 10,000. On a small text model that is roughly a quarter of a million output tokens; on a large one, far fewer. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -959,7 +961,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "The free allocation is denominated in NEURONS per day, not requests, and the neuron cost per token differs by more than a factor of ten between models: llama-3.2-1b costs 18,252 neurons per million output tokens, llama-3.3-70b costs 204,805. So a requests-per-day figure for 'Cloudflare' as a whole is meaningless. Convert per model or do not quote it. Limit applies per ACCOUNT.",
+   "volume_evidence": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Every model has its own Neuron price, and llama-3.3-70b costs six times more per output token than the 8b model, so that figure belongs to the model it was computed on: a tracked model gets a DERIVED figure only from its own price in neuron_cost_examples, and a tracked model whose price is not on file has an UNKNOWN daily volume rather than another model's number. Seven models are excluded from the free tier entirely and need a paid billing method. Binding limit: Neurons per day, at 10,000. On a small text model that is roughly a quarter of a million output tokens; on a large one, far fewer. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -1102,7 +1104,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "The free plan is $0 with 'starter usage credits included' and access to 'starter models' only, and the amount of those credits is not published. The API returns no rate-limit headers either, so the ceiling is genuinely unknown, not unlimited. Note also that 'run multiple models concurrently' is listed as a PAID plan feature and a higher tier advertises '10 concurrent requests', so the free plan should be assumed to be serial. Limit applies per ACCOUNT.",
+   "volume_evidence": "A monthly starter allowance whose size they do not publish, one concurrent request, and no roll-over. That is the whole of what is knowable from their own pages. Binding limit: One request at a time, and a monthly allowance nobody outside Ollama can size. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -1150,7 +1152,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Limit applies per ACCOUNT.",
+   "volume_evidence": "Two different things, and lists confuse them constantly. The 1,000,000 tokens per model is a ONE-TIME grant that expires in 90 days. The rate limits below are RECURRING and apply while that grant lasts: their page states the same RPM and TPM apply to free-quota users as to paying ones. There is no cumulative daily cap; the ceiling is per minute. per model; the largest is shown Binding limit: Tokens per minute, at 5,000,000 on the flash models - and, underneath it, the one-time grant running out. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=68",
@@ -1198,7 +1200,7 @@
    "requests_per_day": 2400,
    "volume_tier": "HIGH",
    "volume_confidence": "MEASURED",
-   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what one account's rate-limit headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the response headers of a free-trial key reported between 2026-09-02 and 2026-09-07. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=69",
@@ -1293,7 +1295,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Limit applies per ACCOUNT.",
+   "volume_evidence": "Two different things, and lists confuse them constantly. The 1,000,000 tokens per model is a ONE-TIME grant that expires in 90 days. The rate limits below are RECURRING and apply while that grant lasts: their page states the same RPM and TPM apply to free-quota users as to paying ones. There is no cumulative daily cap; the ceiling is per minute. per model; the largest is shown Binding limit: Tokens per minute, at 5,000,000 on the flash models - and, underneath it, the one-time grant running out. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -1341,7 +1343,7 @@
    "requests_per_day": 50,
    "volume_tier": "LOW",
    "volume_confidence": "DECLARED",
-   "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. This is what a NEW account gets; it rises to 1000/day once the conditions in LIMITS.md are met. Shared across all free models, not per model. Limit applies per ACCOUNT.",
+   "volume_evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. This is what a NEW account gets; it rises to 1000/day once the conditions in LIMITS.md are met. Shared across all free models, not per model. rpd is tiered by lifetime credits purchased: see free_models_combined Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "empty",
@@ -1388,7 +1390,7 @@
    "requests_per_day": null,
    "volume_tier": "UNKNOWN",
    "volume_confidence": "UNKNOWN",
-   "volume_evidence": "Free access comes as per-model token grants with an expiry date rather than a standing rate limit, and the amount is not visible from the API. Reachable on the international endpoint. Unknown, not unlimited. Limit applies per ACCOUNT.",
+   "volume_evidence": "Two different things, and lists confuse them constantly. The 1,000,000 tokens per model is a ONE-TIME grant that expires in 90 days. The rate limits below are RECURRING and apply while that grant lasts: their page states the same RPM and TPM apply to free-quota users as to paying ones. There is no cumulative daily cap; the ceiling is per minute. per model; the largest is shown Binding limit: Tokens per minute, at 5,000,000 on the flash models - and, underneath it, the one-time grant running out. Limit applies per ACCOUNT.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",

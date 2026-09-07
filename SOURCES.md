@@ -31,7 +31,7 @@ and why:
   console as `volcengine`.
 - **Their `hasFree: true` boolean.** It covers both a recurring quota and credits that run out — the
   same flag sits on a provider giving 1M requests a month and one giving a single grant.
-- **Classification by absence.** In their frontier-labs file, 9 of 11 providers read as paid because a
+- **Classification by absence.** In their frontier-labs file, 9 of the 11 entries read as paid because a
   flag is missing, not because anything says so. Absence is not evidence.
 - **Providers reached by reverse-engineered protocols or a browser session**, and anything requiring
   your personal account cookie.
@@ -44,8 +44,11 @@ mapping — generic header names are never assumed globally*.
 
 ## The other free-LLM lists, all of them read before we wrote ours
 
-We read these in full to find out what was already covered. Each does something we do not:
+We read these in full to find out what was already covered. Each does something we do not. The star
+counts are as they stood when this table was written, in September 2026, typed by hand; nothing in this
+repo re-counts them, and the block they sit in says so.
 
+<!--SOURCES-TABLE-->
 | Repo | Stars | What it does better than us |
 |---|---|---|
 | [tashfeenahmed/freellmapi](https://github.com/tashfeenahmed/freellmapi) | 24.5k | not a list — installable software routing across 34 providers |
@@ -54,6 +57,7 @@ We read these in full to find out what was already covered. Each does something 
 | [12britz/awesome-free-models](https://github.com/12britz/awesome-free-models) | 2.1k | re-checks hundreds of endpoints and publishes the failures too |
 | [zukixa/cool-ai-stuff](https://github.com/zukixa/cool-ai-stuff) | 1.2k | was thorough; last updated October 2025 — the cautionary tale |
 | [nejib1/Free-LLM](https://github.com/nejib1/Free-LLM) | 361 | credit-card transparency per provider, runnable code per entry |
+<!--/SOURCES-TABLE-->
 
 ### What re-testing those lists actually returns
 
@@ -71,24 +75,26 @@ exactly as a reader would:
 | `inference.api.nscale.com` | no key | `401 Unauthorized` |
 | `api.aionlabs.ai` | no key | `401 credentials were not provided` |
 
-Six for six.
+Every one of them.
 
-And it is not only the keyless rows. A directory with 2,700 stars, updated on 2026-09-06, still lists
+And it is not only the keyless rows. A directory with thousands of stars, updated on 2026-09-06, still lists
 **GitHub Models** as available with no registration required. GitHub retired it on 30 July 2026 — their
 own changelog says *"the playground, model catalog, inference API, and bring your own key (BYOK) are no
 longer available to any customer"* — and the endpoint answers `410 github_models_retirement_brownout`
 today. Five weeks dead, still on the list, updated yesterday. Both that and Meta's retired Llama API
 are in [GRAVEYARD.md](GRAVEYARD.md) with the announcement and what the endpoint returns now. This is not a criticism of the people who wrote those lists — free endpoints close
 quietly and a list nobody re-runs decays within weeks. It is the reason every row here carries the day
-it was called, and the reason the two keyless endpoints we do publish were called without a key before
-they were listed.
+it was called, and the reason the keyless providers we do publish were called without a key before they
+were listed.
 
-Two more lists, read the same way:
+Two more lists, read the same way, star counts from the same September 2026 reading:
 
+<!--SOURCES-TABLE-->
 | Repo | Stars | What it does better than us |
 |---|---|---|
 | [amardeeplakshkar/awesome-free-llm-apis](https://github.com/amardeeplakshkar/awesome-free-llm-apis) | 158 | permanent-free only: no trials, no promos: a stricter definition |
 | [raullenchai/free-llm-api-resources](https://github.com/raullenchai/free-llm-api-resources) | - | keeps alive the fork of `cheahjs/free-llm-api-resources`, which now 404s |
+<!--/SOURCES-TABLE-->
 
 **What none of them publishes, and why this repo exists:** a ranking by quality *times* volume, whether
 the provider actually answers, and what the free tier costs you in things that are not money.

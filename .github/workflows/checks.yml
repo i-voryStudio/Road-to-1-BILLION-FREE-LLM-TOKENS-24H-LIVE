@@ -6,7 +6,8 @@ on:
   pull_request:
 
 # Read-only, stated explicitly. This workflow runs code from forks (via pull_request, never
-# pull_request_target), so it must never hold a token that can write anything.
+# pull_request_target), so it must never hold a token that can write anything, and it makes no network
+# call: the quality scores it ranks with are the committed snapshot, guarded by gate_drift.py.
 permissions:
   contents: read
 
@@ -19,80 +20,47 @@ jobs:
         with:
           python-version: '3.12'
 
-      # The probe checkers decide every score in this repo. If they drift, the whole table is wrong,
-      # so they are tested in both directions: correct answers must pass, wrong answers must fail.
-      - name: Probe checkers
+      # 1. Every checker and every gate is tested in BOTH directions before it is trusted with anything.
+      #    A gate that has never been watched failing is a green light, not a gate.
+      - name: Probe checkers, both directions
         run: python bench/test_probes.py
-
-      # The gate itself is tested, in both directions. A gate that has never caught anything is a
-      # green light, not a gate: every case in here slipped through a real version of it.
-      - name: Publication gate, tested
+      - name: Publication gate, both directions
         run: python bench/test_gate.py
-
-      # Blocks a key, an account balance or a private path from ever reaching a commit.
-      # Agreement between judges is half the credibility of every quality score. The maths that
-      # reports it is tested in both directions: perfect agreement must read as perfect, a split
-      # jury as split, and "one judge is harsher" must not be flattened into "they disagree".
-      - name: Jury maths
-        run: python bench/test_jury.py
-
-      - name: Publication gate
-        run: python bench/gate_publish.py .
-
-      # The sharpest edge in the repo: benchmark.py reads BOTH the endpoint and the key variable out of
-      # providers.json, and CONTRIBUTING.md invites strangers to edit it. This refuses any pull request
-      # that would point an existing key variable at a new host.
-      - name: Contribution gate
-        run: python bench/gate_contributions.py
-
-      # And the contribution gate is itself tested in both directions, because it now admits a NEW
-      # shape - an endpoint declaring it needs no key, which earns a bonus in the ranking. A claim
-      # worth faking needs a gate that has been watched refusing the fakes.
-      - name: Contribution gate, tested
+      - name: Contribution gate, both directions
         run: python bench/test_contributions.py
-
-      # Which published score belongs to which endpoint. Half this file is pairs that MUST NOT match,
-      # because attaching one model's reputation to another model's endpoint is the one error here
-      # that a reader cannot check and we cannot walk back.
-      - name: Model matching, tested in both directions
+      - name: Model matching, both directions
         run: python bench/test_scores.py
+      - name: Jury maths, both directions
+        run: python bench/test_jury.py
+      - name: Score-drift gate, both directions
+        run: python bench/test_drift.py
+      - name: Fourteen-day rule, both directions
+        run: python bench/test_viability.py
+      - name: Page generator, golden fixture
+        run: python bench/test_rank.py
+      - name: Sustained-draw meter, no network
+        run: python bench/test_draw.py
+      - name: Claims gate, both directions
+        run: python bench/test_claims.py
 
-      # One reading per endpoint per day, and no day the provider did not actually fail.
-      - name: Uptime history and the fourteen-day rule
-        run: python bench/gate_viability.py --today "$(date -u +%F)"
-
-      # A public "things to improve" list is the easiest file in any repo to let rot. This fails when
-      # it does: stale entries, no location on disk, a fix with no gate to keep it fixed.
-      # Prose does not get to state a score. Every model->quality pair published in a table must
-      # match data/models.json, and every file a document claims is "in this repo" must exist.
-      # Quality is imported, not run by us: a new provider inherits its models' published scores.
-      # Reliability and the reasoning trap are measured from our own runs and feed the ranking.
-      - name: Refresh imported scores and measured reliability
-        run: |
-          python bench/scores.py --out data/scores.json --date "$(date -u +%F)"
-          python bench/reliability.py --out data/reliability.json --date "$(date -u +%F)"
-          python bench/rank.py --date "$(date -u +%F)" --out .
-
-      - name: Published numbers must exist in the data
+      # 2. The gates, on what is actually committed.
+      - name: Nothing private may ship
+        run: python bench/gate_publish.py .
+      - name: Contribution data is sane, and a key goes to one host only
+        run: python bench/gate_contributions.py
+      - name: The imported scores are numeric and fresh
+        run: python bench/gate_drift.py --check data/scores.json --today "$(date -u +%F)"
+      - name: Every published number is in the data, checked on the COMMITTED pages
         run: python bench/gate_claims.py
+      - name: Uptime history is well-formed
+        run: python bench/gate_viability.py --today "$(date -u +%F)" --out /tmp/GRAVEYARD-check.md
 
-
-      - name: Language packs are valid JSON with the required fields
+      # 3. The committed pages must be exactly what the generator produces from the committed data.
+      #    Regenerate at the date the pages were generated on, then demand zero diff. A pull request that
+      #    hand-edits a table, or edits data without regenerating, fails here rather than after merge.
+      - name: Regeneration is a no-op on the committed data
         run: |
-          python - <<'PY'
-          import json, sys
-          from pathlib import Path
-          required = {"language", "code", "probes", "jury"}
-          bad = []
-          for p in sorted(Path("bench/languages").glob("*.json")):
-              d = json.loads(p.read_text(encoding="utf-8"))
-              missing = required - set(d)
-              if missing:
-                  bad.append("%s: missing %s" % (p.name, sorted(missing)))
-              for name, spec in d.get("probes", {}).items():
-                  if "prompt" not in spec or "kind" not in spec:
-                      bad.append("%s: probe %s needs a prompt and a kind" % (p.name, name))
-              print("%-12s %s, %d probes, %d lenses" % (p.name, d.get("language"), len(d.get("probes", {})), len(d.get("jury", {}))))
-          if bad:
-              print("\n".join(bad)); sys.exit(1)
-          PY
+          DATE=$(python -c 'import json;print(json.load(open("data/ranking.json"))["measured_at"])')
+          python bench/gate_viability.py --today "$DATE"
+          python bench/rank.py --date "$DATE" --out .
+          git diff --exit-code -- README.md RESULTS.md ALL-ENDPOINTS.md LIMITS.md GRAVEYARD.md data/ranking.json data/ranking.csv data/capacity.json data/viability.json

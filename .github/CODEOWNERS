@@ -1,10 +1,13 @@
-# Every file that decides where an API key is sent, or what a score means, needs a human review.
-# GitHub asks for it automatically on any pull request touching these.
+# Every file in this repo decides one of three things: where an API key is sent, what a published
+# number means, or what a page says. All three need a human review, so every path is owned. GitHub
+# asks for that review automatically on any pull request when branch protection requires it.
+#
+# Why not a shorter list: the first version owned seven paths and left out the redirect guard, the
+# radar, the throughput meter, the data files the page generator reads, and the generator itself. A
+# JSON-only pull request to any of those could have changed the front page with no review.
 
-/bench/gate_contributions.py   @i-voryStudio
-/bench/gate_publish.py         @i-voryStudio
-/bench/test_gate.py            @i-voryStudio
-/bench/benchmark.py            @i-voryStudio
-/bench/providers.json          @i-voryStudio
-/.github/                      @i-voryStudio
-/SECURITY.md                   @i-voryStudio
+*                               @i-voryStudio
+/bench/                         @i-voryStudio
+/data/                          @i-voryStudio
+/results/                       @i-voryStudio
+/.github/                       @i-voryStudio

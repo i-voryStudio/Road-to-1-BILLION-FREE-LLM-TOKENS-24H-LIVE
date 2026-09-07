@@ -1,8 +1,9 @@
 name: Daily catalog check
 
 # Every list like this one goes stale within a month. This job is the cheapest defence: it re-reads the
-# provider catalogues that answer without a key, records what appeared and what vanished, and commits the
-# diff. No secrets are used, so it also runs on forks.
+# provider catalogues that answer without a key, refreshes the imported scores through a drift gate that
+# refuses a silent re-ranking, recomputes the pages, and commits the diff. No secrets are used, so it also
+# runs on forks. The liveness radar and the throughput meters need keys and run where the keys are.
 on:
   schedule:
     - cron: '17 6 * * *'
@@ -28,40 +29,40 @@ jobs:
       - name: Re-read public catalogues
         run: python bench/refresh_catalog.py --out data/catalog.json --date "$(date -u +%F)"
 
-      - name: Probe checkers must still pass
-        run: python bench/test_probes.py
-
-      - name: Jury maths
-        run: python bench/test_jury.py
-
-      - name: The publication gate must still catch what it claims to
-        run: python bench/test_gate.py
-
-      - name: Contribution data must still be sane
+      # The fresh scores land in a temp file first. gate_drift.py compares them with the committed ones and
+      # only then replaces the file - or keeps yesterday's and records the refusal in data/scores-drift.jsonl.
+      - name: Refresh imported scores through the drift gate
         run: |
-          python bench/gate_contributions.py
+          python bench/scores.py --out /tmp/scores-new.json --date "$(date -u +%F)"
+          python bench/gate_drift.py --previous data/scores.json --current /tmp/scores-new.json --apply --date "$(date -u +%F)"
+
+      - name: Every checker and gate must still pass, both directions
+        run: |
+          python bench/test_probes.py
+          python bench/test_gate.py
           python bench/test_contributions.py
           python bench/test_scores.py
+          python bench/test_jury.py
+          python bench/test_drift.py
+          python bench/test_viability.py
+          python bench/test_rank.py
+          python bench/test_claims.py
 
-      # Quality is imported, not run by us: a new provider inherits its models' published scores.
-      # Reliability and the reasoning trap are measured from our own runs and feed the ranking.
-      - name: Refresh imported scores and measured reliability
+      - name: Contribution data must still be sane
+        run: python bench/gate_contributions.py
+
+      # Reliability is measured from our own archived runs; the fourteen-day rule reads the radar history
+      # the house machine appends. Neither needs a key here.
+      - name: Recompute measured reliability and apply the fourteen-day rule
         run: |
-          python bench/scores.py --out data/scores.json --date "$(date -u +%F)"
           python bench/reliability.py --out data/reliability.json --date "$(date -u +%F)"
-          python bench/rank.py --date "$(date -u +%F)" --out .
+          python bench/gate_viability.py --today "$(date -u +%F)"
 
-      # The 14-day rule, applied by code. Free endpoints die in months and usually without an
-      # announcement; what dies gets a date and a headstone rather than quietly disappearing.
-      # probe_alive.py needs keys and runs where they exist - this only reads the history it leaves.
-      # Throughput is measured where the keys live, not in CI: it spends real quota and needs an
-      # account. This job only re-reads what the last measurement left behind.
-      - name: Apply the fourteen-day rule
-        run: python bench/gate_viability.py --today "$(date -u +%F)"
+      - name: Regenerate every page
+        run: python bench/rank.py --date "$(date -u +%F)" --out .
 
       - name: Published numbers must exist in the data
         run: python bench/gate_claims.py
-
 
       - name: Nothing private may ship
         run: python bench/gate_publish.py .
@@ -70,11 +71,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet data/ README.md RESULTS.md ALL-ENDPOINTS.md GRAVEYARD.md; then
+          FILES="data/ README.md RESULTS.md ALL-ENDPOINTS.md LIMITS.md GRAVEYARD.md"
+          if git diff --quiet -- $FILES; then
             echo "nothing changed today - no commit. A commit that moves only a timestamp is noise."
           else
-            git add data/ README.md RESULTS.md ALL-ENDPOINTS.md GRAVEYARD.md
-            git commit -m "daily: $(date -u +%F) catalogue, scores and reliability"
+            git add $FILES
+            git commit -m "daily: $(date -u +%F) catalogue, scores and regenerated pages"
             # Somebody may have pushed while this job was running; rebase rather than fail.
             git pull --rebase --autostash origin main
             git push

@@ -5,7 +5,7 @@
 | published by the provider in tokens | 300,000 |
 | derived from a published request cap at 500 tokens each, or a published unit price | 250,000 |
 | extrapolated from a 60-minute draw, where nothing above exists | 480,000 |
-| The target | 1,000,000,000 a day by 2026-11-07 |
+| The target | 1,000,000,000 quality tokens a day by 2026-11-07 |
 | **Share of it** | **0.2%** |
 | Providers with a daily figure on this shelf | 5 of 5 |
 | | |

@@ -1,8 +1,12 @@
-# ROAD TO 1 BILLION FREE LLM TOKENS/DAY
+# ROAD TO 1 BILLION FREE QUALITY LLM TOKENS / 24H
 
 A live, measured list of every free LLM API we can find, ranked by what you can actually get done with
 it: quality from official benchmarks, volume from response headers and pricing pages, and every figure
 labelled by how we know it.
+
+<!--QUALITY-->
+**Quality has a number here: an official coding index of at least 45**, imported from Artificial Analysis and never run by us. The lowest-scoring endpoints that still clear it today, so you can see where the floor sits: `mistral-medium-3-5:free` at kenari (46.9), `gemini-3.5-flash-lite` at google (49.3), `nemotron-3-ultra-550b-a55b:free` at kenari (49.3), `nvidia/nemotron-3-ultra-550b-a55b:free` at openrouter (49.3). 16 ranked endpoints clear it; 22 scored endpoints sit under it and are listed in [RESULTS.md](RESULTS.md), never ranked, with none of their tokens on the bar.
+<!--/QUALITY-->
 
 ## The five best free endpoints today
 
@@ -30,7 +34,7 @@ not money plus anything you must pay once to unlock it, and **Get key** is the p
 page, checked against its API domain so it cannot point at a lookalike.
 
 <!--EXAMPLE-->
-The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`, `gemini-3.8-flash-free`, and the score alone decides nothing: at aihubmix it sits at #4 with a value of 152.9: 50,000 tokens a day (DERIVED); at google it sits at #21 with a value of 0.0: its radar probes in the window (0 of 1 in 14 days) came back with no text, so the answered rate in the formula is 0.
+The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`, `gemini-3.8-flash-free`, and the score alone decides nothing: at aihubmix it sits at #4 with a value of 152.9: 50,000 tokens a day (DERIVED); at google it sits at #14 with a value of 0.0: its radar probes in the window (0 of 1 in 14 days) came back with no text, so the answered rate in the formula is 0.
 <!--/EXAMPLE-->
 
 ## Where this is going, out loud: one billion free tokens a day
@@ -38,7 +42,7 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 <!--ROAD-->
 `░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **~1.2%**
 
-**Roughly 12,218,019 tokens a day** is what this list can defend on 2026-09-07: 6,000,000 measured from response headers or usage endpoints (2 providers); nothing published by a provider as a daily token figure; 636,795 derived from a published request cap at 500 tokens a reply or from a published unit price (5 providers); 5,581,224 extrapolated from a 60-minute draw (1 provider). The target is 1,000,000,000 a day by 2026-11-07, 81.8 times that. Nothing here is a burst multiplied out to a day.
+**Roughly 12,218,019 quality tokens a day** is what this list can defend on 2026-09-07: 6,000,000 measured from response headers or usage endpoints (2 providers); nothing published by a provider as a daily token figure; 636,795 derived from a published request cap at 500 tokens a reply or from a published unit price (5 providers); 5,581,224 extrapolated from a 60-minute draw (1 provider). The target is 1,000,000,000 a day by 2026-11-07, 81.8 times that. Nothing here is a burst multiplied out to a day.
 
 *Bursts are a different thing.* In 30-second bursts, latest reading per provider, **11 of 18 providers handed us 140,850 tokens a minute** added together on 2026-09-07; 3 answered and delivered nothing (hetzner, mistral, ovhcloud). A burst is a rate: 100,000 tokens a minute is a fact and 144,000,000 a day is a number nobody will be allowed to spend, so the bar above is built from the daily shelf and never from this rate. Free tiers move, throttle without warning and close; one provider here dropped 46-fold between two readings taken the same day. Nothing on this page is guaranteed to you by anyone, us included.
 
@@ -53,7 +57,7 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 | published by the provider in tokens | 0 |
 | derived from a published request cap at 500 tokens each, or a published unit price | 636,795 |
 | extrapolated from a 60-minute draw, where nothing above exists | 5,581,224 |
-| The target | 1,000,000,000 a day by 2026-11-07 |
+| The target | 1,000,000,000 quality tokens a day by 2026-11-07 |
 | **Share of it** | **1.2%** |
 | Providers with a daily figure on this shelf | 8 of 18 |
 | | |
@@ -86,23 +90,16 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 | 4 | `gemini-3.8-flash-free` | aihubmix | **152.9** | 76.3 | 50,000 | DERIVED | not probed yet | terms not read; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
 | 5 | `coding-kimi-k3-free` | aihubmix | **152.7** | 76.2 | 50,000 | DERIVED | not probed yet | terms not read; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
 | 6 | `coding-glm-5.3-free` | aihubmix | **149.9** | 74.8 | 50,000 | DERIVED | not probed yet | terms not read; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
-| 7 | `gemma-4-31b` | cerebras | **143.3** | 43.4 | 1,000,000 | MEASURED | 2 of 2 in 14 days | terms not read | [get a key](https://cloud.cerebras.ai) |
-| 8 | `gemini-3.5-flash-lite` | google | **133.1** | 49.3 | 250,000 | DERIVED | 1 of 1 in 14 days | **trains on your prompts**; human review; region-restricted | [get a key](https://aistudio.google.com/apikey) |
-| 9 | `coding-minimax-m3-free` | aihubmix | **117.5** | 58.6 | 50,000 | DERIVED | not probed yet | terms not read; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
-| 10 | `@cf/google/gemma-4-26b-a4b-it` | cloudflare | **108.4** | 39.3 | 286,795 | DERIVED | 2 of 2 in 14 days; blank 200 seen in the archived run | terms not read | [get a key](https://dash.cloudflare.com/profile/api-tokens) |
-| 11 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | 52.6 | 5,000,000 | MEASURED | 1 of 2 in 14 days | terms not read | [get a key](https://xkiro.com) |
-| 12 | `gpt-oss-120b` | cerebras | **100.4** | 30.4 | 1,000,000 | MEASURED | 2 of 2 in 14 days | terms not read | [get a key](https://cloud.cerebras.ai) |
-| 13 | `minimax/minimax-m3:free` | openrouter | **100.1** | 58.6 | 25,000 | DERIVED | 2 of 2 in 14 days | terms not read | [get a key](https://openrouter.ai/keys) |
-| 14 | `mimo-v2-5:free` | kenari | **97.0** | 56.8 | 25,000 | DERIVED | not probed yet | terms not read | [get a key](https://kenari.id/) |
-| 15 | `nemotron-3-ultra-550b-a55b:free` | kenari | **84.2** | 49.3 | 25,000 | DERIVED | not probed yet | terms not read | [get a key](https://kenari.id/) |
-| 16 | `@cf/openai/gpt-oss-120b` | cloudflare | **83.9** | 30.4 | 286,795 | DERIVED | 2 of 2 in 14 days | terms not read | [get a key](https://dash.cloudflare.com/profile/api-tokens) |
-| 17 | `mistral-medium-3-5:free` | kenari | **80.1** | 46.9 | 25,000 | DERIVED | not probed yet | terms not read | [get a key](https://kenari.id/) |
-| 18 | `gemma-4-26b-a4b-it-free` | aihubmix | **78.8** | 39.3 | 50,000 | DERIVED | not probed yet | terms not read; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
-| 19 | `nemotron-3-super-120b-a12b:free` | kenari | **64.4** | 37.7 | 25,000 | DERIVED | not probed yet | terms not read | [get a key](https://kenari.id/) |
-| 20 | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | cloudflare | **23.7** | 11.9 | 48,826 | DERIVED | 2 of 2 in 14 days | terms not read | [get a key](https://dash.cloudflare.com/profile/api-tokens) |
-| 21 | `gemini-3.8-flash` | google | **0.0** | 76.3 | 10,000 | DERIVED | 0 of 1 in 14 days | **trains on your prompts**; human review; region-restricted | [get a key](https://aistudio.google.com/apikey) |
-| 22 | `minimax/minimax-m2.7:free` | openrouter | **0.0** | 52.6 | 25,000 | DERIVED | 0 of 2 in 14 days | terms not read | [get a key](https://openrouter.ai/keys) |
-| 23 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** | 49.3 | 25,000 | DERIVED | 0 of 2 in 14 days | terms not read | [get a key](https://openrouter.ai/keys) |
+| 7 | `gemini-3.5-flash-lite` | google | **133.1** | 49.3 | 250,000 | DERIVED | 1 of 1 in 14 days | **trains on your prompts**; human review; region-restricted | [get a key](https://aistudio.google.com/apikey) |
+| 8 | `coding-minimax-m3-free` | aihubmix | **117.5** | 58.6 | 50,000 | DERIVED | not probed yet | terms not read; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
+| 9 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | 52.6 | 5,000,000 | MEASURED | 1 of 2 in 14 days | terms not read | [get a key](https://xkiro.com) |
+| 10 | `minimax/minimax-m3:free` | openrouter | **100.1** | 58.6 | 25,000 | DERIVED | 2 of 2 in 14 days | terms not read | [get a key](https://openrouter.ai/keys) |
+| 11 | `mimo-v2-5:free` | kenari | **97.0** | 56.8 | 25,000 | DERIVED | not probed yet | terms not read | [get a key](https://kenari.id/) |
+| 12 | `nemotron-3-ultra-550b-a55b:free` | kenari | **84.2** | 49.3 | 25,000 | DERIVED | not probed yet | terms not read | [get a key](https://kenari.id/) |
+| 13 | `mistral-medium-3-5:free` | kenari | **80.1** | 46.9 | 25,000 | DERIVED | not probed yet | terms not read | [get a key](https://kenari.id/) |
+| 14 | `gemini-3.8-flash` | google | **0.0** | 76.3 | 10,000 | DERIVED | 0 of 1 in 14 days | **trains on your prompts**; human review; region-restricted | [get a key](https://aistudio.google.com/apikey) |
+| 15 | `minimax/minimax-m2.7:free` | openrouter | **0.0** | 52.6 | 25,000 | DERIVED | 0 of 2 in 14 days | terms not read | [get a key](https://openrouter.ai/keys) |
+| 16 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** | 49.3 | 25,000 | DERIVED | 0 of 2 in 14 days | terms not read | [get a key](https://openrouter.ai/keys) |
 <!--/RANKING-->
 
 Every endpoint we track, ranked or not, scored or not: **[ALL-ENDPOINTS.md](ALL-ENDPOINTS.md)**. All the
@@ -110,7 +107,7 @@ tables, including quality alone and privacy cost: [RESULTS.md](RESULTS.md). Ever
 source and the date we read it: [LIMITS.md](LIMITS.md).
 
 <!--COUNTS-->
-18 providers and 63 endpoints are tracked. 23 endpoints are ranked; 40 are listed with what is missing. 35 endpoints have a radar verdict in the last 14 days, 5 were probed and only ever refused (429 or 402), and 23 have not been probed yet. 7 endpoints need no key. 8 providers have a daily figure this list can defend; 10 publish none and are counted as nothing: alibaba, groq, inferx, mistral, nvidia, ollama, ovhcloud, siliconflow, uncloseai, unorouter.
+18 providers and 63 endpoints are tracked. 16 endpoints are ranked; 47 are listed with what is missing. 35 endpoints have a radar verdict in the last 14 days, 5 were probed and only ever refused (429 or 402), and 23 have not been probed yet. 7 endpoints need no key. 8 providers have a daily figure this list can defend; 10 publish none and are counted as nothing: alibaba, groq, inferx, mistral, nvidia, ollama, ovhcloud, siliconflow, uncloseai, unorouter.
 <!--/COUNTS-->
 
 ---

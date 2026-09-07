@@ -24,6 +24,9 @@ No network, no keys, standard library only.
 import json, math, re, shutil, subprocess, sys, tempfile
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")   # the golden blocks carry the bar glyphs
+
 HERE = Path(__file__).resolve().parent
 FIX = HERE / "tests" / "fixture"
 GOLD = FIX / "golden"
@@ -117,6 +120,11 @@ def main():
               "epsilon-pro: PAID-PLAN is shown and not ranked")
         check(unranked["alpha-mini"]["why_unranked"].startswith("no official benchmark score"),
               "alpha-mini: no score, not ranked")
+        check(unranked["beta-small"]["why_unranked"].startswith("below the quality floor: coding index 30.0"),
+              "beta-small: scored under the floor, listed and never ranked")
+        check(cap["per_provider"]["beta"]["daily_tokens"] == 300000 and cap["per_provider"]["beta"]["model"] == "beta-coder",
+              "beta: the account's daily figure stays on the shelf through the model that clears the floor")
+        check(cap["quality_floor_coding_index"] == 45.0, "the floor is written into capacity.json")
         check("epsilon-lite" in buried and buried["epsilon-lite"]["value"] is None
               and buried["epsilon-lite"]["daily_tokens"] is None,
               "epsilon-lite: buried, out of the ranking and out of every sum")
@@ -157,9 +165,9 @@ def main():
             beta = round(60.0 * math.log10(1 + 300000 / per_reply) * 0.5 * penalty, 1)
             check(beta == ranked["beta-coder"]["value"] == 41.7,
                   "beta-coder by hand: 60 x log10(1 + 300000/%d) x 0.5 x %s = %s" % (per_reply, penalty, beta))
-            delta = round(40.0 * math.log10(1 + 200000 / per_reply) * 1.0 * bonus, 1)
-            check(delta == ranked["delta-7b"]["value"] == 130.2,
-                  "delta-7b by hand: 40 x log10(1 + 200000/%d) x 1.0 x %s = %s" % (per_reply, bonus, delta))
+            delta = round(47.0 * math.log10(1 + 200000 / per_reply) * 1.0 * bonus, 1)
+            check(delta == ranked["delta-7b"]["value"] == 152.9,
+                  "delta-7b by hand: 47 x log10(1 + 200000/%d) x 1.0 x %s = %s" % (per_reply, bonus, delta))
             alpha = round(70.0 * math.log10(1 + 1000000 / per_reply), 1)
             check(alpha == ranked["alpha-large"]["value"] == 231.1, "alpha-large by hand = %s" % alpha)
         for page in ("RESULTS.md", "ALL-ENDPOINTS.md"):

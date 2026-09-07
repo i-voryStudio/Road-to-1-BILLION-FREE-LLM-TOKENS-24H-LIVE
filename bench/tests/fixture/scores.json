@@ -3,27 +3,105 @@
  "source": "https://scores.example/models",
  "source_note": "Fixture for bench/test_rank.py: invented scores, one unscored model.",
  "matched": [
-  {"provider": "alpha", "model": "alpha-large", "matched_as": "maker/alpha-large",
-   "artificial_analysis": {"intelligence_index": 40.0, "coding_index": 70.0, "agentic_index": 30.0},
-   "design_arena": {"codecategories": {"elo": 1300, "win_rate": 55.0, "rank": 10}}},
-  {"provider": "beta", "model": "beta-coder", "matched_as": "maker/beta-coder",
-   "artificial_analysis": {"intelligence_index": 35.0, "coding_index": 60.0, "agentic_index": 25.0},
-   "design_arena": {}},
-  {"provider": "gamma", "model": "gamma-chat:free", "matched_as": "maker/gamma-chat",
-   "artificial_analysis": {"intelligence_index": 30.0, "coding_index": 50.0, "agentic_index": 20.0},
-   "design_arena": {}},
-  {"provider": "delta", "model": "delta-7b", "matched_as": "maker/delta-7b",
-   "artificial_analysis": {"intelligence_index": 20.0, "coding_index": 40.0, "agentic_index": 10.0},
-   "design_arena": {}},
-  {"provider": "delta", "model": "delta-70b", "matched_as": "maker/delta-70b",
-   "artificial_analysis": {"intelligence_index": 33.0, "coding_index": 55.0, "agentic_index": 22.0},
-   "design_arena": {}},
-  {"provider": "epsilon", "model": "epsilon-pro", "matched_as": "maker/epsilon-pro",
-   "artificial_analysis": {"intelligence_index": 38.0, "coding_index": 65.0, "agentic_index": 28.0},
-   "design_arena": {}},
-  {"provider": "epsilon", "model": "epsilon-lite", "matched_as": "maker/epsilon-lite",
-   "artificial_analysis": {"intelligence_index": 25.0, "coding_index": 45.0, "agentic_index": 15.0},
-   "design_arena": {}}
+  {
+   "provider": "alpha",
+   "model": "alpha-large",
+   "matched_as": "maker/alpha-large",
+   "artificial_analysis": {
+    "intelligence_index": 40.0,
+    "coding_index": 70.0,
+    "agentic_index": 30.0
+   },
+   "design_arena": {
+    "codecategories": {
+     "elo": 1300,
+     "win_rate": 55.0,
+     "rank": 10
+    }
+   }
+  },
+  {
+   "provider": "beta",
+   "model": "beta-coder",
+   "matched_as": "maker/beta-coder",
+   "artificial_analysis": {
+    "intelligence_index": 35.0,
+    "coding_index": 60.0,
+    "agentic_index": 25.0
+   },
+   "design_arena": {}
+  },
+  {
+   "provider": "gamma",
+   "model": "gamma-chat:free",
+   "matched_as": "maker/gamma-chat",
+   "artificial_analysis": {
+    "intelligence_index": 30.0,
+    "coding_index": 50.0,
+    "agentic_index": 20.0
+   },
+   "design_arena": {}
+  },
+  {
+   "provider": "delta",
+   "model": "delta-7b",
+   "matched_as": "maker/delta-7b",
+   "artificial_analysis": {
+    "intelligence_index": 20.0,
+    "coding_index": 47.0,
+    "agentic_index": 10.0
+   },
+   "design_arena": {}
+  },
+  {
+   "provider": "delta",
+   "model": "delta-70b",
+   "matched_as": "maker/delta-70b",
+   "artificial_analysis": {
+    "intelligence_index": 33.0,
+    "coding_index": 55.0,
+    "agentic_index": 22.0
+   },
+   "design_arena": {}
+  },
+  {
+   "provider": "epsilon",
+   "model": "epsilon-pro",
+   "matched_as": "maker/epsilon-pro",
+   "artificial_analysis": {
+    "intelligence_index": 38.0,
+    "coding_index": 65.0,
+    "agentic_index": 28.0
+   },
+   "design_arena": {}
+  },
+  {
+   "provider": "epsilon",
+   "model": "epsilon-lite",
+   "matched_as": "maker/epsilon-lite",
+   "artificial_analysis": {
+    "intelligence_index": 25.0,
+    "coding_index": 45.0,
+    "agentic_index": 15.0
+   },
+   "design_arena": {}
+  },
+  {
+   "provider": "beta",
+   "model": "beta-small",
+   "matched_as": "maker/beta-small",
+   "artificial_analysis": {
+    "intelligence_index": 15.0,
+    "coding_index": 30.0,
+    "agentic_index": 8.0
+   },
+   "design_arena": {}
+  }
  ],
- "unmatched": [{"provider": "alpha", "model": "alpha-mini"}]
+ "unmatched": [
+  {
+   "provider": "alpha",
+   "model": "alpha-mini"
+  }
+ ]
 }

@@ -15,8 +15,15 @@
    "signup": "https://console.alpha.example/keys",
    "pause_seconds": 1,
    "models": [
-    {"id": "alpha-large"},
-    {"id": "alpha-mini", "extra_body": {"reasoning_effort": "low"}}
+    {
+     "id": "alpha-large"
+    },
+    {
+     "id": "alpha-mini",
+     "extra_body": {
+      "reasoning_effort": "low"
+     }
+    }
    ]
   },
   {
@@ -26,7 +33,12 @@
    "signup": "https://lookalike.example/beta",
    "pause_seconds": 1,
    "models": [
-    {"id": "beta-coder"}
+    {
+     "id": "beta-coder"
+    },
+    {
+     "id": "beta-small"
+    }
    ]
   },
   {
@@ -36,7 +48,9 @@
    "signup": "https://gamma.example/",
    "pause_seconds": 1,
    "models": [
-    {"id": "gamma-chat:free"}
+    {
+     "id": "gamma-chat:free"
+    }
    ]
   },
   {
@@ -46,8 +60,12 @@
    "auth_measured_on": "2026-09-01",
    "pause_seconds": 1,
    "models": [
-    {"id": "delta-7b"},
-    {"id": "delta-70b"}
+    {
+     "id": "delta-7b"
+    },
+    {
+     "id": "delta-70b"
+    }
    ]
   },
   {
@@ -57,8 +75,12 @@
    "signup": "https://console.epsilon.example/",
    "pause_seconds": 1,
    "models": [
-    {"id": "epsilon-pro"},
-    {"id": "epsilon-lite"}
+    {
+     "id": "epsilon-pro"
+    },
+    {
+     "id": "epsilon-lite"
+    }
    ]
   }
  ]

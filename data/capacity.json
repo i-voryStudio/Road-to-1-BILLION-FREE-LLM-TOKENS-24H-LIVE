@@ -1,6 +1,7 @@
 {
  "date": "2026-09-07",
  "target_tokens_per_day": 1000000000,
+ "quality_floor_coding_index": 45.0,
  "target_date": "2026-11-07",
  "defensible_tokens_per_day": 12218019,
  "share_of_target_pct": 1.22,
@@ -94,7 +95,7 @@
  },
  "providers_tracked": 18,
  "endpoints_tracked": 63,
- "endpoints_ranked": 23,
+ "endpoints_ranked": 16,
  "providers_with_no_daily_figure": [
   "alibaba",
   "groq",

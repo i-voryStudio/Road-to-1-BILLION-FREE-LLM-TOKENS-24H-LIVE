@@ -73,6 +73,12 @@ DEGRADED_PENALTY = 0.5
 # change it and every DERIVED volume figure moves, which is exactly why it should be visible.
 TOKENS_PER_REPLY = 500
 TARGET_TOKENS_PER_DAY = 1000000000
+# THE QUALITY FLOOR. The target is one billion QUALITY tokens a day, and quality has a number here: an
+# official coding index (Artificial Analysis, imported by bench/scores.py, never run by us) of at least
+# QUALITY_FLOOR. A model under it is listed and never ranked, and its provider's quota is not on the bar
+# unless another model on the same account clears the floor. The floor sits where the smallest models a
+# working developer still reaches for sit today; raising it is one constant, and every page moves with it.
+QUALITY_FLOOR = 45.0
 TARGET_DATE = "2026-11-07"
 UPTIME_WINDOW_DAYS = 14
 RANKABLE = ("MEASURED", "DECLARED", "DERIVED")
@@ -480,7 +486,8 @@ def main():
                 row["daily_tokens"] = None
                 buried.append(row)
                 continue
-            if coding is not None and vol["daily_tokens"] and vol["confidence"] in RANKABLE:
+            if (coding is not None and coding >= QUALITY_FLOOR and vol["daily_tokens"]
+                    and vol["confidence"] in RANKABLE):
                 row["value"] = value_of(coding, vol["daily_tokens"], rate, needs_key, state == "degraded")
                 row["noauth_bonus_applied"] = not needs_key
                 row["reliability_applied"] = 1.0 if rate is None else rate
@@ -491,6 +498,9 @@ def main():
                 row["value"] = None
                 row["why_unranked"] = ("no official benchmark score published for this model"
                                        if coding is None else
+                                       "below the quality floor: coding index %s, the floor is %g"
+                                       % (coding, QUALITY_FLOOR)
+                                       if coding < QUALITY_FLOOR else
                                        "only a paid-plan figure is published"
                                        if vol["confidence"] == "PAID-PLAN" else
                                        "daily volume unknown - see LIMITS.md")
@@ -514,8 +524,10 @@ def main():
         v = r.get("daily_tokens")
         if not v:
             continue
+        clears = r.get("coding_index") is not None and r["coding_index"] >= QUALITY_FLOOR
         if r["volume_confidence"] in RANKABLE:
-            if v > per_provider.get(r["provider"], {"daily_tokens": 0})["daily_tokens"]:
+            # Only quality tokens go on the bar: a provider counts through a model that clears the floor.
+            if clears and v > per_provider.get(r["provider"], {"daily_tokens": 0})["daily_tokens"]:
                 per_provider[r["provider"]] = {"daily_tokens": v, "confidence": r["volume_confidence"],
                                                "model": r["model"], "evidence": r["volume_evidence"]}
         elif r["volume_confidence"] == "PAID-PLAN":
@@ -544,19 +556,24 @@ def main():
             n_models = len(next((pp["models"] for pp in providers["providers"] if pp["name"] == name), []))                 if ot.get("per_model") else 1
             pot = int(ot["tokens"]) * max(1, n_models)
         hours = (pot / r["tokens_per_hour_drawn"]) if (pot and r["tokens_per_hour_drawn"]) else None
+        dsc = (by_model.get((name, r.get("model")), {}).get("artificial_analysis") or {}).get("coding_index")
+        quality_ok = dsc is not None and dsc >= QUALITY_FLOOR
         row = {"provider": name, "model": r.get("model"), "date": r.get("date"),
                "tokens_per_hour_drawn": r["tokens_per_hour_drawn"],
                "tokens_per_day_extrapolated": per_day,
                "minutes": r.get("minutes_run", r.get("minutes")),
                "stopped_because": plain_reason(r.get("stopped_because")),
-               "counted": pot is None and name not in per_provider,
-               "note": (("extrapolated from a 60-minute draw" if name not in per_provider else
-                         "not on the shelf: a %s daily figure already exists" % per_provider[name]["confidence"])
+               "counted": pot is None and quality_ok and name not in per_provider,
+               "note": (("extrapolated from a 60-minute draw" if (name not in per_provider and quality_ok) else
+                         "not on the shelf: a %s daily figure already exists" % per_provider[name]["confidence"]
+                         if name in per_provider else
+                         "not counted: the drawn model has no official coding index at or above the quality "
+                         "floor of %g" % QUALITY_FLOOR)
                         if pot is None else
                         "not counted: the only free capacity here is a one-time grant of %s tokens, and at the "
                         "drawn rate it lasts about %.0f hours; a grant is not a day" % (num(pot), hours))}
         drawn_who.append(row)
-        if name not in per_provider and pot is None:
+        if name not in per_provider and pot is None and quality_ok:
             per_provider[name] = {"daily_tokens": per_day, "confidence": "DRAWN", "model": r.get("model"),
                                   "evidence": "%s tokens drawn per hour x 24: extrapolated from a "
                                               "60-minute draw on %s" % (num(r["tokens_per_hour_drawn"]),
@@ -835,6 +852,7 @@ def main():
     (out / "data" / "capacity.json").write_text(json.dumps({
         "date": a.date,
         "target_tokens_per_day": TARGET_TOKENS_PER_DAY,
+        "quality_floor_coding_index": QUALITY_FLOOR,
         "target_date": TARGET_DATE,
         "defensible_tokens_per_day": defensible,
         "share_of_target_pct": round(pct, 2),
@@ -926,7 +944,7 @@ def main():
                       % (num(drawn_total), len(drawn_names), "" if len(drawn_names) == 1 else "s")
                       if drawn_names else "nothing yet from a sustained draw")
     R = ["`%s`  **~%.1f%%**" % (bar, pct), "",
-         "**Roughly %s tokens a day** is what this list can defend on %s: %s. The target is "
+         "**Roughly %s quality tokens a day** is what this list can defend on %s: %s. The target is "
          "%s a day by %s, %s times that. Nothing here is a burst multiplied out to a day."
          % (num(defensible), a.date, "; ".join(shelf_bits), num(TARGET_TOKENS_PER_DAY), TARGET_DATE,
             "%.1f" % multiple if multiple else "?"), "",
@@ -960,7 +978,7 @@ def main():
          "| derived from a published request cap at %d tokens each, or a published unit price | %s |"
          % (TOKENS_PER_REPLY, num(derived)),
          "| extrapolated from a 60-minute draw, where nothing above exists | %s |" % num(drawn_total),
-         "| The target | %s a day by %s |" % (num(TARGET_TOKENS_PER_DAY), TARGET_DATE),
+         "| The target | %s quality tokens a day by %s |" % (num(TARGET_TOKENS_PER_DAY), TARGET_DATE),
          "| **Share of it** | **%.1f%%** |" % pct,
          "| Providers with a daily figure on this shelf | %d of %d |" % (len(per_provider), n_providers),
          "| | |",
@@ -1002,6 +1020,16 @@ def main():
 
     if rows:
         put("TOP5", head.rstrip("\n").split("\n") + [rank_row(i, r) for i, r in enumerate(rows[:5], 1)])
+        anchors = sorted(rows, key=lambda r: (r["coding_index"], r["provider"]))[:4]
+        below = [r for r in unranked if r.get("coding_index") is not None and r["coding_index"] < QUALITY_FLOOR]
+        put("QUALITY", ["**Quality has a number here: an official coding index of at least %g**, imported from "
+                        "Artificial Analysis and never run by us. The lowest-scoring endpoints that still clear it "
+                        "today, so you can see where the floor sits: %s. %d ranked endpoint%s clear it; %d scored "
+                        "endpoint%s sit under it and are listed in [RESULTS.md](RESULTS.md), never ranked, with none "
+                        "of their tokens on the bar."
+                        % (QUALITY_FLOOR,
+                           ", ".join("`%s` at %s (%s)" % (r["model"], r["provider"], r["coding_index"]) for r in anchors) or "none yet",
+                           len(rows), "" if len(rows) == 1 else "s", len(below), "" if len(below) == 1 else "s")])
         put("RANKING", head.rstrip("\n").split("\n") + [rank_row(i, r) for i, r in enumerate(rows[:30], 1)])
 
     # THE WHOLE LIST, one row per provider, on the shelf each figure belongs to.

@@ -1,0 +1,7 @@
+`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **~0.2%**
+
+**Roughly 2,030,000 tokens a day** is what this list can defend on 2026-09-07: 1,000,000 measured from response headers or usage endpoints (1 provider); 300,000 published by a provider as a daily token figure (1 provider); 250,000 derived from a published request cap at 500 tokens a reply or from a published unit price (2 providers); 480,000 extrapolated from a 60-minute draw (1 provider). The target is 1,000,000,000 a day by 2026-11-07, 492.6 times that. Nothing here is a burst multiplied out to a day.
+
+*Bursts are a different thing.* In 30-second bursts, latest reading per provider, **3 of 5 providers handed us 22,500 tokens a minute** added together on 2026-09-01; 1 answered and delivered nothing (gamma). A burst is a rate: 100,000 tokens a minute is a fact and 144,000,000 a day is a number nobody will be allowed to spend, so the bar above is built from the daily shelf and never from this rate. Free tiers move, throttle without warning and close; one provider here dropped 2-fold between two readings taken the same day. Nothing on this page is guaranteed to you by anyone, us included.
+
+*What they allow.* The only output-only ceiling published (beta: 50,000 output tokens a minute) is 7% of the 694,444 a minute the target works out to. Ceilings published as input-plus-output, or without saying which, add up to 26,000 a minute across 2 providers and cannot be compared with an output target, so they are not.

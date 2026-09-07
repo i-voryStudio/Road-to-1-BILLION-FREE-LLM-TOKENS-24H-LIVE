@@ -1,0 +1,17 @@
+{
+ "checked_on": "2026-09-07",
+ "rule": {"flaky_from_days": 1, "degraded_from_days": 4, "buried_at_days": 14},
+ "healthy": [
+  {"provider": "alpha", "model": "alpha-large", "days_down": 0, "last_alive": "2026-09-07", "probed_days": 2, "first_probe": "2026-09-06", "down_since": null},
+  {"provider": "gamma", "model": "gamma-chat:free", "days_down": 0, "last_alive": "2026-09-07", "probed_days": 2, "first_probe": "2026-09-06", "down_since": null},
+  {"provider": "delta", "model": "delta-7b", "days_down": 0, "last_alive": "2026-09-07", "probed_days": 1, "first_probe": "2026-09-07", "down_since": null},
+  {"provider": "epsilon", "model": "epsilon-pro", "days_down": 0, "last_alive": "2026-09-07", "probed_days": 2, "first_probe": "2026-09-06", "down_since": null}
+ ],
+ "flaky": [],
+ "degraded": [
+  {"provider": "beta", "model": "beta-coder", "days_down": 5, "last_alive": "2026-09-02", "probed_days": 7, "first_probe": "2026-09-01", "down_since": "2026-09-03"}
+ ],
+ "buried": [
+  {"provider": "epsilon", "model": "epsilon-lite", "days_down": 14, "last_alive": "2026-08-23", "probed_days": 15, "first_probe": "2026-08-23", "down_since": "2026-08-24"}
+ ]
+}

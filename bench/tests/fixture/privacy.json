@@ -1,0 +1,28 @@
+{
+ "_comment": "Fixture for bench/test_rank.py.",
+ "read_on": "2026-09-01",
+ "providers": {
+  "alpha": {
+   "trains_on_free_tier": "yes",
+   "logs_prompts": "yes",
+   "human_review": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "source": "https://alpha.example/terms",
+   "read_on": "2026-09-01",
+   "quotes": ["We use content submitted to the free tier to improve our models."]
+  },
+  "beta": {"trains_on_free_tier": "UNKNOWN", "logs_prompts": "UNKNOWN", "human_review": "UNKNOWN", "retention": "UNKNOWN", "region_restriction": "UNKNOWN"},
+  "gamma": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "region_restriction": "May not be used for apps serving users in Ruritania",
+   "source": "https://gamma.example/terms",
+   "read_on": "2026-09-01",
+   "quotes": ["The free tier may not be used to serve users located in Ruritania."]
+  },
+  "delta": {"trains_on_free_tier": "UNKNOWN", "logs_prompts": "UNKNOWN", "human_review": "UNKNOWN", "retention": "UNKNOWN", "region_restriction": "UNKNOWN"}
+ }
+}

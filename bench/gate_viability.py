@@ -36,12 +36,15 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
+sys.path.insert(0, str(HERE))
 FLAKY_FROM, DEGRADED_FROM, BURY_AT = 1, 4, 14
-UP_STATES = {"alive", "empty", "rate_limited", "payment_required"}   # answered, even if not usefully
-DOWN_STATES = {"down", "overloaded"}
-# `blocked` (401/403/406/451) is in NEITHER set on purpose. It means the endpoint refused the caller - our
-# key, the caller's IP, the caller's region - and counting that toward a provider's death would let our own scanning
-# bury a live service. It is skipped entirely, exactly like a day we did not probe.
+# ONE definition of what a radar state means, shared with rank.py. `empty` is UP here (the endpoint
+# answered, even if not usefully) and NOT ANSWERED there (a blank reply is worth nothing to the
+# reader); bench/states.py says why both are right. `blocked` (401/403/406/451) is in NEITHER set on
+# purpose: it means the endpoint refused the CALLER - the credential, the IP, the region - and counting
+# that toward a provider's death would let the scanning itself bury a live service. Skipped, like a
+# day not probed.
+from states import UP_STATES, DOWN_STATES
 
 
 def read_history(path):

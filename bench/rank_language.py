@@ -14,7 +14,7 @@ Turn raw probe results, jury verdicts and rate limits into the language tables.
 
     python bench/rank.py results.json --jury jury.json --out .
 
-Writes RESULTS.md, LIMITS.md and data/models.{json,csv}. Everything published is generated from here,
+Writes RESULTS.md and data/models.{json,csv} (LIMITS.md is written by rank.py). Everything published is generated from here,
 so two tables in this repo cannot disagree with each other.
 
 Scoring, stated once so it is arguable:
@@ -84,7 +84,7 @@ def main():
     ap.add_argument("--out", default=".")
     ap.add_argument("--exclude", default="siliconflow",
                     help="providers to leave out of the quality ranking, comma-separated. Default excludes "
-                         "siliconflow: the key was answered with 402, which is a fact about the caller, not about them.")
+                         "siliconflow: every call returned 402, which is a fact about the account, not about them.")
     ap.add_argument("--date", required=True, help="the date the battery was run, YYYY-MM-DD")
     a = ap.parse_args()
 
@@ -129,7 +129,7 @@ def main():
     models, unreachable = [], []
     for (provider, model), d in sorted(per.items()):
         # A probe that never got an answer is not a quality failure. 503, 429, 402 and timeouts say the
-        # endpoint was unavailable or the calling account was, and scoring those as zero would publish a lie.
+        # endpoint was unavailable or the account was, and scoring those as zero would publish a lie.
         delivered = [h for h in d["http"] if h == 200]
         blocked = len(d["http"]) - len(delivered)
         # Below half the probes answered, whatever came back is not a measurement of the model. Ranking
@@ -323,7 +323,7 @@ def main():
             lines.append("| `%s` | %s | %d/%d | %s | %s |" % (u["model"], u["provider"],
                                                               u.get("answered", 0), u.get("of", 0),
                                                               ", ".join(str(h) for h in u["http"]), why))
-        lines += ["", "A `0` code is a timeout on our side. `402` is the calling account balance, not the "
+        lines += ["", "A `0` code is a timeout on our side. `402` is the account's balance, not the "
                       "provider's capability. `429` and `503` mean the endpoint was rate-limiting or "
                       "overloaded at that moment, which is worth knowing about a free tier, but is not a "
                       "measurement of the model.", ""]
@@ -331,59 +331,11 @@ def main():
         lines += ["- Excluded by request: " + ", ".join(sorted(excluded)) + ". See LIMITS.md."]
     (out / "RESULTS.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
-    lim = ["# Rate limits, and how we know them", "",
-           "Read on %s. Source of truth: [`bench/limits.json`](bench/limits.json) - correcting a number here "
-           "is a one-line pull request." % limits.get("read_on", a.date), "",
-           "Three confidence levels, and the difference matters more than the numbers:", "",
-           "- **MEASURED** - we saw it: a response header, or a 429 we walked into.",
-           "- **DECLARED** - the provider says so on a page we read, with the date we read it.",
-           "- **UNKNOWN** - nobody publishes it and we did not measure it. It stays unknown. We do not copy a "
-           "figure from another list to fill the gap, and unknown does not mean unlimited.", ""]
-    for name, p in limits["providers"].items():
-        lim += ["## %s" % name, "",
-                "- **Confidence:** %s" % p.get("confidence", "UNKNOWN"),
-                "- **Limit applies per:** %s" % p.get("scope", "?").upper() +
-                (" - so a second API key does not raise it." if p.get("scope") in ("organization", "project") else ""),
-                ]
-        if p.get("source"):
-            lim.append("- **Source:** %s (read %s)" % (p["source"], p.get("read_on", "?")))
-        if p.get("measured_on"):
-            lim.append("- **Measured:** %s, %s" % (p["measured_on"], p.get("measured_how", "")))
-        if p.get("volatile"):
-            lim.append("- **VOLATILE** - re-measure before relying on it.")
-        if p.get("binding_limit"):
-            lim.append("- **The limit that actually bites:** %s" % p["binding_limit"])
-        if p.get("caveat"):
-            lim += ["", p["caveat"]]
-        if p.get("models"):
-            lim += ["", "| Model | RPM | RPD | TPM | TPD |", "|---|---|---|---|---|"]
-            for mid, v in p["models"].items():
-                lim.append("| `%s` | %s | %s | %s | %s |" % (mid, v.get("rpm", "-"), v.get("rpd", "-") or "-",
-                                                             v.get("tpm", "-"), v.get("tpd", "-")))
-        elif p.get("all_models", {}).get("rpd") or p.get("all_models", {}).get("rpm"):
-            v = p["all_models"]
-            lim += ["", "All models: %s" % ", ".join("%s %s" % (k.upper(), val) for k, val in v.items() if val)]
-        if p.get("measured_concurrency"):
-            lim += ["", "**Concurrency, measured %s** - how many calls the model takes in parallel, which no "
-                        "rate-limit table tells you:" % p["measured_concurrency"].get("measured_on", "?")]
-            for mid, note in p["measured_concurrency"].items():
-                if mid not in ("measured_on",):
-                    lim.append("- `%s`: %s" % (mid, note))
-        if p.get("free_models_combined"):
-            lim += ["", "| Lifetime credits purchased | Req/min | Req/day |", "|---|---|---|"]
-            for cond, v in p["free_models_combined"].items():
-                lim.append("| %s | %s | %s |" % (cond.replace("_", " "), v["rpm"], v["rpd"]))
-        if p.get("free_allocation"):
-            lim += ["", "Free allocation: %s" % json.dumps(p["free_allocation"])]
-            if p.get("neuron_cost_examples"):
-                lim += ["", "| Model | Neurons / M input | Neurons / M output |", "|---|---|---|"]
-                for mid, v in p["neuron_cost_examples"].items():
-                    lim.append("| `%s` | {:,} | {:,} |".format(v["input_per_million"], v["output_per_million"]) % mid)
-        lim.append("")
-    (out / "LIMITS.md").write_text("\n".join(lim) + "\n", encoding="utf-8", newline="\n")
+    # LIMITS.md is written by bench/rank.py, whole, from bench/limits.json - not here. This file used
+    # to write it too, which gave one page two writers and a stale header; see rank.py.
 
     judged = sum(1 for m in models if m["judged"])
-    print("wrote RESULTS.md, LIMITS.md, data/models.json, data/models.csv")
+    print("wrote RESULTS.md, data/models.json, data/models.csv")
     print("  %d models ranked (%d judged, %d mechanical-only), %d with a known daily limit"
           % (len(models), judged, len(models) - judged, len(known)))
     if unreachable:

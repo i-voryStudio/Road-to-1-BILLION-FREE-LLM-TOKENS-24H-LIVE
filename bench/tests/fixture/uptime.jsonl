@@ -1,0 +1,13 @@
+{"date": "2026-08-01", "provider": "alpha", "model": "alpha-large", "state": "down", "http": 0, "seconds": 30.0, "note": "outside the 14-day window: must be ignored"}
+{"date": "2026-09-06", "provider": "alpha", "model": "alpha-large", "state": "alive", "http": 200, "seconds": 1.2, "note": ""}
+{"date": "2026-09-07", "provider": "alpha", "model": "alpha-large", "state": "alive", "http": 200, "seconds": 1.1, "note": ""}
+{"date": "2026-09-07", "provider": "alpha", "model": "alpha-mini", "state": "empty", "http": 200, "seconds": 2.0, "note": "200 with no text"}
+{"date": "2026-09-06", "provider": "beta", "model": "beta-coder", "state": "alive", "http": 200, "seconds": 1.5, "note": ""}
+{"date": "2026-09-07", "provider": "beta", "model": "beta-coder", "state": "down", "http": 500, "seconds": 0.4, "note": ""}
+{"date": "2026-09-06", "provider": "gamma", "model": "gamma-chat:free", "state": "empty", "http": 200, "seconds": 3.0, "note": "200 with no text"}
+{"date": "2026-09-07", "provider": "gamma", "model": "gamma-chat:free", "state": "empty", "http": 200, "seconds": 3.1, "note": "200 with no text"}
+{"date": "2026-09-07", "provider": "delta", "model": "delta-7b", "state": "alive", "http": 200, "seconds": 4.0, "note": ""}
+{"date": "2026-09-06", "provider": "epsilon", "model": "epsilon-pro", "state": "rate_limited", "http": 429, "seconds": 0.3, "note": "not a verdict"}
+{"date": "2026-09-07", "provider": "epsilon", "model": "epsilon-pro", "state": "alive", "http": 200, "seconds": 0.9, "note": ""}
+{"date": "2026-09-06", "provider": "epsilon", "model": "epsilon-lite", "state": "payment_required", "http": 402, "seconds": 0.3, "note": "probed, refused: not a verdict either way"}
+{"date": "2026-09-07", "provider": "epsilon", "model": "epsilon-lite", "state": "no_key", "http": 0, "seconds": 0.0, "note": "skipped"}

@@ -1,0 +1,65 @@
+{
+ "_comment": [
+  "Fixture for bench/test_rank.py. Five invented providers on .example hosts, one per label path.",
+  "alpha: key, MEASURED daily figure, two burst readings (the second much lower), one unscored model.",
+  "beta: key, DECLARED daily token figure, degraded in viability.json, sign-up link on a lookalike domain.",
+  "gamma: key, request cap only (DERIVED), $1 unlock, 0 of 2 radar probes, a 0-rate burst row.",
+  "delta: no key at all (the 1.25 bonus), a unit-price allowance (DERIVED both ways), one model never probed.",
+  "epsilon: key, only a paid-plan figure (PAID-PLAN, unranked), a 60-minute draw (DRAWN), one buried model."
+ ],
+ "providers": [
+  {
+   "name": "alpha",
+   "url": "https://api.alpha.example/v1/chat/completions",
+   "key_env": "ALPHA_API_KEY",
+   "signup": "https://console.alpha.example/keys",
+   "pause_seconds": 1,
+   "models": [
+    {"id": "alpha-large"},
+    {"id": "alpha-mini", "extra_body": {"reasoning_effort": "low"}}
+   ]
+  },
+  {
+   "name": "beta",
+   "url": "https://inference.beta.example/v1/chat/completions",
+   "key_env": "BETA_API_KEY",
+   "signup": "https://lookalike.example/beta",
+   "pause_seconds": 1,
+   "models": [
+    {"id": "beta-coder"}
+   ]
+  },
+  {
+   "name": "gamma",
+   "url": "https://api.gamma.example/v1/chat/completions",
+   "key_env": "GAMMA_API_KEY",
+   "signup": "https://gamma.example/",
+   "pause_seconds": 1,
+   "models": [
+    {"id": "gamma-chat:free"}
+   ]
+  },
+  {
+   "name": "delta",
+   "url": "https://open.delta.example/v1/chat/completions",
+   "auth": "none",
+   "auth_measured_on": "2026-09-01",
+   "pause_seconds": 1,
+   "models": [
+    {"id": "delta-7b"},
+    {"id": "delta-70b"}
+   ]
+  },
+  {
+   "name": "epsilon",
+   "url": "https://api.epsilon.example/v1/chat/completions",
+   "key_env": "EPSILON_API_KEY",
+   "signup": "https://console.epsilon.example/",
+   "pause_seconds": 1,
+   "models": [
+    {"id": "epsilon-pro"},
+    {"id": "epsilon-lite"}
+   ]
+  }
+ ]
+}

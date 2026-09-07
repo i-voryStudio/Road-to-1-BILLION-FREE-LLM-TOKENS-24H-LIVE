@@ -1,0 +1,88 @@
+{
+ "_comment": "Fixture for bench/test_rank.py. Invented figures on .example hosts; one label path per provider.",
+ "read_on": "2026-09-01",
+ "providers": {
+  "alpha": {
+   "scope": "account",
+   "confidence": "MEASURED",
+   "measured_on": "2026-09-01",
+   "measured_how": "rate-limit response headers on 2026-09-01",
+   "caveat": "A token cap and a request cap; the token cap binds.",
+   "all_models": {"rpm": 10, "tpm": 20000, "rpd": 4000, "tpd": 1000000},
+   "binding_limit": "tokens per day, at 1,000,000",
+   "one_time": {
+    "tokens": 500000,
+    "credits_usd": null,
+    "confidence": "DECLARED",
+    "source": "https://alpha.example/pricing",
+    "read_on": "2026-09-01",
+    "quote": "500,000 tokens when you sign up.",
+    "expires": "30 days"
+   },
+   "signup_requires": {"card": "no", "phone": "no", "note": "", "read_on": "2026-09-01"}
+  },
+  "beta": {
+   "scope": "account",
+   "confidence": "DECLARED",
+   "source": "https://beta.example/limits",
+   "read_on": "2026-09-01",
+   "caveat": "Publishes a daily token figure and a split per-minute ceiling.",
+   "all_models": {"rpm": 60, "tpm_input": 400000, "tpm_output": 50000, "rpd": null, "tpd": 300000},
+   "binding_limit": "tokens per day, at 300,000",
+   "monthly": {
+    "tokens": null,
+    "credits_usd": 5,
+    "confidence": "DECLARED",
+    "source": "https://beta.example/pricing",
+    "read_on": "2026-09-01",
+    "quote": "$5 /mo in credits.",
+    "expires": "monthly"
+   },
+   "signup_requires": {"card": "yes", "phone": "not stated", "note": "", "read_on": "2026-09-01"}
+  },
+  "gamma": {
+   "scope": "account",
+   "confidence": "DECLARED",
+   "source": "https://gamma.example/docs/limits",
+   "read_on": "2026-09-01",
+   "caveat": "A request cap, unlocked by a one-dollar top-up.",
+   "all_models": {"rpm": 5, "rpd": 100, "tpd": null},
+   "binding_limit": "requests per day, at 100",
+   "unlock": {"costs_usd": 1, "one_time": true, "quote": "A $1 top-up switches you to daily quotas."},
+   "signup_requires": {"card": "no", "phone": "no", "note": "", "read_on": "2026-09-01"}
+  },
+  "delta": {
+   "scope": "unknown",
+   "confidence": "DECLARED",
+   "source": "https://delta.example/pricing",
+   "read_on": "2026-09-01",
+   "caveat": "Bills in units and publishes the conversion on the same page.",
+   "all_models": {"rpd": null, "tpd": null, "rpm": 30},
+   "free_allocation": {"neurons_per_day": 1000},
+   "neuron_cost_examples": {
+    "delta-7b": {"input_per_million": 100, "output_per_million": 5000}
+   },
+   "derived": {
+    "output_tokens_per_day": 200000,
+    "how": "1,000 units/day / 5,000 units per 1M output tokens, delta-7b",
+    "confidence": "DERIVED"
+   },
+   "binding_limit": "units per day, at 1,000",
+   "signup_requires": {"card": "no", "phone": "no", "note": "No account at all.", "read_on": "2026-09-01"}
+  },
+  "epsilon": {
+   "scope": "organization",
+   "confidence": "DECLARED",
+   "source": "https://epsilon.example/rate-limits",
+   "read_on": "2026-09-01",
+   "caveat": "The published table is the Developer plan, not the free tier.",
+   "rpd_plan": "Developer",
+   "models": {
+    "epsilon-pro": {"rpm": 20, "rpd": 1000, "tpm": 6000, "tpd": 100000, "rpd_confidence": "DECLARED", "rpd_is_paid_plan": true}
+   },
+   "all_models": {"rpm": 20, "tpm": 6000, "rpd": null, "tpd": null, "note": "per model; the largest is shown"},
+   "binding_limit": "tokens per minute, at 6,000",
+   "signup_requires": {"card": "not stated", "phone": "not stated", "note": "", "read_on": "2026-09-01"}
+  }
+ }
+}

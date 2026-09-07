@@ -12,8 +12,11 @@ a good correction includes:
 
 - the new number,
 - **how you know it** — a response header you saw, a page you read with the date, or a 429 you walked into,
-- and the right `confidence`: `MEASURED` if you saw it, `DECLARED` if the provider says so, `UNKNOWN`
-  if nobody publishes it.
+- and the right `confidence`: `MEASURED` if you saw it, `DECLARED` if the provider says so in the
+  unit you are recording, `UNKNOWN` if nobody publishes it. A daily token figure you computed
+  from a request cap is not DECLARED: record the request cap and `bench/rank.py` derives the
+  tokens and labels the result `DERIVED`, with the arithmetic. A figure published only for a paid
+  plan carries `rpd_is_paid_plan: true` and is shown but never ranked.
 
 `UNKNOWN` is a valid, welcome contribution. Changing a wrong number to "unknown, and here is why" makes
 this repo better. Please do **not** copy a figure from another list to fill a gap — that is how the same
@@ -45,13 +48,20 @@ python bench/benchmark.py --out results.json --only yourprovider
 ```
 
 Open a pull request with the results file, the date, and the provider entry for
-[`bench/providers.json`](bench/providers.json). Adding a provider is a JSON block: endpoint, key
-variable, model list, pacing.
+[`bench/providers.json`](bench/providers.json). Adding a provider is **two edits in the same pull
+request**: the JSON block (endpoint, key variable, sign-up page, model list, pacing) AND the API host
+added to `ALLOWED_HOSTS` in [`bench/gate_contributions.py`](bench/gate_contributions.py). The gate
+refuses a JSON-only addition by design, because this benchmark sends real API keys to every host it
+knows, so every destination is declared in code where a reviewer sees it. A `limits.json` entry
+with `all_models` (every value may be `null`) and a `privacy.json` entry (all `UNKNOWN` is fine)
+complete the row; without them the ranking prints UNKNOWN, which is correct and less useful.
 
-## 4. Disagree with the jury
+## 4. Disagree with the jury of the archived language benchmark
 
-Half of each quality score comes from a language model judging paragraphs, which is a conflict of
-interest we cannot remove — only expose. So:
+The quality half of the main ranking is **imported** from official benchmarks and has no jury. The
+jury belongs to the archived Romanian benchmark in `results/`, where half of each score came from a
+language model judging paragraphs, which is a conflict of interest that can only be exposed, not
+removed. So, for that benchmark:
 
 ```bash
 python bench/judge.py results.json --export judged/
@@ -65,8 +75,10 @@ score is reproducible without any of this — that half is not a matter of opini
 ## Before you open a pull request
 
 ```bash
-python bench/test_probes.py      # the probe checkers, both directions. Must exit 0.
-python bench/gate_publish.py .   # blocks keys, account state, private paths. Must exit 0.
+python bench/test_probes.py        # the probe checkers, both directions. Must exit 0.
+python bench/gate_publish.py .     # blocks keys, account state, private paths. Must exit 0.
+python bench/gate_contributions.py # one key, one host; a new host must be declared in code. Must exit 0.
+python bench/test_rank.py          # the page generator against its fixture. Must exit 0.
 ```
 
 CI runs both. The publication gate exists because raw benchmark output is exactly the kind of file
@@ -75,8 +87,11 @@ inside error bodies.
 
 ## House rules for the data
 
-- **Measured, declared and unknown are three different things** and never get flattened into one column.
-- **A provider we could not test properly is excluded, not scored zero.** SiliconFlow is out of the
-  ranking because the key was answered with 402 — that is a fact about the calling account, not about them.
-- **Every table in this repo is generated** by `bench/rank.py`. Edit the data, not the Markdown, or your
-  change will be overwritten on the next run.
+- **Measured, declared, derived, paid-plan and unknown are five different labels** and a daily
+  figure carries the one its evidence deserves; only the first three may be ranked or summed.
+- **An endpoint that refused the caller is recorded as what it returned**, an HTTP code and a date, never as
+  a statement about anyone's account. A `402` says the endpoint stops serving without credit; it
+  does not score the provider zero and it does not describe a balance.
+- **Every number on every public page is generated** by `bench/rank.py`: the README blocks between
+  markers, RESULTS.md, ALL-ENDPOINTS.md, LIMITS.md and `data/`. Edit the data, not the Markdown, or
+  your change will be overwritten on the next run.

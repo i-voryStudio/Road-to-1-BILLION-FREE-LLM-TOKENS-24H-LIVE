@@ -17,8 +17,8 @@ estimated.
 
 ## The provider catalogue we cross-check against
 
-**[OmniRoute](https://github.com/diegosouzapw/OmniRoute)** (MIT, 62k stars, 351 providers) is the most
-complete map of free LLM endpoints we found. We read its full provider catalogue — `noauth.ts`,
+**[OmniRoute](https://github.com/diegosouzapw/OmniRoute)** (MIT) is the most complete map of free LLM
+endpoints we found. We read its full provider catalogue — `noauth.ts`,
 `apikey/gateways.ts`, `inference-hosts.ts`, `regional.ts`, `frontier-labs.ts`, `specialty-media.ts`,
 `enterprise-cloud.ts` — and used it to find what we were missing.
 
@@ -26,7 +26,7 @@ complete map of free LLM endpoints we found. We read its full provider catalogue
 measured by us or read from the provider's own terms, with the date beside it. What we did not take,
 and why:
 
-- **Their headline count of 352 providers.** It contains measured duplicates: `naga-ai` and `naga-ac`
+- **Their headline provider count.** It contains measured duplicates: `naga-ai` and `naga-ac`
   are the same host, `sparkdesk` is an alias over `iflytek`, `doubao` takes its key from the same
   console as `volcengine`.
 - **Their `hasFree: true` boolean.** It covers both a recurring quota and credits that run out — the
@@ -82,8 +82,13 @@ are in [GRAVEYARD.md](GRAVEYARD.md) with the announcement and what the endpoint 
 quietly and a list nobody re-runs decays within weeks. It is the reason every row here carries the day
 it was called, and the reason the two keyless endpoints we do publish were called without a key before
 they were listed.
-| [amardeeplakshkar/awesome-free-llm-apis](https://github.com/amardeeplakshkar/awesome-free-llm-apis) | 158 | permanent-free only: no trials, no promos — a stricter definition |
-| [raullenchai/free-llm-api-resources](https://github.com/raullenchai/free-llm-api-resources) | — | keeps alive the fork of `cheahjs/free-llm-api-resources`, which now 404s |
+
+Two more lists, read the same way:
+
+| Repo | Stars | What it does better than us |
+|---|---|---|
+| [amardeeplakshkar/awesome-free-llm-apis](https://github.com/amardeeplakshkar/awesome-free-llm-apis) | 158 | permanent-free only: no trials, no promos: a stricter definition |
+| [raullenchai/free-llm-api-resources](https://github.com/raullenchai/free-llm-api-resources) | - | keeps alive the fork of `cheahjs/free-llm-api-resources`, which now 404s |
 
 **What none of them publishes, and why this repo exists:** a ranking by quality *times* volume, whether
 the provider actually answers, and what the free tier costs you in things that are not money.

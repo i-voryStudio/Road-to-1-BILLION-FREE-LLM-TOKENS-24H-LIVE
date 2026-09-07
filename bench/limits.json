@@ -2,11 +2,16 @@
  "_comment": [
   "Rate limits as DATA, not prose, so correcting one is a one-line pull request.",
   "",
-  "Every entry carries how we know it. The three values of `confidence` are not decoration:",
-  "  MEASURED  - we saw it ourselves: a response header, or a 429 we walked into. `measured_on` says when.",
+  "Every entry carries how we know it. The values of `confidence` are not decoration:",
+  "  MEASURED  - we saw it ourselves: a response header, a usage endpoint, or a 429 we walked into.",
+  "              `measured_on` says when.",
   "  DECLARED  - the provider says so on a page we read. `source` and `read_on` say where and when.",
+  "  DERIVED   - arithmetic on figures the provider publishes, with the arithmetic shown. A daily",
+  "              token figure computed from a request cap is DERIVED, never DECLARED, because the",
+  "              provider published the requests and we chose the tokens per reply.",
   "  PAID-PLAN - the only published number belongs to a PAID tier, not the free one. Publishing it",
-  "              as a free-tier figure is the mistake this repo calls out in its own README.",
+  "              as a free-tier figure is the mistake this repo calls out in its own README. A row",
+  "              whose only daily figure is PAID-PLAN is not ranked and enters no sum.",
   "  UNKNOWN   - nobody publishes it and we have not measured it. This stays UNKNOWN. We do not guess,",
   "              and we do not copy a number out of another list to fill the hole.",
   "",
@@ -16,14 +21,22 @@
   "`volatile: true` means this number moved under us at least once, or the provider stopped publishing it.",
   "Re-measure before quoting it.",
   "",
-  "TWO KINDS OF FREE, AND THEY ARE NOT THE SAME SHELF:",
+  "ONE SHAPE FOR THE PER-MINUTE CEILING: every provider has `all_models` with rpm / tpm / tpm_input /",
+  "tpm_output at provider level. Where the provider publishes per-model figures they stay under",
+  "`models` for detail, and `all_models` carries the largest of them with a `note` saying so.",
+  "",
+  "THREE KINDS OF FREE, AND THEY ARE NOT THE SAME SHELF:",
   "  RECURRING  what you get every day, forever. This is what `all_models` and `models` describe.",
+  "  MONTHLY    a pot that refreshes each month: credits in money or tokens. It lives in `monthly`.",
   "  ONE-TIME   a bundle handed over once at sign-up: a pot of tokens, or credits in money. Real",
   "             on day one, gone on day two. It lives in `one_time` and is NEVER added to the",
   "             daily figure - every list that adds them together is quoting a number that stops",
   "             being true after 24 hours.",
-  "A one-time grant in MONEY is not converted into tokens unless the provider publishes a price we",
-  "read ourselves. $5 of credits is $5 of credits until then."
+  "A grant in MONEY is not converted into tokens unless the provider publishes a price we read",
+  "ourselves. $5 of credits is $5 of credits until then.",
+  "",
+  "Nothing in this file describes an account. What an endpoint did is recorded as the HTTP code it",
+  "returned and the date it returned it; what a meter read at that moment is not recorded."
  ],
  "read_on": "2026-09-06",
  "providers": {
@@ -68,9 +81,16 @@
      "rpd_is_paid_plan": true
     }
    },
+   "all_models": {
+    "rpm": 30,
+    "tpm": 8000,
+    "rpd": null,
+    "tpd": null,
+    "note": "per model; the largest is shown"
+   },
    "binding_limit": "TPM, not RPD. 8,000 tokens per minute is what you actually hit: a long prompt returns 413 long before you approach 1,000 requests. We measured that 413 on an article-length prompt.",
    "measured": {
-    "note": "Re-read from their headers on 2026-09-07 on the key: 1000 requests/day and 8000 tokens/minute. The per-minute token ceiling is what actually stops you - a long prompt returns 413 long before the request count matters.",
+    "note": "Rate-limit response headers read on 2026-09-07 on a key with no paid plan reported x-ratelimit-limit-requests 1000 per day and x-ratelimit-limit-tokens 8000 per minute, the same figures as the published Developer-plan table. Whether that is the free tier or a trial is not published anywhere we could find, so the daily figure keeps the PAID-PLAN label and the row is not ranked on it. The per-minute token ceiling is what actually stops you: a long prompt returns HTTP 413 long before the request count matters.",
     "measured_on": "2026-09-07"
    },
    "rpd_plan": "Developer"
@@ -79,9 +99,9 @@
    "scope": "account",
    "confidence": "MEASURED",
    "measured_on": "2026-09-07",
-   "measured_how": "rate-limit response headers on the calling account, read again on 2026-09-07: x-ratelimit-limit-requests-day 2400, x-ratelimit-limit-tokens-day 1000000, 5 requests/minute. The figures held across five days.",
+   "measured_how": "rate-limit response headers on a free-trial key, read 2026-09-02 and again 2026-09-07: x-ratelimit-limit-requests-day 2400, x-ratelimit-limit-tokens-day 1000000, 5 requests/minute. The figures held across five days.",
    "volatile": false,
-   "caveat": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them.",
+   "caveat": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the response headers of a free-trial key reported between 2026-09-02 and 2026-09-07. They may be trial allowance rather than a standing free tier. Re-measure before relying on them.",
    "source": "https://inference-docs.cerebras.ai/support/pricing",
    "all_models": {
     "rpm": 5,
@@ -98,22 +118,24 @@
     "read_on": "2026-09-06",
     "quote": "Free Trial: $5 in free credits after making an account",
     "expires": "UNKNOWN",
-    "note": "Their pricing page describes free access ONLY as this trial and publishes no daily free-tier ceiling. The 1,000,000 tokens/day above came from the calling account's headers and may be this trial rather than a standing tier."
+    "note": "Their pricing page describes free access ONLY as this trial and publishes no daily free-tier ceiling. The 1,000,000 tokens/day above came from the response headers of a free-trial key and may be this trial rather than a standing tier."
    }
   },
   "google": {
    "scope": "project",
    "confidence": "DECLARED",
-   "source": "https://ai.google.dev/gemini-api/docs/rate-limits and the AI Studio rate-limit console",
+   "source": "https://ai.google.dev/gemini-api/docs/rate-limits",
    "read_on": "2026-09-06",
-   "caveat": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing.",
+   "caveat": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen on 2026-09-06. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing.",
    "models": {
     "gemini-3.8-flash": {
      "rpm": 5,
      "rpd": 20,
-     "note": "The 20/day figure was read for 3.7 Flash on the same screen and is assumed to carry over to 3.8. Not separately confirmed. The 5/min WAS measured: our sixth call inside six seconds returned 429 with 'limit: 5'.",
+     "note": "The 20/day figure was read for 3.7 Flash on the same screen and is assumed to carry over to 3.8. Not separately confirmed. The 5/min WAS measured: a sixth call inside six seconds returned HTTP 429 with 'limit: 5'.",
      "rpm_confidence": "MEASURED",
-     "rpd_confidence": "DECLARED"
+     "rpd_confidence": "DECLARED",
+     "measured_on": "2026-09-06",
+     "measured_how": "a sixth call inside six seconds returned HTTP 429 with 'limit: 5' in the body; recorded in this file on 2026-09-06"
     },
     "gemini-3.5-flash-lite": {
      "rpm": 15,
@@ -125,6 +147,13 @@
      "note": "Not published on the screen we read, and not measured."
     }
    },
+   "all_models": {
+    "rpm": 15,
+    "tpm": 250000,
+    "rpd": null,
+    "tpd": null,
+    "note": "per model; the largest is shown"
+   },
    "binding_limit": "Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload."
   },
   "openrouter": {
@@ -133,6 +162,12 @@
    "source": "https://openrouter.ai/docs/api-reference/limits",
    "read_on": "2026-09-06",
    "caveat": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty.",
+   "all_models": {
+    "rpd": null,
+    "tpd": null,
+    "rpm": 20,
+    "note": "rpd is tiered by lifetime credits purchased: see free_models_combined"
+   },
    "free_models_combined": {
     "under_10_dollars_lifetime": {
      "rpm": 20,
@@ -153,7 +188,7 @@
    "confidence": "DECLARED",
    "source": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
    "read_on": "2026-09-07",
-   "caveat": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b - THEIR two numbers, OUR division, so it is marked DERIVED and never counted as measured. Seven models are excluded from the free tier entirely and need a paid billing method.",
+   "caveat": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Where the tracked model's own Neuron price is in `neuron_cost_examples`, rank.py derives that model's figure from it instead; llama-3.3-70b costs six times more per output token than the 8b model. Seven models are excluded from the free tier entirely and need a paid billing method.",
    "free_allocation": {
     "neurons_per_day": 10000
    },
@@ -224,15 +259,15 @@
     "concurrent_requests": 1
    },
    "concurrency": "assume 1 - concurrent execution is sold as a paid-plan feature",
-   "one_time": {
+   "monthly": {
     "tokens": null,
     "credits_usd": null,
     "confidence": "DECLARED",
     "source": "https://ollama.com/pricing",
     "read_on": "2026-09-07",
-    "quote": "Free accounts include a starter amount of usage for a smaller set of starter models. Adding extra credits unlocks all models.",
-    "expires": "UNKNOWN",
-    "note": "They say a starter bundle exists and do not say how big it is. That is exactly what the row records: a grant we know about, with no number, because they publish none."
+    "quote": "Free accounts include a starter amount of usage for a smaller set of starter models. Instead, your included amount refreshes at each monthly reset.",
+    "expires": "refreshes at each monthly reset",
+    "note": "They say a starter allowance exists, that it refreshes monthly, and not how big it is. That is exactly what this row records: a monthly grant of unpublished size."
    },
    "quotes": [
     "Free accounts include a starter amount of usage for a smaller set of starter models.",
@@ -250,7 +285,7 @@
   "alibaba": {
    "scope": "account",
    "confidence": "DECLARED",
-   "caveat": "Two different things, and lists confuse them constantly. The 1,000,000 tokens per model is a ONE-TIME grant that expires in 90 days. The rate limits below are RECURRING and apply while that grant lasts: their page states the same RPM and TPM apply to free-quota users as to paying ones. There is no cumulative daily cap - the ceiling is per minute.",
+   "caveat": "Two different things, and lists confuse them constantly. The 1,000,000 tokens per model is a ONE-TIME grant that expires in 90 days. The rate limits below are RECURRING and apply while that grant lasts: their page states the same RPM and TPM apply to free-quota users as to paying ones. There is no cumulative daily cap; the ceiling is per minute.",
    "all_models": {
     "rpd": null,
     "tpd": null,
@@ -258,7 +293,7 @@
     "tpm": 5000000
    },
    "one_time": {
-    "tokens": 4000000,
+    "tokens": 1000000,
     "credits_usd": null,
     "confidence": "DECLARED",
     "source": "https://www.alibabacloud.com/help/en/model-studio/new-free-quota",
@@ -266,7 +301,8 @@
     "quote": "Each model (such as qwen-plus, qwen3.6-plus, or qwen3.6-plus-2026-04-02) has its own independent free quota (typically 1,000,000 tokens). Quota cannot be merged or transferred across models.",
     "expires": "90 days from activation",
     "expires_quote": "The free quota is valid for 90 days, starting from the date you activate Alibaba Cloud Model Studio, the model is released, or your model request is approved (whichever is later).",
-    "note": "1,000,000 per model, and we track 4 of their models, so 4,000,000. The per-model split is THEIR rule, quoted above, not our multiplication: their own sentence says the quotas are independent and cannot be merged. Singapore region only, and calls stop when it is exhausted unless you complete account details, at which point you are billed."
+    "note": "1,000,000 tokens PER MODEL, their rule, quoted above: the quotas are independent and cannot be merged. Recorded per model rather than multiplied by the number of models this list happens to track, because that product would move when this list adds a model, not when Alibaba changes its grant. Singapore region only, and calls stop when the quota is exhausted unless account details are completed, at which point usage is billed.",
+    "per_model": true
    },
    "source": "https://www.alibabacloud.com/help/en/model-studio/rate-limit",
    "read_on": "2026-09-07",
@@ -289,7 +325,7 @@
    "scope": "account",
    "confidence": "MEASURED",
    "measured_on": "2026-09-07",
-   "measured_how": "their own usage endpoint, GET https://api.xkiro.com/v1/usage, which reports the daily token allowance and what is left of it",
+   "measured_how": "their own usage endpoint, GET https://api.xkiro.com/v1/usage, which reports the daily token allowance",
    "caveat": "The largest confirmed free token allowance in this list by a wide margin, and it took one GET to find - it was sitting behind an endpoint nobody had asked. Requests per day are NOT published; the ceiling here is tokens.",
    "all_models": {
     "rpd": null,
@@ -297,18 +333,25 @@
    },
    "binding_limit": "Tokens, not requests. 5M/day is roughly 3,500 pages of output, so on this provider you will hit model quality or latency long before you hit the quota.",
    "measured_values": {
-    "limit_per_day": 5000000,
+    "limit_per_day": 5000000
    }
   },
   "siliconflow": {
    "scope": "account",
    "confidence": "DECLARED",
-   "caveat": "The daily cap they publish applies to unverified accounts on two specific models. Everything else is per minute. On 2026-09-07 the endpoint answered HTTP 402 Payment Required, so the sign-up credit is one-time and the endpoint stops serving after it.",
+   "caveat": "The daily cap they publish applies to unverified accounts on two specific models, and everything else is per minute. The quotes on file do not name the two models, so whether Qwen/Qwen3-Coder-30B-A3B-Instruct is one of them is not established: the daily figure is UNKNOWN until the page is re-read with the model names. On 2026-09-07 the chat endpoint answered HTTP 402 Payment Required beyond the sign-up credit, so the $1 is one-time and the endpoint stops serving after it.",
    "all_models": {
-    "rpd": 100,
+    "rpd": null,
     "tpd": null,
     "rpm": 1000,
-    "tpm": 40000
+    "tpm": 40000,
+    "note": "rpd is null on purpose: see `unverified_accounts`."
+   },
+   "unverified_accounts": {
+    "rpd": 100,
+    "rph": 30,
+    "applies_to": "two specific models on unverified accounts; the model names are not in the quotes on file, so this is not applied to the tracked model",
+    "confidence": "DECLARED"
    },
    "one_time": {
     "tokens": null,
@@ -318,7 +361,7 @@
     "read_on": "2026-09-07",
     "quote": "Flexible token pricing, high usage limits, and postpaid billing - plus $1 in free credits to get you started!",
     "expires": "UNKNOWN",
-    "note": "One dollar, in money, not tokens. We do not convert it: that needs their per-token price and a made-up conversion is a confident wrong number. On 2026-09-07 the endpoint answered HTTP 402 Payment Required, so the dollar is one-time and the endpoint stops serving after it."
+    "note": "One dollar, in money, not tokens. We do not convert it: that needs their per-token price and a made-up conversion is a confident wrong number. On 2026-09-07 the chat endpoint returned HTTP 402 Payment Required once the credit was used, which is how a one-time grant behaves."
    },
    "source": "https://docs.siliconflow.com/en/userguide/rate-limits/rate-limit-and-upgradation",
    "read_on": "2026-09-07",
@@ -326,7 +369,7 @@
     "Limit: 100 requests/day",
     "30 requests/hour"
    ],
-   "binding_limit": "Requests per day, at 100, on the two models where a daily cap exists at all.",
+   "binding_limit": "Tokens per minute, at 40,000, and the one-time dollar underneath it. A daily cap of 100 requests exists for two models on unverified accounts; whether the tracked model is one of them is not established.",
    "signup_requires": {
     "card": "not stated",
     "phone": "not stated",
@@ -362,7 +405,7 @@
    "scope": "anonymous, and shared",
    "confidence": "MEASURED",
    "measured_on": "2026-09-07",
-   "measured_how": "Response headers on an anonymous POST: ratelimit-limit 2, x-ratelimit-limit-minute 2, the per-minute allowance header at 0, ratelimit-reset 44. Two attempts 90 seconds apart, both 429, both showing 0 left in the minute: the anonymous bucket is shared with every caller and was already empty both times.",
+   "measured_how": "Response headers on an anonymous POST: ratelimit-limit 2, x-ratelimit-limit-minute 2, the per-minute allowance header at 0, ratelimit-reset 44. Two attempts 90 seconds apart, both HTTP 429, both showing 0 left in the minute: the anonymous bucket is shared with every caller and was already empty both times.",
    "caveat": "2 requests a minute is the anonymous tier and it is what a reader without an account gets. The authenticated tier is 400 a minute but needs a Public Cloud project with a payment method on file, so it is not a free tier. No daily or monthly cap is published for either.",
    "all_models": {
     "rpd": null,
@@ -391,8 +434,8 @@
    "confidence": "MEASURED",
    "measured_on": "2026-09-07",
    "volatile": true,
-   "measured_how": "Their own rate-limit headers, read seven times on 2026-09-07. The ceiling the calling account is given MOVES, and not slowly: at 00:05 UTC the headers said x-ratelimit-limit-tokens-minute 625000 and the call returned a completion. Five readings between 00:39 and 00:43 UTC, one minute apart, all said x-ratelimit-limit-req-minute 0 and every call was refused with 429. Earlier the same day, before that, the headers also said 0.",
-   "caveat": "Their pricing page answers what the header readings could not: the Free plan grants $10 a month in API credits. That is why the ceiling read 625,000 tokens a minute once and zero six times within an hour - a monthly pot, not a standing rate. A limit of zero is a pot that is empty, not a tier that is off. No token figure is published, so none is recorded here.",
+   "measured_how": "Their own rate-limit headers, read seven times on 2026-09-07. The ceiling the headers report MOVES, and not slowly: at 00:05 UTC they said x-ratelimit-limit-tokens-minute 625000 and the call returned a completion. Five readings between 00:39 and 00:43 UTC, one minute apart, all said x-ratelimit-limit-req-minute 0 and every call was refused with HTTP 429. Earlier the same day the headers had also said 0.",
+   "caveat": "Their pricing page answers what the header readings could not: the Free plan grants $10 a month in API credits. That is why the ceiling read 625,000 tokens a minute once and zero six times within an hour: a monthly pot, not a standing rate. A header limit of zero means the monthly pot is empty for the rest of the month, not that the tier is off. No token figure is published, so none is recorded here; the credit is in `monthly`.",
    "all_models": {
     "rpd": null,
     "tpd": null,
@@ -433,12 +476,15 @@
     }
    ],
    "binding_limit": "Ten dollars a month of credits, and no published conversion into tokens.",
-   "credits": {
-    "usd_per_month": 10,
+   "monthly": {
+    "tokens": null,
+    "credits_usd": 10,
     "confidence": "DECLARED",
     "source": "https://mistral.ai/pricing",
     "read_on": "2026-09-07",
-    "quote": "$10 /mo in API credits."
+    "quote": "$10 /mo in API credits.",
+    "expires": "monthly: '/mo' is their own unit",
+    "note": "Ten dollars a month, in money. Not converted into tokens: no per-token price for the free plan is published."
    },
    "signup_requires": {
     "card": "no",
@@ -451,16 +497,15 @@
    "scope": "account",
    "confidence": "DECLARED",
    "measured_on": "2026-09-07",
-   "measured_how": "response headers on a normal completion: a limit header of 5 with a reset timestamp. The unit is not stated in the header name.",
-   "caveat": "Three tiers by account status. A new account is Solo: 50 free-model requests a day and 5 a minute. A top-up of Rp 10,000 moves it to Payer, at 1,000 a day. The limit header read on 2026-09-07 was 5, which matches the Solo per-minute figure.",
+   "measured_how": "response headers on a call made 2026-09-07: x-ratelimit-limit 5, with a reset timestamp. The unit is not stated in the header name.",
+   "caveat": "Three tiers by account status. A new account is Solo: 50 free-model requests a day and 5 a minute. A top-up of Rp 10,000 moves it to Payer, at 1,000 a day. The header measured on 2026-09-07 read x-ratelimit-limit 5, which matches the Solo per-minute figure.",
    "all_models": {
     "rpd": 50,
     "tpd": null,
     "rpm": 5
    },
    "headers_seen": {
-    "x-ratelimit-limit": "5",
-    "reset_header": "present"
+    "x-ratelimit-limit": "5"
    },
    "binding_limit": "Fifty free requests a day until a top-up moves the account to Payer.",
    "source": "https://kenari.id/llms-full.txt",

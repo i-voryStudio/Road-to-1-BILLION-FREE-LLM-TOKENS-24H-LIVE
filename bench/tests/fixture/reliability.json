@@ -1,0 +1,19 @@
+{
+ "measured_at": "2026-09-01",
+ "runs_included": ["2026-08-30"],
+ "how": "Fixture for bench/test_rank.py: an archived run, kept apart from the radar.",
+ "reasoning_trap": {
+  "what": "A reasoning model can return HTTP 200 with no text.",
+  "switches": {"reasoning_effort": "alpha-mini"},
+  "observed": [
+   {"provider": "alpha", "model": "alpha-large", "probe": "D", "had_switch": false, "switch": null, "run": "2026-08-30"}
+  ],
+  "already_switched_off_by_us": [
+   {"provider": "alpha", "model": "alpha-mini", "switch": {"reasoning_effort": "low"}}
+  ]
+ },
+ "providers": [
+  {"provider": "alpha", "calls": 10, "ok": 9, "empty_200": 1, "rate_limited": 0, "overloaded": 0, "timeout": 0, "other": 0, "answered_rate": 0.9, "note": "occasionally returns nothing"},
+  {"provider": "beta", "calls": 4, "ok": 4, "empty_200": 0, "rate_limited": 0, "overloaded": 0, "timeout": 0, "other": 0, "answered_rate": 1.0, "note": "answers reliably"}
+ ]
+}

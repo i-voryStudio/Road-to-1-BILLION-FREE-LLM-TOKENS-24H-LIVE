@@ -1,322 +1,583 @@
 {
  "date": "2026-09-07",
- "first_24h_tokens": 10000000,
- "recurring_measured_tokens_per_day": 6000000,
- "official_metric": "tokens per minute, measured",
- "measured_tokens_per_minute": 140850,
- "measured_per_provider": [
-  {
-   "provider": "aihubmix",
-   "tokens_per_minute": 7048,
-   "best_seen": 7048,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 10,
-   "seconds": 18.0,
-   "stopped_because": "rate limit reached",
-   "date": "2026-09-07"
+ "target_tokens_per_day": 1000000000,
+ "target_date": "2026-11-07",
+ "defensible_tokens_per_day": 6636795,
+ "share_of_target_pct": 0.66,
+ "multiple_still_needed": 150.7,
+ "daily_shelf": {
+  "measured": {
+   "tokens_per_day": 6000000,
+   "providers": [
+    "cerebras",
+    "xkiro"
+   ],
+   "how": "response headers or usage endpoints"
   },
-  {
-   "provider": "alibaba",
-   "tokens_per_minute": 54659,
-   "best_seen": 58758,
-   "readings": 2,
-   "holds_up": true,
-   "requests_ok": 70,
-   "seconds": 30.8,
-   "stopped_because": "token budget spent",
-   "date": "2026-09-07"
+  "declared": {
+   "tokens_per_day": 0,
+   "providers": [],
+   "how": "a daily figure published by the provider in tokens"
   },
-  {
-   "provider": "cerebras",
-   "tokens_per_minute": 1206,
-   "best_seen": 1206,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 4,
-   "seconds": 0.8,
-   "stopped_because": "rate limit reached",
-   "date": "2026-09-07"
+  "derived": {
+   "tokens_per_day": 636795,
+   "providers": [
+    "aihubmix",
+    "cloudflare",
+    "google",
+    "kenari",
+    "openrouter"
+   ],
+   "how": "a published request cap x 500 tokens a reply, or a published unit price divided into a published allowance; the arithmetic is in each row's volume_evidence"
   },
-  {
-   "provider": "cloudflare",
-   "tokens_per_minute": 27670,
-   "best_seen": 29764,
-   "readings": 2,
-   "holds_up": true,
-   "requests_ok": 33,
-   "seconds": 38.6,
-   "stopped_because": "window ended",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "hetzner",
-   "tokens_per_minute": 0,
-   "best_seen": 0,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 0,
-   "seconds": 60.3,
-   "stopped_because": "five failures in a row: HTTP 0 ",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "inferx",
-   "tokens_per_minute": 22005,
-   "best_seen": 22005,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 16,
-   "seconds": 30.5,
-   "stopped_because": "window ended",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "kenari",
-   "tokens_per_minute": 2799,
-   "best_seen": 2799,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 5,
-   "seconds": 30.3,
-   "stopped_because": "rate limit reached",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "mistral",
-   "tokens_per_minute": 0,
-   "best_seen": 0,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 0,
-   "seconds": 0.5,
-   "stopped_because": "rate limit reached",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "nvidia",
-   "tokens_per_minute": 13470,
-   "best_seen": 13470,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 33,
-   "seconds": 34.5,
-   "stopped_because": "rate limit reached",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "ollama",
-   "tokens_per_minute": 1850,
-   "best_seen": 1850,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 6,
-   "seconds": 10.8,
-   "stopped_because": "rate limit reached",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "openrouter",
-   "tokens_per_minute": 7997,
-   "best_seen": 7997,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 22,
-   "seconds": 61.1,
-   "stopped_because": "window ended",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "ovhcloud",
-   "tokens_per_minute": 0,
-   "best_seen": 0,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 0,
-   "seconds": 0.8,
-   "stopped_because": "rate limit reached",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "uncloseai",
-   "tokens_per_minute": 700,
-   "best_seen": 700,
-   "readings": 1,
-   "holds_up": null,
-   "requests_ok": 1,
-   "seconds": 32.3,
-   "stopped_because": "rate limit reached",
-   "date": "2026-09-07"
-  },
-  {
-   "provider": "xkiro",
-   "tokens_per_minute": 1446,
-   "best_seen": 66197,
-   "readings": 2,
-   "holds_up": false,
-   "requests_ok": 1,
-   "seconds": 29.0,
-   "stopped_because": "window ended",
-   "date": "2026-09-07"
+  "drawn": {
+   "tokens_per_day": 0,
+   "providers": [],
+   "how": "tokens_per_hour_drawn x 24 from data/drawn.jsonl: extrapolated from a 60-minute draw, used only where nothing above exists"
   }
- ],
- "output_tokens_per_minute": 100000,
- "published_ceilings_tokens_per_minute": 9140000,
- "requests_per_minute": 2113,
- "target_output_tokens_per_minute": 694444,
- "per_minute_providers": [
-  {
-   "provider": "aihubmix",
-   "tokens_per_minute": null,
-   "output_tokens_per_minute": null,
-   "requests_per_minute": 10,
-   "confidence": "DECLARED"
-  },
-  {
-   "provider": "alibaba",
-   "tokens_per_minute": 5000000,
-   "output_tokens_per_minute": null,
-   "requests_per_minute": 600,
-   "confidence": "DECLARED"
-  },
-  {
-   "provider": "cerebras",
-   "tokens_per_minute": null,
-   "output_tokens_per_minute": null,
-   "requests_per_minute": 5,
-   "confidence": "MEASURED"
-  },
-  {
-   "provider": "cloudflare",
-   "tokens_per_minute": null,
-   "output_tokens_per_minute": null,
-   "requests_per_minute": 300,
-   "confidence": "DECLARED"
-  },
-  {
-   "provider": "hetzner",
-   "tokens_per_minute": 4100000,
-   "output_tokens_per_minute": 100000,
-   "requests_per_minute": 10,
-   "confidence": "DECLARED"
-  },
-  {
-   "provider": "kenari",
-   "tokens_per_minute": null,
-   "output_tokens_per_minute": null,
-   "requests_per_minute": 5,
-   "confidence": "DECLARED"
-  },
-  {
-   "provider": "ovhcloud",
-   "tokens_per_minute": null,
-   "output_tokens_per_minute": null,
-   "requests_per_minute": 2,
-   "confidence": "MEASURED"
-  },
-  {
-   "provider": "siliconflow",
-   "tokens_per_minute": 40000,
-   "output_tokens_per_minute": null,
-   "requests_per_minute": 1000,
-   "confidence": "DECLARED"
-  },
-  {
-   "provider": "uncloseai",
-   "tokens_per_minute": null,
-   "output_tokens_per_minute": null,
-   "requests_per_minute": 180,
-   "confidence": "DECLARED"
-  },
-  {
-   "provider": "unorouter",
-   "tokens_per_minute": null,
-   "output_tokens_per_minute": null,
-   "requests_per_minute": 1,
-   "confidence": "DECLARED"
-  }
- ],
- "one_time_tokens": 4000000,
- "one_time_credits_usd": 6.0,
- "one_time_grants": [
-  {
-   "provider": "alibaba",
-   "tokens": 4000000,
-   "credits_usd": null,
-   "confidence": "DECLARED",
-   "source": "https://www.alibabacloud.com/help/en/model-studio/new-free-quota",
-   "quote": "Each model (such as qwen-plus, qwen3.6-plus, or qwen3.6-plus-2026-04-02) has its own independent free quota (typically 1,000,000 tokens). Quota cannot be merged or transferred across models.",
-   "expires": "90 days from activation"
-  },
-  {
-   "provider": "cerebras",
-   "tokens": null,
-   "credits_usd": 5,
-   "confidence": "DECLARED",
-   "source": "https://www.cerebras.ai/pricing",
-   "quote": "Free Trial: $5 in free credits after making an account",
-   "expires": "UNKNOWN"
-  },
-  {
-   "provider": "ollama",
-   "tokens": null,
-   "credits_usd": null,
-   "confidence": "DECLARED",
-   "source": "https://ollama.com/pricing",
-   "quote": "Free accounts include a starter amount of usage for a smaller set of starter models. Adding extra credits unlocks all models.",
-   "expires": "UNKNOWN"
-  },
-  {
-   "provider": "siliconflow",
-   "tokens": null,
-   "credits_usd": 1,
-   "confidence": "DECLARED",
-   "source": "https://siliconflow.com/pricing",
-   "quote": "Flexible token pricing, high usage limits, and postpaid billing - plus $1 in free credits to get you started!",
-   "expires": "UNKNOWN"
-  }
- ],
- "measured_tokens_per_day": 6000000,
- "declared_tokens_per_day": 400000,
- "paid_plan_tokens_per_day_excluded": 200000,
+ },
  "per_provider": {
   "aihubmix": {
    "daily_tokens": 50000,
-   "confidence": "DECLARED"
+   "confidence": "DERIVED",
+   "model": "gemini-3.8-flash-free",
+   "evidence": "The generous number costs one dollar. A new account gets 10 trial calls and nothing else; a single top-up of $1 switches the account permanently to daily quotas. So the 1,000,000 tokens a day is real, recurring and unlimited in time - but it is not free until you have paid a dollar once, and this row says so rather than printing the big number on its own. 100 requests/day (DECLARED) x 500 tokens a reply = 50,000 tokens/day. The request cap is the provider's figure; the token figure is arithmetic done here, so it is DERIVED, not DECLARED. Binding limit: Requests per day, at 100, long before the million tokens. Applies per ACCOUNT."
   },
   "cerebras": {
    "daily_tokens": 1000000,
-   "confidence": "MEASURED"
+   "confidence": "MEASURED",
+   "model": "qwen-3.8-27b",
+   "evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the response headers of a free-trial key reported between 2026-09-02 and 2026-09-07. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. 1,000,000 tokens/day is the provider's own token figure (MEASURED). Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Applies per ACCOUNT."
+  },
+  "cloudflare": {
+   "daily_tokens": 286795,
+   "confidence": "DERIVED",
+   "model": "@cf/qwen/qwen3.8-27b",
+   "evidence": "Cloudflare bills in Neurons, not tokens, and publishes both the free allocation and the conversion on the same page. 10,000 Neurons a day divided by 34,868 Neurons per million output tokens is about 286,795 output tokens a day on llama-3.1-8b: their two numbers, our division, so it is marked DERIVED and never counted as measured. Where the tracked model's own Neuron price is in `neuron_cost_examples`, rank.py derives that model's figure from it instead; llama-3.3-70b costs six times more per output token than the 8b model. Seven models are excluded from the free tier entirely and need a paid billing method. 10,000 Neurons/day / 34,868 Neurons per 1M output tokens, @cf/meta/llama-3.1-8b-instruct-fp8-fast. This model's own unit price is not on file, so the figure is the provider-level one and this model's real allowance may be lower. Binding limit: Neurons per day, at 10,000. On a small text model that is roughly a quarter of a million output tokens; on a large one, far fewer. Applies per ACCOUNT."
   },
   "google": {
    "daily_tokens": 250000,
-   "confidence": "DECLARED"
-  },
-  "groq": {
-   "daily_tokens": 200000,
-   "confidence": "PAID-PLAN"
+   "confidence": "DERIVED",
+   "model": "gemini-3.5-flash-lite",
+   "evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen on 2026-09-06. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. 500 requests/day (DECLARED) x 500 tokens a reply = 250,000 tokens/day. The request cap is the provider's figure; the token figure is arithmetic done here, so it is DERIVED, not DECLARED. Binding limit: Requests per DAY on the Flash models. 20/day is a handful of conversations, not a workload. Applies per PROJECT."
   },
   "kenari": {
    "daily_tokens": 25000,
-   "confidence": "DECLARED"
+   "confidence": "DERIVED",
+   "model": "mimo-v2-5:free",
+   "evidence": "Three tiers by account status. A new account is Solo: 50 free-model requests a day and 5 a minute. A top-up of Rp 10,000 moves it to Payer, at 1,000 a day. The header measured on 2026-09-07 read x-ratelimit-limit 5, which matches the Solo per-minute figure. 50 requests/day (DECLARED) x 500 tokens a reply = 25,000 tokens/day. The request cap is the provider's figure; the token figure is arithmetic done here, so it is DERIVED, not DECLARED. Binding limit: Fifty free requests a day until a top-up moves the account to Payer. Applies per ACCOUNT."
   },
   "openrouter": {
    "daily_tokens": 25000,
-   "confidence": "DECLARED"
-  },
-  "siliconflow": {
-   "daily_tokens": 50000,
-   "confidence": "DECLARED"
+   "confidence": "DERIVED",
+   "model": "minimax/minimax-m3:free",
+   "evidence": "The daily cap depends on lifetime credits purchased, and applies across ALL :free models combined, not per model. This condition is the one most lists drop, which makes their number wrong for a new account by a factor of twenty. What a NEW account gets; rises to 1,000/day under the conditions in LIMITS.md, and is shared across all free models. 50 requests/day (DECLARED) x 500 tokens a reply = 25,000 tokens/day. The request cap is the provider's figure; the token figure is arithmetic done here, so it is DERIVED, not DECLARED. rpd is tiered by lifetime credits purchased: see free_models_combined Applies per ACCOUNT."
   },
   "xkiro": {
    "daily_tokens": 5000000,
-   "confidence": "MEASURED"
+   "confidence": "MEASURED",
+   "model": "minimax/minimax-m3:free",
+   "evidence": "The largest confirmed free token allowance in this list by a wide margin, and it took one GET to find - it was sitting behind an endpoint nobody had asked. Requests per day are NOT published; the ceiling here is tokens. 5,000,000 tokens/day is the provider's own token figure (MEASURED). Binding limit: Tokens, not requests. 5M/day is roughly 3,500 pages of output, so on this provider you will hit model quality or latency long before you hit the quota. Applies per ACCOUNT."
   }
  },
+ "paid_plan_tokens_per_day_excluded": 200000,
+ "paid_plan_per_provider": {
+  "groq": 200000
+ },
  "providers_tracked": 18,
- "providers_with_no_published_quota": 10,
- "target_tokens_per_day": 1000000000,
- "target_date": "2026-11-07",
- "multiple_still_needed": 166.7,
- "note": "first_24h_tokens is recurring PLUS one-time, and it is true exactly once. recurring_measured_tokens_per_day is what is there every morning, and it is the figure the target distance uses. One-time grants in money are NOT converted into tokens: that needs the provider's own price, and inventing the conversion is the kind of confident wrong number this list exists to avoid. MEASURED is the only figure the headline and the target distance use. DECLARED is the provider's own claim, sourced and dated, and is never added to it. PAID-PLAN is a number published for a paid tier and is excluded from both - reprinting one as free capacity is the mistake this repo names in its own README."
+ "endpoints_tracked": 63,
+ "endpoints_ranked": 23,
+ "providers_with_no_daily_figure": [
+  "alibaba",
+  "groq",
+  "hetzner",
+  "inferx",
+  "mistral",
+  "nvidia",
+  "ollama",
+  "ovhcloud",
+  "siliconflow",
+  "uncloseai",
+  "unorouter"
+ ],
+ "burst": {
+  "what": "30-second burst, per provider, latest reading; bench/throughput.py; a rate, never a day",
+  "tokens_per_minute_added_up": 140850,
+  "providers_delivered": [
+   "aihubmix",
+   "alibaba",
+   "cerebras",
+   "cloudflare",
+   "inferx",
+   "kenari",
+   "nvidia",
+   "ollama",
+   "openrouter",
+   "uncloseai",
+   "xkiro"
+  ],
+  "providers_measured_zero": [
+   "hetzner",
+   "mistral",
+   "ovhcloud"
+  ],
+  "providers_no_rate": [
+   "groq",
+   "siliconflow",
+   "unorouter"
+  ],
+  "largest_drop_between_readings": 45.8,
+  "per_provider": [
+   {
+    "provider": "aihubmix",
+    "model": "gemini-3.8-flash-free",
+    "tokens_per_minute": 7048,
+    "best_seen": 7048,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 10,
+    "requests_failed": 0,
+    "seconds": 18.0,
+    "first_error": "HTTP 429: rate limited",
+    "stopped_because": "rate limit reached",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "alibaba",
+    "model": "qwen-flash",
+    "tokens_per_minute": 54659,
+    "best_seen": 58758,
+    "readings": 2,
+    "holds_up": true,
+    "requests_ok": 70,
+    "requests_failed": 0,
+    "seconds": 30.8,
+    "first_error": null,
+    "stopped_because": "token budget spent",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "cerebras",
+    "model": "gemma-4-31b",
+    "tokens_per_minute": 1206,
+    "best_seen": 1206,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 4,
+    "requests_failed": 0,
+    "seconds": 0.8,
+    "first_error": null,
+    "stopped_because": "rate limit reached",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "cloudflare",
+    "model": "@cf/openai/gpt-oss-120b",
+    "tokens_per_minute": 27670,
+    "best_seen": 29764,
+    "readings": 2,
+    "holds_up": true,
+    "requests_ok": 33,
+    "requests_failed": 0,
+    "seconds": 38.6,
+    "first_error": null,
+    "stopped_because": "window ended",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "inferx",
+    "model": "Qwen3.8-27B-FP8",
+    "tokens_per_minute": 22005,
+    "best_seen": 22005,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 16,
+    "requests_failed": 0,
+    "seconds": 30.5,
+    "first_error": null,
+    "stopped_because": "window ended",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "kenari",
+    "model": "nemotron-3-ultra-550b-a55b:free",
+    "tokens_per_minute": 2799,
+    "best_seen": 2799,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 5,
+    "requests_failed": 0,
+    "seconds": 30.3,
+    "first_error": "HTTP 429: rate limited",
+    "stopped_because": "rate limit reached",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "tokens_per_minute": 13470,
+    "best_seen": 13470,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 33,
+    "requests_failed": 0,
+    "seconds": 34.5,
+    "first_error": "HTTP 429: rate limited",
+    "stopped_because": "rate limit reached",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "ollama",
+    "model": "gemma4:31b",
+    "tokens_per_minute": 1850,
+    "best_seen": 1850,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 6,
+    "requests_failed": 0,
+    "seconds": 10.8,
+    "first_error": "HTTP 429: rate limited",
+    "stopped_because": "rate limit reached",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "openrouter",
+    "model": "minimax/minimax-m3:free",
+    "tokens_per_minute": 7997,
+    "best_seen": 7997,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 22,
+    "requests_failed": 0,
+    "seconds": 61.1,
+    "first_error": null,
+    "stopped_because": "window ended",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "uncloseai",
+    "model": "Lorbus/Qwen3.6-27B-int4-AutoRound",
+    "tokens_per_minute": 700,
+    "best_seen": 700,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 1,
+    "requests_failed": 0,
+    "seconds": 32.3,
+    "first_error": "HTTP 429: rate limited",
+    "stopped_because": "rate limit reached",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "xkiro",
+    "model": "minimax/minimax-m2.7:free",
+    "tokens_per_minute": 1446,
+    "best_seen": 66197,
+    "readings": 2,
+    "holds_up": false,
+    "requests_ok": 1,
+    "requests_failed": 7,
+    "seconds": 29.0,
+    "first_error": "HTTP 409: the endpoint reported a conflict",
+    "stopped_because": "window ended",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "hetzner",
+    "model": "Qwen3.8-27B",
+    "tokens_per_minute": 0,
+    "best_seen": 0,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 0,
+    "requests_failed": 8,
+    "seconds": 60.3,
+    "first_error": "no response: timeout or connection failure",
+    "stopped_because": "five failures in a row: no response: timeout or connection failure",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "mistral",
+    "model": "mistral-small-2603",
+    "tokens_per_minute": 0,
+    "best_seen": 0,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 0,
+    "requests_failed": 0,
+    "seconds": 0.5,
+    "first_error": "HTTP 429: rate limited",
+    "stopped_because": "rate limit reached",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "ovhcloud",
+    "model": "gpt-oss-120b",
+    "tokens_per_minute": 0,
+    "best_seen": 0,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 0,
+    "requests_failed": 0,
+    "seconds": 0.8,
+    "first_error": "HTTP 429: rate limited",
+    "stopped_because": "rate limit reached",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "tokens_per_minute": null,
+    "best_seen": 0,
+    "readings": 1,
+    "holds_up": null,
+    "requests_ok": 0,
+    "requests_failed": 8,
+    "seconds": 2.3,
+    "first_error": "HTTP 403: the endpoint refused the caller",
+    "stopped_because": "five failures in a row: HTTP 403: the endpoint refused the caller",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "siliconflow",
+    "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+    "tokens_per_minute": null,
+    "best_seen": null,
+    "readings": 0,
+    "holds_up": null,
+    "requests_ok": 0,
+    "requests_failed": 8,
+    "seconds": 2.5,
+    "first_error": "HTTP 402: the endpoint stops serving until a top-up",
+    "stopped_because": "five failures in a row: HTTP 402: the endpoint stops serving until a top-up",
+    "date": "2026-09-07"
+   },
+   {
+    "provider": "unorouter",
+    "model": "aion-2.0:free",
+    "tokens_per_minute": null,
+    "best_seen": null,
+    "readings": 0,
+    "holds_up": null,
+    "requests_ok": 0,
+    "requests_failed": 5,
+    "seconds": 9.8,
+    "first_error": "HTTP 503: no capacity behind the endpoint",
+    "stopped_because": "five failures in a row: HTTP 503: no capacity behind the endpoint",
+    "date": "2026-09-07"
+   }
+  ]
+ },
+ "ceilings_per_minute": {
+  "target_output_tokens_per_minute": 694444,
+  "output_only_tokens_per_minute": 100000,
+  "output_only_providers": [
+   "hetzner"
+  ],
+  "output_only_share_of_target_pct": 14.4,
+  "combined_or_unspecified_tokens_per_minute": 5298000,
+  "combined_or_unspecified_providers": [
+   "alibaba",
+   "google",
+   "groq",
+   "siliconflow"
+  ],
+  "requests_per_minute": 2178,
+  "providers_with_any_per_minute_figure": 13,
+  "per_provider": [
+   {
+    "provider": "aihubmix",
+    "requests_per_minute": 10,
+    "tokens_per_minute_combined": null,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "alibaba",
+    "requests_per_minute": 600,
+    "tokens_per_minute_combined": 5000000,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "cerebras",
+    "requests_per_minute": 5,
+    "tokens_per_minute_combined": null,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "MEASURED"
+   },
+   {
+    "provider": "cloudflare",
+    "requests_per_minute": 300,
+    "tokens_per_minute_combined": null,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "google",
+    "requests_per_minute": 15,
+    "tokens_per_minute_combined": 250000,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": true,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "groq",
+    "requests_per_minute": 30,
+    "tokens_per_minute_combined": 8000,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": true,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "hetzner",
+    "requests_per_minute": 10,
+    "tokens_per_minute_combined": null,
+    "tokens_per_minute_input": 4000000,
+    "tokens_per_minute_output": 100000,
+    "per_model_largest_shown": false,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "kenari",
+    "requests_per_minute": 5,
+    "tokens_per_minute_combined": null,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "openrouter",
+    "requests_per_minute": 20,
+    "tokens_per_minute_combined": null,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "ovhcloud",
+    "requests_per_minute": 2,
+    "tokens_per_minute_combined": null,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "MEASURED"
+   },
+   {
+    "provider": "siliconflow",
+    "requests_per_minute": 1000,
+    "tokens_per_minute_combined": 40000,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "uncloseai",
+    "requests_per_minute": 180,
+    "tokens_per_minute_combined": null,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "DECLARED"
+   },
+   {
+    "provider": "unorouter",
+    "requests_per_minute": 1,
+    "tokens_per_minute_combined": null,
+    "tokens_per_minute_input": null,
+    "tokens_per_minute_output": null,
+    "per_model_largest_shown": false,
+    "confidence": "DECLARED"
+   }
+  ],
+  "note": "Output-only and combined in+out ceilings are two shelves and are never added together; only the output-only shelf is compared with the output target."
+ },
+ "one_time": {
+  "tokens": 1000000,
+  "credits_usd": 6.0,
+  "grants": [
+   {
+    "provider": "alibaba",
+    "tokens": 1000000,
+    "per_model": true,
+    "credits_usd": null,
+    "confidence": "DECLARED",
+    "source": "https://www.alibabacloud.com/help/en/model-studio/new-free-quota",
+    "read_on": "2026-09-07",
+    "quote": "Each model (such as qwen-plus, qwen3.6-plus, or qwen3.6-plus-2026-04-02) has its own independent free quota (typically 1,000,000 tokens). Quota cannot be merged or transferred across models.",
+    "expires": "90 days from activation"
+   },
+   {
+    "provider": "cerebras",
+    "tokens": null,
+    "per_model": false,
+    "credits_usd": 5,
+    "confidence": "DECLARED",
+    "source": "https://www.cerebras.ai/pricing",
+    "read_on": "2026-09-06",
+    "quote": "Free Trial: $5 in free credits after making an account",
+    "expires": "UNKNOWN"
+   },
+   {
+    "provider": "siliconflow",
+    "tokens": null,
+    "per_model": false,
+    "credits_usd": 1,
+    "confidence": "DECLARED",
+    "source": "https://siliconflow.com/pricing",
+    "read_on": "2026-09-07",
+    "quote": "Flexible token pricing, high usage limits, and postpaid billing - plus $1 in free credits to get you started!",
+    "expires": "UNKNOWN"
+   }
+  ],
+  "note": "true exactly once; never added to the daily shelf. A grant recorded per_model is per model, not multiplied by the models this list tracks."
+ },
+ "monthly": {
+  "tokens": 0,
+  "credits_usd": 10.0,
+  "grants": [
+   {
+    "provider": "mistral",
+    "tokens": null,
+    "per_model": false,
+    "credits_usd": 10,
+    "confidence": "DECLARED",
+    "source": "https://mistral.ai/pricing",
+    "read_on": "2026-09-07",
+    "quote": "$10 /mo in API credits.",
+    "expires": "monthly: '/mo' is their own unit"
+   },
+   {
+    "provider": "ollama",
+    "tokens": null,
+    "per_model": false,
+    "credits_usd": null,
+    "confidence": "DECLARED",
+    "source": "https://ollama.com/pricing",
+    "read_on": "2026-09-07",
+    "quote": "Free accounts include a starter amount of usage for a smaller set of starter models. Instead, your included amount refreshes at each monthly reset.",
+    "expires": "refreshes at each monthly reset"
+   }
+  ],
+  "note": "refreshes monthly; money stays money"
+ },
+ "drawn": [],
+ "radar_today": {
+  "alive": 30,
+  "tested": 37
+ },
+ "note": "defensible_tokens_per_day = MEASURED + DECLARED + DERIVED + DRAWN, largest figure per provider, and it is the only number the bar and the distance use. PAID-PLAN is shown and never counted. Bursts and ceilings are per minute and are never multiplied out to a day. Money is never converted into tokens."
 }

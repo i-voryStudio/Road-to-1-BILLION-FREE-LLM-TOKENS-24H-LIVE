@@ -261,7 +261,8 @@ HTTP_PHRASES = {
     "503": "HTTP 503: no capacity behind the endpoint",
     "504": "HTTP 504: gateway timeout",
 }
-SAFE_REASONS = {"rate limit reached", "window ended", "token budget spent", "60 minutes elapsed"}
+SAFE_REASONS = {"rate limit reached", "window ended", "token budget spent", "60 minutes elapsed",
+                "token cap reached", "their limit is holding"}
 
 
 def plain_reason(text):
@@ -529,12 +530,33 @@ def main():
     drawn_who = []
     for name, r in sorted(drawn.items()):
         per_day = int(r["tokens_per_hour_drawn"] * 24)
-        drawn_who.append({"provider": name, "model": r.get("model"), "date": r.get("date"),
-                          "tokens_per_hour_drawn": r["tokens_per_hour_drawn"],
-                          "tokens_per_day_extrapolated": per_day,
-                          "minutes": r.get("minutes"), "stopped_because": plain_reason(r.get("stopped_because")),
-                          "note": "extrapolated from a 60-minute draw"})
-        if name not in per_provider:
+        # A draw against a ONE-TIME grant is not a day: at the drawn rate the grant runs out in hours and
+        # then there is nothing, so the extrapolation is reported with the hours it would last and is NOT
+        # added to the daily shelf. Measured 2026-09-07: one provider drew 699,585 tokens an hour against a
+        # sign-up grant of 1,000,000 per model; times 24 that would have put 16.8M a day on the bar for a pot
+        # that lasts under six hours.
+        entry = (limits.get("providers") or {}).get(name) or {}
+        ot = entry.get("one_time") or {}
+        recurring = any((entry.get("all_models") or {}).get(k) for k in ("rpd", "tpd")) or bool(entry.get("monthly"))             or bool(entry.get("derived")) or any((m or {}).get("rpd") or (m or {}).get("tpd")
+                                                  for m in (entry.get("models") or {}).values())
+        pot = None
+        if ot.get("tokens") and ot.get("confidence") in ("MEASURED", "DECLARED") and not recurring:
+            n_models = len(next((pp["models"] for pp in providers["providers"] if pp["name"] == name), []))                 if ot.get("per_model") else 1
+            pot = int(ot["tokens"]) * max(1, n_models)
+        hours = (pot / r["tokens_per_hour_drawn"]) if (pot and r["tokens_per_hour_drawn"]) else None
+        row = {"provider": name, "model": r.get("model"), "date": r.get("date"),
+               "tokens_per_hour_drawn": r["tokens_per_hour_drawn"],
+               "tokens_per_day_extrapolated": per_day,
+               "minutes": r.get("minutes_run", r.get("minutes")),
+               "stopped_because": plain_reason(r.get("stopped_because")),
+               "counted": pot is None and name not in per_provider,
+               "note": (("extrapolated from a 60-minute draw" if name not in per_provider else
+                         "not on the shelf: a %s daily figure already exists" % per_provider[name]["confidence"])
+                        if pot is None else
+                        "not counted: the only free capacity here is a one-time grant of %s tokens, and at the "
+                        "drawn rate it lasts about %.0f hours; a grant is not a day" % (num(pot), hours))}
+        drawn_who.append(row)
+        if name not in per_provider and pot is None:
             per_provider[name] = {"daily_tokens": per_day, "confidence": "DRAWN", "model": r.get("model"),
                                   "evidence": "%s tokens drawn per hour x 24: extrapolated from a "
                                               "60-minute draw on %s" % (num(r["tokens_per_hour_drawn"]),

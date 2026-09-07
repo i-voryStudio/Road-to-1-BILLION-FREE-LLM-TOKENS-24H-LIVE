@@ -36,9 +36,9 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 ## Where this is going, out loud: one billion free tokens a day
 
 <!--ROAD-->
-`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **~0.7%**
+`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **~1.2%**
 
-**Roughly 6,636,795 tokens a day** is what this list can defend on 2026-09-07: 6,000,000 measured from response headers or usage endpoints (2 providers); nothing published by a provider as a daily token figure; 636,795 derived from a published request cap at 500 tokens a reply or from a published unit price (5 providers); nothing yet from a sustained draw. The target is 1,000,000,000 a day by 2026-11-07, 150.7 times that. Nothing here is a burst multiplied out to a day.
+**Roughly 12,218,019 tokens a day** is what this list can defend on 2026-09-07: 6,000,000 measured from response headers or usage endpoints (2 providers); nothing published by a provider as a daily token figure; 636,795 derived from a published request cap at 500 tokens a reply or from a published unit price (5 providers); 5,581,224 extrapolated from a 60-minute draw (1 provider). The target is 1,000,000,000 a day by 2026-11-07, 81.8 times that. Nothing here is a burst multiplied out to a day.
 
 *Bursts are a different thing.* In 30-second bursts, latest reading per provider, **11 of 18 providers handed us 140,850 tokens a minute** added together on 2026-09-07; 3 answered and delivered nothing (hetzner, mistral, ovhcloud). A burst is a rate: 100,000 tokens a minute is a fact and 144,000,000 a day is a number nobody will be allowed to spend, so the bar above is built from the daily shelf and never from this rate. Free tiers move, throttle without warning and close; one provider here dropped 46-fold between two readings taken the same day. Nothing on this page is guaranteed to you by anyone, us included.
 
@@ -48,14 +48,14 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 <!--HEADLINE-->
 | | |
 |---|---|
-| **Tokens a day this list can defend** | **6,636,795** |
+| **Tokens a day this list can defend** | **12,218,019** |
 | measured by us from headers or usage endpoints | 6,000,000 |
 | published by the provider in tokens | 0 |
 | derived from a published request cap at 500 tokens each, or a published unit price | 636,795 |
-| extrapolated from a 60-minute draw, where nothing above exists | 0 |
+| extrapolated from a 60-minute draw, where nothing above exists | 5,581,224 |
 | The target | 1,000,000,000 a day by 2026-11-07 |
-| **Share of it** | **0.7%** |
-| Providers with a daily figure on this shelf | 7 of 18 |
+| **Share of it** | **1.2%** |
+| Providers with a daily figure on this shelf | 8 of 18 |
 | | |
 | *Bursts, which are a rate and not a day:* | |
 | 30-second burst, per provider, latest reading, added up | 140,850 a minute |
@@ -110,7 +110,7 @@ tables, including quality alone and privacy cost: [RESULTS.md](RESULTS.md). Ever
 source and the date we read it: [LIMITS.md](LIMITS.md).
 
 <!--COUNTS-->
-18 providers and 63 endpoints are tracked. 23 endpoints are ranked; 40 are listed with what is missing. 35 endpoints have a radar verdict in the last 14 days, 5 were probed and only ever refused (429 or 402), and 23 have not been probed yet. 7 endpoints need no key. 7 providers have a daily figure this list can defend; 11 publish none and are counted as nothing: alibaba, groq, hetzner, inferx, mistral, nvidia, ollama, ovhcloud, siliconflow, uncloseai, unorouter.
+18 providers and 63 endpoints are tracked. 23 endpoints are ranked; 40 are listed with what is missing. 35 endpoints have a radar verdict in the last 14 days, 5 were probed and only ever refused (429 or 402), and 23 have not been probed yet. 7 endpoints need no key. 8 providers have a daily figure this list can defend; 10 publish none and are counted as nothing: alibaba, groq, inferx, mistral, nvidia, ollama, ovhcloud, siliconflow, uncloseai, unorouter.
 <!--/COUNTS-->
 
 ---
@@ -194,7 +194,7 @@ publishes per-model ceilings, the largest is shown and the cell says so.
 | **[cerebras](https://cloud.cerebras.ai)** | 1,206 |  | - | 5 | 1,000,000 | MEASURED | - | $5 in credits | yes | ? | ? |
 | **[uncloseai](https://hermes.ai.unturf.com/)** | 700 |  | - | 180 | - | UNKNOWN | - | - | **no key** | no | no |
 | **[google](https://aistudio.google.com/apikey)** | - | not measured yet | 250,000 in+out (per model, largest) | 15 | 250,000 | DERIVED | - | - | yes | ? | ? |
-| **[hetzner](https://console.hetzner.com/)** | 0 | five failures in a row: no response: timeout or connection failure | 4,000,000 in / 100,000 out | 10 | - | UNKNOWN | - | - | yes | or ID | optional |
+| **[hetzner](https://console.hetzner.com/)** | 0 | five failures in a row: no response: timeout or connection failure | 4,000,000 in / 100,000 out | 10 | 5,581,224 | DRAWN | - | - | yes | or ID | optional |
 | **[siliconflow](https://siliconflow.com)** | - | no rate: HTTP 402: the endpoint stops serving until a top-up | 40,000 in+out | 1,000 | - | UNKNOWN | - | $1 in credits | yes | ? | ? |
 | **[groq](https://console.groq.com/keys)** | - | no rate: HTTP 403: the endpoint refused the caller | 8,000 in+out (per model, largest) | 30 | - | PAID-PLAN, not counted | - | - | yes | ? | ? |
 | **[mistral](https://console.mistral.ai/)** | 0 | rate limit reached | - | - | - | UNKNOWN | $10 in credits | - | yes | no | ? |

@@ -383,7 +383,7 @@ Sign-up requires: card no, phone not stated (read 2026-09-07).
 - **Limit applies per:** API KEY
 - **Source:** https://docs.hetzner.com/general/company-and-policy/experiments/inference/ (read 2026-09-07)
 - **The limit that actually bites:** Output tokens per minute, at 100,000 - and, today, whether any capacity answers at all.
-- **Daily figure this list uses:** none. UNKNOWN is not unlimited.
+- **Daily figure this list uses:** 5,581,224 tokens (DRAWN), on `Qwen3.8-27B`.
 
 Their limits table publishes ONE timeframe, 60 seconds, and no daily row: 4M input tokens, 100k output tokens, 10 requests. Read from the page's raw HTML on 2026-09-07 because lists elsewhere quote a 24-hour row of 500M input and 5M output that is not on the page. Free only while the service stays experimental, and they say they will email before that changes. Measured the same day: both models returned 503 'failed to find endpoint candidates for serving the request', so the ceiling is generous and the capacity behind it is not there yet.
 

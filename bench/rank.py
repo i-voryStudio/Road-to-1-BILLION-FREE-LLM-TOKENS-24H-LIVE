@@ -574,6 +574,45 @@ def main():
         text = re.sub(r"<!--ONE-TIME-->.*?<!--/ONE-TIME-->", lambda _: blk, text, flags=re.S)
         lim_md.write_text(text, encoding="utf-8", newline=chr(10))
 
+    # THE WHOLE LIST, ONE ROW PER PROVIDER, generated. What each one actually gives you, on the
+    # shelf it belongs to: recurring per day, published per minute, granted once. Three columns
+    # instead of one total, because a provider with 100,000 output tokens a minute and a provider
+    # with 250,000 a day are both real and are not comparable by adding them.
+    if readme.exists() and "<!--CAPACITY-->" in readme.read_text(encoding="utf-8"):
+        rows_by_prov = {}
+        for r in rows + unranked:
+            rows_by_prov.setdefault(r["provider"], []).append(r)
+        C = ["| Provider | Per day | Per minute | Once, at sign-up | Key | How we know |",
+             "|---|---|---|---|---|---|"]
+        def sort_key(name):
+            v = per_provider.get(name)
+            return (-(v[0] if v else 0), name)
+        for name in sorted(rows_by_prov, key=sort_key):
+            entry = (limits.get("providers") or {}).get(name) or {}
+            am = entry.get("all_models") or {}
+            daily = per_provider.get(name)
+            ot = entry.get("one_time") or {}
+            per_min = ("%s in / %s out" % (num(am["tpm_input"]), num(am["tpm_output"]))
+                       if am.get("tpm_input") and am.get("tpm_output")
+                       else num(am["tpm"]) + " out" if am.get("tpm")
+                       else "%s req" % num(am["rpm"]) if am.get("rpm") else "-")
+            once = (num(ot["tokens"]) if ot.get("tokens")
+                    else "$%g" % ot["credits_usd"] if ot.get("credits_usd")
+                    else "yes, size not published" if ot.get("confidence") in ("MEASURED", "DECLARED")
+                    else "-")
+            needs_key = any(r["auth"] == "KEY" for r in rows_by_prov[name])
+            C.append("| **%s** | %s | %s | %s | %s | %s |"
+                     % (name,
+                        num(daily[0]) if daily else "-",
+                        per_min, once,
+                        "yes" if needs_key else "**no key**",
+                        (daily[1] if daily else entry.get("confidence") or "UNKNOWN")))
+        text = readme.read_text(encoding="utf-8")
+        blk = "<!--CAPACITY-->" + chr(10) + chr(10).join(C) + chr(10) + "<!--/CAPACITY-->"
+        text = re.sub(r"<!--CAPACITY-->.*?<!--/CAPACITY-->", lambda _: blk, text, flags=re.S)
+        readme.write_text(text, encoding="utf-8", newline=chr(10))
+        print("capacity table: %d providers" % len(rows_by_prov))
+
     # The five at the top, generated too. Hand-typed, this table drifted from the ranking the first
     # time the formula changed, and gate_claims.py caught four wrong numbers on the front page.
     if readme.exists() and "<!--TOP5-->" in readme.read_text(encoding="utf-8") and rows:

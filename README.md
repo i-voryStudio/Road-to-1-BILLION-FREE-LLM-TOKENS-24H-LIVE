@@ -17,6 +17,34 @@
 | Distance to 1,000,000,000 measured tokens/day | **167x** |
 <!--/HEADLINE-->
 
+### Every provider, and what it actually gives you
+
+Three columns because there are three kinds of free, and adding them together is what makes other
+lists wrong. `-` means they publish nothing on that shelf, and nothing is what we write.
+
+<!--CAPACITY-->
+| Provider | Per day | Per minute | Once, at sign-up | Key | How we know |
+|---|---|---|---|---|---|
+| **xkiro** | 5,000,000 | - | - | yes | MEASURED |
+| **cerebras** | 1,000,000 | 5 req | $5 | yes | MEASURED |
+| **google** | 250,000 | - | - | yes | DECLARED |
+| **groq** | 200,000 | - | - | yes | PAID-PLAN |
+| **openrouter** | 25,000 | - | - | yes | DECLARED |
+| **aihubmix** | - | - | - | yes | UNKNOWN |
+| **alibaba** | - | - | 4,000,000 | yes | UNKNOWN |
+| **cloudflare** | - | - | - | yes | DECLARED |
+| **hetzner** | - | 4,000,000 in / 100,000 out | - | yes | DECLARED |
+| **inferx** | - | - | - | yes | UNKNOWN |
+| **kenari** | - | - | - | yes | MEASURED |
+| **mistral** | - | - | - | yes | MEASURED |
+| **nvidia** | - | - | - | yes | UNKNOWN |
+| **ollama** | - | - | yes, size not published | yes | UNKNOWN |
+| **ovhcloud** | - | 2 req | - | **no key** | MEASURED |
+| **siliconflow** | - | - | $1 | yes | UNKNOWN |
+| **uncloseai** | - | - | - | **no key** | UNKNOWN |
+| **unorouter** | - | - | - | yes | UNKNOWN |
+<!--/CAPACITY-->
+
 **Where this is going, out loud: one billion free tokens a day.** That is the number the list is
 built towards, and the box above measures the distance to it every day.
 

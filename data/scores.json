@@ -928,6 +928,24 @@
      "rank": 36
     }
    }
+  },
+  {
+   "provider": "hetzner",
+   "model": "Qwen3.8-27B",
+   "matched_as": "qwen/qwen3.8-27b",
+   "artificial_analysis": {
+    "intelligence_index": 41.4,
+    "coding_index": 68.1,
+    "agentic_index": 46.8
+   }
+  },
+  {
+   "provider": "hetzner",
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "matched_as": "qwen/qwen3.6-35b-a3b",
+   "artificial_analysis": {
+    "coding_index": 41.9
+   }
   }
  ],
  "unmatched": [

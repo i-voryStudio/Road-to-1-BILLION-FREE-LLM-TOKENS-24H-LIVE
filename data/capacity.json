@@ -2,6 +2,14 @@
  "date": "2026-09-07",
  "first_24h_tokens": 10000000,
  "recurring_measured_tokens_per_day": 6000000,
+ "output_tokens_per_minute": 100000,
+ "per_minute_providers": [
+  {
+   "provider": "hetzner",
+   "output_tokens_per_minute": 100000,
+   "confidence": "DECLARED"
+  }
+ ],
  "one_time_tokens": 4000000,
  "one_time_credits_usd": 6.0,
  "one_time_grants": [
@@ -67,8 +75,8 @@
    "confidence": "MEASURED"
   }
  },
- "providers_tracked": 17,
- "providers_with_no_published_quota": 12,
+ "providers_tracked": 18,
+ "providers_with_no_published_quota": 13,
  "target_tokens_per_day": 1000000000,
  "target_date": "2026-11-07",
  "multiple_still_needed": 166.7,

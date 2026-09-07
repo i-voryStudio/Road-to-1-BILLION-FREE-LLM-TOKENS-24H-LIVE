@@ -412,6 +412,22 @@
      "id": "deepseek-v4-pro:free"
     }
    ]
+  },
+  {
+   "name": "hetzner",
+   "url": "https://inference.hetzner.com/api/v1/chat/completions",
+   "key_env": "HETZNER_API_KEY",
+   "signup": "https://console.hetzner.com/",
+   "pause_seconds": 7,
+   "timeout_seconds": 90,
+   "models": [
+    {
+     "id": "Qwen3.8-27B"
+    },
+    {
+     "id": "Qwen/Qwen3.6-35B-A3B-FP8"
+    }
+   ]
   }
  ]
 }

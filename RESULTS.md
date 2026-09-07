@@ -37,6 +37,7 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 | `qwen-3.8-27b` | cerebras | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `qwen/qwen3.8-27b` | groq | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `@cf/qwen/qwen3.8-27b` | cloudflare | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
+| `Qwen3.8-27B` | hetzner | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `Qwen3.8-27B-FP8` | inferx | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `Qwen3.8-27B` | ovhcloud | **68.1** | 41.4 | 46.8 | ? | `qwen/qwen3.8-27b` |
 | `deepseek-v4-pro:free` | unorouter | **59.4** | ? | 27.9 | 1258 | `deepseek/deepseek-v4-pro` |
@@ -59,6 +60,7 @@ Quality is **imported** from official benchmarks (https://openrouter.ai/api/v1/m
 | `gemma-4-31b` | cerebras | **43.4** | ? | 6.8 | ? | `google/gemma-4-31b-it:batch` |
 | `gemma-4-31b-it` | google | **43.4** | ? | 6.8 | ? | `google/gemma-4-31b-it:batch` |
 | `gemma4:31b` | ollama | **43.4** | ? | 6.8 | ? | `google/gemma-4-31b-it:batch` |
+| `Qwen/Qwen3.6-35B-A3B-FP8` | hetzner | **41.9** | ? | ? | ? | `qwen/qwen3.6-35b-a3b` |
 | `Qwen3.6-35B-A3B-FP8` | inferx | **41.9** | ? | ? | ? | `qwen/qwen3.6-35b-a3b` |
 | `gemma-4-26b-a4b-it-free` | aihubmix | **39.3** | ? | ? | ? | `google/gemma-4-26b-a4b-it:free` |
 | `@cf/google/gemma-4-26b-a4b-it` | cloudflare | **39.3** | ? | ? | ? | `google/gemma-4-26b-a4b-it:free` |
@@ -132,6 +134,7 @@ Training on your prompts, human review, and legal limits on where you may serve 
 | aihubmix | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
 | inferx | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
 | unorouter | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
+| hetzner | UNKNOWN | UNKNOWN | UNKNOWN | not read yet |
 
 ## 6. Does it actually answer, and does it answer with anything
 
@@ -191,6 +194,8 @@ A row needs both halves to be ranked: an official score AND a known quota. Half 
 | `@cf/google/gemma-4-26b-a4b-it` | cloudflare | daily volume unknown - see LIMITS.md |
 | `@cf/qwen/qwen3.8-27b` | cloudflare | daily volume unknown - see LIMITS.md |
 | `gemma-4-31b-it` | google | daily volume unknown - see LIMITS.md |
+| `Qwen3.8-27B` | hetzner | daily volume unknown - see LIMITS.md |
+| `Qwen/Qwen3.6-35B-A3B-FP8` | hetzner | daily volume unknown - see LIMITS.md |
 | `Qwen3.8-27B-FP8` | inferx | daily volume unknown - see LIMITS.md |
 | `Qwen3-Coder-Next-FP8` | inferx | daily volume unknown - see LIMITS.md |
 | `Qwen3.6-35B-A3B-FP8` | inferx | daily volume unknown - see LIMITS.md |

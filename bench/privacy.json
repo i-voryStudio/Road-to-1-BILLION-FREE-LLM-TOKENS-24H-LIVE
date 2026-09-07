@@ -165,6 +165,14 @@
    "retention": "UNKNOWN",
    "region_restriction": "UNKNOWN",
    "note": "Nobody has read this provider's terms yet. UNKNOWN is the honest answer."
+  },
+  "hetzner": {
+   "trains_on_free_tier": "UNKNOWN",
+   "logs_prompts": "UNKNOWN",
+   "human_review": "UNKNOWN",
+   "retention": "UNKNOWN",
+   "region_restriction": "UNKNOWN",
+   "note": "Their documentation says what they keep - 'request timestamps, token counts etc.' - and does not mention prompts or training either way. An absence is not a no, so every field here stays UNKNOWN until they write the sentence."
   }
  }
 }

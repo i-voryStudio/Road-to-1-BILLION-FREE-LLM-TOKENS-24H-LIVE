@@ -7,12 +7,13 @@
 |---|---|
 | **Tokens to burn in your first 24 hours** | **10,000,000** |
 | **Every day after that**, measured by us | **6,000,000** |
+| Output tokens per **minute**, where that is the published ceiling | 100,000 |
 | One-time, handed over once at sign-up | 4,000,000 |
 | One-time credits, in money, not converted to tokens | $6 |
 | Also claimed by providers, sourced, not measured | 275,000 |
 | Published only for a PAID plan, excluded from all of it | 200,000 |
 | Endpoints answering today | **30 of 37 tested** |
-| Providers whose quota nobody publishes | **12 of 17** |
+| Providers whose quota nobody publishes | **13 of 18** |
 | Distance to 1,000,000,000 measured tokens/day | **167x** |
 <!--/HEADLINE-->
 
@@ -27,6 +28,13 @@ it on is on no page we could find. So that 625,000 is recorded with its timestam
 **nothing**: a number that swings between zero and six hundred thousand within an hour is not capacity
 anyone can plan on. Every reading is in [`bench/limits.json`](bench/limits.json) with the hour it was
 taken.
+
+**Most of the good ones publish a ceiling per minute and no daily figure at all.** Hetzner's free
+inference documents 4,000,000 input and 100,000 output tokens per 60 seconds, and no daily row exists
+on their page — we read the raw HTML to be sure, because other lists quote a 24-hour row that is not
+there. Counting a provider like that as zero, which a daily-only total does, understates this list
+badly. So it gets its own line, on its own terms, and is never multiplied out: 100,000 output tokens a
+minute is a fact; 144 million a day is arithmetic nobody will be allowed to spend.
 
 **Free comes in two kinds, and mixing them is how these lists mislead you.** One is *recurring*: it
 is there every morning, forever. The other is *one-time*: a bundle handed over once when you sign up,

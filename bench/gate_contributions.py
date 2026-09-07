@@ -52,6 +52,7 @@ ALLOWED_HOSTS = {
     "api.siliconflow.com",
     "api.mistral.ai",        # free tier that switches itself on and off: see bench/limits.json
     "api.unorouter.com",     # 163 models marked :free, measured answering 2026-09-07
+    "inference.hetzner.com", # free while experimental, their words; 4M input tokens/minute
     "kenari.id",             # 13 models marked :free, measured answering 2026-09-07
     "aihubmix.com",          # 54 models marked -free, measured answering 2026-09-07
     "model.inferx.net",      # free inference, measured answering 2026-09-07

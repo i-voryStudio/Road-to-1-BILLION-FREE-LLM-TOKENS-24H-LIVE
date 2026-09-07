@@ -1,6 +1,6 @@
 # Every endpoint we track
 
-All 61 of them, ranked or not, scored or not, alive or not. The tables in [RESULTS.md](RESULTS.md) filter and sort; this one never does.
+All 63 of them, ranked or not, scored or not, alive or not. The tables in [RESULTS.md](RESULTS.md) filter and sort; this one never does.
 
 Measured **2026-09-07**. `?` means we do not know, and we would rather write that than guess.
 
@@ -30,6 +30,8 @@ Measured **2026-09-07**. `?` means we do not know, and we would rather write tha
 | `@cf/google/gemma-4-26b-a4b-it` | cloudflare | not ranked | key | 39.3 | ? | ? | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | answers blank unless thinking is off; daily volume unknown - see LIMITS.md |
 | `@cf/qwen/qwen3.8-27b` | cloudflare | not ranked | key | 68.1 | 41.4 | 46.8 | ? | ? | ? | UNKNOWN | 100% | UNKNOWN | answers blank unless thinking is off; daily volume unknown - see LIMITS.md |
 | `gemma-4-31b-it` | google | not ranked | key | 43.4 | ? | 6.8 | ? | ? | ? | UNKNOWN | 100% | yes | answers blank unless thinking is off; daily volume unknown - see LIMITS.md; May not be used for apps serving users in the EEA, Switzerland or the UK |
+| `Qwen3.8-27B` | hetzner | not ranked | key | 68.1 | 41.4 | 46.8 | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
+| `Qwen/Qwen3.6-35B-A3B-FP8` | hetzner | not ranked | key | 41.9 | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `Qwen3.8-27B-FP8` | inferx | not ranked | key | 68.1 | 41.4 | 46.8 | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `Qwen3-Coder-Next-FP8` | inferx | not ranked | key | 36.2 | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |
 | `Qwen3.6-35B-A3B-FP8` | inferx | not ranked | key | 41.9 | ? | ? | ? | ? | ? | UNKNOWN | ? | UNKNOWN | daily volume unknown - see LIMITS.md |

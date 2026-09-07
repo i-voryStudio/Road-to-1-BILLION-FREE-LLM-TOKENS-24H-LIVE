@@ -454,6 +454,20 @@ def main():
     # A bundle handed over in MONEY is not converted into tokens. Doing that needs the provider's own
     # per-token price, and a made-up conversion is exactly the sort of confident wrong number this
     # list exists to avoid. Five dollars of credits stays five dollars of credits.
+    # A THIRD SHELF: providers whose ceiling is published PER MINUTE and who publish no daily figure
+    # at all. That is most of the good ones - Hetzner, OVHcloud, NVIDIA, Mistral - and counting them as
+    # zero, which is what a daily-only total does, understates the list badly. They are summed on
+    # their own terms, per minute, and never multiplied out to a day: 100,000 output tokens a minute
+    # is a fact, and 144,000,000 a day is arithmetic nobody will ever be allowed to spend.
+    per_minute_out, per_minute_who = 0, []
+    for name, entry in sorted((limits.get("providers") or {}).items()):
+        am = entry.get("all_models") or {}
+        out_tpm = am.get("tpm_output") or (am.get("tpm") if not am.get("tpd") else None)
+        if out_tpm and not am.get("tpd"):
+            per_minute_out += out_tpm
+            per_minute_who.append({"provider": name, "output_tokens_per_minute": out_tpm,
+                                   "confidence": entry.get("confidence")})
+
     one_time_tokens, one_time_credits, one_time_who = 0, 0.0, []
     for name, entry in sorted((limits.get("providers") or {}).items()):
         ot = entry.get("one_time")
@@ -494,6 +508,8 @@ def main():
         H = ["| | |", "|---|---|",
              "| **Tokens to burn in your first 24 hours** | **%s** |" % num(first_24h),
              "| **Every day after that**, measured by us | **%s** |" % num(measured),
+             "| Output tokens per **minute**, where that is the published ceiling | %s |"
+             % num(per_minute_out),
              "| One-time, handed over once at sign-up | %s |" % num(one_time_tokens),
              "| One-time credits, in money, not converted to tokens | %s |"
              % ("$%g" % one_time_credits if one_time_credits else "0"),
@@ -514,6 +530,8 @@ def main():
         "date": a.date,
         "first_24h_tokens": first_24h,
         "recurring_measured_tokens_per_day": measured,
+        "output_tokens_per_minute": per_minute_out,
+        "per_minute_providers": per_minute_who,
         "one_time_tokens": one_time_tokens,
         "one_time_credits_usd": one_time_credits,
         "one_time_grants": one_time_who,

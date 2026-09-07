@@ -30,6 +30,11 @@ WHAT THE NUMBER MEANS, exactly, and it is two different things depending on how 
 
 Either way it is a FLOOR, not a ceiling: more concurrency, a closer region or a bigger machine would
 raise it. It is the one number on this list that nobody has to take on trust.
+
+WHOSE COUNT IT IS. `output_tokens` is what the provider's `usage` block reported. Where a provider
+sends no usage block, the count is words x 1.3 and the row says so with `tokens_estimated: true`;
+a row whose every count came from a usage block carries `tokens_estimated: false`. An estimate is
+not their number and a reader must be able to tell the two apart on the page.
 """
 import argparse, json, os, queue, sys, threading, time, urllib.error, urllib.request
 from pathlib import Path
@@ -52,6 +57,19 @@ WINDOW_SECONDS = 30
 TOKEN_BUDGET = 25000
 MAX_CONCURRENCY = 8
 MAX_TOKENS_PER_CALL = 700
+# A usage block may count a few tokens past max_tokens: a stop token, a tokenizer that is not the one
+# the cap is enforced in, reasoning tokens a gateway folds into completion_tokens. The gate allows this
+# much over requests x MAX_TOKENS_PER_CALL and refuses anything beyond it as a row the meter could not
+# have received (aihubmix reported 7,048 from ten 700-token calls on 2026-09-07; a billion from one call
+# is still refused).
+USAGE_OVERSHOOT = 0.10
+
+# Every field a measured row carries, in the order they are written; main() adds `date`. The
+# contribution gate reads data/throughput.jsonl against this shape, and bench/test_contributions.py
+# pins the two lists to each other so a field added here is a field the gate knows about.
+ROW_FIELDS = ("provider", "model", "concurrency", "seconds", "requests_ok", "requests_rate_limited",
+              "requests_failed", "output_tokens", "tokens_estimated", "tokens_per_minute_measured",
+              "rate_basis", "first_error", "stopped_because", "note", "date")
 
 
 def resolve_url(url):
@@ -63,7 +81,8 @@ def resolve_url(url):
 
 
 def one_call(url, key, model, extra_body, timeout):
-    """(output_tokens, status, seconds, why). Counts tokens the provider reported where it can."""
+    """(output_tokens, status, seconds, why, estimated). Their count where they send one; where they
+    do not, words x 1.3 with `estimated` true so the row can say so."""
     body = {"model": model, "messages": [{"role": "user", "content": PROMPT}],
             "max_tokens": MAX_TOKENS_PER_CALL, "temperature": 0.7, **(extra_body or {})}
     headers = {"Content-Type": "application/json", "User-Agent": UA}
@@ -74,13 +93,13 @@ def one_call(url, key, model, extra_body, timeout):
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=headers)
         with open_url(req, timeout) as f:
             data = json.loads(f.read(400000).decode("utf-8", "replace"))
-        usage = data.get("usage") or {}
-        out = usage.get("completion_tokens")
-        if out is None:
-            # No usage block: count words and be explicit that it is an estimate, not their number.
-            msg = ((data.get("choices") or [{}])[0].get("message") or {}).get("content") or ""
-            out = int(len(msg.split()) * 1.3)
-        return out, 200, round(time.time() - started, 2), ""
+        usage = data.get("usage") if isinstance(data, dict) else None
+        out = usage.get("completion_tokens") if isinstance(usage, dict) else None
+        if isinstance(out, (int, float)) and not isinstance(out, bool):
+            return int(out), 200, round(time.time() - started, 2), "", False
+        # No usage block: count words and be explicit that it is an estimate, not their number.
+        msg = ((data.get("choices") or [{}])[0].get("message") or {}).get("content") or ""
+        return int(len(msg.split()) * 1.3), 200, round(time.time() - started, 2), "", True
     except urllib.error.HTTPError as e:
         # The provider's own error text often describes the calling account - "your balance is
         # insufficient" - and that is a fact about the caller, not about them. The publication gate refuses
@@ -93,9 +112,9 @@ def one_call(url, key, model, extra_body, timeout):
                500: "provider error",
                502: "bad gateway",
                503: "no capacity behind the endpoint"}.get(e.code, "HTTP %s" % e.code)
-        return 0, e.code, round(time.time() - started, 2), why
+        return 0, e.code, round(time.time() - started, 2), why, False
     except Exception as e:
-        return 0, 0, round(time.time() - started, 2), type(e).__name__
+        return 0, 0, round(time.time() - started, 2), type(e).__name__, False
 
 
 def measure(prov, limits, window, budget):
@@ -130,9 +149,10 @@ def measure(prov, limits, window, budget):
 
     def worker():
         while not stop.is_set():
-            out, code, secs, why = one_call(url, key, model, extra, timeout)
+            out, code, secs, why, estimated = one_call(url, key, model, extra, timeout)
             with lock:
-                results.append({"tokens": out, "http": code, "seconds": secs, "why": why})
+                results.append({"tokens": out, "http": code, "seconds": secs, "why": why,
+                                "estimated": estimated})
                 if code == 200:
                     fails["n"] = 0
                 else:
@@ -188,6 +208,9 @@ def measure(prov, limits, window, budget):
         "requests_ok": len(ok), "requests_rate_limited": len(limited),
         "requests_failed": len(results) - len(ok) - len(limited),
         "output_tokens": tokens,
+        # True when ANY successful call was counted by words rather than by their usage block: one
+        # estimate in the sum makes the sum an estimate.
+        "tokens_estimated": any(r["estimated"] for r in ok),
         "tokens_per_minute_measured": rate,
         "rate_basis": basis,
         "first_error": fails["last"] or None,

@@ -19,6 +19,10 @@ key in a cleartext header, and a redirect to another port would have reached wha
 The destination is the whole origin - scheme, host and port - and a redirect that changes any of the
 three is refused.
 
+The same rule applies where we AIM, not only where we land: `gate_contributions.py` refuses a
+provider URL that writes a port at all, through `written_port` below, because the runners speak to the
+default port only and another listener on an allowed host is another party.
+
 Anywhere a key can be attached, use `open_url(...)` and never `urllib.request.urlopen`.
 """
 import urllib.error
@@ -36,6 +40,16 @@ def origin_of(url):
     except ValueError:
         port = -1   # a port that does not parse is a destination that does not match anything
     return (u.scheme.lower(), (u.hostname or "").lower(), port or DEFAULT_PORT.get(u.scheme.lower()))
+
+
+def written_port(url):
+    """The port as WRITTEN in the URL: None when none is written, the number when one is, and -1 when
+    what is written does not parse as one. `https://api.example:443/` returns 443, not None: the
+    origin is the same, but somebody typed a port, and a contributed endpoint has no reason to."""
+    try:
+        return urlparse(url).port
+    except ValueError:
+        return -1
 
 
 class NoCrossHostRedirect(urllib.request.HTTPRedirectHandler):

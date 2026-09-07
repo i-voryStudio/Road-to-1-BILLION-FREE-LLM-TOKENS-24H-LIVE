@@ -1,0 +1,91 @@
+{
+ "_comment": [
+  "Which host each API key variable is allowed to reach, and in which role. Generated once from",
+  "providers.json and judges.json on 2026-09-07 and kept by hand from then on.",
+  "",
+  "WHY A SEPARATE FILE. The contribution gate binds a key variable to one host and one role, but it",
+  "used to rebuild that binding from providers.json on every run - so a pull request that SWAPPED two",
+  "existing providers' URLs, key variables untouched, produced zero findings and would have sent",
+  "every runner's key for one provider to the other. The binding has to be written down somewhere",
+  "the pull request cannot rewrite as a side effect of the change it makes. This is that place.",
+  "",
+  "THE RULES the gate applies:",
+  "  - every provider or judge that names a key_env must have a line here with the SAME host and role;",
+  "  - every line here must be used by a provider or judge, so the file cannot rot;",
+  "  - adding a provider means adding its line in the same pull request, where a reviewer sees both;",
+  "  - changing a host here is the one edit that moves a credential, and it is never routine.",
+  "",
+  "role is `provider` (a free-tier key, benchmarked) or `judge` (a paid key that scores the jury).",
+  "The two never share a variable or a host."
+ ],
+ "bindings": {
+  "GEMINI_API_KEY": {
+   "host": "generativelanguage.googleapis.com",
+   "role": "provider"
+  },
+  "CEREBRAS_API_KEY": {
+   "host": "api.cerebras.ai",
+   "role": "provider"
+  },
+  "GROQ_API_KEY": {
+   "host": "api.groq.com",
+   "role": "provider"
+  },
+  "OPENROUTER_API_KEY": {
+   "host": "openrouter.ai",
+   "role": "provider"
+  },
+  "CF_API_TOKEN": {
+   "host": "api.cloudflare.com",
+   "role": "provider"
+  },
+  "NVIDIA_API_KEY": {
+   "host": "integrate.api.nvidia.com",
+   "role": "provider"
+  },
+  "OLLAMA_API_KEY": {
+   "host": "ollama.com",
+   "role": "provider"
+  },
+  "ALIBABA_API_KEY": {
+   "host": "dashscope-intl.aliyuncs.com",
+   "role": "provider"
+  },
+  "XKIRO_API_KEY": {
+   "host": "api.xkiro.com",
+   "role": "provider"
+  },
+  "SILICONFLOW_API_KEY": {
+   "host": "api.siliconflow.com",
+   "role": "provider"
+  },
+  "MISTRAL_API_KEY": {
+   "host": "api.mistral.ai",
+   "role": "provider"
+  },
+  "KENARI_API_KEY": {
+   "host": "kenari.id",
+   "role": "provider"
+  },
+  "AIHUBMIX_API_KEY": {
+   "host": "aihubmix.com",
+   "role": "provider"
+  },
+  "INFERX_API_KEY": {
+   "host": "model.inferx.net",
+   "role": "provider"
+  },
+  "UNOROUTER_API_KEY": {
+   "host": "api.unorouter.com",
+   "role": "provider"
+  },
+  "HETZNER_API_KEY": {
+   "host": "inference.hetzner.com",
+   "role": "provider"
+  },
+  "ZAI_API_KEY": {
+   "host": "api.z.ai",
+   "role": "judge"
+  }
+ }
+}

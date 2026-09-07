@@ -11,20 +11,25 @@ on 2026-09-07 one provider gave 66,197 tokens a minute on the first burst and 1,
 minutes later, so the two readings are not the same fact.
 
 HOW IT DRAWS. One model per provider, the first in providers.json. `max_tokens` 700 and the same prose
-prompt as the burst meter. The pace is fixed and slow on purpose:
+prompt as the burst meter. The pace is the provider's own figure:
 
-    requests per minute = min(published rpm, 30), or 12 a minute where nothing is published
+    requests per minute = the published rpm, or 12 a minute where nothing is published,
+                          and never above 120 whatever the page says
 
 read from limits.json: `all_models.rpm` for most providers, the highest per-model `rpm` under `models`
-for the ones that publish a table. Never more than two requests in flight. This is a metronome, not a
-hammer. Launching at or under their own figure is the difference between measuring a free tier and
-abusing one, and every provider runs in its own thread so the whole draw takes one hour, not eighteen.
+for the ones that publish a table. Their own limit is the bound: a provider that publishes 600 a
+minute is measured at 120, the safety ceiling, not at a number we made up. Never more than two
+requests in flight. This is a metronome, not a hammer. Launching at or under their own figure is the
+difference between measuring a free tier and abusing one, and every provider runs in its own thread
+so the whole draw takes one hour, not eighteen.
 
 WHAT STOPS IT, and every reason is written into the row as `stopped_because`:
 
     - the wall clock (`--minutes`, 60 by default)
-    - a hard cap of 250,000 output tokens per provider per run, whatever the clock says. The flag
-      `--cap` can lower it and can never raise it.
+    - a hard cap of 250,000 output tokens per provider per run, whatever the clock says. `--cap` can
+      lower it freely. It can raise it, to at most 1,000,000, only together with the flag
+      `--i-know-this-spends-quota`: a bigger draw is a bigger bite out of somebody's free tier, and
+      the person taking it has to say so on the command line.
     - 401, 402 or 403 on two consecutive calls: the account, not the provider, is the problem
     - HTTP 429 on every call for five consecutive minutes. A single 429 costs a 30-second pause and is
       counted, because a limit reached once is a data point and a limit held for five minutes is the
@@ -34,9 +39,19 @@ WHAT STOPS IT, and every reason is written into the row as `stopped_because`:
 
 WHAT THE ROW SAYS. `output_tokens_drawn` is what their `usage` block reported. Where a provider sends
 no usage block at all, the count is words x 1.3 and the row carries `tokens_estimated: true`: an
-estimate is not their number and must not be read as one. `tokens_per_hour_drawn` is stated only when
-the run lasted at least twenty minutes; under that it is null and `tokens_per_hour_basis` says why.
-Either way it is a FLOOR at our pace, the caller's region and one key. It is not their ceiling.
+estimate is not their number and must not be read as one. `tokens_per_hour_drawn` is stated in two
+cases and no other:
+
+    - the run lasted at least twenty minutes, or
+    - the token cap ended it after at least five minutes and fifty successful requests. A cap
+      reached quickly is a well-measured HIGH rate, not noise: the provider handed over a quarter
+      of a million tokens and the clock says how fast. Under five minutes or fifty requests the same
+      stop is too few samples to scale, and the figure stays null.
+
+Under either floor it is null and `tokens_per_hour_basis` says why. Either way it is a FLOOR at our
+pace, the caller's region and one key. It is not their ceiling. `gate_contributions.py` reads
+data/drawn.jsonl against exactly these rules, through the functions below, so a row that this
+program could not have written does not reach the front page.
 
 No provider error body is ever written. Their error text describes the calling account, which is a fact
 about the caller and not about them, so the status code is kept as the evidence and the body is replaced by a
@@ -58,7 +73,8 @@ UA = "free-llm-benchmark/1.0 (+https://github.com/i-voryStudio)"
 
 MINUTES = 60
 TOKEN_CAP = 250000              # per provider per run, whatever the clock says
-MAX_PACE_RPM = 30               # we never draw faster than this, however high their figure
+TOKEN_CAP_MAX = 1000000         # the most --cap may ask for, and only with --i-know-this-spends-quota
+MAX_PACE_RPM = 120              # a safety ceiling over the published figure, never a pace of our own
 DEFAULT_RPM = 12                # one request every five seconds where nothing is published
 MAX_IN_FLIGHT = 2
 MAX_TOKENS_PER_CALL = 700
@@ -67,7 +83,10 @@ PERSIST_429_SECONDS = 300       # five minutes of nothing but 429 is the answer
 AUTH_STOP_STREAK = 2
 SERVER_ERROR_STOP_STREAK = 10
 ANY_FAILURE_STOP_STREAK = 20
-MIN_MINUTES_FOR_RATE = 20
+MIN_MINUTES_FOR_RATE = 20       # a rate needs this much clock...
+CAP_STOP_MIN_MINUTES = 5        # ...unless the cap stopped the run, after at least this much clock
+CAP_STOP_MIN_REQUESTS = 50      # ...and at least this many successful requests
+CAP_STOP_PREFIX = "token cap reached: "     # the stop the gate recognises by its first words
 
 # The same sentences the burst meter uses. What the ENDPOINT did, never what its body said about the caller.
 BEHAVIOUR = {402: "payment required: this endpoint will not serve an account with no credit",
@@ -103,7 +122,8 @@ def pace_for(entry, max_pace=MAX_PACE_RPM):
 
     Two shapes exist in that file: `all_models.rpm` for a provider with one figure, and a per-model
     table under `models` for the ones that publish one. The table is read as its highest rpm, because
-    that is the most any single model there is allowed - we draw one model, and we still cap it.
+    that is the most any single model there is allowed - we draw one model. Their figure is the pace;
+    `max_pace` is a safety ceiling above it, not a pace of our own.
     """
     entry = entry or {}
     published = None
@@ -123,10 +143,29 @@ def pace_for(entry, max_pace=MAX_PACE_RPM):
     return published, "published rpm %d" % published
 
 
-def hourly(tokens, minutes_run):
-    """(tokens per hour or None, the sentence that says why). Under twenty minutes there is no rate."""
+def rate_allowed(minutes_run, requests_ok=0, cap_reached=False):
+    """May a run of this shape state an hourly rate? Twenty minutes of clock, or the token cap
+    reached after five minutes and fifty successful requests. The gate applies this same predicate
+    to every row in data/drawn.jsonl."""
     if minutes_run >= MIN_MINUTES_FOR_RATE:
-        return int(tokens / minutes_run * 60), "scaled from %.1f minutes of drawing" % minutes_run
+        return True
+    return bool(cap_reached) and minutes_run >= CAP_STOP_MIN_MINUTES and requests_ok >= CAP_STOP_MIN_REQUESTS
+
+
+def hourly(tokens, minutes_run, requests_ok=0, cap_reached=False):
+    """(tokens per hour or None, the sentence that says why)."""
+    if minutes_run <= 0:
+        return None, "no hourly figure: the run had no length"
+    if rate_allowed(minutes_run, requests_ok, cap_reached):
+        if minutes_run >= MIN_MINUTES_FOR_RATE:
+            return int(tokens / minutes_run * 60), "scaled from %.1f minutes of drawing" % minutes_run
+        return int(tokens / minutes_run * 60), ("scaled from %.1f minutes of drawing: the token cap ended "
+                                                "the run after %d successful requests, which is a measured "
+                                                "high rate, not noise" % (minutes_run, requests_ok))
+    if cap_reached:
+        return None, ("no hourly figure: the token cap ended the run at %.1f minutes and %d successful "
+                      "requests, under the %d-minute and %d-request floor for a cap stop; too few samples "
+                      "to scale" % (minutes_run, requests_ok, CAP_STOP_MIN_MINUTES, CAP_STOP_MIN_REQUESTS))
     return None, ("no hourly figure: %.1f minutes is under the %d-minute floor, and an hour scaled up "
                   "from that would be arithmetic, not measurement" % (minutes_run, MIN_MINUTES_FOR_RATE))
 
@@ -231,7 +270,7 @@ def draw(prov, limits, minutes=MINUTES, cap=TOKEN_CAP, *, date=None, halt=None, 
             if s["stop"] is not None:
                 return
             if s["tokens"] >= cap:
-                s["stop"] = "token cap reached: %s output tokens" % "{:,}".format(cap)
+                s["stop"] = "%s%s output tokens" % (CAP_STOP_PREFIX, "{:,}".format(cap))
             elif s["streak_auth"] >= AUTH_STOP_STREAK:
                 s["stop"] = "%s on two consecutive calls" % label(code, why)
             elif s["streak_5xx"] >= SERVER_ERROR_STOP_STREAK:
@@ -280,7 +319,8 @@ def draw(prov, limits, minutes=MINUTES, cap=TOKEN_CAP, *, date=None, halt=None, 
     for t in threads:                    # an answer still on its way is still tokens we drew
         t.join(timeout=timeout + 5)
     elapsed_min = (time.monotonic() - t0) / 60
-    rate, rate_basis = hourly(s["tokens"], elapsed_min)
+    cap_reached = (s["stop"] or "").startswith(CAP_STOP_PREFIX)
+    rate, rate_basis = hourly(s["tokens"], elapsed_min, s["ok"], cap_reached)
     return {
         "provider": name, "model": model, "date": date, "started_utc": started_utc,
         "minutes_planned": round(window / 60, 3), "minutes_run": round(elapsed_min, 2),
@@ -301,7 +341,11 @@ def main(argv=None):
     ap.add_argument("--only", default="")
     ap.add_argument("--minutes", type=int, default=MINUTES)
     ap.add_argument("--cap", type=int, default=TOKEN_CAP,
-                    help="output tokens per provider per run; can be lowered, never raised")
+                    help="output tokens per provider per run; lower it freely, raise it to at most %d "
+                         "only with --i-know-this-spends-quota" % TOKEN_CAP_MAX)
+    ap.add_argument("--i-know-this-spends-quota", action="store_true",
+                    help="required to raise --cap above %d: a bigger draw is a bigger bite out of "
+                         "somebody's free tier" % TOKEN_CAP)
     ap.add_argument("--out", default="data/drawn.jsonl")
     ap.add_argument("--providers", default=str(HERE / "providers.json"))
     ap.add_argument("--limits", default=str(HERE / "limits.json"))
@@ -309,8 +353,11 @@ def main(argv=None):
     a = ap.parse_args(argv)
     if a.minutes <= 0:
         ap.error("--minutes must be positive")
-    if not 0 < a.cap <= TOKEN_CAP:
-        ap.error("--cap must be between 1 and %d: the cap can be lowered, never raised" % TOKEN_CAP)
+    if not 0 < a.cap <= TOKEN_CAP_MAX:
+        ap.error("--cap must be between 1 and %d" % TOKEN_CAP_MAX)
+    if a.cap > TOKEN_CAP and not a.i_know_this_spends_quota:
+        ap.error("--cap %d is above the default %d; raising it spends somebody's free quota, so say so "
+                 "with --i-know-this-spends-quota" % (a.cap, TOKEN_CAP))
 
     provs = json.loads(Path(a.providers).read_text(encoding="utf-8"))["providers"]
     limits = json.loads(Path(a.limits).read_text(encoding="utf-8"))
@@ -318,9 +365,9 @@ def main(argv=None):
         want = {x.strip() for x in a.only.split(",")}
         provs = [p for p in provs if p["name"] in want]
 
-    print("drawing for %d minutes per provider at min(published rpm, %d) or %d a minute, at most %d in "
-          "flight, %d tokens a call, cap %s output tokens per provider"
-          % (a.minutes, MAX_PACE_RPM, DEFAULT_RPM, MAX_IN_FLIGHT, MAX_TOKENS_PER_CALL,
+    print("drawing for %d minutes per provider at the published rpm (%d where none is published, never "
+          "above %d), at most %d in flight, %d tokens a call, cap %s output tokens per provider"
+          % (a.minutes, DEFAULT_RPM, MAX_PACE_RPM, MAX_IN_FLIGHT, MAX_TOKENS_PER_CALL,
              "{:,}".format(a.cap)))
     print()
 

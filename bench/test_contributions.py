@@ -15,16 +15,25 @@ steal nothing matter as much as the one that steals a key: a JSON-only change ca
 for a model the table never shows, get every runner's account closed, retire a live provider with a
 public headstone, or put a link on a generated page. They are all here, and they are all refused.
 
+The third round of planted pull requests is here too: the row appended to data/drawn.jsonl that put
+24 billion tokens a day on the headline, the URL swap between two existing providers that sent each
+runner's key to the other host, the caveat that planted a phishing link on three generated pages, the
+reasoning budget that rode in through extra_body, the future-dated radar rows that buried a live
+endpoint. Each is refused for the reason stated, and each has an honest neighbour that passes.
+
 The last section runs the REAL data files through the whole gate and compares what it finds with a
 list stated out loud below. Real findings are not fixed by loosening a rule; they are listed, so the
 data owner can fix the data and delete the line.
 """
 import json, re, sys, tempfile
+from datetime import date
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import gate_contributions as G
+import draw_day as D
+import throughput as T
 
 OK_HOST = "https://api.groq.com/openai/v1/chat/completions"
 KEYLESS_HOST = "https://hermes.ai.unturf.com/v1/chat/completions"
@@ -33,6 +42,10 @@ ALIBABA_HOST = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/comp
 JUDGE_HOST = "https://api.z.ai/api/coding/paas/v4/chat/completions"
 M = [{"id": "llama-3.3-70b"}]        # one honest model, for entries whose point lies elsewhere
 DATE = "2026-09-07"
+# The fixture clock. Every data-file runner below hands the gate this `today`, so a row dated FUTURE
+# is refused on any real day, and a row dated DATE is old enough to lack the fields added later.
+TODAY = date(2026, 9, 8)
+FUTURE = "2026-09-09"
 # The word a quota must never be multiplied by. Spelled in two halves, on a line with no number, so
 # the publication gate - which folds string concatenations on one line before it looks - never sees
 # the phrase it refuses. Two gates disagreeing about one string is not a reason to weaken either.
@@ -95,11 +108,34 @@ def check_privacy_entry(fixture):
 
 
 def check_limits_entry(fixture):
-    """The quota half over one provider entry; a (entry, known names) pair adds the cross-file check."""
-    entry, names = fixture if isinstance(fixture, tuple) else (fixture, None)
+    """The quota half over one provider entry; a (entry, known names) pair adds the cross-file check.
+    The provider's API host is api.groq.com, so its own domain is groq.com and every `source` must
+    sit there: a paste site is a foreign domain."""
+    if isinstance(fixture, tuple):
+        entry, names = fixture[0], fixture[1]
+        who = fixture[2] if len(fixture) > 2 else ("someprovider", "api.groq.com")
+    else:
+        entry, names, who = fixture, None, ("someprovider", "api.groq.com")
+    name, host = who
     problems = []
     with tempfile.TemporaryDirectory() as d:
-        G.check_limits(_write(d, "limits.json", {"providers": {"someprovider": entry}}), problems, names)
+        G.check_limits(_write(d, "limits.json", {"providers": {name: entry}}), problems, names, hosts={name: host})
+    return problems
+
+
+def check_bindings(fixture):
+    """providers.json, judges.json and the registry, on ONE binding map - the way collect() runs them.
+    A registry of None means the file is missing."""
+    providers, judges, registry = fixture
+    problems = []
+    maps = G.new_bindings()
+    with tempfile.TemporaryDirectory() as d:
+        G.check_providers(_write(d, "providers.json", {"providers": providers}), problems, maps)
+        G.check_judges(_write(d, "judges.json", {"judges": judges}), problems, maps)
+        reg_path = Path(d) / G.REGISTRY
+        if registry is not None:
+            _write(d, G.REGISTRY, {"bindings": registry})
+        G.check_key_bindings(reg_path, problems, maps)
     return problems
 
 
@@ -137,7 +173,7 @@ def check_uptime_rows(rows):
     problems = []
     with tempfile.TemporaryDirectory() as d:
         text = "\n".join(r if isinstance(r, str) else json.dumps(r) for r in rows) + "\n"
-        G.check_uptime(_write(d, "uptime.jsonl", text), problems, REAL_PROVIDERS)
+        G.check_uptime(_write(d, "uptime.jsonl", text), problems, REAL_PROVIDERS, today=TODAY)
     return problems
 
 
@@ -145,7 +181,15 @@ def check_throughput_rows(rows):
     problems = []
     with tempfile.TemporaryDirectory() as d:
         text = "\n".join(r if isinstance(r, str) else json.dumps(r) for r in rows) + "\n"
-        G.check_throughput(_write(d, "throughput.jsonl", text), problems, REAL_PROVIDERS, REAL_LIMITS)
+        G.check_throughput(_write(d, "throughput.jsonl", text), problems, REAL_PROVIDERS, REAL_LIMITS, today=TODAY)
+    return problems
+
+
+def check_drawn_rows(rows):
+    problems = []
+    with tempfile.TemporaryDirectory() as d:
+        text = "\n".join(r if isinstance(r, str) else json.dumps(r) for r in rows) + "\n"
+        G.check_drawn(_write(d, "drawn.jsonl", text), problems, REAL_PROVIDERS, REAL_LIMITS, today=TODAY)
     return problems
 
 
@@ -225,7 +269,8 @@ MUST_REFUSE = [
     ("a second model with the same id, differing only in case",
      [prov(models=[{"id": "gemma-4"}, {"id": "Gemma-4"}])], "duplicate model id"),
 
-    # --- extra_body: merged into the request LAST, so it can rewrite the request
+    # --- extra_body: merged into the request LAST, so it can rewrite the request. An ALLOWLIST: the
+    # keys that rewrite the request get their own message, everything else is refused as not a switch.
     ("extra_body replacing the model: every runner bills a model the table never shows",
      [prov(models=[{"id": "minimax/minimax-m3:free", "extra_body": {"model": "openai/gpt-4o"}}])],
      "extra_body sets 'model'"),
@@ -240,15 +285,34 @@ MUST_REFUSE = [
     ("extra_body declaring tools",
      [prov(models=[{"id": "m", "extra_body": {"tools": {"a": 1}, "tool_choice": "auto"}}])], "extra_body sets"),
     ("extra_body carrying a prompt disguised as a string parameter",
-     [prov(models=[{"id": "m", "extra_body": {"system": "x" * 300}}])], "character string"),
-    ("extra_body with nine keys: that is a request, not a switch",
-     [prov(models=[{"id": "m", "extra_body": {"k%d" % i: i for i in range(9)}}])], "carries 9 keys"),
-    ("extra_body with a list in it",
-     [prov(models=[{"id": "m", "extra_body": {"stop": ["a", "b"]}}])], "is a list"),
-    ("extra_body nested four levels deep",
-     [prov(models=[{"id": "m", "extra_body": {"a": {"b": {"c": {"d": 1}}}}}])], "nests deeper"),
+     [prov(models=[{"id": "m", "extra_body": {"system": "x" * 300}}])], G.EXTRA_BODY_REFUSED),
+    ("extra_body with nine unknown keys: that is a request, not a switch",
+     [prov(models=[{"id": "m", "extra_body": {"k%d" % i: i for i in range(9)}}])], G.EXTRA_BODY_REFUSED),
+    ("extra_body with a stop list in it",
+     [prov(models=[{"id": "m", "extra_body": {"stop": ["a", "b"]}}])], G.EXTRA_BODY_REFUSED),
+    ("extra_body nested four levels deep under an unknown key",
+     [prov(models=[{"id": "m", "extra_body": {"a": {"b": {"c": {"d": 1}}}}}])], G.EXTRA_BODY_REFUSED),
     ("extra_body that is not an object",
      [prov(models=[{"id": "m", "extra_body": "reasoning_effort=low"}])], "must be a JSON object"),
+    ("the reviewer's plant: a reasoning budget of 100,000 billed outside max_tokens, and two output caps "
+     "under other names, none of them in the denylist",
+     [prov(models=[{"id": "m", "extra_body": {"thinking": {"type": "enabled", "budget_tokens": 100000},
+                                             "max_output_tokens": 999999999, "num_predict": 999999999}}])],
+     G.EXTRA_BODY_REFUSED),
+    ("a stop sequence of one full stop on another provider's model: every reply truncated, its answered rate collapses",
+     [prov(models=[{"id": "m", "extra_body": {"stop": "."}}])], G.EXTRA_BODY_REFUSED),
+    ("thinking with a budget riding along inside the allowed switch",
+     [prov(models=[{"id": "m", "extra_body": {"thinking": {"type": "enabled", "budget_tokens": 1024}}}])],
+     "no budget_tokens"),
+    ("a reasoning_effort value the runner does not document",
+     [prov(models=[{"id": "m", "extra_body": {"reasoning_effort": "xhigh"}}])], "one of low, medium, high"),
+    ("enable_thinking as a string, which some servers read as true",
+     [prov(models=[{"id": "m", "extra_body": {"enable_thinking": "false"}}])], "true or false"),
+    ("chat_template_kwargs carrying a second key beside the switch",
+     [prov(models=[{"id": "m", "extra_body": {"chat_template_kwargs": {"enable_thinking": False, "add_generation_prompt": True}}}])],
+     "nothing else"),
+    ("a generation parameter in extra_body: it belongs in the language pack, where every model gets the same one",
+     [prov(models=[{"id": "m", "extra_body": {"temperature": 0.7, "reasoning_effort": "low"}}])], G.EXTRA_BODY_REFUSED),
 
     # --- the endpoint: right host, wrong door
     ("path swap on an allowed host: the key still goes to groq, but to audio transcription",
@@ -257,6 +321,12 @@ MUST_REFUSE = [
      [prov(url="https://api.groq.com/openai/v1/../v1/chat/completions")], "url path must end with"),
     ("a query string on the endpoint",
      [prov(url=OK_HOST + "?api-version=2")], "query string"),
+    ("an allowed host on another port: another listener is another party, the rule http_safe applies to redirects",
+     [prov(url="https://api.groq.com:8443/openai/v1/chat/completions")], "writes a port"),
+    ("the default port written out: still somebody typing a port on an endpoint that has no reason to carry one",
+     [prov(url="https://api.groq.com:443/openai/v1/chat/completions")], "writes a port"),
+    ("a port that does not parse",
+     [prov(url="https://api.groq.com:notaport/openai/v1/chat/completions")], "writes a port"),
     ("the Cloudflare account placeholder on a groq URL: the account id goes to groq in the path",
      [prov(url="https://api.groq.com/openai/{CF_ACCOUNT_ID}/v1/chat/completions")],
      "belongs to api.cloudflare.com"),
@@ -266,6 +336,19 @@ MUST_REFUSE = [
     # --- names and keys
     ("provider 'a' claiming ALIBABA_API_KEY on Alibaba's own host: a one-letter name owns every key",
      [{"name": "a", "url": ALIBABA_HOST, "key_env": "ALIBABA_API_KEY", "models": M}], "does not name this provider"),
+    ("the reviewer's plant: a provider called 'api' claiming GROQ_API_KEY on the groq host, a second row on "
+     "the same account, which the substring rule admitted because API is in GROQAPIKEY",
+     [prov(), {"name": "api", "url": OK_HOST, "key_env": "GROQ_API_KEY", "models": M}], "does not name this provider"),
+    ("a generic word as a name, with a key variable to match",
+     [{"name": "free", "url": OK_HOST, "key_env": "FREE_API_KEY", "models": M}], "does not name this provider"),
+    ("a three-letter name with its own variable: under the four-character floor",
+     [{"name": "roq", "url": OK_HOST, "key_env": "ROQ_API_KEY", "models": M}], "does not name this provider"),
+    ("a name that is a prefix of the variable's stem, not equal to it",
+     [{"name": "gro", "url": OK_HOST, "key_env": "GROQ_API_KEY", "models": M}], "does not name this provider"),
+    ("a lookalike name one letter off the variable's stem",
+     [{"name": "grok", "url": OK_HOST, "key_env": "GROQ_API_KEY", "models": M}], "does not name this provider"),
+    ("a key variable that does not end in _API_KEY or _API_TOKEN",
+     [prov(key_env="GROQ_KEY")], "does not name this provider"),
     ("a name that is not a plain lowercase token: it becomes a table cell and a map key",
      [prov(name="Groq|x")], "name must be"),
     ("the same provider twice, differing only in case: two radar rows a day on one account",
@@ -304,8 +387,18 @@ MUST_PASS = [
     ("a reasoning switch, nested, is what extra_body is for",
      [prov(models=[{"id": "nvidia/nemotron-3-ultra-550b-a55b:free",
                     "extra_body": {"chat_template_kwargs": {"enable_thinking": False}}}])]),
-    ("a provider overriding temperature for one model, the case test_probes.py pins",
-     [prov(models=[{"id": "m", "extra_body": {"temperature": 0.7, "reasoning_effort": "low"}}])]),
+    ("every documented switch in its documented shape, one per model",
+     [prov(models=[{"id": "a", "extra_body": {"reasoning_effort": "low"}},
+                   {"id": "b", "extra_body": {"reasoning_effort": "high"}},
+                   {"id": "c", "extra_body": {"enable_thinking": False}},
+                   {"id": "d", "extra_body": {"enable_thinking": True}},
+                   {"id": "e", "extra_body": {"thinking": {"type": "disabled"}}},
+                   {"id": "f", "extra_body": {"thinking": {"type": "enabled"}}},
+                   {"id": "g", "extra_body": {"reasoning_effort": "medium", "enable_thinking": False}}])]),
+    ("a name with a hyphen whose variable spells it with an underscore: the same stem",
+     [{"name": "some-provider", "url": OK_HOST, "key_env": "SOME_PROVIDER_API_KEY", "models": M}]),
+    ("a key variable ending in _API_TOKEN",
+     [{"name": "groq", "url": OK_HOST, "key_env": "GROQ_API_TOKEN", "models": M}]),
     ("every range at its edge: 180 s timeout, half a second pause, 8000 tokens, 12 models",
      [prov(timeout_seconds=180, pause_seconds=0.5,
            models=[{"id": "m%d" % i, "max_tokens": 8000} for i in range(12)])]),
@@ -360,10 +453,55 @@ CROSS_FILE_MUST_PASS = [
      ([prov(), {"name": "uncloseai", "url": KEYLESS_HOST, "auth": "none", "models": M}], [JUDGE, MANUAL])),
 ]
 
+# --- the registry: where each key variable may go, remembered across pull requests
+REAL_JUDGES = (_real("judges.json") or {}).get("judges") or []
+REAL_REGISTRY = ((_real(G.REGISTRY) or {}).get("bindings")) or {}
+GROQ_BINDING = {"host": "api.groq.com", "role": "provider"}
+ZAI_BINDING = {"host": "api.z.ai", "role": "judge"}
+
+
+def _swapped(providers, a, b):
+    """The real providers with two URLs exchanged and every key variable left where it was."""
+    out = json.loads(json.dumps(providers))
+    ua = next(p["url"] for p in out if p["name"] == a)
+    ub = next(p["url"] for p in out if p["name"] == b)
+    for p in out:
+        if p["name"] == a:
+            p["url"] = ub
+        elif p["name"] == b:
+            p["url"] = ua
+    return out
+
+
+BINDINGS_MUST_REFUSE = [
+    ("the reviewer's plant: the real file with groq's and cerebras's URLs swapped, key variables untouched - each "
+     "runner's Groq key goes to Cerebras and Cerebras key to Groq, and within the file each variable still "
+     "reaches exactly one host",
+     (_swapped(REAL_PROVIDERS, "groq", "cerebras"), REAL_JUDGES, REAL_REGISTRY), "sends it to"),
+    ("a new provider with no line in the registry",
+     ([prov()], [JUDGE], {"ZAI_API_KEY": ZAI_BINDING}), "has no line in bench/key_bindings.json"),
+    ("a registry line nobody uses, so the file cannot rot into a list nobody checks",
+     ([prov()], [JUDGE], {"GROQ_API_KEY": GROQ_BINDING, "ZAI_API_KEY": ZAI_BINDING,
+                          "GHOST_API_KEY": {"host": "api.cerebras.ai", "role": "provider"}}), "used by no provider or judge"),
+    ("the judge's key registered as a provider key: the role is part of the binding",
+     ([prov()], [JUDGE], {"GROQ_API_KEY": GROQ_BINDING, "ZAI_API_KEY": {"host": "api.z.ai", "role": "provider"}}),
+     "sends it to"),
+    ("a registry line with the role missing",
+     ([prov()], [JUDGE], {"GROQ_API_KEY": {"host": "api.groq.com"}, "ZAI_API_KEY": ZAI_BINDING}), "a binding is"),
+    ("no registry at all", ([prov()], [JUDGE], None), "missing"),
+]
+BINDINGS_MUST_PASS = [
+    ("the real providers, the real judges and the real registry", (REAL_PROVIDERS, REAL_JUDGES, REAL_REGISTRY)),
+    ("one provider and the two-family jury, each key with its line",
+     ([prov()], [JUDGE, MANUAL], {"GROQ_API_KEY": GROQ_BINDING, "ZAI_API_KEY": ZAI_BINDING})),
+    ("a keyless provider needs no line",
+     ([{"name": "uncloseai", "url": KEYLESS_HOST, "auth": "none", "models": M}], [JUDGE, MANUAL], {"ZAI_API_KEY": ZAI_BINDING})),
+]
+
 JUDGES_MUST_REFUSE = [
     ("an invented via", [dict(JUDGE, via="email"), MANUAL], "via must be"),
-    ("an agent judge with no note: a limitation nobody declared",
-     [JUDGE, {"name": "claude", "via": "manual", "family": "other", "model": "x"}], "needs a note"),
+    ("a via judges.json does not document: 'agent' was admitted by the gate and described by nothing",
+     [JUDGE, dict(MANUAL, via="agent")], "via must be"),
     ("a manual judge whose note does not say it cannot be reproduced",
      [JUDGE, dict(MANUAL, note="Scored by hand.")], "needs a note"),
     ("no judge reachable by API", [MANUAL, dict(MANUAL, name="other", family="third")], "no judge is reachable"),
@@ -374,11 +512,15 @@ JUDGES_MUST_REFUSE = [
     ("an api judge with a huge budget", [dict(JUDGE, max_tokens=10 ** 6), MANUAL], "max_tokens must be"),
     ("an api judge on a host that is not allowed",
      [dict(JUDGE, url="https://attacker.example/v1/chat/completions"), MANUAL], "not in ALLOWED_HOSTS"),
+    ("an api judge on the allowed host with a port written on it",
+     [dict(JUDGE, url="https://api.z.ai:8443/api/coding/paas/v4/chat/completions"), MANUAL], "writes a port"),
+    ("an api judge whose extra_body carries a thinking budget",
+     [dict(JUDGE, extra_body={"thinking": {"type": "enabled", "budget_tokens": 50000}}), MANUAL], "no budget_tokens"),
     ("two judges with the same name", [JUDGE, dict(MANUAL, name="glm")], "duplicate judge name"),
 ]
 JUDGES_MUST_PASS = [
     ("an api judge and a manual one with its note: the real jury's shape", [JUDGE, MANUAL]),
-    ("an api judge and an agent one with its note", [JUDGE, dict(MANUAL, via="agent")]),
+    ("the real jury", REAL_JUDGES),
     ("an api judge with a reasoning switch and a budget",
      [dict(JUDGE, extra_body={"thinking": {"type": "disabled"}}, max_tokens=600, pause_seconds=2), MANUAL]),
 ]
@@ -453,6 +595,10 @@ BASE = {"confidence": "UNKNOWN", "all_models": {"rpd": None, "tpd": None}}
 DECL = {"confidence": "DECLARED", "source": OWN, "read_on": DATE}
 MEAS = {"confidence": "MEASURED", "measured_on": DATE, "measured_how": "x-ratelimit headers on a call"}
 PRICING = "https://console.groq.com/pricing"
+PASTE = "https://pastebin.example/abc"           # an https URL on a domain the provider does not own
+NEURONS = {"input_per_million": 4119, "output_per_million": 34868}
+DERIVED = {"output_tokens_per_day": 286795, "confidence": "DERIVED",
+           "how": "10,000 Neurons/day / 34,868 Neurons per 1M output tokens, on the 8b model"}
 
 ONE_TIME_MUST_REFUSE = [
     ("a sign-up bundle with no source and no date",
@@ -472,6 +618,15 @@ ONE_TIME_MUST_REFUSE = [
      "needs the provider's own sentence"),
     ("a credits block with no source, date or quote",
      dict(BASE, credits={"usd_per_month": 10}), "credits block needs"),
+    ("the reviewer's plant: a one-time grant of 10**15 tokens, shown on the page even though never summed",
+     dict(BASE, one_time={"tokens": 10 ** 15, "confidence": "DECLARED", "source": PRICING, "read_on": DATE,
+                          "quote": "a quadrillion tokens"}), "sanity ceiling"),
+    ("a monthly pot of a million dollars",
+     dict(BASE, monthly={"credits_usd": 10 ** 6, "confidence": "DECLARED", "source": PRICING, "read_on": DATE,
+                         "quote": "$1,000,000 /mo"}), "sanity ceiling"),
+    ("a grant sourced on a paste site: the provider's page or nothing",
+     dict(BASE, one_time={"tokens": 5000000, "confidence": "DECLARED", "source": PASTE, "read_on": DATE,
+                          "quote": "5M free tokens"}), "not this provider's domain"),
 ]
 
 ONE_TIME_MUST_PASS = [
@@ -530,6 +685,71 @@ LIMITS_MUST_REFUSE = [
      dict(DECL, all_models={"rpm": 30}, caveat="30/min x 4 %s = 120/min" % PLURAL_OF_KEY), "multiplied across keys"),
     ("a quota for a provider that is not in providers.json",
      (dict(BASE), {"groq", "cerebras"}), "not a provider in providers.json"),
+
+    # --- evidence on a domain the provider does not own, and figures rank.py reads that were never typed
+    ("the reviewer's plant: DECLARED, sourced on a paste site, 9,999,999,999 tokens a day under the ceiling",
+     dict(DECL, source=PASTE, all_models={"tpd": 9999999999}), "not this provider's domain"),
+    ("a model-level source on a foreign domain",
+     dict(BASE, models={"m": {"rpd": 100, "rpd_confidence": "DECLARED", "source": PASTE, "read_on": DATE}}),
+     "not this provider's domain"),
+    ("a lookalike of the provider's own domain as a source",
+     dict(DECL, source="https://console.groq.com.evil.example/docs", all_models={"rpm": 30}), "not this provider's domain"),
+    ("the reviewer's plant: derived.output_tokens_per_day of 10**12, straight onto the DERIVED shelf",
+     dict(DECL, all_models={"rpm": 300}, derived=dict(DERIVED, output_tokens_per_day=10 ** 12)), "sanity ceiling"),
+    ("a derived figure that is a string", dict(DECL, derived=dict(DERIVED, output_tokens_per_day="many")), "non-negative integer"),
+    ("a derived figure not labelled DERIVED: the code ignores it and the reader sees it",
+     dict(DECL, derived=dict(DERIVED, confidence="DECLARED")), "labelled DERIVED"),
+    ("a derived figure with the arithmetic not written out", dict(DECL, derived={"output_tokens_per_day": 286795, "confidence": "DERIVED"}),
+     "needs `how`"),
+    ("the reviewer's plant: a Neuron cost of 0.000001, which divides the daily allocation into 10**16 tokens",
+     dict(DECL, all_models={"rpm": 300, "neurons_per_day": 10000}, free_allocation={"neurons_per_day": 10000},
+          neuron_cost_examples={"@cf/m": dict(NEURONS, output_per_million=0.000001)}), "positive integer"),
+    ("a Neuron cost of zero: a division by zero on the way to the headline",
+     dict(DECL, free_allocation={"neurons_per_day": 10000}, neuron_cost_examples={"@cf/m": dict(NEURONS, output_per_million=0)}),
+     "positive integer"),
+    ("a Neuron cost entry missing its output price, which rank.py indexes into",
+     dict(DECL, free_allocation={"neurons_per_day": 10000}, neuron_cost_examples={"@cf/m": {"input_per_million": 4119}}),
+     "positive integer"),
+    ("a Neuron cost keyed by a model id that closes a backtick on LIMITS.md",
+     dict(DECL, free_allocation={"neurons_per_day": 10000}, neuron_cost_examples={"x` | [k](https://evil.example) | `": NEURONS}),
+     "unexpected shape"),
+    ("a per-model table keyed by a model id with a pipe in it",
+     dict(DECL, all_models={"rpm": 30}, models={"a | b": {"rpm": 30}}), "unexpected shape"),
+    ("free_allocation with a figure that is a word", dict(DECL, free_allocation={"neurons_per_day": "lots"}), "non-negative integer"),
+    ("free_allocation with a figure past the Neurons ceiling", dict(DECL, free_allocation={"neurons_per_day": 10 ** 12}), "sanity ceiling"),
+    ("measured_values with a daily figure of 10**12", dict(MEAS, measured_values={"limit_per_day": 10 ** 12}), "under"),
+    ("unverified_accounts with a negative figure", dict(DECL, unverified_accounts={"rpd": -1, "confidence": "DECLARED"}),
+     "non-negative integer"),
+    ("authenticated_tier with a billion requests a minute", dict(DECL, authenticated_tier={"rpm": 10 ** 9, "kind": "PAID-PLAN", "why": "x"}),
+     "sanity ceiling"),
+
+    # --- free text that reaches a page. rank.py renders these raw onto LIMITS.md, RESULTS.md and ranking.json.
+    ("the reviewer's plant: a caveat carrying a markdown link to a key-stealing mirror",
+     dict(DECL, all_models={"rpm": 30}, caveat="See [our mirror](https://evil.example/keys) for keys."), "rendered raw"),
+    ("a bare URL in a quote, rendered as a blockquote",
+     dict(DECL, all_models={"rpm": 30}, quotes=["Terms at https://evil.example/terms"]), "contains a URL"),
+    ("a www. address with no scheme in a caveat", dict(DECL, all_models={"rpm": 30}, caveat="Keys at www.evil.example."), "contains a URL"),
+    ("a backtick in a caveat: a code span on the page, and the mark that closes another one",
+     dict(DECL, all_models={"rpm": 30}, caveat="See `models` below."), "backtick"),
+    ("an HTML tag in signup_requires.note",
+     dict(DECL, all_models={"rpm": 30}, signup_requires={"card": "no", "phone": "no", "note": "<a href=x>Sign up</a>", "read_on": DATE}),
+     "rendered raw"),
+    ("a second line in all_models.note", dict(DECL, all_models={"rpm": 30, "note": "per model\nand a second line"}),
+     "spans more than one line"),
+    ("a URL in measured_how", dict(MEAS, all_models={"rpm": 5}, measured_how="GET https://evil.example/usage"), "contains a URL"),
+    ("square brackets in binding_limit", dict(DECL, all_models={"rpm": 30}, binding_limit="[see console]"), "rendered raw"),
+    ("a URL in a grant's expires text",
+     dict(BASE, one_time={"tokens": 5000000, "confidence": "DECLARED", "source": PRICING, "read_on": DATE,
+                          "quote": "5M free tokens", "expires": "see https://evil.example"}), "contains a URL"),
+    ("a URL in rate_limit_quotes", dict(DECL, all_models={"rpm": 30}, rate_limit_quotes=["qwen | 600 | https://evil.example"]),
+     "contains a URL"),
+    ("a URL in a per-model note", dict(DECL, all_models={"rpm": 30}, models={"m": {"rpm": 30, "note": "docs: https://evil.example"}}),
+     "contains a URL"),
+    ("a URL in tpm_note", dict(DECL, all_models={"rpm": 30, "tpm": 8000}, tpm_note="see https://evil.example"), "contains a URL"),
+    ("a URL in a tier's unlock text", dict(DECL, all_models={"rpm": 30}, tiers={"payer": {"rpd": 1000, "unlock": "top up at https://evil.example"}}),
+     "contains a URL"),
+    ("a URL in a measured_concurrency note",
+     dict(MEAS, all_models={"rpm": 5}, measured_concurrency={"measured_on": DATE, "m": "8 calls, see https://evil.example"}), "contains a URL"),
 ]
 
 LIMITS_MUST_PASS = [
@@ -547,8 +767,25 @@ LIMITS_MUST_PASS = [
      dict(DECL, all_models={"rpm": 30, "rpd": None}, rpd_plan="Developer",
           models={"m": {"rpm": 30, "rpd": 1000, "rpd_confidence": "DECLARED", "rpd_is_paid_plan": True}})),
     ("UNKNOWN with every figure null, which is what unknown means", dict(BASE, all_models={"rpm": None, "tpm": None})),
-    ("a derived sub-block, labelled DERIVED", dict(DECL, all_models={"rpm": 300, "neurons_per_day": 10000},
-                                                 derived={"output_tokens_per_day": 286795, "confidence": "DERIVED"})),
+    ("a derived sub-block, labelled DERIVED, with the arithmetic written out",
+     dict(DECL, all_models={"rpm": 300, "neurons_per_day": 10000}, derived=DERIVED)),
+    ("the Cloudflare shape: an allocation in Neurons, unit prices per model, and the derived figure",
+     dict(DECL, all_models={"rpm": 300, "neurons_per_day": 10000}, free_allocation={"neurons_per_day": 10000},
+          neuron_cost_examples={"@cf/meta/llama-3.2-1b-instruct": NEURONS, "@cf/meta/llama-3.3-70b-instruct-fp8-fast": {"input_per_million": 26668, "output_per_million": 204805}},
+          derived=DERIVED)),
+    ("measured_values, unverified_accounts and authenticated_tier in their real shapes",
+     dict(MEAS, all_models={"rpm": 5, "tpd": 5000000}, measured_values={"limit_per_day": 5000000},
+          unverified_accounts={"rpd": 100, "rph": 30, "applies_to": "two specific models on unverified accounts", "confidence": "DECLARED"},
+          authenticated_tier={"rpm": 400, "kind": "PAID-PLAN", "why": "requires a project with a payment method"})),
+    ("a source on the declared sign-up domain of a provider whose API lives elsewhere: the real Alibaba shape",
+     (dict(DECL, source="https://www.alibabacloud.com/help/en/model-studio/rate-limit", all_models={"rpm": 600}), None,
+      ("alibaba", "dashscope-intl.aliyuncs.com"))),
+    ("a source on the declared terms domain: Google's rate-limit page lives on ai.google.dev",
+     (dict(DECL, source="https://ai.google.dev/gemini-api/docs/rate-limits", all_models={"rpm": 15}), None,
+      ("google", "generativelanguage.googleapis.com"))),
+    ("free text with punctuation a page can carry: quotes, colons, a slash, an ampersand, a dollar sign",
+     dict(DECL, all_models={"rpm": 30}, caveat="Their words: 'Free Trial: $5 in credits' - read on the pricing page; per key/project & org.",
+          quotes=["Includes input and output tokens.", "qwen-flash | International | 600 | 5,000,000"])),
     ("a quota for a provider that is in providers.json", (dict(DECL, all_models={"rpm": 30}), {"someprovider", "groq"})),
 ]
 
@@ -601,7 +838,7 @@ LANGUAGE_MUST_REFUSE = [
     ("a probe budget of a million tokens", pack(probes__D__max_tokens=10 ** 6), "max_tokens must be"),
     ("a code that does not match the filename", pack(code="en"), "must match the filename"),
     ("a jury without the sounds_human lens", pack(jury={"other": "Score 0-10."}), "sounds_human"),
-    ("a character in both diacritics and wrong_diacritics", pack(wrong_diacritics="ș"), "both diacritics and wrong_diacritics"),
+    ("a character in both diacritics and wrong_diacritics", pack(wrong_diacritics="\u0219"), "both diacritics and wrong_diacritics"),
     ("an English pack asking for diacritics it has no alphabet for",
      (dict(json.loads(json.dumps(EN)), probes=dict(EN["probes"], D=dict(EN["probes"]["D"], min_diacritics=3))), "en"),
      "min_diacritics must be 0"),
@@ -640,14 +877,28 @@ UPTIME_MUST_REFUSE = [
     ("a row with a duplicate key", ['{"date": "%s", "provider": "%s", "model": "%s", "state": "alive", '
                                     '"state": "down", "http": 200, "seconds": 1}' % (DATE, P0, M0)], "duplicate JSON key"),
     ("fourteen planted down days on a live endpoint, with a code the radar would not write as down",
-     [up(date="2026-09-%02d" % d, state="down", http=429) for d in range(8, 22)], "state is down with http 429"),
+     [up(date="2026-08-%02d" % d, state="down", http=429) for d in range(10, 24)], "state is down with http 429"),
+    ("the reviewer's plant: a row dated after today", [up(date=FUTURE)], "after today"),
+    ("the reviewer's plant: fourteen down days with http 500, all dated next year, which bury a live endpoint "
+     "because the burial clock counts from the latest date in the file",
+     [up(date="2027-01-%02d" % d, state="down", http=500) for d in range(1, 15)], "after today"),
+    ("down with http 404: the endpoint answered, so it is not down",
+     [up(state="down", http=404)], "state is down with http 404"),
+    ("down with http 400", [up(state="down", http=400)], "state is down with http 400"),
+    ("down with http 301", [up(state="down", http=301)], "state is down with http 301"),
+    ("down with http 503, which the radar files as overloaded",
+     [up(state="down", http=503)], "state is down with http 503"),
 ]
 UPTIME_MUST_PASS = [
     ("every state with the code the radar writes it with",
      [up(), up(state="empty"), up(state="rate_limited", http=429), up(state="overloaded", http=503),
       up(state="payment_required", http=402), up(state="blocked", http=403),
       up(state="no_key", http=None, seconds=None, note="no key set in this environment"),
-      up(state="down", http=0, note="URLError"), up(state="down", http=500), up(state="down", http=504)]),
+      up(state="down", http=0, note="URLError"), up(state="down", http=None, note="no response"),
+      up(state="down", http=500), up(state="down", http=502), up(state="down", http=504)]),
+    ("fourteen genuine down days with http 500 in the past: a 500 is legitimately down",
+     [up(date="2026-08-%02d" % d, state="down", http=500) for d in range(10, 24)]),
+    ("a row dated today", [up(date=str(TODAY))]),
     ("an empty file", []),
 ]
 
@@ -656,12 +907,16 @@ UPTIME_MUST_PASS = [
 
 def tp(**kw):
     r = {"provider": P0, "model": M0, "concurrency": 8, "seconds": 30.8, "requests_ok": 22,
-         "requests_rate_limited": 0, "requests_failed": 0, "output_tokens": 8141,
+         "requests_rate_limited": 0, "requests_failed": 0, "output_tokens": 8141, "tokens_estimated": False,
          "tokens_per_minute_measured": int(8141 / 30.8 * 60), "first_error": None,
          "rate_basis": "delivered over 31 seconds without a refusal, scaled to a minute",
          "stopped_because": "window ended", "note": "A floor, not a ceiling.", "date": DATE}
     r.update(kw)
     return r
+
+
+def _without(row, *keys):
+    return {k: v for k, v in row.items() if k not in keys}
 
 
 THROUGHPUT_MUST_REFUSE = [
@@ -675,10 +930,21 @@ THROUGHPUT_MUST_REFUSE = [
     ("a rate stated from a two-second window", [tp(seconds=2.3, output_tokens=500, tokens_per_minute_measured=13043)],
      "under 10 seconds"),
     ("a rate above the ceiling the provider publishes",
-     [tp(provider=P1, model=M1, output_tokens=CAP1 * 2, seconds=60.0, tokens_per_minute_measured=CAP1 * 2)],
-     "above the"),
+     [tp(provider=P1, model=M1, requests_ok=CAP1 * 2 // T.MAX_TOKENS_PER_CALL + 1, output_tokens=CAP1 * 2, seconds=60.0,
+         tokens_per_minute_measured=CAP1 * 2)], "above the"),
+    ("the reviewer's plant: a billion tokens from ONE request on a provider that publishes no per-minute ceiling, "
+     "self-consistent with its own seconds - six billion a minute into the burst headline",
+     [tp(requests_ok=1, output_tokens=10 ** 9, seconds=10.0, tokens_per_minute_measured=6 * 10 ** 9)],
+     "cannot have carried more than"),
+    ("one token over what the requests could carry at the meter's max_tokens plus the 10% a usage block may count past it",
+     [tp(requests_ok=10, output_tokens=7701, tokens_per_minute_measured=int(7701 / 30.8 * 60))], "cannot have carried more than"),
     ("output tokens from zero successful requests", [tp(requests_ok=0, output_tokens=100, tokens_per_minute_measured=195)],
      "from zero successful requests"),
+    ("a row dated after today", [tp(date=FUTURE)], "after today"),
+    ("a row written from the flag date on that does not say whether its count is theirs or an estimate",
+     [_without(tp(date=str(TODAY)), "tokens_estimated")], "row lacks tokens_estimated"),
+    ("tokens_estimated as a string", [tp(tokens_estimated="no")], "true or false"),
+    ("concurrency above the meter's own maximum", [tp(concurrency=9)], "above the 8"),
     ("a provider nobody benchmarks", [tp(provider="ghost")], "not in providers.json"),
     ("a model the provider does not list", [tp(model="ghost-model")], "is not one of"),
     ("a negative request count", [tp(requests_failed=-1)], "must be a non-negative integer"),
@@ -700,8 +966,124 @@ THROUGHPUT_MUST_PASS = [
                                            stopped_because="five failures in a row: HTTP 503 no capacity behind the endpoint")]),
     ("a skipped provider", [{"provider": P0, "skipped": "no key in this environment", "date": DATE}]),
     ("a rate under the ceiling the provider publishes",
-     [tp(provider=P1, model=M1, output_tokens=CAP1 // 4, seconds=60.0, tokens_per_minute_measured=CAP1 // 4)]),
-    ("an older row without first_error", [{k: v for k, v in tp().items() if k != "first_error"}]),
+     [tp(provider=P1, model=M1, requests_ok=CAP1 // 4 // T.MAX_TOKENS_PER_CALL + 1, output_tokens=CAP1 // 4, seconds=60.0,
+         tokens_per_minute_measured=CAP1 // 4)]),
+    ("an older row without first_error", [_without(tp(), "first_error")]),
+    ("an older row without tokens_estimated, read as their count", [_without(tp(), "tokens_estimated")]),
+    ("a row whose count came from words x 1.3, and says so", [tp(tokens_estimated=True)]),
+    ("exactly what the requests could carry at the meter's max_tokens",
+     [tp(requests_ok=10, output_tokens=7000, tokens_per_minute_measured=int(7000 / 30.8 * 60))]),
+    ("a usage block that counted 48 tokens past max_tokens over ten answers, the shape aihubmix's gateway "
+     "reported on 2026-09-07: inside the tolerance the meter states",
+     [tp(requests_ok=10, requests_rate_limited=1, output_tokens=7048, seconds=18.0, tokens_per_minute_measured=7048,
+         rate_basis="their per-minute limit stopped us", stopped_because="rate limit reached")]),
+]
+
+
+# ---------------------------------------------------------------- data/drawn.jsonl
+
+REAL_DRAWN = [r for _, r in G.read_jsonl(HERE.parent / "data" / "drawn.jsonl", "drawn", [])] \
+    if (HERE.parent / "data" / "drawn.jsonl").exists() else []
+CAP_STOP = D.CAP_STOP_PREFIX + "250,000 output tokens"
+# The provider with no published per-minute ceiling (P0) publishes 5 requests a minute, so the honest
+# hour below runs at 5 a minute. Alibaba publishes 600, which the meter caps at 120: the fast draws
+# that reach the token cap in minutes are planted there.
+ALIBABA, ALIBABA_MODEL = "alibaba", next(p for p in REAL_PROVIDERS if p["name"] == "alibaba")["models"][0]["id"]
+PACE0 = D.pace_for((REAL_LIMITS.get("providers") or {}).get(P0))[0]
+
+
+def dr(**kw):
+    """An honest hour at the published pace: 290 answers of under 700 tokens, five failures, rate stated."""
+    minutes = 60.02
+    r = {"provider": P0, "model": M0, "date": DATE, "started_utc": DATE + "T14:06:37Z",
+         "minutes_planned": 60.0, "minutes_run": minutes, "pace_rpm": PACE0, "pace_basis": "published rpm %d" % PACE0,
+         "requests_ok": 290, "requests_429": 0, "requests_failed": 5, "first_error": "RemoteDisconnected",
+         "output_tokens_drawn": 200000, "tokens_estimated": False,
+         "tokens_per_hour_drawn": int(200000 / minutes * 60), "tokens_per_hour_basis": "scaled from 60.0 minutes of drawing",
+         "stopped_because": "window ended: 60 minutes planned",
+         "note": "Drawn at %d requests a minute, at most 2 in flight, one model, one key. A floor at our pace, not their ceiling." % PACE0}
+    r.update(kw)
+    return r
+
+
+def fast(**kw):
+    """A draw on the 120-a-minute provider that hit the 250,000 cap after eight minutes and 400 answers."""
+    r = dr(provider=ALIBABA, model=ALIBABA_MODEL, pace_rpm=120, pace_basis="published rpm 600, capped at 120",
+           minutes_run=8.0, requests_ok=400, requests_failed=0, first_error=None, output_tokens_drawn=250300,
+           tokens_per_hour_drawn=int(250300 / 8.0 * 60), stopped_because=CAP_STOP,
+           tokens_per_hour_basis="scaled from 8.0 minutes of drawing: the token cap ended the run after 400 successful requests")
+    r.update(kw)
+    return r
+
+
+DRAWN_MUST_REFUSE = [
+    ("the reviewer's plant, verbatim: a row with tokens_per_hour_drawn 1e9 and nothing else, which put "
+     "24,012,218,019 tokens a day on the headline with every check green",
+     [{"provider": "groq", "model": "qwen/qwen3.8-27b", "tokens_per_hour_drawn": 10 ** 9}], "row lacks"),
+    ("the same plant dressed as a full row: a billion an hour from 200,000 tokens in an hour",
+     [dr(tokens_per_hour_drawn=10 ** 9)], "scale to"),
+    ("a rate that does not follow from its own tokens and minutes", [dr(tokens_per_hour_drawn=150000)], "scale to"),
+    ("a rate above sixty times the per-minute ceiling the provider publishes: the groq row that is otherwise "
+     "self-consistent (1,800 answers at 30 a minute, a million tokens in the hour, tpm 8,000)",
+     [dr(provider="groq", model="qwen/qwen3.8-27b", pace_rpm=30, pace_basis="published rpm 30", requests_ok=1800,
+         requests_failed=0, first_error=None, output_tokens_drawn=1000000, tokens_per_hour_drawn=int(1000000 / 60.02 * 60))],
+     "above sixty times"),
+    ("a row dated after today", [dr(date=FUTURE)], "after today"),
+    ("a row started after today", [dr(started_utc=FUTURE + "T00:00:00Z")], "not after today"),
+    ("a provider nobody draws from", [dr(provider="ghost")], "not in providers.json"),
+    ("a model the provider does not list", [dr(model="ghost-model")], "is not one of"),
+    ("a pace above what the meter allows for this provider: its published 5 a minute",
+     [dr(pace_rpm=30, requests_ok=1700, requests_failed=0, output_tokens_drawn=1000000, tokens_per_hour_drawn=int(1000000 / 60.02 * 60))],
+     "above the %d bench/draw_day.py allows" % PACE0),
+    ("a pace above the safety ceiling, on the provider that publishes 600 a minute",
+     [fast(pace_rpm=600, requests_ok=4000, output_tokens_drawn=250300)], "above the 120 bench/draw_day.py allows"),
+    ("more requests than the metronome could have launched: 405 in an hour at 5 a minute",
+     [dr(requests_ok=400)], "metronome launches at most"),
+    ("more tokens than the answers could have carried at the meter's max_tokens",
+     [dr(output_tokens_drawn=223301, tokens_per_hour_drawn=int(223301 / 60.02 * 60))], "cannot have carried more than"),
+    ("more tokens than the largest cap plus the calls in flight: 1.5M in an hour on the fast provider",
+     [fast(minutes_run=60.0, requests_ok=7000, output_tokens_drawn=1500000, tokens_per_hour_drawn=1500000,
+           stopped_because="window ended: 60 minutes planned", tokens_per_hour_basis="scaled from 60.0 minutes of drawing")],
+     "above the most one run can hold"),
+    ("minutes_run of zero", [dr(minutes_run=0)], "positive number"),
+    ("minutes_run negative", [dr(minutes_run=-5)], "positive number"),
+    ("a rate stated from a fifteen-minute window that the clock ended: under the twenty-minute floor",
+     [dr(minutes_run=15.0, requests_ok=70, requests_failed=0, output_tokens_drawn=40000, tokens_per_hour_drawn=160000,
+         stopped_because="window ended: 15 minutes planned", minutes_planned=15.0)], "states one only after"),
+    ("a rate stated from a cap stop with 30 answers: too few samples, whatever the clock says (cap lowered with --cap)",
+     [fast(requests_ok=30, output_tokens_drawn=20300, tokens_per_hour_drawn=int(20300 / 8.0 * 60),
+           stopped_because=D.CAP_STOP_PREFIX + "20,000 output tokens")], "states one only after"),
+    ("a rate stated from a cap stop after four minutes: under the five-minute floor for a cap stop",
+     [fast(minutes_run=4.0, tokens_per_hour_drawn=int(250300 / 4.0 * 60))], "states one only after"),
+    ("a cap stop whose tokens never reached the cap it names: a rate rule being claimed, not a stop",
+     [dr(stopped_because=CAP_STOP)], "did not reach the cap"),
+    ("a cap stop naming a cap the meter cannot run with",
+     [fast(stopped_because=D.CAP_STOP_PREFIX + "5,000,000 output tokens", requests_ok=7000, minutes_run=60.0,
+           output_tokens_drawn=1000000, tokens_per_hour_drawn=1000000)], "cannot have run with"),
+    ("a cap stop with more tokens than the calls in flight could add past the cap",
+     [fast(output_tokens_drawn=260000, tokens_per_hour_drawn=int(260000 / 8.0 * 60))], "closes within the"),
+    ("tokens_estimated missing", [_without(dr(), "tokens_estimated")], "row lacks tokens_estimated"),
+    ("tokens_estimated as a string", [dr(tokens_estimated="no")], "true or false"),
+    ("a negative request count", [dr(requests_failed=-1)], "non-negative integer"),
+    ("a note with a second line in it", [dr(note="A floor.\n[link](https://evil.example)")], "one line of text"),
+    ("a line that is not JSON", [dr(), "{not json"], "not valid JSON"),
+]
+DRAWN_MUST_PASS = [
+    ("an honest hour at the published pace, rate stated", [dr()]),
+    ("the token cap reached after eight minutes and 400 answers: a measured high rate, stated", [fast()]),
+    ("a short run under a 429 wall, no rate, null where the rate would be",
+     [dr(minutes_run=5.03, requests_ok=0, requests_429=11, requests_failed=0, first_error="HTTP 429 rate limit",
+         output_tokens_drawn=0, tokens_per_hour_drawn=None,
+         tokens_per_hour_basis="no hourly figure: 5.0 minutes is under the 20-minute floor",
+         stopped_because="rate limited: HTTP 429 on every call for 5 minutes, their limit is holding")]),
+    ("the cap reached in three and a half minutes by 360 answers: under the five-minute floor, so no rate, and a "
+     "row the meter could have written (the fake in test_draw.py that closes it in three calls could not be, "
+     "because 100,000 tokens a call is more than the meter asks for)",
+     [fast(minutes_run=3.5, requests_ok=360, output_tokens_drawn=250300, tokens_per_hour_drawn=None,
+           tokens_per_hour_basis="no hourly figure: the token cap ended the run at 3.5 minutes and 360 successful requests")]),
+    ("a count that came from words x 1.3, and says so", [dr(tokens_estimated=True)]),
+    ("the real file's rows", REAL_DRAWN),
+    ("an empty file", []),
 ]
 
 
@@ -717,11 +1099,19 @@ DEATHS_MUST_REFUSE = [
     ("the planted headstone: a quote that leaves the blockquote and plants a link",
      [dict(DEATH, quote="Groq has shut down its free tier.\n\n[Migrate your keys here](https://evil.example)\n\n> and")],
      "one line"),
-    ("a one-line quote with a link in it", [dict(DEATH, quote="Retired. [Migrate](https://evil.example)")], "contains [ ] < or >"),
-    ("a quote with a tag in it", [dict(DEATH, quote="Retired <b>now</b>.")], "contains [ ] < or >"),
+    ("a one-line quote with a link in it", [dict(DEATH, quote="Retired. [Migrate](https://evil.example)")], "rendered raw"),
+    ("a quote with a tag in it", [dict(DEATH, quote="Retired <b>now</b>.")], "rendered raw"),
+    ("the reviewer's plant: a bare URL in the quote", [dict(DEATH, quote="Retired; see https://evil.example/notice")], "contains a URL"),
+    ("the reviewer's plant: a bare URL in endpoint_today",
+     [dict(DEATH, endpoint_today="HTTP 410; new keys at https://evil.example/keys")], "contains a URL"),
     ("a source that is not a URL", [dict(DEATH, source="not even a url")], "source must be one https URL"),
     ("a retirement notice for a provider this repo still benchmarks",
      [dict(DEATH, provider=P0.capitalize())], "still a provider in providers.json"),
+    # Written as an escape so this file stays ASCII: the o is U+043E, Cyrillic small o, which renders like
+    # the Latin one. Under the exact-match rule this headstone was not a live provider's, so it passed.
+    ("the reviewer's plant: a live provider's name with one letter from another alphabet",
+     [dict(DEATH, provider="gr" + "\u043e" + "q")], "ASCII letters"),
+    ("a provider name with a pipe in it", [dict(DEATH, provider="Some | Service")], "ASCII letters"),
     ("a death date that is not a date", [dict(DEATH, died_on="yesterday")], "died_on must be a date"),
     ("no read_on", [{k: v for k, v in DEATH.items() if k != "read_on"}], "read_on must be a date"),
     ("endpoint_today with a second line", [dict(DEATH, endpoint_today="HTTP 410\n[x](https://evil.example)")],
@@ -731,6 +1121,10 @@ DEATHS_MUST_REFUSE = [
 ]
 DEATHS_MUST_PASS = [
     ("a notice with every field one line, dated and sourced", [DEATH]),
+    ("a name with a space, a period and parentheses: what operators call their products",
+     [dict(DEATH, provider="Llama API v2.0 (Preview)")]),
+    ("an endpoint_today naming a host without a scheme: a status line, not a link",
+     [dict(DEATH, endpoint_today="HTTP 410 on models.example.net/inference/chat/completions, measured " + DATE)]),
     ("the real file's entries", REAL_DEATHS),
     ("no notices at all", []),
 ]
@@ -743,9 +1137,12 @@ DEATHS_MUST_PASS = [
 # fixed by loosening the rule that found it. Anything the gate reports that is not in this list fails
 # the test, and so does anything in this list that the gate no longer reports.
 EXPECTED_REAL_FINDINGS = [
-    # (substring of the location, substring of the message). Empty on purpose: the real data files pass the
-    # gate today. When a real finding is knowingly left in place, list it here so the run stays green AND
-    # the finding stays visible; when the data is fixed, the entry is reported GONE and must be deleted.
+    # (substring of the location, substring of the message). When a real finding is knowingly left in place,
+    # it is listed here so the run stays green AND the finding stays visible; when the data is fixed, the
+    # entry is reported GONE and must be deleted. None today. The last one was a burst row whose usage
+    # block counted 7,048 output tokens over ten 700-token calls: the row is what the provider reported,
+    # so the bound learned the tolerance bench/throughput.py states (USAGE_OVERSHOOT) instead of the data
+    # being edited to fit the rule; a billion tokens from one call is refused as before.
 ]
 
 
@@ -783,6 +1180,40 @@ def pinned_shapes():
         theirs = set(S.UP_STATES) | set(S.DOWN_STATES) | set(S.NOT_A_VERDICT)
         out.append(("UPTIME_STATES equals the union of the sets in states.py",
                     theirs == G.UPTIME_STATES, "%r vs %r" % (sorted(theirs), sorted(G.UPTIME_STATES))))
+    # The two meters ask every provider for the same budget a call, and the gate bounds both files by it.
+    out.append(("throughput.py and draw_day.py ask for the same max_tokens a call",
+                T.MAX_TOKENS_PER_CALL == D.MAX_TOKENS_PER_CALL, "%r vs %r" % (T.MAX_TOKENS_PER_CALL, D.MAX_TOKENS_PER_CALL)))
+    # The gate's idea of a throughput row is exactly the row the meter writes, optional fields included.
+    out.append(("THROUGHPUT_FIELDS plus the optional ones equal throughput.ROW_FIELDS",
+                set(G.THROUGHPUT_FIELDS) | set(G.THROUGHPUT_OPTIONAL_FIELDS) == set(T.ROW_FIELDS),
+                "%r vs %r" % (sorted(set(G.THROUGHPUT_FIELDS) | set(G.THROUGHPUT_OPTIONAL_FIELDS)), sorted(T.ROW_FIELDS))))
+    # The draw meter's rules, as the grader's distance section and this gate's docstring state them.
+    for label, got, want in (("the draw pace ceiling is 120 a minute", D.MAX_PACE_RPM, 120),
+                             ("the draw default pace is 12 a minute", D.DEFAULT_RPM, 12),
+                             ("the draw cap is 250,000 tokens", D.TOKEN_CAP, 250000),
+                             ("--cap may raise it to 1,000,000 at most", D.TOKEN_CAP_MAX, 1000000),
+                             ("a draw rate needs 20 minutes", D.MIN_MINUTES_FOR_RATE, 20),
+                             ("or a cap stop after 5 minutes", D.CAP_STOP_MIN_MINUTES, 5),
+                             ("and 50 successful requests", D.CAP_STOP_MIN_REQUESTS, 50),
+                             ("at most 2 requests in flight", D.MAX_IN_FLIGHT, 2)):
+        out.append((label, got == want, "%r" % (got,)))
+    # The registry was generated once from the two files and is kept by hand: a drift shows up here as
+    # well as in the gate, with the exact line.
+    live = {}
+    for p in REAL_PROVIDERS:
+        if p.get("key_env"):
+            live[p["key_env"]] = {"host": G.host_of(p["url"]), "role": "provider"}
+    for j in REAL_JUDGES:
+        if j.get("via") == "api" and j.get("key_env"):
+            live[j["key_env"]] = {"host": G.host_of(j["url"]), "role": "judge"}
+    diff = sorted(k for k in set(live) | set(REAL_REGISTRY) if live.get(k) != REAL_REGISTRY.get(k))
+    out.append(("bench/key_bindings.json equals the bindings providers.json and judges.json make today",
+                not diff, "differ on %r" % diff[:4]))
+    # Every switch the real files send is on the allowlist, in the allowed shape.
+    used = [m.get("extra_body") for p in REAL_PROVIDERS for m in p.get("models", []) if m.get("extra_body")]
+    used += [j.get("extra_body") for j in REAL_JUDGES if j.get("extra_body")]
+    stray = sorted({k for eb in used for k in eb if k not in G.ALLOWED_EXTRA_BODY})
+    out.append(("every extra_body key in the real files is a documented switch", not stray, "%r" % stray))
     return out
 
 
@@ -795,6 +1226,8 @@ SECTIONS = [
     ("raw JSON shapes that MUST pass", RAW_MUST_PASS, check_raw, False),
     ("cross-file key theft that MUST be refused", CROSS_FILE_MUST_REFUSE, check_cross_file, True),
     ("cross-file pairs that MUST pass", CROSS_FILE_MUST_PASS, check_cross_file, False),
+    ("key bindings against the registry that MUST be refused", BINDINGS_MUST_REFUSE, check_bindings, True),
+    ("key bindings against the registry that MUST pass", BINDINGS_MUST_PASS, check_bindings, False),
     ("juries that MUST be refused", JUDGES_MUST_REFUSE, check_judges_list, True),
     ("juries that MUST pass", JUDGES_MUST_PASS, check_judges_list, False),
     ("privacy claims that MUST be refused", PRIVACY_MUST_REFUSE, check_privacy_entry, True),
@@ -809,6 +1242,8 @@ SECTIONS = [
     ("radar rows that MUST pass", UPTIME_MUST_PASS, check_uptime_rows, False),
     ("throughput rows that MUST be refused", THROUGHPUT_MUST_REFUSE, check_throughput_rows, True),
     ("throughput rows that MUST pass", THROUGHPUT_MUST_PASS, check_throughput_rows, False),
+    ("draw rows that MUST be refused", DRAWN_MUST_REFUSE, check_drawn_rows, True),
+    ("draw rows that MUST pass", DRAWN_MUST_PASS, check_drawn_rows, False),
     ("retirement notices that MUST be refused", DEATHS_MUST_REFUSE, check_deaths, True),
     ("retirement notices that MUST pass", DEATHS_MUST_PASS, check_deaths, False),
 ]

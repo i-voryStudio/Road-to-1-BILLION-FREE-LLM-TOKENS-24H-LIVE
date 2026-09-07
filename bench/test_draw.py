@@ -6,7 +6,9 @@ doors: one with a `usage` block, one without, one that only ever says 429, and o
 hundred thousand tokens a call so the cap can be watched closing. Everything the meter promises is
 pinned here in both directions where a direction exists: the pace must never be exceeded, the
 estimate flag must be true for the door without usage and false for the one with it, every stop must
-carry its documented reason, and no provider error body may reach a row.
+carry its documented reason, the hourly rate must appear exactly where the rate rule says and nowhere
+else, the cap must not rise without the flag that says quota is being spent, and no provider error
+body may reach a row.
 
     python bench/test_draw.py
 """
@@ -17,6 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import draw_day as D
 from gate_contributions import ALLOWED_HOSTS
+from test_probes import raw_openers      # the one detector for a raw opener, shared with every key-carrying file
 
 # What the specification says a row holds. Kept HERE, apart from draw_day.ROW_FIELDS, so a field
 # quietly dropped from the meter is caught rather than agreed with.
@@ -106,16 +109,38 @@ def main():
     check(D.pace_for({"all_models": {"rpm": 5}}) == (5, "published rpm 5"), "pace: all_models.rpm is read")
     check(D.pace_for({"models": {"a": {"rpm": 30}, "b": {"rpm": 15}, "c": {}}}) == (30, "published rpm 30"),
           "pace: per-model table read as its highest rpm")
-    check(D.pace_for({"all_models": {"rpm": 300}}) == (30, "published rpm 300, capped at 30"),
-          "pace: a published 300 is capped at 30")
+    check(D.pace_for({"all_models": {"rpm": 100}}) == (100, "published rpm 100"),
+          "pace: a published 100 is drawn at 100 - their own limit is the bound, not a number of ours")
+    check(D.pace_for({"all_models": {"rpm": 300}}) == (120, "published rpm 300, capped at 120"),
+          "pace: a published 300 is capped at the safety ceiling of 120")
+    check(D.MAX_PACE_RPM == 120 and D.DEFAULT_RPM == 12, "pace: the ceiling is 120 and the default 12")
     check(D.pace_for({"all_models": {"rpd": 1000, "tpd": 5000000}}) == (12, "default 12, nothing published"),
           "pace: nothing published means 12 a minute, one request every five seconds")
     check(D.pace_for({"all_models": {"rpm": None}, "models": {"a": {"rpm": None}}})[0] == 12,
           "pace: null rpm in both shapes is not a figure")
     check(D.pace_for(None)[0] == 12, "pace: a provider missing from limits.json gets the default")
+
+    # The rate rule, both directions: twenty minutes of clock, or the cap reached after five minutes
+    # and fifty successful requests. Every other shape carries null and says why.
     check(D.hourly(1000, 30) == (2000, "scaled from 30.0 minutes of drawing"), "hourly: 1,000 in 30 min is 2,000 an hour")
     r, why = D.hourly(1000, 19.9)
     check(r is None and "under the 20-minute floor" in why, "hourly: 19.9 minutes gives no rate, with the reason")
+    r, why = D.hourly(1000, 19.9, requests_ok=500, cap_reached=False)
+    check(r is None, "hourly: 500 requests in 19.9 minutes with the window still open is still no rate")
+    r, why = D.hourly(250300, 8.0, requests_ok=300, cap_reached=True)
+    check(r == 1877250 and "token cap ended the run after 300 successful requests" in why,
+          "hourly: the cap reached after 8 minutes and 300 requests states a rate - a measured high rate, not noise", why)
+    r, why = D.hourly(250300, 4.9, requests_ok=300, cap_reached=True)
+    check(r is None and "under the 5-minute and 50-request floor" in why,
+          "hourly: the cap reached in under five minutes states no rate", why)
+    r, why = D.hourly(250300, 8.0, requests_ok=49, cap_reached=True)
+    check(r is None and "under the 5-minute and 50-request floor" in why,
+          "hourly: the cap reached with 49 successful requests states no rate", why)
+    check(D.rate_allowed(20, 0, False) and D.rate_allowed(5, 50, True) and not D.rate_allowed(19.99, 1000, False)
+          and not D.rate_allowed(4.99, 1000, True) and not D.rate_allowed(8, 49, True) and D.rate_allowed(60, 49, True),
+          "rate_allowed: the predicate the gate imports agrees with hourly() at every edge, and twenty minutes "
+          "of clock needs no request floor")
+    check(D.hourly(0, 0) == (None, "no hourly figure: the run had no length"), "hourly: zero minutes is no rate, not a division")
 
     # --- the fake provider -------------------------------------------------------------------
     srv = ThreadingHTTPServer(("127.0.0.1", 0), Fake)
@@ -142,8 +167,26 @@ def main():
             lj.write_text(json.dumps(limits(600)), encoding="utf-8")
             with contextlib.redirect_stdout(io.StringIO()) as out:
                 rc = D.main(["--date", "2026-01-01", "--dry-run", "--providers", str(pj), "--limits", str(lj)])
+
+            # The cap: lowered freely, raised only with the flag that says quota is being spent, and
+            # never above TOKEN_CAP_MAX. argparse exits 2 on a refusal.
+            def rc_of(*extra):
+                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                    try:
+                        return D.main(["--date", "2026-01-01", "--dry-run", "--providers", str(pj),
+                                       "--limits", str(lj)] + list(extra))
+                    except SystemExit as e:
+                        return e.code
+            check(rc_of("--cap", "1000") == 0, "--cap below the default is accepted without a flag")
+            check(rc_of("--cap", "500000") == 2, "--cap above the default is refused without --i-know-this-spends-quota")
+            check(rc_of("--cap", "500000", "--i-know-this-spends-quota") == 0,
+                  "--cap above the default is accepted with --i-know-this-spends-quota")
+            check(rc_of("--cap", "1000000", "--i-know-this-spends-quota") == 0, "--cap at TOKEN_CAP_MAX is accepted with the flag")
+            check(rc_of("--cap", "1000001", "--i-know-this-spends-quota") == 2,
+                  "--cap above TOKEN_CAP_MAX is refused even with the flag")
+            check(rc_of("--cap", "0") == 2, "--cap of zero is refused")
         check(rc == 0 and not HITS and "dry run: no request was sent" in out.getvalue(),
-              "--dry-run exits 0 and sends no request", "hits: %s" % sorted(HITS))
+              "--dry-run exits 0 and sends no request, and neither did any of the --cap checks", "hits: %s" % sorted(HITS))
         real = json.loads((Path(__file__).resolve().parent / "providers.json").read_text(encoding="utf-8"))
         with contextlib.redirect_stdout(io.StringIO()) as out:
             rc = D.main(["--date", "2026-01-01", "--dry-run"])
@@ -214,7 +257,13 @@ def main():
         check(row["output_tokens_drawn"] >= 250000 and row["requests_ok"] <= 3 + D.MAX_IN_FLIGHT,
               "the cap closes within the requests in flight",
               "%d ok, %d tokens" % (row["requests_ok"], row["output_tokens_drawn"]))
-        check(D.TOKEN_CAP == 250000, "the cap is 250,000 output tokens per provider per run")
+        check(row["tokens_per_hour_drawn"] is None and "under the 5-minute and 50-request floor" in row["tokens_per_hour_basis"],
+              "a cap reached in three calls states no rate, and the row says which floor it missed",
+              row["tokens_per_hour_basis"])
+        check(row["stopped_because"].startswith(D.CAP_STOP_PREFIX),
+              "the cap stop begins with the prefix the gate recognises it by")
+        check(D.TOKEN_CAP == 250000 and D.TOKEN_CAP_MAX == 1000000,
+              "the cap is 250,000 output tokens per provider per run, and --cap may raise it to 1,000,000 at most")
 
         # 402 twice in a row: the calling account's credit, not their outage, and it must not be hammered.
         row = D.draw(provider(port, "/auth"), limits(600), seconds=10, **FAST)
@@ -236,9 +285,12 @@ def main():
         os.environ.pop("DRAW_TEST_KEY", None)
 
     # --- and nobody may quietly go back to the unprotected call ------------------------------
+    # The same parser-based detector test_probes.py runs over every key-carrying file: a literal check
+    # for "urllib.request.urlopen(" missed `from urllib.request import urlopen` followed by `urlopen(req)`.
     src = (Path(__file__).resolve().parent / "draw_day.py").read_text(encoding="utf-8")
-    check("urllib.request.urlopen(" not in src, "draw_day.py does not call urlopen directly",
-          "found urllib.request.urlopen - use open_url from http_safe")
+    hits = raw_openers(src)
+    check(not hits, "draw_day.py opens nothing around http_safe",
+          "; ".join(hits) + " - use open_url from http_safe" if hits else "")
     check("open_url(" in src, "draw_day.py goes through open_url")
 
     print()

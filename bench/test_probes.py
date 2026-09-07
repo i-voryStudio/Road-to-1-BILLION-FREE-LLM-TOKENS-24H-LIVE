@@ -109,10 +109,12 @@ def check_generation():
 
 
 # --- the one door ----------------------------------------------------------------------------------
-# Every script that can put a key in a header. throughput.py was missing from this list for a day,
-# which is exactly how a raw urlopen gets back in: not by anyone deciding to, but by a new file nobody
-# added to the list.
-KEY_CARRYING = ("benchmark.py", "probe_alive.py", "judge.py", "measure_limits.py", "throughput.py")
+# Every script that can put a key in a header. throughput.py was missing from this list for a day, and
+# draw_day.py for another, which is exactly how a raw urlopen gets back in: not by anyone deciding to,
+# but by a new file nobody added to the list. test_draw.py imports raw_openers from here for the same
+# check, so the two files cannot disagree about what a bypass looks like.
+KEY_CARRYING = ("benchmark.py", "probe_alive.py", "judge.py", "measure_limits.py", "throughput.py",
+                "draw_day.py")
 
 # Names that open a connection without going through http_safe. A call to any of these in a
 # key-carrying file is a second door, whatever module it was imported from and whatever alias it has.

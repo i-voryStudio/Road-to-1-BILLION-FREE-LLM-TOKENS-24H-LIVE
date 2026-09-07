@@ -54,6 +54,27 @@ We read these in full to find out what was already covered. Each does something 
 | [12britz/awesome-free-models](https://github.com/12britz/awesome-free-models) | 2.1k | re-checks hundreds of endpoints and publishes the failures too |
 | [zukixa/cool-ai-stuff](https://github.com/zukixa/cool-ai-stuff) | 1.2k | was thorough; last updated October 2025 — the cautionary tale |
 | [nejib1/Free-LLM](https://github.com/nejib1/Free-LLM) | 361 | credit-card transparency per provider, runnable code per entry |
+
+### What re-testing those lists actually returns
+
+Their tables are the best-organised in this field and their credit-card column is a genuinely useful
+idea we did not have. What their numbers are not is current. On 2026-09-07 we called every endpoint
+that three separate published lists describe as needing **no API key**, with no `Authorization` header,
+exactly as a reader would:
+
+| Endpoint | Published as | Answered with |
+|---|---|---|
+| `api.llm7.io` | 30 requests/minute, no signup | `401 Missing API key` |
+| `text.pollinations.ai` | ~1 request/15s, anonymous | `402 Payment Required` |
+| `inference-api.nousresearch.com` | no key | model retired, `404` |
+| `api.inference.net` | no key | `401 Missing Authorization Bearer token` |
+| `inference.api.nscale.com` | no key | `401 Unauthorized` |
+| `api.aionlabs.ai` | no key | `401 credentials were not provided` |
+
+Six for six. This is not a criticism of the people who wrote those lists — free endpoints close
+quietly and a list nobody re-runs decays within weeks. It is the reason every row here carries the day
+it was called, and the reason the two keyless endpoints we do publish were called without a key before
+they were listed.
 | [amardeeplakshkar/awesome-free-llm-apis](https://github.com/amardeeplakshkar/awesome-free-llm-apis) | 158 | permanent-free only: no trials, no promos — a stricter definition |
 | [raullenchai/free-llm-api-resources](https://github.com/raullenchai/free-llm-api-resources) | — | keeps alive the fork of `cheahjs/free-llm-api-resources`, which now 404s |
 

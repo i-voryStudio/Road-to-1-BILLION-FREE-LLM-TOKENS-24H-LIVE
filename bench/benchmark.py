@@ -35,7 +35,7 @@ def count_any(text, chars):
 SECRET = re.compile(r"(sk-[A-Za-z0-9_\-]{6,}|gsk_[A-Za-z0-9_\-]{6,}|nvapi-[A-Za-z0-9_\-]{6,}"
                     r"|AIza[A-Za-z0-9_\-]{20,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}"
                     r"|(?:Bearer|api[-_ ]?key|token)[\"'\s:=]+[A-Za-z0-9_\-]{12,})", re.I)
-# A provider's error body can echo the key back, and it always describes the calling account, not the model.
+# A provider's error body can echo the key back, and it describes the calling account, not the model.
 # The trigger word is dropped along with the rest: keeping it would still publish the state of our own
 # account, and the HTTP code already carries everything a reader of the results needs to know.
 BALANCE = re.compile(r"[^\"}]{0,40}(balance|insufficient\s+funds|insufficient[_ ]quota|billing)[^\"}]{0,80}", re.I)

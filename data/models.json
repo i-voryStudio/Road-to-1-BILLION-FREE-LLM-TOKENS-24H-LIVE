@@ -547,7 +547,7 @@
    "requests_per_day": 2400,
    "volume_tier": "HIGH",
    "volume_confidence": "MEASURED",
-   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what one account's rate-limit headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -735,7 +735,7 @@
    "requests_per_day": 2400,
    "volume_tier": "HIGH",
    "volume_confidence": "MEASURED",
-   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what one account's rate-limit headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=70",
@@ -1198,7 +1198,7 @@
    "requests_per_day": 2400,
    "volume_tier": "HIGH",
    "volume_confidence": "MEASURED",
-   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the calling account's headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
+   "volume_evidence": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what one account's rate-limit headers reported on 2026-09-02. They may be trial allowance rather than a standing free tier. Re-measure before relying on them. Binding limit: 5 requests per minute. Two calls inside the same minute need roughly 13 s between them. Limit applies per ACCOUNT. VOLATILE: this figure moved under us at least once.",
    "probe_detail": {
     "A": "found all | stated=[14400, 81600]",
     "B": "diacritics=5 wrong_diacritics=0 chars=69",

@@ -68,10 +68,10 @@ def probe(url, key, model, extra_body, timeout=45):
     except urllib.error.HTTPError as e:
         secs = round(time.time() - started, 2)
         # 402 is not an outage. The endpoint answered; what ran out is the money or the free
-        # allowance on the calling account, and calling that "down" would blame the provider for our
+        # allowance of the calling account, and calling that "down" would blame the provider for an
         # empty pocket - and would start the 14-day death clock on a healthy endpoint.
         # "They are down" and "they refused the caller" are different facts and only one of them belongs to
-        # the provider. 401/403 is the key or the caller's IP; 451 is a legal block on the caller's region; 406 is a bot
+        # the provider. 401/403 is the caller's key or IP; 451 is a legal block on the caller's region; 406 is a bot
         # wall. Recording any of those as `down` starts a 14-day death clock on a healthy endpoint and
         # ends in a public, dated, false death notice - which for a list whose whole claim is honesty
         # is the worst thing it can print. `blocked` is neither up nor down: it is a fact about the caller.

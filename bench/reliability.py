@@ -107,7 +107,7 @@ def main():
         "measured_at": a.date,
         "runs_included": [r.parent.name for r in runs],
         "how": "Every call in every published run, counted by outcome. answered_rate is 200-with-text "
-               "over total calls. This is one sample on the calling accounts, not an uptime guarantee - a small "
+               "over total calls. This is one sample from one set of accounts, not an uptime guarantee - a small "
                "sample from one afternoon says less than a month of daily probes will.",
         "reasoning_trap": {
             "what": "A reasoning model can spend its whole token budget thinking and return an empty "

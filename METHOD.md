@@ -1,6 +1,6 @@
 # Method
 
-Every number in this repo comes from here. If you think a score is wrong, this page is where to attack it.
+Every number in the Romanian language benchmark comes from here; the endpoint ranking imports its quality scores instead (README, "Why quality is imported"). If you think a score is wrong, this page is where to attack it.
 
 ## The short version
 
@@ -63,8 +63,8 @@ a factor of a thousand — exactly the kind of error that survives a schema chec
 The prompt asks for 90 to 110 words. The checker accepts **70 to 140**, deliberately: a model that
 writes 88 words of good Romanian has not failed at writing, it has failed at counting, and those are
 worth separating. The consequence is that "23 of 30 produced a usable paragraph" is a generous
-reading — only 14 of those 23 landed inside the 90-110 the prompt asked for. Both numbers are in the
-README, because publishing only the generous one would be the kind of thing this repo exists to catch.
+reading — only 14 of those 23 landed inside the 90-110 the prompt asked for. Both numbers are in
+`data/models.json`, because publishing only the generous one would be the kind of thing this repo exists to catch.
 
 Mechanically: word count in range, at least ten diacritics, zero cedillas, no markdown. Then, if it
 passes, it goes to the jury.
@@ -76,7 +76,7 @@ The other three are stable enough to run once. All three attempts are kept in th
 
 This is the rule that most changes the table, so it is worth stating on its own.
 
-When a call comes back `503` (overloaded), `429` (rate limited), `402` (the account was answered with 402) or
+When a call comes back `503` (overloaded), `429` (rate limited), `402` (payment required: the endpoint will not serve the account that called it) or
 times out, the model never saw the prompt. Counting that as a failed probe would publish a claim about
 the model's ability that we did not measure. So:
 
@@ -168,7 +168,7 @@ Read this before quoting a number from here.
   until someone runs it there. See [`bench/languages/README.md`](bench/languages/README.md).
 - **Not reasoning, not code, not long context, not tool use.** Four narrow probes. There are good
   benchmarks for the rest; this is not one of them.
-- **the calling accounts, on the network, on one afternoon.** Latency figures especially: they include our
+- **One set of accounts, one network, one afternoon.** Latency figures especially: they include the
   round-trip and whatever load the provider was under. Treat them as order-of-magnitude.
 - **n=1 on probes A to C.** Only the paragraph probe is repeated. A single 429 or timeout at the wrong
   moment shows up as a failure — see NVIDIA's `kimi-k3` in the results, which answered in 13 seconds
@@ -180,8 +180,8 @@ Read this before quoting a number from here.
 export GROQ_API_KEY=...          # any subset; providers with no key are skipped, not failed
 python bench/benchmark.py --out results.json --language ro
 python bench/judge.py results.json --export judged/    # writes paragraphs + prompts for you to judge
-python bench/rank.py results.json --date 2026-09-06 --out .                    # mechanical half only
-python bench/rank.py results.json --jury jury.json --date 2026-09-06 --out .   # once you have a jury.json
+python bench/rank_language.py results.json --date 2026-09-06 --out .                    # mechanical half only
+python bench/rank_language.py results.json --jury jury.json --date 2026-09-06 --out .   # once you have a jury.json
 ```
 
 The battery takes 20 to 60 minutes, most of it waiting on the slowest providers. Each provider runs in

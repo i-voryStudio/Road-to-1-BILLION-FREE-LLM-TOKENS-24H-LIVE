@@ -82,7 +82,7 @@ def one_call(url, key, model, extra_body, timeout):
             out = int(len(msg.split()) * 1.3)
         return out, 200, round(time.time() - started, 2), ""
     except urllib.error.HTTPError as e:
-        # The provider's own error text often names the calling account state - "your balance is
+        # The provider's own error text often describes the calling account - "your balance is
         # insufficient" - and that is a fact about the caller, not about them. The publication gate refuses
         # it, correctly. What a reader needs is what the ENDPOINT did, so the body is replaced by a
         # description of the behaviour and the status code is kept as the evidence.

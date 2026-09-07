@@ -12,8 +12,8 @@
   "",
   "`via` says how a judge is reached, and it is an honesty field, not a config one:",
   "  api    - anyone with a key can reproduce this judge exactly.",
-  "  manual - scored by hand through a chat interface, not by API. NOT reproducible by a stranger, and METHOD.md says so.",
-  "Prefer api. An agent judge is acceptable only alongside at least one api judge."
+  "  manual - scored by hand through a chat interface. NOT reproducible by a stranger, and METHOD.md says so.",
+  "Prefer api. A manual judge is acceptable only alongside at least one api judge."
  ],
  "judges": [
   {
@@ -37,7 +37,7 @@
    "via": "manual",
    "model": "claude-opus-5",
    "family": "Anthropic Claude",
-   "note": "Scored by hand through a chat interface, so a stranger cannot reproduce this judge's scores exactly. Declared as a limitation in METHOD.md rather than hidden. Run judge.py --api with two API judges to get a fully reproducible jury."
+   "note": "Scored by hand through a chat interface, not by API, so a stranger cannot reproduce this judge's scores exactly. Declared as a limitation in METHOD.md rather than hidden. Run judge.py --api with two API judges to get a fully reproducible jury."
   }
  ]
 }

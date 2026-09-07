@@ -30,7 +30,7 @@
 {"date": "2026-09-06", "provider": "alibaba", "model": "qwen3.5-flash", "state": "alive", "http": 200, "seconds": 0.82, "note": ""}
 {"date": "2026-09-06", "provider": "xkiro", "model": "minimax/minimax-m2.7:free", "state": "empty", "http": 200, "seconds": 3.78, "note": ""}
 {"date": "2026-09-06", "provider": "xkiro", "model": "minimax/minimax-m3:free", "state": "alive", "http": 200, "seconds": 3.05, "note": ""}
-{"date": "2026-09-06", "provider": "siliconflow", "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct", "state": "down", "http": 402, "seconds": 0.42, "note": ""}
+{"date": "2026-09-06", "provider": "siliconflow", "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct", "state": "payment_required", "http": 402, "seconds": 0.42, "note": ""}
 {"date": "2026-09-07", "provider": "uncloseai", "model": "Lorbus/Qwen3.6-27B-int4-AutoRound", "state": "alive", "http": 200, "seconds": 2.42, "note": ""}
 {"date": "2026-09-07", "provider": "ovhcloud", "model": "gpt-oss-120b", "state": "rate_limited", "http": 429, "seconds": 0.14, "note": ""}
 {"date": "2026-09-07", "provider": "ovhcloud", "model": "Qwen3.5-397B-A17B", "state": "rate_limited", "http": 429, "seconds": 0.15, "note": ""}

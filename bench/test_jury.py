@@ -9,7 +9,7 @@ jury must read as split, and the difference between "they disagree" and "one is 
 not be flattened, because those two call for different responses.
 
 The anonymisation is tested too. It is the only thing making the jury blind, and a shuffle that is not
-reproducible would mean nobody can check the key against the paragraphs.
+reproducible would mean nobody can check the mapping against the paragraphs.
 """
 import json, subprocess, sys, tempfile
 from pathlib import Path

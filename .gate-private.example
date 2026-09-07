@@ -1,0 +1,10 @@
+# Names that must never appear in this repo: internal project names, client names, folder names
+# off our own machines. One per line; blank lines and lines starting with # are ignored.
+#
+# Copy this file to .gate-private (git-ignored), put the real names in, then run
+#     python bench/gate_publish.py --fingerprint .gate-private
+# which writes bench/private_fingerprints.json. Only the fingerprints ship; CI matches against them.
+# A name is matched whole and normalised (case, hyphens, dots and spaces do not matter), so
+# unicorn-bakery-internal below also catches "Unicorn Bakery Internal" and "unicorn_bakery_internal".
+unicorn-bakery-internal
+fictional-client-roadmap

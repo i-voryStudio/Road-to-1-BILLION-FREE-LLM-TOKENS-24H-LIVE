@@ -1,11 +1,11 @@
 # ROAD TO 1 BILLION FREE LLM TOKENS/DAY
 
 <!--ROAD-->
-`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **0.60%**
+`████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **30%**
 
-**6,000,000** free tokens a day, confirmed: providers that publish a daily figure, added up. The target is one billion.
+**211,794 tokens a minute**, and this is what 14 providers actually handed us on 2026-09-07, not what they advertise: real requests, in parallel, counted from the response. One billion a day is 694,444 a minute.
 
-Above that sits **headroom**: 10 providers publish a per-minute ceiling instead of a daily one, and those ceilings add up to **9,140,000 tokens a minute** - 13 times the rate one billion a day would need. A ceiling is what they allow, not what anyone has held for 24 hours, so it is not in the bar. Turning headroom into confirmed capacity is the whole job.
+*It is a floor. The test stops after 25,000 tokens or half a minute, whichever comes first, because it is spending somebody's free quota to find out. The ceilings these providers publish add up to 9,140,000 a minute - 13 times the target rate - and turning that headroom into delivered tokens is the whole job.*
 <!--/ROAD-->
 
 A live, measured list of every free LLM API we can find, ranked by what you can actually get done with
@@ -16,18 +16,20 @@ it. Every figure carries how we know it, and the ones nobody publishes say so.
 <!--HEADLINE-->
 | | |
 |---|---|
-| **Tokens per minute, published ceilings** | **9,140,000** |
+| **Tokens per minute we actually received** | **211,794** |
 | The rate 1,000,000,000 a day would need | 694,444 |
-| Providers publishing a per-minute ceiling | **10 of 18** |
+| **Share of it, measured** | **30%** |
+| Providers that delivered anything | **14 of 18** |
 | Endpoints answering today | **30 of 37 tested** |
 | | |
-| *A ceiling is not a promise:* | *no provider here publishes a daily cap, and none says you may hold that rate for 24 hours. We do not multiply it out.* |
+| *What they ALLOW, which is a different thing:* | |
+| Published per-minute ceilings, added up | 9,140,000 |
+| Providers publishing a ceiling at all | 10 of 18 |
 | | |
-| *Below, in daily terms:* | |
-| Tokens per day, where a provider publishes one at all | 6,000,000 |
+| *In daily terms:* | |
+| Tokens per day, where a provider publishes one | 6,000,000 |
 | Once, at sign-up, across every account | 4,000,000 |
 | One-time credits, in money | $6 |
-| Claimed by providers, sourced, not measured | 400,000 |
 | Published only for a PAID plan | 200,000 |
 <!--/HEADLINE-->
 
@@ -35,6 +37,15 @@ it. Every figure carries how we know it, and the ones nobody publishes say so.
 
 Five things decide whether a free API is worth your time, and every list we have seen collapses them
 into one number. They are kept apart here on purpose.
+
+**0. What we received, versus what they allow.** The first column is the only one on any list like
+this that nobody has to take on trust: real requests, sent in parallel for up to half a minute,
+counting the output tokens that came back. `bench/throughput.py` does it and the raw readings are in
+[`data/throughput.jsonl`](data/throughput.jsonl). It is a **floor** — the test stops at 25,000 tokens
+or 30 seconds, whichever comes first, because it is spending a free quota to find out — and where a
+provider's own rate limit stopped it, the number reported is the whole minute's allowance rather than
+a rate scaled up from two seconds. A `0` means we got nothing: an empty pot, a blocked IP, or no
+capacity behind the endpoint that day, and the row says which.
 
 **1. Per minute, or per day?** These are different shelves and adding them is the commonest mistake in
 this field. A per-minute ceiling says how fast you may go; a daily cap says how much you get before
@@ -78,26 +89,26 @@ multiplied out — 100,000 output tokens a minute is a fact, 144 million a day i
 be allowed to spend. `-` means they publish nothing on that shelf, and nothing is what we write.
 
 <!--CAPACITY-->
-| Provider | Tokens/min | Req/min | Per day | Once, at sign-up | Key | Card | Phone |
-|---|---|---|---|---|---|---|---|
-| **alibaba** | 5,000,000 | 600 | - | 4,000,000 | yes | ? | **yes** |
-| **hetzner** | 4,000,000 in / 100,000 out | 10 | - | - | yes | or ID | optional |
-| **siliconflow** | 40,000 | 1,000 | 50,000 | $1 | yes | ? | ? |
-| **cloudflare** | - | 300 | - | - | yes | no | no |
-| **uncloseai** | - | 180 | - | - | **no key** | no | no |
-| **aihubmix** | - | 10 | 50,000 | - | yes | no | no |
-| **cerebras** | - | 5 | 1,000,000 | $5 | yes | ? | ? |
-| **kenari** | - | 5 | 25,000 | - | yes | no | no |
-| **ovhcloud** | - | 2 | - | - | **no key** | **yes** | ? |
-| **unorouter** | - | 1 | - | - | yes | no | ? |
-| **xkiro** | - | - | 5,000,000 | - | yes | ? | ? |
-| **google** | - | - | 250,000 | - | yes | ? | ? |
-| **groq** | - | - | 200,000 | - | yes | ? | ? |
-| **openrouter** | - | - | 25,000 | - | yes | ? | ? |
-| **inferx** | - | - | - | - | yes | ? | ? |
-| **mistral** | - | - | - | - | yes | no | ? |
-| **nvidia** | - | - | - | - | yes | ? | ? |
-| **ollama** | - | - | - | yes, size not published | yes | ? | ? |
+| Provider | We received /min | They allow /min | Req/min | Per day | Once | Key | Card | Phone |
+|---|---|---|---|---|---|---|---|---|
+| **xkiro** | 66,197 | - | - | 5,000,000 | - | yes | ? | ? |
+| **alibaba** | 58,758 | 5,000,000 | 600 | - | 4,000,000 | yes | ? | **yes** |
+| **cloudflare** | 29,764 | - | 300 | - | - | yes | no | no |
+| **inferx** | 22,005 | - | - | - | - | yes | ? | ? |
+| **nvidia** | 13,470 | - | - | - | - | yes | ? | ? |
+| **openrouter** | 7,997 | - | - | 25,000 | - | yes | ? | ? |
+| **aihubmix** | 7,048 | - | 10 | 50,000 | - | yes | no | no |
+| **kenari** | 2,799 | - | 5 | 25,000 | - | yes | no | no |
+| **ollama** | 1,850 | - | - | - | yes, size not published | yes | ? | ? |
+| **cerebras** | 1,206 | - | 5 | 1,000,000 | $5 | yes | ? | ? |
+| **uncloseai** | 700 | - | 180 | - | - | **no key** | no | no |
+| **hetzner** | 0 | 4,000,000 in / 100,000 out | 10 | - | - | yes | or ID | optional |
+| **siliconflow** | - | 40,000 | 1,000 | 50,000 | $1 | yes | ? | ? |
+| **google** | - | - | - | 250,000 | - | yes | ? | ? |
+| **groq** | - | - | - | 200,000 | - | yes | ? | ? |
+| **mistral** | 0 | - | - | - | - | yes | no | ? |
+| **ovhcloud** | 0 | - | 2 | - | - | **no key** | **yes** | ? |
+| **unorouter** | - | - | 1 | - | - | yes | no | ? |
 <!--/CAPACITY-->
 
 **Where this is going, out loud: one billion free tokens a day.** In the unit this list measures in,

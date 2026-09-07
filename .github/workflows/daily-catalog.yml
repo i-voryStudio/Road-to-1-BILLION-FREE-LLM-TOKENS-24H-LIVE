@@ -54,6 +54,8 @@ jobs:
       # The 14-day rule, applied by code. Free endpoints die in months and usually without an
       # announcement; what dies gets a date and a headstone rather than quietly disappearing.
       # probe_alive.py needs keys and runs where they exist - this only reads the history it leaves.
+      # Throughput is measured where the keys live, not in CI: it spends real quota and needs an
+      # account. This job only re-reads what the last measurement left behind.
       - name: Apply the fourteen-day rule
         run: python bench/gate_viability.py --today "$(date -u +%F)"
 

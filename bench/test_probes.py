@@ -7,9 +7,12 @@ us a wrong scoreboard before they were pinned here: "14400, 81600" (a list read 
 one rewrites the whole ranking, so both directions are tested: correct answers must pass, wrong answers
 must fail.
 
+The second half pins the one door every key-carrying script goes through: the redirect handler in
+http_safe.py, and the rule that nobody opens a raw connection around it.
+
     python bench/test_probes.py
 """
-import json, sys
+import ast, json, sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -105,11 +108,52 @@ def check_generation():
     return fails
 
 
-KEY_CARRYING = ("benchmark.py", "probe_alive.py", "judge.py", "measure_limits.py")
+# --- the one door ----------------------------------------------------------------------------------
+# Every script that can put a key in a header. throughput.py was missing from this list for a day,
+# which is exactly how a raw urlopen gets back in: not by anyone deciding to, but by a new file nobody
+# added to the list.
+KEY_CARRYING = ("benchmark.py", "probe_alive.py", "judge.py", "measure_limits.py", "throughput.py")
+
+# Names that open a connection without going through http_safe. A call to any of these in a
+# key-carrying file is a second door, whatever module it was imported from and whatever alias it has.
+BYPASS = {"urlopen", "build_opener", "install_opener", "HTTPConnection", "HTTPSConnection"}
+
+
+def raw_openers(source):
+    """Every call to a bypass name and every import of one, found with the parser rather than with a
+    substring - so `from urllib.request import urlopen` followed by `urlopen(req)`, or
+    `import urllib.request as u` then `u.urlopen(req)`, are seen for what they are. The first version
+    of this test looked for the literal text "urllib.request.urlopen(" and nothing else."""
+    hits = []
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.ImportFrom):
+            for alias in node.names:
+                if alias.name in BYPASS:
+                    hits.append("line %d: from %s import %s" % (node.lineno, node.module, alias.name))
+        elif isinstance(node, ast.Call):
+            f = node.func
+            name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else None
+            if name in BYPASS:
+                hits.append("line %d: %s(" % (node.lineno, name))
+    return hits
+
+
+# The detector is itself calibrated in both directions: each of these must be caught, and the clean
+# shape must not be. A detector that has never been watched catching anything is a comment.
+PLANTED_OPENERS = [
+    ("the dotted call", "import urllib.request\nurllib.request.urlopen(req)\n"),
+    ("the bare import", "from urllib.request import urlopen\n"),
+    ("the bare call after an import", "from urllib.request import urlopen\nurlopen(req)\n"),
+    ("an aliased module", "import urllib.request as u\nu.urlopen(req)\n"),
+    ("an aliased name", "from urllib.request import urlopen as fetch\n"),
+    ("a private opener", "import urllib.request\nOPENER = urllib.request.build_opener()\n"),
+    ("a raw https connection", "import http.client\nc = http.client.HTTPSConnection('x')\n"),
+]
+CLEAN_OPENER = "from http_safe import open_url\nwith open_url(req, 30) as f:\n    f.read()\n"
 
 
 def redirect_cases():
-    """The cross-host redirect must raise, the same-host one must be allowed.
+    """The cross-origin redirects must raise, the same-origin ones must be allowed.
 
     Both directions, because a handler that refuses everything breaks every provider that redirects
     /v1/chat/completions to a versioned path, and a handler that allows everything hands the key over.
@@ -127,28 +171,46 @@ def redirect_cases():
         return urllib.request.Request("https://api.groq.com/openai/v1/chat/completions",
                                       data=b"{}", headers={"Authorization": "Bearer x"})
 
-    try:
-        h.redirect_request(req(), None, 302, "Found", {}, "https://evil.example/steal")
-        out.append(("cross-host redirect refused", False, "it was FOLLOWED - the key would have left"))
-    except urllib.error.URLError:
-        out.append(("cross-host redirect refused", True, ""))
-    except Exception as e:
-        out.append(("cross-host redirect refused", False,
-                    "raised %s instead of URLError" % type(e).__name__))
+    def refused(label, newurl):
+        try:
+            h.redirect_request(req(), None, 302, "Found", {}, newurl)
+            out.append((label, False, "it was FOLLOWED - the key would have left"))
+        except urllib.error.URLError:
+            out.append((label, True, ""))
+        except Exception as e:
+            out.append((label, False, "raised %s instead of URLError" % type(e).__name__))
 
-    try:
-        r = h.redirect_request(req(), None, 302, "Found", {},
-                               "https://api.groq.com/openai/v1/chat/completions/")
-        out.append(("same-host redirect still allowed", r is not None, "returned None"))
-    except Exception as e:
-        out.append(("same-host redirect still allowed", False, "raised %s" % type(e).__name__))
+    def allowed(label, newurl):
+        try:
+            r = h.redirect_request(req(), None, 302, "Found", {}, newurl)
+            out.append((label, r is not None, "returned None"))
+        except Exception as e:
+            out.append((label, False, "raised %s" % type(e).__name__))
+
+    refused("cross-host redirect refused", "https://evil.example/steal")
+    refused("same host, https to http refused: the key would travel in cleartext",
+            "http://api.groq.com/openai/v1/chat/completions")
+    refused("same host, different port refused: another listener is another party",
+            "https://api.groq.com:8443/openai/v1/chat/completions")
+    refused("same host, a port that does not parse, refused rather than guessed",
+            "https://api.groq.com:notaport/openai/v1/chat/completions")
+    allowed("same-host redirect still allowed", "https://api.groq.com/openai/v1/chat/completions/")
+    allowed("same host with the default port written out is the same origin",
+            "https://api.groq.com:443/openai/v1/chat/completions/")
+    allowed("host case does not make a new origin", "https://API.GROQ.COM/openai/v1/chat/completions/")
+
+    # The detector, calibrated.
+    for label, snippet in PLANTED_OPENERS:
+        hits = raw_openers(snippet)
+        out.append(("opener detector catches %s" % label, bool(hits), "not detected"))
+    out.append(("opener detector admits open_url", not raw_openers(CLEAN_OPENER), "false alarm"))
 
     # And nobody may quietly go back to the unprotected call.
     for name in KEY_CARRYING:
         src = (Path(__file__).resolve().parent / name).read_text(encoding="utf-8")
-        bad = "urllib.request.urlopen(" in src
-        out.append(("%s does not call urlopen directly" % name, not bad,
-                    "found urllib.request.urlopen - use open_url from http_safe" if bad else ""))
+        hits = raw_openers(src)
+        out.append(("%s opens nothing around http_safe" % name, not hits,
+                    "; ".join(hits) + " - use open_url from http_safe" if hits else ""))
     return out
 
 
@@ -172,14 +234,15 @@ def main():
 
     extra = []
     print("redirect and opener discipline:")
-    for label, ok, why in redirect_cases():
+    redirects = redirect_cases()
+    for label, ok, why in redirects:
         print("  %-4s %s%s" % ("ok" if ok else "FAIL", label,
                                "  -> " + why if (why and not ok) else ""))
         if not ok:
             extra.append(("http_safe", "opener", label, "protected", "unprotected", why))
     failures += extra
 
-    total = len(CASES) + 1 + len(redirect_cases())
+    total = len(CASES) + 1 + len(redirects)
     print()
     print("%d cases, %d failures" % (total, len(failures)))
     for probe, code, why, want, got, note in failures:

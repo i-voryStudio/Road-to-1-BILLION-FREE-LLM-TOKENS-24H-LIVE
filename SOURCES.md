@@ -74,19 +74,20 @@ And it is not only the keyless rows. A directory with thousands of stars, update
 **GitHub Models** as available with no registration required. GitHub retired it on 30 July 2026 — their
 own changelog says *"the playground, model catalog, inference API, and bring your own key (BYOK) are no
 longer available to any customer"* — and the endpoint answers `410 github_models_retirement_brownout`
-today. Five weeks dead, still on the list, updated yesterday. Both that and Meta's retired Llama API
+today. Five weeks dead, still on a list whose own page was updated on 2026-09-06. Both that and Meta's retired Llama API
 are in [GRAVEYARD.md](GRAVEYARD.md) with the announcement and what the endpoint returns now. This is not a criticism of the people who wrote those lists — free endpoints close
 quietly and a list nobody re-runs decays within weeks. It is the reason every row here carries the day
 it was called, and the reason the keyless providers we do publish were called without a key before they
 were listed.
 
-Two more lists, read the same way, star counts from the same September 2026 reading:
+Two more lists, read the same way. Star counts read on 2026-09-08 and typed by hand, which is why they
+are inside a marked block: they are a dated reading, not a live figure.
 
 <!--SOURCES-TABLE-->
 | Repo | Stars | What it does better than us |
 |---|---|---|
 | [amardeeplakshkar/awesome-free-llm-apis](https://github.com/amardeeplakshkar/awesome-free-llm-apis) | 158 | permanent-free only: no trials, no promos: a stricter definition |
-| [raullenchai/free-llm-api-resources](https://github.com/raullenchai/free-llm-api-resources) | - | keeps alive the fork of `cheahjs/free-llm-api-resources`, which now 404s |
+| [raullenchai/free-llm-api-resources](https://github.com/raullenchai/free-llm-api-resources) | 72 | keeps alive the fork of `cheahjs/free-llm-api-resources`, which now 404s |
 <!--/SOURCES-TABLE-->
 
 **What none of them publishes, and why this repo exists:** a ranking by quality *times* volume, whether

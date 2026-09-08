@@ -32,7 +32,7 @@ A sign-up bundle is not a daily quota. It is real once, and every figure below c
 
 ## Per-minute ceilings, two shelves
 
-Output-only ceilings can be compared with an output target; combined in+out ceilings, or ones that do not say, cannot, and the two are never added together. Where a provider publishes per-model figures the largest is shown.
+Output-only ceilings can be compared with an output target; combined in+out ceilings, or ones that do not say, cannot, and the two are never added together. Where a provider publishes per-model figures the largest is shown. A ceiling published only for a paid plan is shown here and added to neither shelf, exactly like a paid daily figure.
 
 | Provider | Req/min | Tokens/min | Denominated in | How we know |
 |---|---|---|---|---|
@@ -41,7 +41,7 @@ Output-only ceilings can be compared with an output target; combined in+out ceil
 | [cerebras](https://cloud.cerebras.ai) | 5 | - | - | MEASURED |
 | [cloudflare](https://dash.cloudflare.com/profile/api-tokens) | 300 | - | - | DECLARED |
 | [google](https://aistudio.google.com/apikey) | 15 | 250,000 | unspecified | DECLARED; per model, largest shown |
-| [groq](https://console.groq.com/keys) | 30 | 8,000 | unspecified | DECLARED; per model, largest shown |
+| [groq](https://console.groq.com/keys) | 30 | 8,000 | unspecified | PAID-PLAN, shown and never added; DECLARED; per model, largest shown |
 | [hetzner](https://console.hetzner.com/) | 10 | 4,000,000 in / 100,000 out | input and output, separately | DECLARED |
 | [kenari](https://kenari.id/) | 5 | - | - | DECLARED |
 | [openrouter](https://openrouter.ai/keys) | 20 | - | - | DECLARED |

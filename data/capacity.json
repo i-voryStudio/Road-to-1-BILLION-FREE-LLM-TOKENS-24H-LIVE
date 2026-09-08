@@ -439,18 +439,18 @@
    "hetzner"
   ],
   "output_only_share_of_target_pct": 14.4,
-  "combined_or_unspecified_tokens_per_minute": 5298000,
+  "combined_or_unspecified_tokens_per_minute": 5290000,
   "combined_or_unspecified_providers": [
    "alibaba",
    "google",
-   "groq",
    "siliconflow"
   ],
-  "requests_per_minute": 2178,
-  "providers_with_any_per_minute_figure": 13,
+  "requests_per_minute": 2148,
+  "providers_with_any_per_minute_figure": 12,
   "per_provider": [
    {
     "provider": "aihubmix",
+    "paid_plan": false,
     "requests_per_minute": 10,
     "tokens_per_minute_combined": null,
     "tokens_per_minute_combined_scope": null,
@@ -462,6 +462,7 @@
    },
    {
     "provider": "alibaba",
+    "paid_plan": false,
     "requests_per_minute": 600,
     "tokens_per_minute_combined": 5000000,
     "tokens_per_minute_combined_scope": "input+output",
@@ -473,6 +474,7 @@
    },
    {
     "provider": "cerebras",
+    "paid_plan": false,
     "requests_per_minute": 5,
     "tokens_per_minute_combined": null,
     "tokens_per_minute_combined_scope": null,
@@ -484,6 +486,7 @@
    },
    {
     "provider": "cloudflare",
+    "paid_plan": false,
     "requests_per_minute": 300,
     "tokens_per_minute_combined": null,
     "tokens_per_minute_combined_scope": null,
@@ -495,6 +498,7 @@
    },
    {
     "provider": "google",
+    "paid_plan": false,
     "requests_per_minute": 15,
     "tokens_per_minute_combined": 250000,
     "tokens_per_minute_combined_scope": "unspecified",
@@ -506,6 +510,7 @@
    },
    {
     "provider": "groq",
+    "paid_plan": true,
     "requests_per_minute": 30,
     "tokens_per_minute_combined": 8000,
     "tokens_per_minute_combined_scope": "unspecified",
@@ -517,6 +522,7 @@
    },
    {
     "provider": "hetzner",
+    "paid_plan": false,
     "requests_per_minute": 10,
     "tokens_per_minute_combined": null,
     "tokens_per_minute_combined_scope": null,
@@ -528,6 +534,7 @@
    },
    {
     "provider": "kenari",
+    "paid_plan": false,
     "requests_per_minute": 5,
     "tokens_per_minute_combined": null,
     "tokens_per_minute_combined_scope": null,
@@ -539,6 +546,7 @@
    },
    {
     "provider": "openrouter",
+    "paid_plan": false,
     "requests_per_minute": 20,
     "tokens_per_minute_combined": null,
     "tokens_per_minute_combined_scope": null,
@@ -550,6 +558,7 @@
    },
    {
     "provider": "ovhcloud",
+    "paid_plan": false,
     "requests_per_minute": 2,
     "tokens_per_minute_combined": null,
     "tokens_per_minute_combined_scope": null,
@@ -561,6 +570,7 @@
    },
    {
     "provider": "siliconflow",
+    "paid_plan": false,
     "requests_per_minute": 1000,
     "tokens_per_minute_combined": 40000,
     "tokens_per_minute_combined_scope": "unspecified",
@@ -572,6 +582,7 @@
    },
    {
     "provider": "uncloseai",
+    "paid_plan": false,
     "requests_per_minute": 180,
     "tokens_per_minute_combined": null,
     "tokens_per_minute_combined_scope": null,
@@ -583,6 +594,7 @@
    },
    {
     "provider": "unorouter",
+    "paid_plan": false,
     "requests_per_minute": 1,
     "tokens_per_minute_combined": null,
     "tokens_per_minute_combined_scope": null,
@@ -591,6 +603,14 @@
     "comparable_with_output_target": null,
     "per_model_largest_shown": false,
     "confidence": "DECLARED"
+   }
+  ],
+  "paid_plan_per_minute_excluded": [
+   {
+    "provider": "groq",
+    "requests_per_minute": 30,
+    "tokens_per_minute": 8000,
+    "why": "published only for a paid plan"
    }
   ],
   "note": "Output-only and combined in+out ceilings are two shelves and are never added together; only the output-only shelf is compared with the output target."

@@ -195,6 +195,12 @@ def measure(prov, limits, window, budget):
         rate = tokens
         basis = ("their per-minute limit stopped us, so this is the whole minute's allowance, "
                  "not a rate scaled up from %.1f seconds" % elapsed)
+    elif not ok:
+        # Nothing came back. A sentence that says the window ran "without a refusal" describes a run
+        # that delivered; this one did not, and the row has to say which.
+        rate = 0
+        basis = ("nothing delivered in %.0f seconds: %d of %d requests failed"
+                 % (elapsed, len(results) - len(ok) - len(limited), len(results)))
     elif elapsed >= 10:
         rate = int(tokens / elapsed * 60)
         basis = "delivered over %.0f seconds without a refusal, scaled to a minute" % elapsed

@@ -317,6 +317,9 @@ def ceiling_of(entry):
     # What a bare `tpm` counts, from the provider's own words: `tpm_scope` is "in+out", "output" or
     # "unspecified", and a figure with no scope on file is printed as unspecified, never as combined.
     out["tpm_scope"] = am.get("tpm_scope") if am.get("tpm_scope") in TPM_SCOPES else "unspecified"
+    # A per-minute figure published only for a paid plan is not free capacity, exactly like a daily one:
+    # it is printed with the label and never added into the per-minute shelves or their counts.
+    out["paid_plan"] = bool(entry.get("per_minute_is_paid_plan"))
     return out
 
 
@@ -962,16 +965,24 @@ def main():
     # -----------------------------------------------------------------------------------------------
     out_only, out_who, combined, combined_who, req_min, any_min = 0, [], 0, [], 0, []
     combined_said, combined_unsaid = [], []       # a bare tpm the provider says is in+out, and one it does not
+    paid_min = []                                 # per-minute figures published only for a paid plan
     for name, c in sorted(ceilings.items()):
         if not any(c.get(k) for k in ("rpm", "tpm", "tpm_input", "tpm_output")):
             continue
-        any_min.append({"provider": name, "requests_per_minute": c["rpm"],
+        if c.get("paid_plan"):
+            # Shown, like every other paid-plan figure, and left out of both shelves and of the count.
+            paid_min.append({"provider": name, "requests_per_minute": c["rpm"],
+                             "tokens_per_minute": c["tpm"], "why": "published only for a paid plan"})
+        any_min.append({"provider": name, "paid_plan": bool(c.get("paid_plan")),
+                        "requests_per_minute": c["rpm"],
                         "tokens_per_minute_combined": c["tpm"],
                         "tokens_per_minute_combined_scope": scope_words(c, long=True) if c["tpm"] else None,
                         "tokens_per_minute_input": c["tpm_input"],
                         "tokens_per_minute_output": c["tpm_output"],
                         "comparable_with_output_target": comparable_ceiling(c) or None,
                         "per_model_largest_shown": c["per_model"], "confidence": c["confidence"]})
+        if c.get("paid_plan"):
+            continue
         req_min += c["rpm"] or 0
         if c["tpm_output"]:
             out_only += c["tpm_output"]
@@ -1330,8 +1341,9 @@ def main():
             "combined_or_unspecified_tokens_per_minute": combined,
             "combined_or_unspecified_providers": combined_who,
             "requests_per_minute": req_min,
-            "providers_with_any_per_minute_figure": len(any_min),
+            "providers_with_any_per_minute_figure": len([e for e in any_min if not e["paid_plan"]]),
             "per_provider": any_min,
+            "paid_plan_per_minute_excluded": paid_min,
             "note": "Output-only and combined in+out ceilings are two shelves and are never added "
                     "together; only the output-only shelf is compared with the output target.",
         },
@@ -1480,7 +1492,8 @@ def main():
          "| Endpoints answering today | **%d of %d tested** |" % (today_alive, today_total),
          "| Output-only ceilings published, added up | %s (%s) |" % (num(out_only), ", ".join(out_who) or "none"),
          "| Combined in+out ceilings, or unspecified, added up; never added to the row above | %s (%d providers) |" % (num(combined), len(combined_who)),
-         "| Providers with any per-minute figure on file | %d of %d |" % (len(any_min), n_providers),
+         "| Providers with a free per-minute figure on file | %d of %d |"
+         % (len([e for e in any_min if not e["paid_plan"]]), n_providers),
          "",
          "| Shown, and never counted above | |", "|---|---|",
          "| Published only for a PAID plan | %s a day (%s) |"
@@ -1549,6 +1562,8 @@ def main():
         g = got.get(name)
         star = " (per model, largest)" if c.get("per_model") else ""
         tok_min = ceiling_text(c) + (star if c.get("tpm") or c.get("tpm_output") else "")
+        if c.get("paid_plan") and tok_min != "-":
+            tok_min += ", PAID-PLAN"          # published for a paid tier, so it is shown and never added
         req = (num(c["rpm"]) + (star if not (c.get("tpm") or c.get("tpm_output")) else "")) if c.get("rpm") else "-"
         if not g:
             recv, why = "-", "not measured yet"
@@ -1846,7 +1861,8 @@ def main():
     M += ["", "## Per-minute ceilings, two shelves", "",
           "Output-only ceilings can be compared with an output target; combined in+out ceilings, or "
           "ones that do not say, cannot, and the two are never added together. Where a provider "
-          "publishes per-model figures the largest is shown.", "",
+          "publishes per-model figures the largest is shown. A ceiling published only for a paid "
+          "plan is shown here and added to neither shelf, exactly like a paid daily figure.", "",
           "| Provider | Req/min | Tokens/min | Denominated in | How we know |", "|---|---|---|---|---|"]
     for e in any_min:
         if e["tokens_per_minute_input"] and e["tokens_per_minute_output"]:
@@ -1860,8 +1876,9 @@ def main():
             tok, denom = num(e["tokens_per_minute_combined"]), e["tokens_per_minute_combined_scope"]
         else:
             tok, denom = "-", "-"
-        M.append("| %s | %s | %s | %s | %s%s |"
+        M.append("| %s | %s | %s | %s | %s%s%s |"
                  % (provider_link(e["provider"], doors), num(e["requests_per_minute"], "-"), tok, denom,
+                    "PAID-PLAN, shown and never added; " if e["paid_plan"] else "",
                     e["confidence"], "; per model, largest shown" if e["per_model_largest_shown"] else ""))
     for name, p in LP.items():
         M += ["", "## %s" % provider_link(name, doors), "",

@@ -93,7 +93,9 @@
     "note": "Rate-limit response headers read on 2026-09-07 reported x-ratelimit-limit-requests 1000 per day and x-ratelimit-limit-tokens 8000 per minute, the same figures as the published Developer-plan table. Whether those headers describe the free tier or a trial is not published anywhere we could find, so the daily figure keeps the PAID-PLAN label and the row is not ranked on it. The per-minute token ceiling is what actually stops you: a long prompt returns HTTP 413 long before the request count matters.",
     "measured_on": "2026-09-07"
    },
-   "rpd_plan": "Developer"
+   "rpd_plan": "Developer",
+   "per_minute_is_paid_plan": true,
+   "per_minute_plan_note": "The 30 requests and 8,000 tokens a minute sit in the same published table as the daily figures, and that table is labelled the base limits of the DEVELOPER PLAN. The daily figures are already excluded as PAID-PLAN; the per-minute ones come from the same row and are excluded with them."
   },
   "cerebras": {
    "scope": "account",

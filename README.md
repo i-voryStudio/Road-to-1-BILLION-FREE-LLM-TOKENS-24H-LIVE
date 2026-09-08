@@ -66,7 +66,7 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 
 *Bursts are a different thing.* In 30-second bursts, latest reading per provider, **11 of the 17 providers measured handed us 140,850 tokens a minute** added together on 2026-09-07; 3 delivered nothing (hetzner: five failures in a row: no response: timeout or connection failure; mistral: rate limit reached; ovhcloud: rate limit reached); 3 measured with no rate to state (groq: five failures in a row: HTTP 403: the endpoint refused the caller; siliconflow: five failures in a row: HTTP 402: the endpoint stops serving until a top-up; unorouter: five failures in a row: HTTP 503: no capacity behind the endpoint); 1 provider has no burst row yet: google. A burst is a rate: 100,000 tokens a minute is a fact and 144,000,000 a day is a number nobody will be allowed to spend, so the bar above is built from the daily shelf and never from this rate. Free tiers move, throttle without warning and close; one provider here dropped 46-fold between two readings taken the same day. Nothing on this page is guaranteed to you by anyone, us included.
 
-*What they allow.* The only output-only ceiling published (hetzner: 100,000 output tokens a minute) is 14% of the 694,444 a minute the target works out to. Ceilings published as input-plus-output, or without saying which, add up to 5,298,000 a minute across 4 providers (alibaba says in+out; google, groq and siliconflow do not say which) and cannot be compared with an output target, so they are not.
+*What they allow.* The only output-only ceiling published (hetzner: 100,000 output tokens a minute) is 14% of the 694,444 a minute the target works out to. Ceilings published as input-plus-output, or without saying which, add up to 5,290,000 a minute across 3 providers (alibaba says in+out; google and siliconflow do not say which) and cannot be compared with an output target, so they are not.
 
 *What it would take.* The shelf above is 6,300,000 tokens a day across 5 providers with any daily figure; the median figure among them is 250,000 a day. The gap to 1,000,000,000 is 993,700,000 a day, which is 3,975 more providers at that median. No provider publishes a per-minute ceiling at or above the 694,444 a minute the target works out to, counting the output ceiling where a split is published and the bare figure where it is not. The draw meter runs once, for 60 minutes, at the provider's published pace capped at 120 requests a minute, asking for 700 tokens a call and stopping at 250,000 tokens, and a run the cap stops states a rate only after 5 minutes, so the most it can register from one provider is 3,000,000 tokens an hour, 72,000,000 a day. A longer draw, a faster published pace, or more providers with a daily figure are the only things that move the bar; nothing else on this page will.
 <!--/ROAD-->
@@ -91,8 +91,8 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 | no burst row yet | google |
 | Endpoints answering today | **30 of 37 tested** |
 | Output-only ceilings published, added up | 100,000 (hetzner) |
-| Combined in+out ceilings, or unspecified, added up; never added to the row above | 5,298,000 (4 providers) |
-| Providers with any per-minute figure on file | 13 of 18 |
+| Combined in+out ceilings, or unspecified, added up; never added to the row above | 5,290,000 (3 providers) |
+| Providers with a free per-minute figure on file | 12 of 18 |
 
 | Shown, and never counted above | |
 |---|---|
@@ -235,7 +235,7 @@ publishes per-model ceilings, the largest is shown and the cell says so.
 | **[google](https://aistudio.google.com/apikey)** | - | not measured yet | 250,000, scope unspecified (per model, largest) | 15 | 250,000 | DERIVED | - | - | yes | not read | not read |
 | **[hetzner](https://console.hetzner.com/)** | 0 | five failures in a row: no response: timeout or connection failure; the same day's 60-minute draw at a planned 10 requests a minute received 333 replies of up to 700 tokens, which is where the drawn hour comes from and is not on the shelf | 4,000,000 in / 100,000 out | 10 | - | UNKNOWN | - | - | yes | or ID | optional |
 | **[siliconflow](https://siliconflow.com)** | - | no rate: HTTP 402: the endpoint stops serving until a top-up | 40,000, scope unspecified | 1,000 | - | UNKNOWN | - | $1 in credits | yes | ? | ? |
-| **[groq](https://console.groq.com/keys)** | - | no rate: HTTP 403: the endpoint refused the caller | 8,000, scope unspecified (per model, largest) | 30 | - | PAID-PLAN, not counted | - | - | yes | not read | not read |
+| **[groq](https://console.groq.com/keys)** | - | no rate: HTTP 403: the endpoint refused the caller | 8,000, scope unspecified (per model, largest), PAID-PLAN | 30 | - | PAID-PLAN, not counted | - | - | yes | not read | not read |
 | **[mistral](https://console.mistral.ai/)** | 0 | rate limit reached | - | - | - | UNKNOWN | $10 in credits | - | yes | no | ? |
 | **[ovhcloud](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities)** | 0 | rate limit reached | - | 2 | - | UNKNOWN | - | - | **no key** | **yes** | ? |
 | **[unorouter](https://unorouter.com/)** | - | no rate: HTTP 503: no capacity behind the endpoint | - | 1 | - | UNKNOWN | - | - | yes | no | ? |

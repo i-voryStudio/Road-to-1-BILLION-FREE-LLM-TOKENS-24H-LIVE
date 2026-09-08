@@ -18,7 +18,7 @@
 | Endpoints answering today | **3 of 6 tested** |
 | Output-only ceilings published, added up | 50,000 (beta) |
 | Combined in+out ceilings, or unspecified, added up; never added to the row above | 26,000 (2 providers) |
-| Providers with any per-minute figure on file | 5 of 5 |
+| Providers with a free per-minute figure on file | 5 of 5 |
 
 | Shown, and never counted above | |
 |---|---|

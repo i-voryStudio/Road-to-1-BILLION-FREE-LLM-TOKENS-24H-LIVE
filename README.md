@@ -6,6 +6,12 @@ labelled by how we know it. Free here means no money spent, and a figure that ne
 that was read on a trial tier, says so wherever it is printed; quality here means an official coding
 index at or above the floor printed under the table.
 
+**Where the method comes from.** We take apart the biggest open routing and agent tools as they
+ship, OmniRoute, Hermes Agent and Agent-Reach among them, and put every free endpoint they reach
+for through our own meters. That research runs continuously; this list is the part of it a
+stranger can check, which is why every figure here carries the day it was measured and the way it
+was obtained.
+
 ## How far this is from a billion a day
 
 <!--BARS-->

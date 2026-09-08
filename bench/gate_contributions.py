@@ -39,6 +39,8 @@ ranking READ is checked here for shape, range and evidence, not only for where a
     data/uptime.jsonl       decides burials; a planted row can kill a live provider
     data/throughput.jsonl   the headline "tokens a minute" on the front page
     data/drawn.jsonl        the largest single figure on the front-page bar, times 24
+    data/reliability.json   the archived answered rates and the reasoning-trap table on RESULTS.md
+                            and the README, recomputed here from results/*/raw.json
 
 THE THIRD EDGE was found by a second round of planted pull requests against the second version: every
 file the ranking reads has to be opened by this gate, and every figure in it has to be typed and bounded
@@ -47,6 +49,26 @@ by what the program that wrote it could have written. One row appended to data/d
 Any file bench/rank.py reads and this gate does not open is that same hole again, so the CLEAN line
 below names every file it opened: a new data file that is missing from that line is missing from
 the gate.
+
+THE FOURTH EDGE was a review that planted numbers UNDER every ceiling. The daily ceilings were ten
+times the project's whole target, so one typed 9,900,000,000 tokens a day put 990% on the front page
+with every check green; fourteen down rows dated before the endpoint's own last reading buried a live
+endpoint, and the test asserted that shape must pass; a burst row's request count was bounded by
+nothing, so 20,000 answers in thirty seconds carried fourteen million tokens; and data/reliability.json
+was read by rank.py and opened by no gate. So now:
+
+    - no figure that can reach the daily shelf (tpd, rpd x tokens a reply, derived.output_tokens_per_day,
+      a Neuron allowance divided by a unit price, one_time.tokens, measured_values.*) may exceed
+      bench/rank.py's TARGET_TOKENS_PER_DAY, read from rank.py so the two cannot drift; and above
+      DAILY_NEEDS_MEASUREMENT_ABOVE a daily figure is admitted only as MEASURED with measured_how;
+    - the three meters append in date order, so a row dated before the newest date already on file is
+      back-dated and refused; data/uptime.jsonl and data/drawn.jsonl hold one reading per endpoint-day;
+    - a burst row holds no more requests than its slots could have completed in its seconds;
+    - data/reliability.json is recomputed from results/*/raw.json and providers.json, count by count;
+    - a retirement notice sits on the operator's own domain or on a declared news host; a judge may
+      not share a family with a benchmarked model; a one-time grant is under the target; a probe prompt
+      may name no domain of any kind and no provider on file; and a provider may not declare every
+      generation parameter unsupported.
 
 WHAT A REGEX GATE CANNOT DECIDE, stated so the human review CODEOWNERS asks for knows what it carries:
 
@@ -59,8 +81,12 @@ WHAT A REGEX GATE CANNOT DECIDE, stated so the human review CODEOWNERS asks for 
        elsewhere. Whether a parameter redirects is a property of the provider's server, not of the URL.
     3. A retirement notice under a lookalike of a live provider's name. Since this version, a name in
        announced_deaths.json may contain ASCII letters, digits, spaces and a little punctuation only, so
-       a homoglyph from another alphabet is refused by rule. A plain misspelling, a trailing "Inc" or a
-       different casing of a live name still passes, and only a reader recognises it.
+       a homoglyph from another alphabet is refused by rule, and a live provider's name as a whole word
+       inside the headstone ("Kenari AI") is refused too. A plain misspelling of a live name still
+       passes, and only a reader recognises it.
+    4. An archived run rewritten consistently. data/reliability.json is recomputed from results/*/raw.json
+       here, so an edit to the archive alone is refused; an edit to raw.json AND the archive that agree
+       with each other is a forged run, and only the person who ran it knows.
 
 Every rule here has a planted pull request in bench/test_contributions.py that it must refuse, and an
 honest one it must admit. A rule without both is not in this file.
@@ -150,6 +176,17 @@ KNOWN_TERMS_HOSTS = {
     "ovhcloud": {"ovhcloud.com"},        # docs.ovhcloud.com documents the endpoints served from ovh.net
     "google": {"google.dev"},            # ai.google.dev carries the Gemini API terms AND its rate-limit page
 }
+# Where a retirement notice may sit, by who wrote it. An OPERATOR's notice sits on the operator's own
+# domain, declared here per headstone (lowercased name -> registrable domains); a THIRD PARTY's notice
+# sits on one of a few news hosts declared here. Anything else - a paste site, a blog nobody can tie to
+# the operator - is somebody's summary of a death, not the notice, and a headstone on GRAVEYARD.md is
+# the strongest claim this repo makes about a provider. Same discipline as the other host maps: adding
+# a domain is an edit here, in review, never a JSON-only change.
+KNOWN_OPERATOR_HOSTS = {
+    "github models": {"github.blog"},    # the retirement notice is on GitHub's changelog blog
+}
+KNOWN_NEWS_HOSTS = {"rushcommerce.dev"}  # reported Meta's Llama API retirement, read 2026-09-07
+NOTICE_AUTHORS = ("operator", "third party")
 
 # Hosts that are not credential destinations, whatever a contributor writes.
 FORBIDDEN_HOST = re.compile(
@@ -208,34 +245,72 @@ GENERATION = {                   # languages/*.json may send only these, in thes
 PROBE_KINDS = {"arithmetic", "diacritics_rewrite", "constrained_rewrite", "json_extraction", "paragraph"}
 MAX_PROMPT_CHARS = 2000
 # A probe prompt is sent to every provider and echoed into published results. A domain in it, with or
-# without a scheme, is a link in a public file; a vendor's name in it is a bias in a measurement.
+# without a scheme, is a link in a public file; a vendor's name in it is a bias in a measurement. The
+# domain shape is ANY dotted name ending in two or more letters, not a list of top-level domains: the
+# list had no .ly, .site, .top or .link, and bit.ly/free-keys walked through it. Every provider on
+# file is a vendor too, by its name in providers.json and by the stems of the hosts declared for it
+# above; the previous list held the host stem "aliyuncs" and let "Alibaba" through.
 BARE_DOMAIN = re.compile(
-    r"(?<![\w@/.-])(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+"
-    r"(?:com|net|org|io|ai|dev|app|ro|eu|uk|de|fr|nl|info|biz|xyz|tv|cc|ca|au|cn|jp|ru|pl|cz"
-    r"|example|test|invalid|local|localhost)(?![\w-])", re.I)
+    r"(?<![\w@/.-])(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?![\w-])", re.I)
 BRAND_WORDS = {"openai", "chatgpt", "anthropic", "claude", "gemini", "gemma", "deepseek", "llama",
                "qwen", "minimax", "kimi", "google", "microsoft", "copilot", "amazon", "bedrock",
                "huggingface"}
+MIN_BRAND_STEM = 4
+
+
+def host_stem(host):
+    """The name in a host: api.groq.com -> groq, something.co.uk -> something."""
+    parts = host.split(".")
+    if len(parts) >= 3 and len(parts[-1]) == 2 and parts[-2] in {"co", "com", "net", "org", "ac"}:
+        return parts[-3]
+    return parts[-2] if len(parts) >= 2 else host
+
+
 for _h in ALLOWED_HOSTS:
-    _stem = _h.split(".")[-3] if _h.count(".") >= 2 and len(_h.split(".")[-1]) == 2 and _h.split(".")[-2] in {"co", "com", "net", "org", "ac"} else _h.split(".")[-2]
-    if len(_stem) >= 4:
-        BRAND_WORDS.add(_stem)
-BRAND_RE = re.compile(r"\b(%s)\b" % "|".join(sorted(re.escape(w) for w in BRAND_WORDS)), re.I)
+    if len(host_stem(_h)) >= MIN_BRAND_STEM:
+        BRAND_WORDS.add(host_stem(_h))
+for _m in (KNOWN_SIGNUP_HOSTS, KNOWN_TERMS_HOSTS):
+    for _hosts in _m.values():
+        for _h in _hosts:
+            if len(host_stem(_h)) >= MIN_BRAND_STEM:
+                BRAND_WORDS.add(host_stem(_h))
+
+
+def brand_re(providers=None):
+    """The vendor words a probe prompt may not contain: the fixed list, the stems of every host this gate
+    declares, and the name of every provider in providers.json - the parties the probe measures."""
+    words = set(BRAND_WORDS)
+    for p in providers or []:
+        name = p.get("name") if isinstance(p, dict) else None
+        if isinstance(name, str) and len(name) >= MIN_BRAND_STEM:
+            words.add(name.lower())
+    return re.compile(r"\b(%s)\b" % "|".join(sorted(re.escape(w) for w in words)), re.I)
+
+
+BRAND_RE = brand_re()
 
 CONFIDENCE = ("MEASURED", "DECLARED", "UNKNOWN")
 # Every quota figure the ranking or the runners read, with a ceiling past which a "free tier" is a typo
-# or a plant. The largest genuine figure in the file is 5,000,000 tokens a minute.
-LIMIT_KEYS = {"rpm": 100000, "rps": 1000, "rph": 1000000, "rpd": 10 ** 7,
-              "tpm": 10 ** 9, "tpm_input": 10 ** 9, "tpm_output": 10 ** 9, "tpd": 10 ** 10,
+# or a plant. The largest genuine figure in the file is 5,000,000 tokens a minute. The two DAILY keys
+# carry None here: their ceiling is the project's own target, read from bench/rank.py by
+# daily_ceilings() below, because the previous ceilings (tpd 10**10, rpd 10**7) were ten times the
+# target and one typed figure under them put 990% of it on the front page with every check green.
+LIMIT_KEYS = {"rpm": 100000, "rps": 1000, "rph": 1000000, "rpd": None,
+              "tpm": 10 ** 9, "tpm_input": 10 ** 9, "tpm_output": 10 ** 9, "tpd": None,
               "neurons_per_day": 10 ** 9, "concurrent_requests": 1000}
+DAILY_KEYS = ("tpd", "rpd")
 PER_MINUTE_KEYS = {"rpm", "rps", "rph", "tpm", "tpm_input", "tpm_output"}
+# A daily figure above this is admitted only as MEASURED, with measured_how saying which header,
+# endpoint or usage call showed it. The largest measured allowance on file is 5,000,000 a day; a typed
+# hundred million would be a tenth of the whole target on one provider's word.
+DAILY_NEEDS_MEASUREMENT_ABOVE = 10 ** 8
 # The other figures bench/rank.py can turn into a daily number, each of which the second version of
 # this gate left untyped: `derived.output_tokens_per_day` goes straight onto the DERIVED shelf, and
 # `free_allocation.neurons_per_day / neuron_cost_examples.<model>.output_per_million x 1,000,000` is
 # a division whose result was 10**16 with a fractional cost of 0.000001. A grant in tokens or money
-# is shown, never summed, but a shown 10**15 is still a lie on the page.
-FIGURE_CEILING = LIMIT_KEYS["tpd"]        # any quota-shaped figure not named in LIMIT_KEYS
-GRANT_CEILINGS = {"tokens": LIMIT_KEYS["tpd"], "credits_usd": 10 ** 4, "usd_per_month": 10 ** 4, "usd": 10 ** 4}
+# is shown, never summed, but a shown 10**15 is still a lie on the page. Their ceiling in tokens is
+# the target too (daily_ceilings()["figure"] and ["tokens"]); money keeps a ceiling of its own.
+GRANT_CEILINGS = {"tokens": None, "credits_usd": 10 ** 4, "usd_per_month": 10 ** 4, "usd": 10 ** 4}
 NEURON_COST_CEILING = 10 ** 7             # Neurons per million tokens; the largest on file is 204,805
 TYPED_BLOCKS = ("free_allocation", "measured_values", "authenticated_tier", "unverified_accounts")
 BLOCK_TEXT_KEYS = {"kind", "why", "applies_to", "confidence", "note", "measured_on", "read_on", "source", "how"}
@@ -243,7 +318,9 @@ BLOCK_TEXT_KEYS = {"kind", "why", "applies_to", "confidence", "note", "measured_
 # and from announced_deaths.json that gate_viability.py renders raw onto GRAVEYARD.md. A caveat reading
 # "[our mirror](https://evil.example/keys)" reached three generated pages with every gate green.
 TEXT_FIELDS = {"caveat", "note", "tpm_note", "binding_limit", "measured_how", "quote", "expires",
-               "expires_quote", "scope_quote", "how", "applies_to", "why", "kind", "unlock", "concurrency"}
+               "expires_quote", "scope_quote", "how", "applies_to", "why", "kind", "unlock", "concurrency",
+               "measured_on_tier"}
+TPM_SCOPES = {"in+out", "output", "unspecified"}   # what a bare tpm counts; the pages print it next to the figure
 TEXT_LIST_FIELDS = {"quotes", "rate_limit_quotes"}
 # A headstone's name becomes a heading. ASCII letters, digits, spaces, hyphens, periods and parentheses
 # only, so a lookalike letter from another alphabet cannot bury a live provider under a homoglyph.
@@ -266,6 +343,23 @@ THROUGHPUT_OPTIONAL_FIELDS = ("first_error", "tokens_estimated")
 THROUGHPUT_ESTIMATED_FLAG_SINCE = date(2026, 9, 8)
 MIN_WINDOW_SECONDS = 10          # bench/throughput.py states no rate under this
 RATE_TOLERANCE = 0.03            # seconds are rounded to a tenth in the row; 3% covers that
+# A burst slot completes one request at a time, and no endpoint answers a slot more than this many
+# times a second: a round trip to a remote model is a tenth of a second at the very least. So a row
+# holds at most concurrency x (seconds x this + 1) requests, the +1 being the wave in flight when the
+# window opened. The fastest real row is 461 refusals in 30.8 seconds on 8 slots, under 2 a second a
+# slot; 20,000 answers in the same window carried fourteen million tokens past the token bound, because
+# that bound scales with the request count this one caps.
+MAX_REQUESTS_PER_SLOT_SECOND = 10
+# The radar's states that are not a reading of the endpoint, from bench/states.py: a second row for an
+# endpoint-day in one of them is not a second reading, which is how gate_viability.py counts too.
+UPTIME_NOT_A_VERDICT = {"blocked", "no_key"}
+# data/reliability.json, as bench/reliability.py writes it: the buckets every call falls into exactly
+# once, and the three readings a rate earns. Pinned to reliability.py's source by test_contributions.py.
+RELIABILITY_COUNTS = ("ok", "empty_200", "rate_limited", "overloaded", "timeout", "other")
+RELIABILITY_READINGS = ((0.95, "answers reliably"),
+                        (0.85, "occasionally refuses or returns nothing"),
+                        (0.0, "unreliable in our measurements - see the counts"))
+PROBE_NAME_OK = re.compile(r"^[A-Za-z0-9_-]{1,8}$")      # rendered in a table cell on RESULTS.md
 
 # A "no" in privacy.json is backed only by a quote that actually negates. Whole words: "Note:" is not
 # "not", and "another" is not "no" - both passed the first version of this check.
@@ -366,6 +460,82 @@ def _meters():
         sys.path.insert(0, str(HERE))
     import draw_day, throughput
     return draw_day, throughput
+
+
+def _rank():
+    """bench/rank.py, imported when a limits check needs its target and not at load time: rank.py imports
+    this gate's host maps at load, so the import runs the other way round only inside a function."""
+    if str(HERE) not in sys.path:
+        sys.path.insert(0, str(HERE))
+    import rank
+    return rank
+
+
+def daily_ceilings():
+    """The ceiling of every figure that can reach the daily shelf, from bench/rank.py's own target so the
+    two cannot drift: tpd at the target; rpd at the target divided by the tokens a reply rank.py
+    multiplies it by; a grant in tokens and any other daily-shaped figure at the target. A single
+    provider's figure above the whole project's target is a typo or a plant, whatever its label."""
+    R = _rank()
+    target = R.TARGET_TOKENS_PER_DAY
+    return {"tpd": target, "rpd": target // R.TOKENS_PER_REPLY, "tokens": target, "figure": target,
+            "target": target, "tokens_per_reply": R.TOKENS_PER_REPLY}
+
+
+def _ceiling(key):
+    """The sanity ceiling of one LIMIT_KEYS figure: static for per-minute figures, the target for daily ones."""
+    return LIMIT_KEYS[key] if LIMIT_KEYS[key] is not None else daily_ceilings()[key]
+
+
+def _daily_figure(where, label, tokens, conf, measured_how_ok, problems, unit="tokens a day"):
+    """One figure that reaches the daily shelf, held to the two rules: never above the target, and above
+    DAILY_NEEDS_MEASUREMENT_ABOVE only as MEASURED with measured_how. `conf` is the label rank.py would
+    put on it; `measured_how_ok` says whether the block, or the provider it sits under, carries a method."""
+    c = daily_ceilings()
+    if tokens > c["target"]:
+        problems.append((where, "%s is %s %s, above the whole project's target of %s (bench/rank.py "
+                                "TARGET_TOKENS_PER_DAY). No single provider's figure may exceed the target: "
+                                "one typed number under a looser ceiling put 990%% of it on the front page "
+                                "with every check green." % (label, "{:,}".format(tokens), unit, "{:,}".format(c["target"]))))
+    elif tokens > DAILY_NEEDS_MEASUREMENT_ABOVE and not (conf == "MEASURED" and measured_how_ok):
+        problems.append((where, "%s is %s %s, above %s, and it is %s. A daily figure that large is admitted only "
+                                "as MEASURED, with measured_how saying which header, endpoint or usage call showed "
+                                "it: the largest measured allowance on file is 5,000,000, and a typed hundred "
+                                "million would be a tenth of the whole target on one provider's word."
+                         % (label, "{:,}".format(tokens), unit, "{:,}".format(DAILY_NEEDS_MEASUREMENT_ABOVE),
+                            ("MEASURED with no measured_how" if conf == "MEASURED" else str(conf)))))
+
+
+def _in_date_order(where, label, key, day, ledger, problems, one_per_day, what):
+    """The meters append in date order, the whole day at once, so `day` may not be earlier than the newest
+    date already on file, for this endpoint or any other: a row filed for a day the meter already passed
+    is a measurement nobody took on the day it names. With `one_per_day`, a second row for the same
+    endpoint-day is refused too. `ledger` is {"newest": date or None, "by_endpoint": {key: newest date},
+    "days": {(key, date)}}, threaded through one file."""
+    if not is_iso_date(day):
+        return
+    d = date.fromisoformat(day)
+    newest, own = ledger["newest"], ledger["by_endpoint"].get(key)
+    if newest is not None and d < newest:
+        problems.append((where, "dated %s, and %s already holds %s dated %s. %s appends one row per endpoint per "
+                                "run in date order, so a row filed for a day it already passed is back-dated: a "
+                                "measurement nobody took on the day it names. Fourteen of those, dated before the "
+                                "endpoint's own last reading, buried a live endpoint with every check green."
+                         % (day, label, ("a row for %s %s" % key) if own is not None and own > d else "rows",
+                            (own if own is not None and own > d else newest).isoformat(), what)))
+    elif one_per_day and (key, d) in ledger["days"]:
+        problems.append((where, "a second row for %s %s on %s. A day holds one reading per endpoint: the later "
+                                "row replaces the earlier one on the page, and fourteen readings of one day are "
+                                "not fourteen days. Keep the reading that stands and move the other to a "
+                                "superseded file, archived and not deleted." % (key[0], key[1], day)))
+    ledger["newest"] = d if newest is None or d > newest else newest
+    ledger["by_endpoint"][key] = d if own is None or d > own else own
+    if one_per_day:
+        ledger["days"].add((key, d))
+
+
+def _new_ledger():
+    return {"newest": None, "by_endpoint": {}, "days": set()}
 
 
 class DuplicateKey(ValueError):
@@ -708,6 +878,12 @@ def check_providers(path, problems, maps=None):
             if not isinstance(up, list) or any(not isinstance(x, str) or x not in GENERATION for x in up):
                 problems.append((where, "unsupported_params must list generation parameters only (%s)"
                                  % ", ".join(sorted(GENERATION))))
+            elif set(up) >= set(GENERATION):
+                problems.append((where, "unsupported_params lists every generation parameter (%s). The runner "
+                                        "would send this provider none of them, so its runs would be made under "
+                                        "different settings from every other provider's and could not be "
+                                        "compared with them; a provider that genuinely rejects all of them "
+                                        "cannot be benchmarked here." % ", ".join(sorted(GENERATION))))
         for f in ("unsupported_measured_on", "auth_measured_on"):
             if p.get(f) is not None and not is_iso_date(p[f]):
                 problems.append((where, "%s must be a date, YYYY-MM-DD" % f))
@@ -716,11 +892,13 @@ def check_providers(path, problems, maps=None):
 
 # ---------------------------------------------------------------- languages/*.json
 
-def check_language(path, problems):
+def check_language(path, problems, providers=None):
+    """`providers` is the providers.json list: every name in it is a vendor a prompt may not mention."""
     d = load_json(path, problems)
     where = "bench/languages/%s" % path.name
     if d is None:
         return
+    brands = brand_re(providers)
     for field in ("language", "code", "probes", "jury"):
         if field not in d:
             problems.append((where, "missing required field %r" % field))
@@ -786,10 +964,10 @@ def check_language(path, problems):
             problems.append((p_where, "prompt contains a bare domain (%r). A domain without a scheme is "
                                       "still a link once it is echoed into a published results file."
                              % BARE_DOMAIN.search(prompt).group(0)))
-        if BRAND_RE.search(prompt):
+        if brands.search(prompt):
             problems.append((p_where, "prompt names a vendor or a model family (%r). A probe that names "
                                       "one of the parties it measures is a bias, not a measurement."
-                             % BRAND_RE.search(prompt).group(0)))
+                             % brands.search(prompt).group(0)))
         if re.search(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", prompt):
             problems.append((p_where, "prompt contains an email address"))
         if re.search(r"\b(sk-|gsk_|nvapi-|AIza)[A-Za-z0-9_\-]{8,}", prompt):
@@ -854,12 +1032,40 @@ def check_language(path, problems):
 
 # ---------------------------------------------------------------- judges.json
 
-def check_judges(path, problems, maps=None):
+def _model_ids_in(obj):
+    """Every model id an archived run names: the values of `model` keys at any depth of raw.json."""
+    out = set()
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k == "model" and isinstance(v, str):
+                out.add(v)
+            out |= _model_ids_in(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            out |= _model_ids_in(v)
+    return out
+
+
+def family_words(family):
+    """The words of a judge's family that name a model line: three letters or more, so "z.ai GLM" is
+    {"glm"} and "Anthropic Claude" is {"anthropic", "claude"}. A model id is split the same way."""
+    if not isinstance(family, str):
+        return set()
+    return {w for w in re.split(r"[^a-z0-9]+", family.lower()) if len(w) >= 3}
+
+
+def check_judges(path, problems, maps=None, providers=None):
     """A judge receives an API key too, so it gets the same treatment as a provider.
 
-    Plus one rule of its own: at least one judge must be reachable by API. A jury made only of judges
+    Plus two rules of its own. At least one judge must be reachable by API: a jury made only of judges
     that run through private tooling cannot be reproduced by anyone, which would make half of every
-    quality score an assertion rather than a measurement.
+    quality score an assertion rather than a measurement. And no judge may come from a family that is
+    being judged - judges.json's own first rule - enforced by the family's words appearing in a judged
+    model id: a model scoring its own family is a conflict of interest that no prompt wording fixes, and
+    the file used to check only that the judges differed from EACH OTHER. Which models count as judged:
+    when the file declares `scope.runs`, the models in results/<run>/raw.json of exactly those runs (a
+    jury that scored an archived run is not scoring what providers.json lists today); otherwise every
+    model in `providers`, the providers.json list.
     """
     if not path.exists():
         return
@@ -870,6 +1076,26 @@ def check_judges(path, problems, maps=None):
     if not judges or not isinstance(judges, list):
         problems.append((path.name, "no judges defined"))
         return
+    scoped = None                       # {run: model ids} when the file names the runs this jury scored
+    scope = d.get("scope")
+    if scope is not None:
+        runs = scope.get("runs") if isinstance(scope, dict) else None
+        if (not isinstance(runs, list) or not runs
+                or not all(isinstance(r, str) and re.match(r"^\d{4}-\d{2}-\d{2}$", r) for r in runs)
+                or not is_text(scope.get("why") if isinstance(scope, dict) else None)):
+            problems.append((path.name, "scope must be an object with `runs`, a non-empty list of run dates "
+                                        "(YYYY-MM-DD) that exist under results/, and `why` in text"))
+        else:
+            scoped = {}
+            for r in runs:
+                raw = path.parent.parent / "results" / r / "raw.json"
+                ids = _model_ids_in(load_json(raw, problems)) if raw.exists() else None
+                if not ids:
+                    problems.append((path.name, "scope names run %r, and results/%s/raw.json is not there or "
+                                                "names no model: a jury scoped to a run nobody can open is "
+                                                "scoped to nothing" % (r, r)))
+                else:
+                    scoped[r] = ids
     maps = maps if maps is not None else new_bindings()
     families, api_judges, names = set(), 0, set()
     for j in judges:
@@ -932,6 +1158,21 @@ def check_judges(path, problems, maps=None):
         if not j.get("family"):
             problems.append((where, "every judge must declare its model family, so a reader can see "
                                     "whether it is scoring a relative"))
+        elif scoped is not None or providers is not None:
+            words = family_words(j["family"])
+            if scoped is not None:
+                pool, source = {"results/%s" % r: sorted(ms) for r, ms in scoped.items()}, "the runs the jury scored hold"
+            else:
+                pool, source = models_of(providers), "providers.json benchmarks"
+            relatives = sorted((p, m) for p, ms in pool.items() for m in ms
+                               if isinstance(m, str) and words & set(re.split(r"[^a-z0-9]+", m.lower())))
+            if relatives:
+                problems.append((where, "is from the %r family, and %s %s. judges.json's "
+                                        "first rule is that a judge comes from a different family than the "
+                                        "models being judged: a model scoring its own family is a conflict of "
+                                        "interest that no prompt wording fixes. Replace the judge, or scope the "
+                                        "jury to the runs it scored and keep every relative out of them."
+                                 % (j["family"], source, "; ".join("%s's %s" % (p, m) for p, m in relatives[:4]))))
         families.add(j.get("family"))
     if api_judges == 0:
         problems.append((path.name, "no judge is reachable by API. At least one must be, or nobody "
@@ -954,10 +1195,16 @@ def _walk_figures(where, obj, problems, trail=""):
             if k in LIMIT_KEYS:
                 if v is not None and (not is_int(v) or v < 0):
                     problems.append((where, "%s must be a non-negative integer or null, got %r" % (here, v)))
-                elif v is not None and v > LIMIT_KEYS[k]:
-                    problems.append((where, "%s is %s, past the sanity ceiling of %s for a free tier. If "
+                elif v is not None and v > _ceiling(k):
+                    problems.append((where, "%s is %s, past the sanity ceiling of %s for a free tier%s. If "
                                             "a provider genuinely publishes this, raise the ceiling in "
-                                            "the gate in the same pull request." % (here, v, LIMIT_KEYS[k])))
+                                            "the gate in the same pull request."
+                                     % (here, v, _ceiling(k),
+                                        (" - the project's whole target of %s tokens a day, %s"
+                                         % (daily_ceilings()["target"],
+                                            "which no single provider may exceed" if k == "tpd" else
+                                            "divided by the %d tokens a reply rank.py multiplies a request cap by"
+                                            % daily_ceilings()["tokens_per_reply"])) if k in DAILY_KEYS else "")))
             elif k == "confidence" and trail and v not in CONFIDENCE + ("DERIVED",):
                 problems.append((where, "%s must be MEASURED, DECLARED, DERIVED or UNKNOWN, got %r" % (here, v)))
             else:
@@ -988,12 +1235,19 @@ def _check_grant(where, shelf, g, problems):
                                     "Our paraphrase of a giveaway is how a marketing figure becomes a "
                                     "fact." % shelf.replace("_", "-")))
     for f in ("tokens", "credits_usd"):
+        ceiling = GRANT_CEILINGS[f] if GRANT_CEILINGS[f] is not None else daily_ceilings()["tokens"]
         if g.get(f) is not None and (not is_num(g[f]) or g[f] < 0):
             problems.append((where, "%s.%s must be a non-negative number or null" % (shelf, f)))
-        elif g.get(f) is not None and g[f] > GRANT_CEILINGS[f]:
-            problems.append((where, "%s.%s is %s, past the sanity ceiling of %s for a free grant. It is shown "
+        elif g.get(f) is not None and g[f] > ceiling:
+            problems.append((where, "%s.%s is %s, past the sanity ceiling of %s for a free grant%s. It is shown "
                                     "on the page even though it is never summed, and a shown figure is "
-                                    "still a claim." % (shelf, f, g[f], GRANT_CEILINGS[f])))
+                                    "still a claim." % (shelf, f, g[f], ceiling,
+                                                        " - the project's whole target, which no single "
+                                                        "provider's figure may exceed" if f == "tokens" else "")))
+        elif f == "tokens" and shelf == "one_time" and is_num(g.get("tokens")):
+            # rank.py reads the one-time pot against the drawn rate, so it is a daily-shelf figure too.
+            _daily_figure(where, "one_time.tokens", g["tokens"], gconf, is_text(g.get("measured_how")),
+                          problems, unit="tokens")
     if g.get("tokens") and g.get("credits_usd"):
         problems.append((where, "%s states BOTH tokens and credits_usd. Pick the one the provider "
                                 "actually grants: carrying both invites adding the same gift to the "
@@ -1070,9 +1324,9 @@ def _check_typed_blocks(where, p, problems):
             if v is not None and (not is_int(v) or v < 0):
                 problems.append((where, "derived.output_tokens_per_day must be a non-negative integer or null, "
                                         "got %r: rank.py puts it on the DERIVED shelf as it stands" % (v,)))
-            elif v is not None and v > LIMIT_KEYS["tpd"]:
-                problems.append((where, "derived.output_tokens_per_day is %s, past the sanity ceiling of %s. It "
-                                        "would be summed into the headline." % (v, LIMIT_KEYS["tpd"])))
+            elif v is not None:
+                # A derivation is never MEASURED, so above the measurement line it is refused outright.
+                _daily_figure(where, "derived.output_tokens_per_day", v, "DERIVED", False, problems)
             if v is not None and d.get("confidence") != "DERIVED":
                 problems.append((where, "derived.output_tokens_per_day is set but derived.confidence is %r; a "
                                         "derived figure is labelled DERIVED or rank.py ignores it, and a "
@@ -1102,6 +1356,13 @@ def _check_typed_blocks(where, p, problems):
                                                   "a fractional or zero cost is a daily figure of 10**16 or a "
                                                   "crash, and both reach the headline."
                                          % (f, NEURON_COST_CEILING, c)))
+                # The division rank.py makes for this model, held to the daily rules: the allowance and
+                # the price may each be under their own ceiling and still divide into a headline.
+                neurons = (p.get("free_allocation") or {}).get("neurons_per_day") if isinstance(p.get("free_allocation"), dict) else None
+                out_cost = cost.get("output_per_million")
+                if is_int(neurons) and neurons > 0 and is_int(out_cost) and 0 < out_cost <= NEURON_COST_CEILING:
+                    _daily_figure(m_where, "free_allocation.neurons_per_day / output_per_million x 1,000,000",
+                                  int(neurons / out_cost * 1000000), "DERIVED", False, problems)
     for block in TYPED_BLOCKS:
         b = p.get(block)
         if b is None:
@@ -1112,10 +1373,45 @@ def _check_typed_blocks(where, p, problems):
         for k, v in b.items():
             if k in BLOCK_TEXT_KEYS or k in LIMIT_KEYS:
                 continue            # text is held by _walk_page_text, LIMIT_KEYS by _walk_figures
-            if v is not None and (not is_num(v) or v < 0 or v > FIGURE_CEILING):
+            figure_ceiling = daily_ceilings()["figure"]
+            if v is not None and (not is_num(v) or v < 0 or v > figure_ceiling):
                 problems.append((where, "%s.%s must be a non-negative number or null under %s, got %r: every "
-                                        "figure under %s is one rank.py may read into a daily number"
-                                 % (block, k, FIGURE_CEILING, v, block)))
+                                        "figure under %s is one rank.py may read into a daily number, and the "
+                                        "ceiling is the project's whole target" % (block, k, figure_ceiling, v, block)))
+            elif v is not None and block == "measured_values":
+                _daily_figure(where, "%s.%s" % (block, k), v, p.get("confidence"),
+                              is_text(p.get("measured_how")), problems)
+
+
+def _check_daily_shelf(where, p, am, models, conf, measured_ok, problems):
+    """Every figure bench/rank.py's volume_of() can put on the daily shelf, read the way it reads them:
+    tpd as it stands, rpd times the tokens a reply, from all_models or from the model's own entry, each
+    with the confidence rank.py would give it (the figure's own `_confidence`, else the provider's) -
+    held to the target and to the measurement line. free_models_combined tiers carry rpd the same way."""
+    reply = daily_ceilings()["tokens_per_reply"]
+    entries = [("all_models", am, conf, measured_ok)] if isinstance(am, dict) else []
+    for mid, m in (models or {}).items():
+        if isinstance(m, dict):
+            m_measured = is_text(m.get("measured_how")) and is_iso_date(m.get("measured_on"))
+            entries.append(("model %s" % str(mid)[:50], m, None, m_measured or measured_ok))
+    fmc = p.get("free_models_combined")
+    if isinstance(fmc, dict):
+        for tier, t in fmc.items():
+            if isinstance(t, dict):
+                entries.append(("free_models_combined.%s" % str(tier)[:30], t, None, measured_ok))
+    for label, e, own_conf, how_ok in entries:
+        for k in DAILY_KEYS:
+            v = e.get(k)
+            if not is_int(v) or v <= 0:
+                continue
+            k_conf = e.get(k + "_confidence") or own_conf or conf
+            tokens = v if k == "tpd" else v * reply
+            if tokens > daily_ceilings()["target"]:
+                continue        # already refused by _walk_figures, with the target named in its message
+            _daily_figure("%s %s" % (where, label) if label != "all_models" else where,
+                          ("all_models.%s" % k) if label == "all_models" else k,
+                          tokens, k_conf, how_ok, problems,
+                          unit=("tokens a day" if k == "tpd" else "requests a day x %d tokens a reply" % reply))
 
 
 def check_limits(path, problems, provider_names=None, hosts=None):
@@ -1169,10 +1465,15 @@ def check_limits(path, problems, provider_names=None, hosts=None):
         if am is not None and not isinstance(am, dict):
             problems.append((where, "all_models must be an object"))
             am = None
+        if isinstance(am, dict) and "tpm_scope" in am and am["tpm_scope"] not in TPM_SCOPES:
+            problems.append((where, "all_models.tpm_scope must be one of %s: it says whether a bare tpm counts "
+                                    "input and output together, output alone, or does not say, and the pages "
+                                    "print it next to the figure" % sorted(TPM_SCOPES)))
         models = p.get("models")
         if models is not None and not isinstance(models, dict):
             problems.append((where, "models must be an object of model id -> figures"))
             models = None
+        _check_daily_shelf(where, p, am, models, conf, measured_ok, problems)
 
         # UNKNOWN carries no figures. A number under UNKNOWN is ranked by rank.py exactly like a
         # measured one - a trillion tokens a day took the top three rows of the README that way.
@@ -1369,15 +1670,42 @@ def check_announced_deaths(path, problems, providers):
                                     "periods and parentheses, with no markdown in it: it becomes a heading, "
                                     "and a lookalike letter from another alphabet is how a live provider's "
                                     "name gets buried under a homoglyph."))
+            prov = None
         elif prov.strip().lower() in live:
             problems.append((where, "is still a provider in providers.json. An endpoint cannot be benchmarked "
                                     "and announced dead in the same repo; a retirement notice that buries a "
                                     "live provider is the shape of the attack this file invites."))
+        else:
+            named = sorted(n for n in live if n in {w for w in re.split(r"[^a-z0-9]+", prov.lower()) if w})
+            if named:
+                problems.append((where, "names %r, which is still a provider in providers.json. A headstone that "
+                                        "carries a live provider's name with a word added is the same burial "
+                                        "under a longer name." % named[0]))
         for f in ("died_on", "read_on"):
             if not is_iso_date(e.get(f)):
                 problems.append((where, "%s must be a date, YYYY-MM-DD" % f))
+        author = e.get("notice_from")
+        if author not in NOTICE_AUTHORS:
+            problems.append((where, "notice_from must be %s, got %r: whose word the death is decides where the "
+                                    "notice may sit" % (" or ".join(repr(a) for a in NOTICE_AUTHORS), author)))
         if not is_https_url(e.get("source")):
             problems.append((where, "source must be one https URL: the notice is the evidence"))
+        elif author == "operator":
+            own = KNOWN_OPERATOR_HOSTS.get(prov.strip().lower(), set()) if prov else set()
+            if registrable(host_of(e["source"])) not in own:
+                problems.append((where, "notice_from is operator and source is on %s, which is not a domain this "
+                                        "gate ties to %r (%s). An operator's retirement notice sits on the "
+                                        "operator's own site; a paste site or a blog nobody can tie to the "
+                                        "operator is somebody's summary of a death. If the operator genuinely "
+                                        "published there, add the domain to KNOWN_OPERATOR_HOSTS in this gate, "
+                                        "in the same pull request." % (host_of(e["source"]), prov or "<unnamed>",
+                                                                       ", ".join(sorted(own)) or "no domain declared")))
+        elif author == "third party":
+            if registrable(host_of(e["source"])) not in KNOWN_NEWS_HOSTS:
+                problems.append((where, "notice_from is third party and source is on %s, which is not one of the "
+                                        "declared news hosts (%s). A third party's report of a death is admitted "
+                                        "only from a host declared in KNOWN_NEWS_HOSTS in this gate; a paste "
+                                        "site is not a newsroom." % (host_of(e["source"]), ", ".join(sorted(KNOWN_NEWS_HOSTS)))))
         q = e.get("quote")
         if not one_line(q) or len(q) > 600:
             problems.append((where, "quote must be one line of at most 600 characters: it is rendered as a "
@@ -1406,12 +1734,15 @@ def down_http_ok(http):
 
 def check_uptime(path, problems, providers, label="data/uptime.jsonl", today=None):
     """The radar's history decides burials, so a row is refused unless it could have been written by
-    bench/probe_alive.py: a known endpoint, a known state, a status code that matches the state, and a
-    date that has happened."""
+    bench/probe_alive.py: a known endpoint, a known state, a status code that matches the state, a date
+    that has happened, filed in date order - the radar appends the whole day at once, so a row dated
+    before the newest date on file is back-dated - and one reading per endpoint-day, the rule
+    gate_viability.py applies to the same file."""
     if not path.exists():
         return
     today = today or today_utc()
     known = models_of(providers)
+    ledger = _new_ledger()
     for n, r in read_jsonl(path, label, problems):
         where = "%s:%d" % (label, n)
         missing = [k for k in ("date", "provider", "model", "state", "http", "seconds") if k not in r]
@@ -1424,6 +1755,9 @@ def check_uptime(path, problems, providers, label="data/uptime.jsonl", today=Non
             problems.append((where, "date %s is after today (%s). A measurement from the future is a row nobody "
                                     "took, and the burial clock counts from the latest date in this file, so "
                                     "fourteen rows dated next year bury an endpoint today." % (r["date"], today)))
+        else:
+            _in_date_order(where, label, (str(r["provider"]), str(r["model"])), r["date"], ledger, problems,
+                           one_per_day=r["state"] not in UPTIME_NOT_A_VERDICT, what="The radar")
         prov, model, state, http, secs = r["provider"], r["model"], r["state"], r["http"], r["seconds"]
         if prov not in known:
             problems.append((where, "provider %r is not in providers.json" % (prov,)))
@@ -1481,6 +1815,7 @@ def check_throughput(path, problems, providers, limits, label="data/throughput.j
     today = today or today_utc()
     known = models_of(providers)
     lim = ((limits or {}).get("providers") or {}) if isinstance(limits, dict) else {}
+    ledger = _new_ledger()
     for n, r in read_jsonl(path, label, problems):
         where = "%s:%d" % (label, n)
         prov = r.get("provider")
@@ -1492,6 +1827,13 @@ def check_throughput(path, problems, providers, limits, label="data/throughput.j
         elif after_today(r["date"], today):
             problems.append((where, "date %s is after today (%s): a measurement from the future is a row nobody "
                                     "took, and rank.py takes the LATEST row per provider" % (r["date"], today)))
+        elif "skipped" not in r:
+            # In date order, because rank.py keeps the LAST row per provider in file order: a row appended
+            # with an earlier date would still be the one on the page. Two readings of one endpoint on one
+            # day are what bench/throughput.py --only writes when it is run twice, and rank.py counts every
+            # row as a reading (best_seen, holds_up), so the day is not unique here as it is for the radar.
+            _in_date_order(where, label, (str(prov), str(r.get("model"))), r["date"], ledger, problems,
+                           one_per_day=False, what="bench/throughput.py")
         if "skipped" in r:
             # The runner writes {"provider", "skipped", "date"} when it could not measure: nothing else.
             extra = sorted(set(r) - {"provider", "skipped", "date"})
@@ -1533,6 +1875,19 @@ def check_throughput(path, problems, providers, limits, label="data/throughput.j
             continue
         if tokens and not ok:
             problems.append((where, "%d output tokens from zero successful requests" % tokens))
+        # A slot completes one request at a time, so the slots bound the requests before the requests
+        # bound the tokens: 20,000 answers in 30.8 seconds on 8 slots carried fourteen million tokens
+        # through the per-call bound, because that bound grows with the count this one caps.
+        failed = r["requests_failed"] if is_int(r["requests_failed"]) and r["requests_failed"] >= 0 else 0
+        if is_int(r["concurrency"]) and 1 <= r["concurrency"] <= T.MAX_CONCURRENCY and secs >= 0:
+            launch_bound = int(r["concurrency"] * (secs * MAX_REQUESTS_PER_SLOT_SECOND + 1) + 1e-9)
+            if ok + limited + failed > launch_bound:
+                problems.append((where, "%d requests in %.1f seconds on %d slots. A slot completes one request at a "
+                                        "time and no endpoint answers a slot more than %d times a second, so at "
+                                        "most concurrency x (seconds x %d + 1) = %d could have completed; this row "
+                                        "holds more requests than the meter could have sent."
+                                 % (ok + limited + failed, secs, r["concurrency"], MAX_REQUESTS_PER_SLOT_SECOND,
+                                    MAX_REQUESTS_PER_SLOT_SECOND, launch_bound)))
         # The meter asks for at most MAX_TOKENS_PER_CALL tokens a call, so the requests that succeeded
         # bound the tokens that can have arrived - with or without a published ceiling. A row with a
         # billion tokens from one request on a provider that publishes no tpm passed the second version.
@@ -1601,7 +1956,9 @@ def check_drawn(path, problems, providers, limits, label="data/drawn.jsonl", tod
       - an hourly rate only where the meter's own rule states one (twenty minutes, or a cap reached
         after five minutes and fifty successful requests), equal to tokens / minutes x 60 within 3%,
         and never above sixty times a per-minute ceiling the provider publishes;
-      - `tokens_estimated` true or false, so a reader can tell their count from ours.
+      - `tokens_estimated` true or false, so a reader can tell their count from ours;
+      - in date order, one draw per endpoint-day: rank.py keeps the LAST row per provider in file
+        order, so a back-dated or a second same-day row would silently replace the day's draw.
     """
     if not path.exists():
         return
@@ -1610,6 +1967,7 @@ def check_drawn(path, problems, providers, limits, label="data/drawn.jsonl", tod
     known = models_of(providers)
     lim = ((limits or {}).get("providers") or {}) if isinstance(limits, dict) else {}
     in_flight_slack = D.MAX_IN_FLIGHT * D.MAX_TOKENS_PER_CALL
+    ledger = _new_ledger()
     for n, r in read_jsonl(path, label, problems):
         where = "%s:%d" % (label, n)
         missing = [k for k in D.ROW_FIELDS if k not in r]
@@ -1628,6 +1986,9 @@ def check_drawn(path, problems, providers, limits, label="data/drawn.jsonl", tod
         elif after_today(r["date"], today):
             problems.append((where, "date %s is after today (%s): a draw from the future is a row nobody took, "
                                     "and rank.py takes the LATEST row per provider" % (r["date"], today)))
+        else:
+            _in_date_order(where, label, (str(prov), str(model)), r["date"], ledger, problems,
+                           one_per_day=True, what="bench/draw_day.py")
         su = r["started_utc"]
         if (not isinstance(su, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", su)
                 or not is_iso_date(su[:10]) or after_today(su[:10], today)):
@@ -1724,6 +2085,280 @@ def check_drawn(path, problems, providers, limits, label="data/drawn.jsonl", tod
                                     "gate cannot tell which - so neither ships." % (rate, ceiling)))
 
 
+# ---------------------------------------------------------------- data/reliability.json
+
+def _reliability_from_results(results, providers):
+    """What bench/reliability.py would write today from results/*/raw.json and providers.json: the per-
+    provider counts, the runs, the observed empty 200s and the switches already set. None when there is
+    no run to count. The same buckets, in the same order of tests, so the archive is a derivation the
+    gate repeats rather than a number it types."""
+    runs = sorted(results.glob("*/raw.json")) if results and results.is_dir() else []
+    if not runs:
+        return None
+    per, traps = {}, []
+    has_switch = {(p.get("name"), m.get("id")): m.get("extra_body")
+                  for p in providers if isinstance(p, dict)
+                  for m in (p.get("models") or []) if isinstance(m, dict) and m.get("extra_body")}
+    for run in runs:
+        try:
+            raw = json.loads(run.read_text(encoding="utf-8"))
+        except ValueError:
+            return None
+        for r in (raw.get("rows") if isinstance(raw, dict) else None) or []:
+            if not isinstance(r, dict):
+                continue
+            d = per.setdefault(r.get("provider"), {"calls": 0, "ok": 0, "empty_200": 0, "rate_limited": 0,
+                                                    "overloaded": 0, "timeout": 0, "other": 0})
+            d["calls"] += 1
+            code, text = r.get("http"), (r.get("text") or "").strip()
+            if code == 200 and text:
+                d["ok"] += 1
+            elif code == 200:
+                d["empty_200"] += 1
+                key = (r.get("provider"), r.get("model"))
+                traps.append({"provider": r.get("provider"), "model": r.get("model"), "probe": r.get("probe"),
+                              "had_switch": bool(has_switch.get(key)), "switch": has_switch.get(key),
+                              "run": run.parent.name})
+            elif code == 429:
+                d["rate_limited"] += 1
+            elif code == 503:
+                d["overloaded"] += 1
+            elif code == 0:
+                d["timeout"] += 1
+            else:
+                d["other"] += 1
+    switched = [{"provider": p, "model": m, "switch": s} for (p, m), s in sorted(has_switch.items())]
+    return {"runs": [r.parent.name for r in runs], "per": per, "observed": traps, "switched": switched}
+
+
+def check_reliability(path, problems, providers, label="data/reliability.json", today=None, results=None):
+    """The archived answered rates feed RESULTS.md section 6b, the README's TRAP block and the
+    `answered_rate_archive` column of ranking.json, and bench/rank.py read the file while no gate
+    opened it. A document is refused unless bench/reliability.py could have written it, and then
+    unless it DID: every count is recomputed here from results/*/raw.json and providers.json.
+
+      - measured_at a date that has happened; runs_included the run directories on disk, none of them
+        later than measured_at; how, what and every switch description page-safe text;
+      - one row per provider, a provider on file, counts non-negative integers that add up to calls,
+        answered_rate equal to ok / calls to three decimals and inside [0, 1], the reading the rate
+        earns in reliability.py's own three sentences;
+      - observed empty 200s on known endpoints, probe names that fit a table cell, `switch` null exactly
+        when `had_switch` is false and a documented reasoning switch when it is true, `run` one of the
+        runs included; already_switched_off_by_us one entry per endpoint carrying a documented switch;
+      - and every one of those recomputed from the raw runs: a row the raw file does not justify is
+        refused with the recomputed value, so the fix is to re-run bench/reliability.py, not to type.
+    """
+    if not path.exists():
+        return
+    d = load_json(path, problems)
+    if d is None:
+        return
+    today = today or today_utc()
+    known = models_of(providers)
+    where = label
+    if not isinstance(d, dict):
+        problems.append((where, "must be a JSON object"))
+        return
+    ma = d.get("measured_at")
+    if not is_iso_date(ma):
+        problems.append((where, "measured_at must be a date, YYYY-MM-DD"))
+        ma = None
+    elif after_today(ma, today):
+        problems.append((where, "measured_at %s is after today (%s): an archive from the future" % (ma, today)))
+    runs = d.get("runs_included")
+    if not isinstance(runs, list) or not runs or not all(is_iso_date(r) for r in runs):
+        problems.append((where, "runs_included must be a non-empty list of dates, YYYY-MM-DD: the runs the counts "
+                                "came from, which are the directories under results/"))
+        runs = [r for r in runs if is_iso_date(r)] if isinstance(runs, list) else []
+    for r in runs:
+        if after_today(r, today):
+            problems.append((where, "runs_included names %s, after today (%s)" % (r, today)))
+        elif ma and date.fromisoformat(r) > date.fromisoformat(ma):
+            problems.append((where, "runs_included names %s, later than measured_at %s: a count of calls not yet "
+                                    "made" % (r, ma)))
+    for k in ("how",):
+        if not is_text(d.get(k)):
+            problems.append((where, "%s must say, in text, how the counts were made" % k))
+        elif page_text_problem(d[k]):
+            problems.append((where, "%s %s: it is rendered raw onto a generated page" % (k, page_text_problem(d[k]))))
+
+    trap = d.get("reasoning_trap")
+    if not isinstance(trap, dict):
+        problems.append((where, "reasoning_trap must be an object with what, switches, observed and "
+                                "already_switched_off_by_us"))
+        trap = {}
+    if not is_text(trap.get("what")):
+        problems.append((where, "reasoning_trap.what must be text"))
+    elif page_text_problem(trap["what"]):
+        problems.append((where, "reasoning_trap.what %s" % page_text_problem(trap["what"])))
+    sw_doc = trap.get("switches")
+    if not isinstance(sw_doc, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in sw_doc.items()):
+        problems.append((where, "reasoning_trap.switches must be an object of switch name -> which family takes it"))
+    else:
+        for k, v in sw_doc.items():
+            why = page_text_problem(k) or page_text_problem(v)
+            if why:
+                problems.append((where, "reasoning_trap.switches[%r] %s: it is rendered raw inside a code block on "
+                                        "RESULTS.md, and a backtick or a second line leaves the block" % (k[:30], why)))
+    observed = trap.get("observed")
+    if not isinstance(observed, list):
+        problems.append((where, "reasoning_trap.observed must be a list"))
+        observed = []
+    for i, t in enumerate(observed):
+        t_where = "%s: observed[%d]" % (label, i)
+        if not isinstance(t, dict):
+            problems.append((t_where, "must be an object"))
+            continue
+        missing = [k for k in ("provider", "model", "probe", "had_switch", "switch", "run") if k not in t]
+        if missing:
+            problems.append((t_where, "lacks %s" % ", ".join(missing)))
+            continue
+        if t["provider"] not in known:
+            problems.append((t_where, "provider %r is not in providers.json" % (t["provider"],)))
+        elif t["model"] not in known[t["provider"]]:
+            problems.append((t_where, "model %r is not one of %r's models in providers.json" % (t["model"], t["provider"])))
+        if not isinstance(t["probe"], str) or not PROBE_NAME_OK.match(t["probe"]):
+            problems.append((t_where, "probe must be a short name (letters, digits, - or _): it is a table cell"))
+        if not isinstance(t["had_switch"], bool):
+            problems.append((t_where, "had_switch must be true or false"))
+        elif t["had_switch"]:
+            if not isinstance(t["switch"], dict) or not t["switch"]:
+                problems.append((t_where, "had_switch is true, so switch must be the reasoning switch that was set"))
+            else:
+                check_extra_body(t_where, t["switch"], problems)
+        elif t["switch"] is not None:
+            problems.append((t_where, "had_switch is false, so switch must be null"))
+        if t["run"] not in runs:
+            problems.append((t_where, "run %r is not in runs_included" % (t["run"],)))
+    switched = trap.get("already_switched_off_by_us")
+    if not isinstance(switched, list):
+        problems.append((where, "reasoning_trap.already_switched_off_by_us must be a list"))
+        switched = []
+    seen_sw = set()
+    for i, t in enumerate(switched):
+        t_where = "%s: already_switched_off_by_us[%d]" % (label, i)
+        if not isinstance(t, dict) or any(k not in t for k in ("provider", "model", "switch")):
+            problems.append((t_where, "must be an object with provider, model and switch"))
+            continue
+        if t["provider"] not in known:
+            problems.append((t_where, "provider %r is not in providers.json" % (t["provider"],)))
+        elif t["model"] not in known[t["provider"]]:
+            problems.append((t_where, "model %r is not one of %r's models in providers.json" % (t["model"], t["provider"])))
+        if not isinstance(t["switch"], dict) or not t["switch"]:
+            problems.append((t_where, "switch must be the reasoning switch providers.json sets for this model"))
+        else:
+            check_extra_body(t_where, t["switch"], problems)
+        if (t["provider"], t["model"]) in seen_sw:
+            problems.append((t_where, "a second entry for %s %s: the count of models switched off is the length "
+                                      "of this list" % (t["provider"], t["model"])))
+        seen_sw.add((t["provider"], t["model"]))
+
+    rows = d.get("providers")
+    if not isinstance(rows, list):
+        problems.append((where, "providers must be a list of per-provider counts"))
+        rows = []
+    seen = set()
+    for i, r in enumerate(rows):
+        r_where = "%s: provider %r" % (label, str(r.get("provider", "<unnamed>"))[:30] if isinstance(r, dict) else "<row %d>" % i)
+        if not isinstance(r, dict):
+            problems.append((r_where, "must be an object"))
+            continue
+        prov = r.get("provider")
+        if prov not in known:
+            problems.append((r_where, "provider %r is not in providers.json" % (prov,)))
+        if prov in seen:
+            problems.append((r_where, "a second row for one provider: rank.py keeps one archive row per provider"))
+        seen.add(prov)
+        counts_ok = True
+        for k in ("calls",) + RELIABILITY_COUNTS:
+            if not is_int(r.get(k)) or r[k] < 0:
+                problems.append((r_where, "%s must be a non-negative integer, got %r" % (k, r.get(k))))
+                counts_ok = False
+        rate = r.get("answered_rate")
+        if not is_num(rate) or not 0 <= rate <= 1:
+            problems.append((r_where, "answered_rate must be a number between 0 and 1, got %r" % (rate,)))
+            counts_ok = False
+        if not counts_ok:
+            continue
+        total = sum(r[k] for k in RELIABILITY_COUNTS)
+        if total != r["calls"]:
+            problems.append((r_where, "the outcomes add up to %d and calls is %d. Every call falls into exactly one "
+                                      "bucket, so a row whose buckets do not add up to its calls was not counted "
+                                      "by bench/reliability.py." % (total, r["calls"])))
+        exact = r["ok"] / r["calls"] if r["calls"] else 0.0
+        if abs(rate - round(exact, 3)) > 0.0005:
+            problems.append((r_where, "answered_rate is %s, but ok / calls = %d / %d = %.3f. The rate is the "
+                                      "counts; a rate that does not follow from its own row is a number, not a "
+                                      "measurement." % (rate, r["ok"], r["calls"], exact)))
+        note = r.get("note")
+        if not is_text(note) or page_text_problem(note):
+            problems.append((r_where, "note must be one line of page-safe text: it is a table cell on RESULTS.md"))
+        else:
+            earned = next(s for floor, s in RELIABILITY_READINGS if exact >= floor)
+            if note != earned:
+                problems.append((r_where, "note is %r, and a rate of %.3f earns %r in bench/reliability.py's own "
+                                          "words. The reading is derived from the rate; a kinder sentence is a "
+                                          "claim the counts do not make." % (note, exact, earned)))
+
+    # And the whole document against the raw runs it says it counted.
+    if results is None:
+        results = path.resolve().parent.parent / "results"
+    truth = _reliability_from_results(results, providers)
+    if truth is None:
+        problems.append((where, "no results/*/raw.json to recompute the archive from (looked in %s). An archived "
+                                "run nobody can recount is a number typed; commit the raw run or drop the "
+                                "archive." % results))
+        return
+    if runs != truth["runs"]:
+        problems.append((where, "runs_included is %r, and results/ holds %r. The archive counts every run on disk; "
+                                "re-run bench/reliability.py rather than editing the list." % (runs, truth["runs"])))
+    by_name = {r.get("provider"): r for r in rows if isinstance(r, dict)}
+    for name in sorted(set(by_name) | set(truth["per"])):
+        r_where = "%s: provider %r" % (label, str(name)[:30])
+        mine, theirs = by_name.get(name), truth["per"].get(name)
+        if mine is None:
+            problems.append((r_where, "results/ holds %d calls for this provider and the archive has no row for it; "
+                                      "re-run bench/reliability.py" % theirs["calls"]))
+            continue
+        if theirs is None:
+            problems.append((r_where, "the archive has a row and results/ holds no call for this provider: a row "
+                                      "the raw runs do not justify"))
+            continue
+        diff = [(k, mine.get(k), theirs[k]) for k in ("calls",) + RELIABILITY_COUNTS if mine.get(k) != theirs[k]]
+        if diff:
+            problems.append((r_where, "the archive says %s, and results/*/raw.json counts %s. Every figure here is "
+                                      "recomputed from the raw runs; an archive that disagrees with them was "
+                                      "typed, not counted. Re-run bench/reliability.py."
+                             % (", ".join("%s %r" % (k, m) for k, m, _ in diff),
+                                ", ".join("%s %r" % (k, t) for k, _, t in diff))))
+    mine_obs = sorted((str(t.get("provider")), str(t.get("model")), str(t.get("probe")), str(t.get("run")))
+                      for t in observed if isinstance(t, dict))
+    theirs_obs = sorted((str(t["provider"]), str(t["model"]), str(t["probe"]), str(t["run"])) for t in truth["observed"])
+    if mine_obs != theirs_obs:
+        problems.append((where, "reasoning_trap.observed lists %d empty 200s and results/*/raw.json holds %d "
+                                "(200 with no text). The table of the trap is recomputed from the raw runs; "
+                                "re-run bench/reliability.py." % (len(mine_obs), len(theirs_obs))))
+    else:
+        for t in observed:
+            if not isinstance(t, dict) or not isinstance(t.get("had_switch"), bool):
+                continue
+            key = (t.get("provider"), t.get("model"))
+            want = next((x for x in truth["observed"] if (x["provider"], x["model"]) == key), None)
+            if want and (t["had_switch"] != want["had_switch"] or (want["had_switch"] and t.get("switch") != want["switch"])):
+                problems.append((where, "observed %s %s says had_switch %r, and providers.json %s a switch for it "
+                                        "today. The column is read from providers.json; re-run bench/reliability.py "
+                                        "after changing a model's extra_body."
+                                 % (key[0], key[1], t["had_switch"], "carries" if want["had_switch"] else "carries no")))
+                break
+    mine_sw = sorted((str(t.get("provider")), str(t.get("model")), json.dumps(t.get("switch"), sort_keys=True))
+                     for t in switched if isinstance(t, dict))
+    theirs_sw = sorted((str(t["provider"]), str(t["model"]), json.dumps(t["switch"], sort_keys=True)) for t in truth["switched"])
+    if mine_sw != theirs_sw:
+        problems.append((where, "already_switched_off_by_us lists %d models and providers.json carries a switch for "
+                                "%d. The list is providers.json's extra_body entries, copied; re-run "
+                                "bench/reliability.py after changing one." % (len(mine_sw), len(theirs_sw))))
+
+
 # ---------------------------------------------------------------- key_bindings.json
 
 def check_key_bindings(path, problems, maps):
@@ -1784,7 +2419,7 @@ def collect(root=None, today=None):
     problems = []
     maps = new_bindings()
     providers = check_providers(root / "providers.json", problems, maps)
-    check_judges(root / "judges.json", problems, maps)
+    check_judges(root / "judges.json", problems, maps, providers=providers)
     check_key_bindings(root / REGISTRY, problems, maps)
     names = {p.get("name") for p in providers if isinstance(p, dict)}
     limits = check_limits(root / "limits.json", problems, provider_names=names, hosts=hosts_of(providers))
@@ -1793,15 +2428,16 @@ def collect(root=None, today=None):
     if not langs:
         problems.append(("bench/languages", "no language packs found"))
     for p in langs:
-        check_language(p, problems)
+        check_language(p, problems, providers=providers)
     check_announced_deaths(root / "announced_deaths.json", problems, providers)
     data = root.parent / "data"
     check_uptime(data / "uptime.jsonl", problems, providers, today=today)
     check_throughput(data / "throughput.jsonl", problems, providers, limits, today=today)
     check_drawn(data / "drawn.jsonl", problems, providers, limits, today=today)
+    check_reliability(data / "reliability.json", problems, providers, today=today, results=root.parent / "results")
     summary = ("checked providers.json, judges.json, %s, limits.json, privacy.json, announced_deaths.json, "
-               "%d language pack(s), data/uptime.jsonl, data/throughput.jsonl and data/drawn.jsonl "
-               "(today %s)" % (REGISTRY, len(langs), today))
+               "%d language pack(s), data/uptime.jsonl, data/throughput.jsonl, data/drawn.jsonl and "
+               "data/reliability.json against results/ (today %s)" % (REGISTRY, len(langs), today))
     return problems, summary
 
 

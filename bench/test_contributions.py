@@ -21,12 +21,18 @@ runner's key to the other host, the caveat that planted a phishing link on three
 reasoning budget that rode in through extra_body, the future-dated radar rows that buried a live
 endpoint. Each is refused for the reason stated, and each has an honest neighbour that passes.
 
+The fourth round planted numbers UNDER the ceilings: 9,900,000,000 tokens a day under a ceiling of ten
+billion, fourteen down days dated before the endpoint's own last reading (a shape this file used to
+assert MUST PASS), 20,000 answers in thirty seconds, a retirement notice on a paste site, a judge from
+a benchmarked family, an archive nobody recounted. Each is refused for the reason stated, each has an
+honest neighbour that passes, and the daily ceilings are pinned to bench/rank.py's own target.
+
 The last section runs the REAL data files through the whole gate and compares what it finds with a
 list stated out loud below. Real findings are not fixed by loosening a rule; they are listed, so the
 data owner can fix the data and delete the line.
 """
 import json, re, sys, tempfile
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -94,6 +100,41 @@ def check_judges_list(judges):
     return problems
 
 
+def check_jury_scoped(fixture):
+    """The jury with a declared scope: families are checked against results/<run>/raw.json of the runs
+    it scored, whatever providers.json lists today. `runs` maps a run date to the model ids its raw.json
+    names; None for a run that is declared and has no raw.json."""
+    scope, judges, providers, runs = fixture
+    problems = []
+    with tempfile.TemporaryDirectory() as d:
+        bench = Path(d) / "bench"
+        bench.mkdir()
+        for run, ids in runs.items():
+            if ids is None:
+                continue
+            rd = Path(d) / "results" / run
+            rd.mkdir(parents=True)
+            (rd / "raw.json").write_text(json.dumps({"run": run, "results": [{"model": m, "ok": True} for m in ids]}),
+                                         encoding="utf-8")
+        doc = {"judges": judges}
+        if scope is not None:
+            doc["scope"] = scope
+        path = bench / "judges.json"
+        path.write_text(json.dumps(doc), encoding="utf-8")
+        G.check_judges(path, problems, providers=providers)
+    return problems
+
+
+def check_jury_against(fixture):
+    """The jury against a providers list, the way collect() runs it: a judge may not share a family
+    with a benchmarked model."""
+    judges, providers = fixture
+    problems = []
+    with tempfile.TemporaryDirectory() as d:
+        G.check_judges(_write(d, "judges.json", {"judges": judges}), problems, providers=providers)
+    return problems
+
+
 SOMEPROVIDER = [{"name": "someprovider", "url": OK_HOST, "key_env": "SOMEPROVIDER_API_KEY", "models": M}]
 
 
@@ -143,7 +184,7 @@ def check_language_pack(fixture):
     pack, code = fixture if isinstance(fixture, tuple) else (fixture, "ro")
     problems = []
     with tempfile.TemporaryDirectory() as d:
-        G.check_language(_write(d, code + ".json", pack), problems)
+        G.check_language(_write(d, code + ".json", pack), problems, providers=REAL_PROVIDERS)
     return problems
 
 
@@ -198,6 +239,52 @@ def check_deaths(entries):
     with tempfile.TemporaryDirectory() as d:
         G.check_announced_deaths(_write(d, "announced_deaths.json", {"providers": entries}), problems, REAL_PROVIDERS)
     return problems
+
+
+def check_reliability_doc(fixture):
+    """One archive document against a results/ tree. The fixture is the document, or (document, raw rows)
+    where the rows are written as results/<run>/raw.json for the recount; a document alone is recounted
+    against the raw run its own `providers` rows describe, so a shape case tests the shape and nothing
+    else. None for the rows means no results/ at all."""
+    doc, raw = fixture if isinstance(fixture, tuple) else (fixture, "derive")
+    if raw == "real":
+        return check_reliability_real(doc)
+    problems = []
+    with tempfile.TemporaryDirectory() as d:
+        results = Path(d) / "results"
+        if raw == "derive":
+            raw = raw_rows_for(doc)
+        if raw is not None:
+            for run in (doc.get("runs_included") if isinstance(doc.get("runs_included"), list) else ["2026-09-06"]):
+                run = run if isinstance(run, str) and run else "2026-09-06"
+                (results / run).mkdir(parents=True, exist_ok=True)
+                (results / run / "raw.json").write_text(json.dumps({"rows": [r for r in raw if r.get("_run", run) == run]}),
+                                                        encoding="utf-8")
+        G.check_reliability(_write(d, "reliability.json", doc), problems, REAL_PROVIDERS, today=TODAY, results=results)
+    return problems
+
+
+def raw_rows_for(doc):
+    """Raw rows that would produce exactly the archive `doc` describes: its counts per provider, its
+    observed empty 200s on their probes. What bench/reliability.py would have counted, run backwards."""
+    rows, runs = [], doc.get("runs_included") if isinstance(doc.get("runs_included"), list) else ["2026-09-06"]
+    run0 = runs[0] if runs and isinstance(runs[0], str) else "2026-09-06"
+    trap = doc.get("reasoning_trap") if isinstance(doc.get("reasoning_trap"), dict) else {}
+    empties = [t for t in (trap.get("observed") or []) if isinstance(t, dict)]
+    for r in (doc.get("providers") or []):
+        if not isinstance(r, dict) or not isinstance(r.get("calls"), int):
+            continue
+        prov = r.get("provider")
+        mine = [t for t in empties if t.get("provider") == prov]
+        code_of = {"ok": (200, "text"), "empty_200": (200, ""), "rate_limited": (429, ""), "overloaded": (503, ""),
+                   "timeout": (0, ""), "other": (402, "")}
+        for k, (code, text) in code_of.items():
+            n = r.get(k) if isinstance(r.get(k), int) else 0
+            for i in range(n):
+                t = mine[i] if k == "empty_200" and i < len(mine) else {}
+                rows.append({"provider": prov, "model": t.get("model", M0), "probe": t.get("probe", "A"),
+                             "http": code, "text": text, "_run": t.get("run", run0)})
+    return rows
 
 
 # ---------------------------------------------------------------- providers.json
@@ -370,6 +457,9 @@ MUST_REFUSE = [
      [prov(models=[{"id": "a\\b"}])], "unexpected shape"),
     ("unsupported_params naming something that is not a generation parameter",
      [prov(unsupported_params=["max_tokens"])], "unsupported_params must list"),
+    ("the reviewer's plant: every generation parameter declared unsupported, so this provider's runs are made "
+     "under settings no other provider's are, and its scores compare with nothing",
+     [prov(unsupported_params=sorted(G.GENERATION), unsupported_measured_on=DATE)], "every generation parameter"),
 ]
 
 MUST_PASS = [
@@ -412,6 +502,8 @@ MUST_PASS = [
        "auth": "none", "models": [{"id": "Meta-Llama-3_3-70B-Instruct"}, {"id": "gpt-oss-120b"}]}]),
     ("unsupported_params listing a real generation parameter, dated",
      [prov(unsupported_params=["seed"], unsupported_measured_on=DATE)]),
+    ("all but one generation parameter unsupported: one is still sent, so the runs still compare",
+     [prov(unsupported_params=sorted(G.GENERATION)[:-1], unsupported_measured_on=DATE)]),
 ]
 
 # Raw text, because json.dumps cannot write a duplicate key. The parser keeps the LAST value silently,
@@ -525,6 +617,42 @@ JUDGES_MUST_PASS = [
      [dict(JUDGE, extra_body={"thinking": {"type": "disabled"}}, max_tokens=600, pause_seconds=2), MANUAL]),
 ]
 
+# The file's first rule, enforced against the models being judged rather than only between the judges.
+JURY_MUST_REFUSE = [
+    ("the reviewer's plant: a manual judge from the Alibaba Qwen family scoring a jury that benchmarks qwen models",
+     ([JUDGE, dict(MANUAL, family="Alibaba Qwen")], [prov(models=[{"id": "qwen/qwen3.8-27b"}])]), "providers.json benchmarks"),
+    ("a GLM judge beside a benchmarked GLM model under another provider's id shape",
+     ([dict(JUDGE, family="z.ai GLM"), MANUAL], [prov(models=[{"id": "coding-glm-5.3-free"}])]), "providers.json benchmarks"),
+    ("a judge whose family is one word of a benchmarked model id: gpt-oss is OpenAI's",
+     ([dict(JUDGE, family="OpenAI GPT"), MANUAL], [prov(models=[{"id": "openai/gpt-oss-120b"}])]), "providers.json benchmarks"),
+]
+SCOPE = {"runs": ["2026-09-06"], "why": "the jury scored the archived run, not today's list"}
+JURY_SCOPED_MUST_REFUSE = [
+    ("a scoped jury whose run holds a relative of the judge",
+     (SCOPE, [dict(JUDGE, family="z.ai GLM"), MANUAL], [prov(models=[{"id": "llama-3.3-70b"}])],
+      {"2026-09-06": ["glm-4-7-flash:free", "llama-3.3-70b"]}), "the runs the jury scored hold"),
+    ("a scope that names a run nobody can open",
+     (SCOPE, [JUDGE, MANUAL], [prov()], {"2026-09-06": None}), "is not there"),
+    ("a scope without why",
+     ({"runs": ["2026-09-06"]}, [JUDGE, MANUAL], [prov()], {"2026-09-06": ["llama-3.3-70b"]}), "scope must be"),
+    ("a scope whose run is not a date",
+     ({"runs": ["latest"], "why": "x"}, [JUDGE, MANUAL], [prov()], {}), "scope must be"),
+]
+JURY_SCOPED_MUST_PASS = [
+    ("a GLM judge over an archived run with no GLM in it, while providers.json lists a GLM model today: the "
+     "jury scored the run, not the list",
+     (SCOPE, [dict(JUDGE, family="z.ai GLM"), MANUAL], [prov(models=[{"id": "coding-glm-5.3-free"}])],
+      {"2026-09-06": ["llama-3.3-70b", "gemma-4-31b"]})),
+    ("no scope declared: the list of today is what the jury is checked against, as before",
+     (None, [dict(JUDGE, family="z.ai GLM"), MANUAL], [prov(models=[{"id": "llama-3.3-70b"}])], {})),
+]
+JURY_MUST_PASS = [
+    ("a GLM judge and a Claude judge over providers that serve neither family",
+     ([dict(JUDGE, family="z.ai GLM"), MANUAL], [prov(models=[{"id": "llama-3.3-70b"}, {"id": "gemma-4-31b"}])])),
+    ("a family word too short to match anything: 'ai' in 'z.ai' is not a family",
+     ([dict(JUDGE, family="z.ai GLM"), MANUAL], [prov(models=[{"id": "aion-2.0:free"}])])),
+]
+
 
 # ---------------------------------------------------------------- privacy.json
 
@@ -600,6 +728,11 @@ NEURONS = {"input_per_million": 4119, "output_per_million": 34868}
 DERIVED = {"output_tokens_per_day": 286795, "confidence": "DERIVED",
            "how": "10,000 Neurons/day / 34,868 Neurons per 1M output tokens, on the 8b model"}
 
+# The daily ceilings, read from bench/rank.py through the gate so a plant is measured against the real target.
+TARGET = G.daily_ceilings()["target"]
+REPLY = G.daily_ceilings()["tokens_per_reply"]
+LINE = G.DAILY_NEEDS_MEASUREMENT_ABOVE
+
 ONE_TIME_MUST_REFUSE = [
     ("a sign-up bundle with no source and no date",
      dict(BASE, one_time={"tokens": 5000000, "confidence": "DECLARED", "quote": "5M free tokens"}), "needs an https source"),
@@ -627,6 +760,18 @@ ONE_TIME_MUST_REFUSE = [
     ("a grant sourced on a paste site: the provider's page or nothing",
      dict(BASE, one_time={"tokens": 5000000, "confidence": "DECLARED", "source": PASTE, "read_on": DATE,
                           "quote": "5M free tokens"}), "not this provider's domain"),
+    ("the reviewer's plant: a one-time grant of 9,990,000,000 tokens, under the old ceiling of ten billion",
+     dict(BASE, one_time={"tokens": 9990000000, "confidence": "DECLARED", "source": PRICING, "read_on": DATE,
+                          "quote": "9.99 billion free tokens"}), "whole target"),
+    ("a one-time grant one token over the target",
+     dict(BASE, one_time={"tokens": TARGET + 1, "confidence": "DECLARED", "source": PRICING, "read_on": DATE,
+                          "quote": "a billion and one"}), "whole target"),
+    ("a one-time grant just over the measurement line, DECLARED with the provider's sentence",
+     dict(BASE, one_time={"tokens": LINE + 1, "confidence": "DECLARED", "source": PRICING, "read_on": DATE,
+                          "quote": "a hundred million free tokens and one"}), "admitted only as MEASURED"),
+    ("a one-time grant just over the measurement line, MEASURED with no method",
+     dict(BASE, one_time={"tokens": LINE + 1, "confidence": "MEASURED", "source": PRICING, "read_on": DATE}),
+     "admitted only as MEASURED"),
 ]
 
 ONE_TIME_MUST_PASS = [
@@ -639,6 +784,15 @@ ONE_TIME_MUST_PASS = [
     ("a bundle we know exists but have not measured",
      dict(BASE, one_time={"tokens": None, "credits_usd": None, "confidence": "UNKNOWN"})),
     ("no bundle at all is not a problem", dict(BASE)),
+    ("a one-time grant of exactly the target, MEASURED with the method: at the ceiling, not over it",
+     dict(BASE, one_time={"tokens": TARGET, "confidence": "MEASURED", "source": PRICING, "read_on": DATE,
+                          "measured_how": "GET /v1/usage reports the grant to the token"})),
+    ("a one-time grant of exactly the measurement line, DECLARED",
+     dict(BASE, one_time={"tokens": LINE, "confidence": "DECLARED", "source": PRICING, "read_on": DATE,
+                          "quote": "a hundred million free tokens"})),
+    ("a one-time grant just over the measurement line, MEASURED with the method",
+     dict(BASE, one_time={"tokens": LINE + 1, "confidence": "MEASURED", "source": PRICING, "read_on": DATE,
+                          "measured_how": "GET /v1/usage reports the grant to the token"})),
     ("a sourced, dated, quoted monthly pot",
      dict(BASE, monthly={"credits_usd": 10, "confidence": "DECLARED", "source": PRICING, "read_on": DATE,
                          "quote": "$10 /mo in API credits."})),
@@ -655,6 +809,49 @@ LIMITS_MUST_REFUSE = [
      dict(BASE, all_models={"rpd": None, "tpd": 10 ** 12}), "UNKNOWN but all_models.tpd"),
     ("a figure past the sanity ceiling, even when declared",
      dict(DECL, all_models={"tpd": 10 ** 12}), "sanity ceiling"),
+
+    # --- the daily shelf against the target. The old ceilings were ten times the target; under them one
+    # typed figure put 990% of it on the front page with every check green.
+    ("the reviewer's plant, verbatim: 9,900,000,000 tokens a day, MEASURED with a date and a method",
+     dict(MEAS, all_models={"tpd": 9900000000}), "target"),
+    ("one token a day over the target, MEASURED with the method",
+     dict(MEAS, all_models={"tpd": TARGET + 1}), "target"),
+    ("a request cap that derives one reply over the target: rpd x tokens a reply",
+     dict(MEAS, all_models={"rpd": TARGET // REPLY + 1}), "target"),
+    ("one token over the measurement line, DECLARED with source and date",
+     dict(DECL, all_models={"tpd": LINE + 1}), "admitted only as MEASURED"),
+    ("one token over the measurement line, MEASURED, with measured_how blank",
+     {"confidence": "MEASURED", "measured_on": DATE, "measured_how": "   ", "all_models": {"tpd": LINE + 1}},
+     "admitted only as MEASURED"),
+    ("a request cap DECLARED that derives one reply over the measurement line",
+     dict(DECL, all_models={"rpd": LINE // REPLY + 1}), "admitted only as MEASURED"),
+    ("the reviewer's variant: rpd 10,000,000 DECLARED, which derives 5,000,000,000 a day",
+     dict(DECL, all_models={"rpd": 10 ** 7}), "target"),
+    ("a per-model daily figure over the measurement line, DECLARED with its own source",
+     dict(DECL, all_models={"rpd": None}, models={"m": {"tpd": LINE + 1, "tpd_confidence": "DECLARED"}}),
+     "admitted only as MEASURED"),
+    ("a per-model daily figure over the target, MEASURED, inheriting the provider's method",
+     dict(MEAS, all_models={"rpd": None}, models={"m": {"tpd": TARGET + 1, "tpd_confidence": "MEASURED"}}), "target"),
+    ("a per-model figure with no confidence of its own under a DECLARED provider, over the line",
+     dict(DECL, all_models={"rpd": None}, models={"m": {"tpd": LINE + 1}}), "admitted only as MEASURED"),
+    ("a free_models_combined tier whose request cap derives over the line: rank.py reads the smallest tier",
+     dict(DECL, all_models={"rpd": None}, free_models_combined={"new": {"rpd": LINE // REPLY + 1}}),
+     "admitted only as MEASURED"),
+    ("derived.output_tokens_per_day one over the target",
+     dict(DECL, all_models={"rpm": 300}, derived=dict(DERIVED, output_tokens_per_day=TARGET + 1)), "target"),
+    ("derived.output_tokens_per_day one over the measurement line: a derivation is never measured",
+     dict(DECL, all_models={"rpm": 300}, derived=dict(DERIVED, output_tokens_per_day=LINE + 1)), "admitted only as MEASURED"),
+    ("a Neuron allowance and a unit price each under their own ceiling that divide into a figure over the "
+     "target: 999,999,999 Neurons a day at one Neuron per million tokens",
+     dict(DECL, free_allocation={"neurons_per_day": 999999999}, neuron_cost_examples={"@cf/m": dict(NEURONS, output_per_million=1)}),
+     "target"),
+    ("a Neuron division over the measurement line: 10,000 a day at 50 per million is 200,000,000 DECLARED",
+     dict(DECL, free_allocation={"neurons_per_day": 10000}, neuron_cost_examples={"@cf/m": dict(NEURONS, output_per_million=50)}),
+     "admitted only as MEASURED"),
+    ("measured_values.limit_per_day one over the target under a MEASURED provider",
+     dict(MEAS, all_models={"rpm": 5}, measured_values={"limit_per_day": TARGET + 1}), "under"),
+    ("measured_values.limit_per_day over the measurement line under a DECLARED provider",
+     dict(DECL, all_models={"rpm": 5}, measured_values={"limit_per_day": LINE + 1}), "admitted only as MEASURED"),
     ("DECLARED with a source that is not a URL", dict(DECL, source="trust me"), "DECLARED needs source"),
     ("DECLARED with prose glued to the URL",
      dict(DECL, source=OWN + " and the console screen"), "DECLARED needs source"),
@@ -695,7 +892,7 @@ LIMITS_MUST_REFUSE = [
     ("a lookalike of the provider's own domain as a source",
      dict(DECL, source="https://console.groq.com.evil.example/docs", all_models={"rpm": 30}), "not this provider's domain"),
     ("the reviewer's plant: derived.output_tokens_per_day of 10**12, straight onto the DERIVED shelf",
-     dict(DECL, all_models={"rpm": 300}, derived=dict(DERIVED, output_tokens_per_day=10 ** 12)), "sanity ceiling"),
+     dict(DECL, all_models={"rpm": 300}, derived=dict(DERIVED, output_tokens_per_day=10 ** 12)), "target"),
     ("a derived figure that is a string", dict(DECL, derived=dict(DERIVED, output_tokens_per_day="many")), "non-negative integer"),
     ("a derived figure not labelled DERIVED: the code ignores it and the reader sees it",
      dict(DECL, derived=dict(DERIVED, confidence="DECLARED")), "labelled DERIVED"),
@@ -787,6 +984,24 @@ LIMITS_MUST_PASS = [
      dict(DECL, all_models={"rpm": 30}, caveat="Their words: 'Free Trial: $5 in credits' - read on the pricing page; per key/project & org.",
           quotes=["Includes input and output tokens.", "qwen-flash | International | 600 | 5,000,000"])),
     ("a quota for a provider that is in providers.json", (dict(DECL, all_models={"rpm": 30}), {"someprovider", "groq"})),
+
+    # --- just under the daily rules: the ceiling is a ceiling, not a wall one step short of it
+    ("exactly the target, MEASURED with the method", dict(MEAS, all_models={"tpd": TARGET})),
+    ("a request cap that derives exactly the target, MEASURED", dict(MEAS, all_models={"rpd": TARGET // REPLY})),
+    ("exactly the measurement line, DECLARED with source and date", dict(DECL, all_models={"tpd": LINE})),
+    ("one over the measurement line, MEASURED with the method", dict(MEAS, all_models={"tpd": LINE + 1})),
+    ("a request cap DECLARED that derives exactly the measurement line", dict(DECL, all_models={"rpd": LINE // REPLY})),
+    ("a per-model figure over the line, MEASURED, inheriting the provider's date and method",
+     dict(MEAS, all_models={"rpd": None}, models={"m": {"tpd": LINE + 1, "tpd_confidence": "MEASURED"}})),
+    ("a per-model figure over the line with its own date and method under a DECLARED provider",
+     dict(DECL, all_models={"rpd": None},
+          models={"m": {"tpd": LINE + 1, "tpd_confidence": "MEASURED", "measured_on": DATE, "measured_how": "x-ratelimit headers"}})),
+    ("derived.output_tokens_per_day of exactly the measurement line",
+     dict(DECL, all_models={"rpm": 300}, derived=dict(DERIVED, output_tokens_per_day=LINE))),
+    ("the real xkiro shape: 5,000,000 a day MEASURED on their usage endpoint, echoed in measured_values",
+     dict(MEAS, all_models={"rpd": None, "tpd": 5000000}, measured_values={"limit_per_day": 5000000})),
+    ("measured_values.limit_per_day over the line under a MEASURED provider with the method",
+     dict(MEAS, all_models={"rpm": 5}, measured_values={"limit_per_day": LINE + 1})),
 ]
 
 
@@ -826,6 +1041,14 @@ LANGUAGE_MUST_REFUSE = [
     ("probe D with min_diacritics 0", pack(probes__D__min_diacritics=0), "min_diacritics must be an integer of at least 1"),
     ("a prompt with a bare domain in it", pack(probes__A__prompt="Vezi evil.example si raspunde cu 14400, 81600."),
      "bare domain"),
+    ("the reviewer's plant: a shortener on a top-level domain the old list did not name",
+     pack(probes__A__prompt="Compara cu bit.ly/free-keys si raspunde cu 14400, 81600."), "bare domain"),
+    ("a domain on .site", pack(probes__A__prompt="Vezi evil.site si raspunde cu 14400, 81600."), "bare domain"),
+    ("a domain on .link, in capitals", pack(probes__A__prompt="Vezi EVIL.LINK si raspunde cu 14400, 81600."), "bare domain"),
+    ("the reviewer's plant: a provider named by its providers.json name, not by its host stem",
+     pack(probes__D__prompt="Scrie un paragraf despre banci, in stilul Alibaba, fara cifre inventate."), "names a vendor"),
+    ("a provider named by the stem of its declared sign-up host",
+     pack(probes__D__prompt="Scrie un paragraf despre banci, ca pe alibabacloud, fara cifre inventate."), "names a vendor"),
     ("a prompt with a URL in it", pack(probes__A__prompt="Vezi https://evil.example si raspunde."), "contains a URL"),
     ("a prompt naming a vendor", pack(probes__D__prompt="Scrie un paragraf in stilul Gemini despre banci."),
      "names a vendor"),
@@ -847,15 +1070,27 @@ LANGUAGE_MUST_PASS = [
     ("the real Romanian pack", RO),
     ("the real English pack", (EN, "en")),
     ("a pack with penalties in range", pack(generation={"temperature": 0, "presence_penalty": -1.5, "frequency_penalty": 2})),
+    ("abbreviations, decimals and a sentence run into the next: dots that are not domains",
+     pack(probes__A__prompt="Un abonament costa 96.000 de euro pe an, i.e. 3.14 la suta, s.a.m.d. Raspunde cu 14400, 81600.")),
 ]
 
 
 # ---------------------------------------------------------------- data/uptime.jsonl
 
+REAL_UPTIME = [r for _, r in G.read_jsonl(HERE.parent / "data" / "uptime.jsonl", "uptime", [])] \
+    if (HERE.parent / "data" / "uptime.jsonl").exists() else []
+
+
 def up(**kw):
     r = {"date": DATE, "provider": P0, "model": M0, "state": "alive", "http": 200, "seconds": 0.5, "note": ""}
     r.update(kw)
     return r
+
+
+def days(rows, start="2026-08-20"):
+    """The same rows, one per day, in date order from `start`: what the radar writes over a run of days."""
+    d0 = date.fromisoformat(start)
+    return [dict(r, date=(d0 + timedelta(days=i)).isoformat()) for i, r in enumerate(rows)]
 
 
 UPTIME_MUST_REFUSE = [
@@ -888,22 +1123,49 @@ UPTIME_MUST_REFUSE = [
     ("down with http 301", [up(state="down", http=301)], "state is down with http 301"),
     ("down with http 503, which the radar files as overloaded",
      [up(state="down", http=503)], "state is down with http 503"),
+
+    # --- back-dating and doubling: the radar appends the whole day at once, in date order
+    ("the reviewer's plant: the endpoint's two real days on file, then fourteen down days with http 500 dated "
+     "before them - the burial this file used to assert MUST PASS",
+     [up(date="2026-09-06"), up(date="2026-09-07")]
+     + [up(date="2026-08-%02d" % d, state="down", http=500) for d in range(24, 32)]
+     + [up(date="2026-09-%02d" % d, state="down", http=500) for d in range(1, 7)], "back-dated"),
+    ("the same plant after the endpoint's real rows were deleted: another endpoint's row dated 2026-09-07 is on "
+     "file, so fourteen down days dated 2026-08-24 to 2026-09-06 are filed for days the radar already passed",
+     [up(provider=P1, model=M1, date="2026-09-07")]
+     + [up(date="2026-08-%02d" % d, state="down", http=500) for d in range(24, 32)]
+     + [up(date="2026-09-%02d" % d, state="down", http=500) for d in range(1, 7)], "back-dated"),
+    ("one row dated a day earlier than the row before it", [up(date="2026-09-07"), up(date="2026-09-06")], "back-dated"),
+    ("two readings of one endpoint on one day: alive, then down",
+     [up(), up(state="down", http=500)], "second row"),
+    ("fourteen down rows all dated the same day: one day, not fourteen",
+     [up(date="2026-09-01", state="down", http=500)] * 14, "second row"),
 ]
 UPTIME_MUST_PASS = [
-    ("every state with the code the radar writes it with",
-     [up(), up(state="empty"), up(state="rate_limited", http=429), up(state="overloaded", http=503),
-      up(state="payment_required", http=402), up(state="blocked", http=403),
-      up(state="no_key", http=None, seconds=None, note="no key set in this environment"),
-      up(state="down", http=0, note="URLError"), up(state="down", http=None, note="no response"),
-      up(state="down", http=500), up(state="down", http=502), up(state="down", http=504)]),
-    ("fourteen genuine down days with http 500 in the past: a 500 is legitimately down",
-     [up(date="2026-08-%02d" % d, state="down", http=500) for d in range(10, 24)]),
+    ("every state with the code the radar writes it with, one a day",
+     days([up(), up(state="empty"), up(state="rate_limited", http=429), up(state="overloaded", http=503),
+           up(state="payment_required", http=402), up(state="blocked", http=403),
+           up(state="no_key", http=None, seconds=None, note="no key set in this environment"),
+           up(state="down", http=0, note="URLError"), up(state="down", http=None, note="no response"),
+           up(state="down", http=500), up(state="down", http=502), up(state="down", http=504)])),
+    ("a legitimate history: rows in date order, one a day, with fourteen down days among them",
+     days([up()] * 3 + [up(state="down", http=500)] * 14 + [up()] * 2, start="2026-08-10")),
+    ("the whole day for every endpoint appended at once, then the next day",
+     [up(date="2026-09-06"), up(provider=P1, model=M1, date="2026-09-06"),
+      up(date="2026-09-07", state="down", http=502), up(provider=P1, model=M1, date="2026-09-07")]),
+    ("a no_key row beside a probed row for one endpoint-day: not a verdict, so not a second reading, the rule "
+     "gate_viability.py applies",
+     [up(), up(state="no_key", http=None, seconds=None, note="no key set in this environment")]),
     ("a row dated today", [up(date=str(TODAY))]),
+    ("the real file's rows", REAL_UPTIME),
     ("an empty file", []),
 ]
 
 
 # ---------------------------------------------------------------- data/throughput.jsonl
+
+REAL_THROUGHPUT = [r for _, r in G.read_jsonl(HERE.parent / "data" / "throughput.jsonl", "throughput", [])] \
+    if (HERE.parent / "data" / "throughput.jsonl").exists() else []
 
 def tp(**kw):
     r = {"provider": P0, "model": M0, "concurrency": 8, "seconds": 30.8, "requests_ok": 22,
@@ -954,6 +1216,20 @@ THROUGHPUT_MUST_REFUSE = [
      "skipped row carries"),
     ("a date that is not ISO", [tp(date="Sept 7")], "date must be"),
     ("a note with a second line in it", [tp(note="A floor.\n[link](https://evil.example)")], "one line of text"),
+    ("the reviewer's plant: 20,000 answers in 30.8 seconds on 8 slots, fourteen million tokens, self-consistent "
+     "with its own seconds and under the per-call bound because that bound grows with the count",
+     [tp(requests_ok=20000, output_tokens=14000000, tokens_per_minute_measured=int(14000000 / 30.8 * 60))],
+     "more requests than the meter could have sent"),
+    ("one request over what the slots could complete: 8 x (30.8 x 10 + 1) + 1",
+     [tp(requests_ok=2473, output_tokens=100000, tokens_per_minute_measured=int(100000 / 30.8 * 60))],
+     "more requests than the meter could have sent"),
+    ("refusals count too: 2,473 rate-limited answers in the window",
+     [tp(requests_ok=0, requests_rate_limited=2473, output_tokens=0, tokens_per_minute_measured=0)],
+     "more requests than the meter could have sent"),
+    ("a row dated before the row already on file for the same endpoint: rank.py keeps the LAST row in file order",
+     [tp(date="2026-09-07"), tp(date="2026-09-06")], "back-dated"),
+    ("a row dated before another endpoint's row on file: the meter ran that day and did not write this",
+     [tp(provider=P1, model=M1, date="2026-09-07"), tp(date="2026-09-06")], "back-dated"),
 ]
 THROUGHPUT_MUST_PASS = [
     ("a run that ended with the window, rate scaled from tokens and seconds", [tp()]),
@@ -977,6 +1253,19 @@ THROUGHPUT_MUST_PASS = [
      "reported on 2026-09-07: inside the tolerance the meter states",
      [tp(requests_ok=10, requests_rate_limited=1, output_tokens=7048, seconds=18.0, tokens_per_minute_measured=7048,
          rate_basis="their per-minute limit stopped us", stopped_because="rate limit reached")]),
+    ("exactly what the slots could complete: 8 x (30.8 x 10 + 1) = 2,472 answers",
+     [tp(requests_ok=2472, output_tokens=100000, tokens_per_minute_measured=int(100000 / 30.8 * 60))]),
+    ("the fastest real row: 461 refusals in 30.8 seconds on 8 slots",
+     [tp(requests_ok=0, requests_failed=461, output_tokens=0, tokens_per_minute_measured=0,
+         first_error="HTTP 403 the request was refused (403)")]),
+    ("the first wave on a window that closed at once: 8 refusals in half a second on 8 slots",
+     [tp(requests_ok=0, requests_rate_limited=8, output_tokens=0, seconds=0.5, tokens_per_minute_measured=0,
+         rate_basis="their per-minute limit stopped us", stopped_because="rate limit reached")]),
+    ("two readings of one endpoint on one day, in file order: what bench/throughput.py --only writes when it is "
+     "run twice, and rank.py counts both as readings",
+     [tp(), tp(requests_ok=1, output_tokens=700, tokens_per_minute_measured=int(700 / 30.8 * 60))]),
+    ("readings across days, in date order", [tp(date="2026-09-06"), tp(date="2026-09-07"), tp(provider=P1, model=M1, date="2026-09-07")]),
+    ("the real file's rows", REAL_THROUGHPUT),
 ]
 
 
@@ -1067,9 +1356,15 @@ DRAWN_MUST_REFUSE = [
     ("a negative request count", [dr(requests_failed=-1)], "non-negative integer"),
     ("a note with a second line in it", [dr(note="A floor.\n[link](https://evil.example)")], "one line of text"),
     ("a line that is not JSON", [dr(), "{not json"], "not valid JSON"),
+    ("a draw dated before the draw already on file for the same endpoint: rank.py keeps the LAST row in file order",
+     [dr(date="2026-09-07", started_utc="2026-09-07T14:06:37Z"), dr(date="2026-09-06", started_utc="2026-09-06T14:06:37Z")], "back-dated"),
+    ("a second draw of one endpoint on one day, which would silently replace the first on the page",
+     [dr(), dr(output_tokens_drawn=150000, tokens_per_hour_drawn=int(150000 / 60.02 * 60))], "second row"),
 ]
 DRAWN_MUST_PASS = [
     ("an honest hour at the published pace, rate stated", [dr()]),
+    ("two endpoints drawn on one day, then one of them the next day",
+     [dr(), fast(), dr(date="2026-09-08", started_utc="2026-09-08T14:06:37Z")]),
     ("the token cap reached after eight minutes and 400 answers: a measured high rate, stated", [fast()]),
     ("a short run under a 429 wall, no rate, null where the rate would be",
      [dr(minutes_run=5.03, requests_ok=0, requests_429=11, requests_failed=0, first_error="HTTP 429 rate limit",
@@ -1089,10 +1384,15 @@ DRAWN_MUST_PASS = [
 
 # ---------------------------------------------------------------- announced_deaths.json
 
+NEWS_HOST = sorted(G.KNOWN_NEWS_HOSTS)[0]
+OPERATOR_NAME, OPERATOR_HOST = next((k, sorted(v)[0]) for k, v in sorted(G.KNOWN_OPERATOR_HOSTS.items()))
 DEATH = {"provider": "Some Retired Service", "died_on": "2026-07-30",
          "quote": "As of July 30, 2026, the service is retired and the inference API is no longer available.",
-         "source": "https://blog.example/changelog/retired", "read_on": DATE,
-         "endpoint_today": "HTTP 410 on the old endpoint, measured " + DATE}
+         "source": "https://%s/blog/some-retired-service-shuts-down" % NEWS_HOST, "notice_from": "third party",
+         "read_on": DATE, "endpoint_today": "HTTP 410 on the old endpoint, measured " + DATE}
+OPERATOR = dict(DEATH, provider=OPERATOR_NAME.title(), notice_from="operator",
+                source="https://%s/changelog/retired" % OPERATOR_HOST)
+PASTE_NOTICE = "https://pastebin.example/raw/abc123"
 REAL_DEATHS = (G.load_json(HERE / "announced_deaths.json", []) or {}).get("providers") or []
 
 DEATHS_MUST_REFUSE = [
@@ -1118,9 +1418,28 @@ DEATHS_MUST_REFUSE = [
      "endpoint_today must be one line"),
     ("a provider name that becomes markdown in the heading", [dict(DEATH, provider="X [y](https://evil.example)")],
      "no markdown in it"),
+
+    # --- whose word the death is, and where that word may sit
+    ("the reviewer's plant: an operator notice on a paste site, under a live provider's name with a word added",
+     [dict(DEATH, provider=P0.capitalize() + " AI", notice_from="operator", source=PASTE_NOTICE)],
+     "not a domain this gate ties to"),
+    ("a live provider's name with a word added, whatever the source",
+     [dict(DEATH, provider=P0.capitalize() + " AI")], "with a word added"),
+    ("a third-party notice on a paste site", [dict(DEATH, source=PASTE_NOTICE)], "declared news hosts"),
+    ("a third-party notice on a blog nobody declared", [dict(DEATH, source="https://blog.example/changelog/retired")],
+     "declared news hosts"),
+    ("an operator notice for a headstone this gate ties to no domain",
+     [dict(DEATH, notice_from="operator")], "not a domain this gate ties to"),
+    ("an operator notice sitting on a news host: the operator's word lives on the operator's site",
+     [dict(OPERATOR, source="https://%s/blog/retired" % NEWS_HOST)], "not a domain this gate ties to"),
+    ("an operator notice on a lookalike of the operator's domain",
+     [dict(OPERATOR, source="https://%s.evil.example/changelog/retired" % OPERATOR_HOST)], "not a domain this gate ties to"),
+    ("no notice_from at all", [{k: v for k, v in DEATH.items() if k != "notice_from"}], "notice_from must be"),
+    ("an invented author", [dict(DEATH, notice_from="a friend")], "notice_from must be"),
 ]
 DEATHS_MUST_PASS = [
-    ("a notice with every field one line, dated and sourced", [DEATH]),
+    ("a third-party notice on a declared news host, every field one line, dated and sourced", [DEATH]),
+    ("an operator's notice on the operator's declared domain", [OPERATOR]),
     ("a name with a space, a period and parentheses: what operators call their products",
      [dict(DEATH, provider="Llama API v2.0 (Preview)")]),
     ("an endpoint_today naming a host without a scheme: a status line, not a link",
@@ -1128,6 +1447,129 @@ DEATHS_MUST_PASS = [
     ("the real file's entries", REAL_DEATHS),
     ("no notices at all", []),
 ]
+
+
+# ---------------------------------------------------------------- data/reliability.json
+
+REL_RUN = "2026-09-06"
+REL_ROW = {"provider": P0, "calls": 12, "ok": 11, "empty_200": 1, "rate_limited": 0, "overloaded": 0, "timeout": 0,
+           "other": 0, "answered_rate": 0.917, "note": "occasionally refuses or returns nothing"}
+REL_SWITCH = {"reasoning_effort": "low"}
+REL = {"measured_at": DATE, "runs_included": [REL_RUN],
+       "how": "Every call in every published run, counted by outcome. One sample from one set of accounts.",
+       "reasoning_trap": {"what": "A reasoning model can spend its whole budget thinking and return an empty 200.",
+                          "switches": {"reasoning_effort": "gpt-oss family on Groq, Cerebras, Ollama and OpenRouter"},
+                          "observed": [{"provider": P0, "model": M0, "probe": "D", "had_switch": False, "switch": None,
+                                        "run": REL_RUN}],
+                          "already_switched_off_by_us": []},
+       "providers": [REL_ROW]}
+# The switch list is providers.json's extra_body entries, copied, so an honest document carries them all.
+REL["reasoning_trap"]["already_switched_off_by_us"] = [
+    {"provider": p["name"], "model": m["id"], "switch": m["extra_body"]}
+    for p in REAL_PROVIDERS for m in p.get("models", []) if m.get("extra_body")]
+REAL_RELIABILITY = G.load_json(HERE.parent / "data" / "reliability.json", []) \
+    if (HERE.parent / "data" / "reliability.json").exists() else None
+
+
+def rel(**changes):
+    """The honest archive with keys replaced; nested paths written as reasoning_trap__what."""
+    d = json.loads(json.dumps(REL))
+    for k, v in changes.items():
+        cur, parts = d, k.split("__")
+        for part in parts[:-1]:
+            cur = cur.setdefault(part, {})
+        if v is None:
+            cur.pop(parts[-1], None)
+        else:
+            cur[parts[-1]] = v
+    return d
+
+
+def rel_row(**kw):
+    r = dict(REL_ROW)
+    r.update(kw)
+    return r
+
+
+RELIABILITY_MUST_REFUSE = [
+    ("the reviewer's plant: every archived provider rewritten to answered_rate 1.0 with ok = calls and empty_200 0, "
+     "the trap table emptied - the counts are recomputed from results/*/raw.json, which still holds the empty 200",
+     (rel(providers=[rel_row(ok=12, empty_200=0, answered_rate=1.0, note="answers reliably")],
+          reasoning_trap__observed=[]), raw_rows_for(REL)), "results/*/raw.json counts"),
+    ("only the rate rewritten: 1.0 over 11 of 12", rel(providers=[rel_row(answered_rate=1.0)]), "does not follow"),
+    ("only the note rewritten: 'answers reliably' over 11 of 12",
+     rel(providers=[rel_row(note="answers reliably")]), "earns"),
+    ("counts that do not add up to calls", rel(providers=[rel_row(calls=20)]), "add up to"),
+    ("a negative count", rel(providers=[rel_row(timeout=-1)]), "non-negative integer"),
+    ("a rate above one", rel(providers=[rel_row(answered_rate=1.5)]), "between 0 and 1"),
+    ("a rate as a string", rel(providers=[rel_row(answered_rate="high")]), "between 0 and 1"),
+    ("a provider nobody benchmarks", rel(providers=[rel_row(provider="ghost")]), "not in providers.json"),
+    ("two rows for one provider", rel(providers=[REL_ROW, rel_row()]), "second row"),
+    ("measured_at that is not a date", rel(measured_at="yesterday"), "measured_at must be a date"),
+    ("measured_at after today", rel(measured_at=FUTURE), "after today"),
+    ("a run later than measured_at", rel(measured_at="2026-09-05"), "later than measured_at"),
+    ("runs_included empty", rel(runs_included=[]), "non-empty list of dates"),
+    ("runs_included naming a run that is not on disk",
+     (rel(runs_included=[REL_RUN, "2026-09-05"]), raw_rows_for(REL)), "results/ holds"),
+    ("a URL in how", rel(how="See https://evil.example/method"), "contains a URL"),
+    ("a markdown link in reasoning_trap.what", rel(reasoning_trap__what="See [the keys](/mirror/keys) first"), "markdown link"),
+    ("a backtick in a switch description, which closes the code block it is rendered in",
+     rel(reasoning_trap__switches={"reasoning_effort": "``` [keys](https://evil.example)"}), "rendered raw inside a code block"),
+    ("an observed row on a model the provider does not list",
+     rel(reasoning_trap__observed=[{"provider": P0, "model": "ghost-model", "probe": "D", "had_switch": False,
+                                    "switch": None, "run": REL_RUN}]), "is not one of"),
+    ("an observed row whose run is not among the runs included",
+     rel(reasoning_trap__observed=[{"provider": P0, "model": M0, "probe": "D", "had_switch": False, "switch": None,
+                                    "run": "2026-01-01"}]), "not in runs_included"),
+    ("had_switch true with switch null", rel(reasoning_trap__observed=[{"provider": P0, "model": M0, "probe": "D",
+                                                                       "had_switch": True, "switch": None, "run": REL_RUN}]),
+     "switch must be the reasoning switch"),
+    ("had_switch false with a switch attached", rel(reasoning_trap__observed=[{"provider": P0, "model": M0, "probe": "D",
+                                                                             "had_switch": False, "switch": REL_SWITCH, "run": REL_RUN}]),
+     "switch must be null"),
+    ("a switch that rewrites the request rather than turning reasoning down",
+     rel(reasoning_trap__already_switched_off_by_us=REL["reasoning_trap"]["already_switched_off_by_us"]
+         + [{"provider": P0, "model": M0, "switch": {"model": "gpt-4o"}}]), "extra_body sets 'model'"),
+    ("the switch list missing an entry providers.json carries: a stale archive",
+     rel(reasoning_trap__already_switched_off_by_us=REL["reasoning_trap"]["already_switched_off_by_us"][1:]),
+     "providers.json carries a switch for"),
+    ("a probe name that closes a table cell",
+     rel(reasoning_trap__observed=[{"provider": P0, "model": M0, "probe": "D | [x](https://evil.example)",
+                                    "had_switch": False, "switch": None, "run": REL_RUN}]), "probe must be"),
+    ("an archive with no results/ to recount from", (REL, None), "no results/*/raw.json"),
+    ("an observed empty 200 the raw run does not hold",
+     (rel(reasoning_trap__observed=REL["reasoning_trap"]["observed"] * 2), raw_rows_for(REL)), "recomputed from the raw runs"),
+    ("a provider row the raw run does not justify: a second provider with calls the run never made",
+     (rel(providers=[REL_ROW, rel_row(provider=P1, calls=4, ok=4, empty_200=0, answered_rate=1.0, note="answers reliably")]),
+      raw_rows_for(REL)), "no call for this provider"),
+]
+RELIABILITY_MUST_PASS = [
+    ("an honest archive, recounted from the raw run it describes", REL),
+    ("a provider that answered every call", rel(providers=[rel_row(ok=12, empty_200=0, answered_rate=1.0, note="answers reliably")],
+                                                  reasoning_trap__observed=[])),
+    ("a provider that never answered: four 402s", rel(providers=[rel_row(calls=4, ok=0, empty_200=0, other=4, answered_rate=0.0,
+                                                                          note="unreliable in our measurements - see the counts")],
+                                                        reasoning_trap__observed=[])),
+    ("a rate at the reliable line: 19 of 20 is 0.95", rel(providers=[rel_row(calls=20, ok=19, empty_200=1, answered_rate=0.95,
+                                                                              note="answers reliably")])),
+    ("a rate just under the reliable line: 18 of 19 is 0.947",
+     rel(providers=[rel_row(calls=19, ok=18, empty_200=1, answered_rate=0.947, note="occasionally refuses or returns nothing")])),
+    ("an observed empty 200 on a model whose switch was set, and ignored",
+     rel(reasoning_trap__observed=[{"provider": REL["reasoning_trap"]["already_switched_off_by_us"][0]["provider"],
+                                    "model": REL["reasoning_trap"]["already_switched_off_by_us"][0]["model"],
+                                    "probe": "B", "had_switch": True,
+                                    "switch": REL["reasoning_trap"]["already_switched_off_by_us"][0]["switch"], "run": REL_RUN}],
+         providers=[rel_row(provider=REL["reasoning_trap"]["already_switched_off_by_us"][0]["provider"])])),
+    ("the real archive, recounted from the real results/ tree", (REAL_RELIABILITY, "real")),
+]
+
+
+def check_reliability_real(fixture):
+    """The real data/reliability.json against the real results/ tree."""
+    problems = []
+    G.check_reliability(HERE.parent / "data" / "reliability.json", problems, REAL_PROVIDERS, today=TODAY,
+                        results=HERE.parent / "results")
+    return problems
 
 
 # ---------------------------------------------------------------- the real data, and what it must say
@@ -1139,7 +1581,7 @@ DEATHS_MUST_PASS = [
 EXPECTED_REAL_FINDINGS = [
     # (substring of the location, substring of the message). When a real finding is knowingly left in place,
     # it is listed here so the run stays green AND the finding stays visible; when the data is fixed, the
-    # entry is reported GONE and must be deleted. None today. The last one was a burst row whose usage
+    # entry is reported GONE and must be deleted. Before this one, the last was a burst row whose usage
     # block counted 7,048 output tokens over ten 700-token calls: the row is what the provider reported,
     # so the bound learned the tolerance bench/throughput.py states (USAGE_OVERSHOOT) instead of the data
     # being edited to fit the rule; a billion tokens from one call is refused as before.
@@ -1183,6 +1625,40 @@ def pinned_shapes():
     # The two meters ask every provider for the same budget a call, and the gate bounds both files by it.
     out.append(("throughput.py and draw_day.py ask for the same max_tokens a call",
                 T.MAX_TOKENS_PER_CALL == D.MAX_TOKENS_PER_CALL, "%r vs %r" % (T.MAX_TOKENS_PER_CALL, D.MAX_TOKENS_PER_CALL)))
+    # The daily ceilings are the project's own target, read from rank.py: a figure that can reach the daily
+    # shelf is never admitted above what the whole list is trying to reach.
+    import rank as R
+    c = G.daily_ceilings()
+    out.append(("the gate's tpd ceiling is rank.py's TARGET_TOKENS_PER_DAY", c["tpd"] == R.TARGET_TOKENS_PER_DAY,
+                "%r vs %r" % (c["tpd"], R.TARGET_TOKENS_PER_DAY)))
+    out.append(("the gate's rpd ceiling times rank.py's TOKENS_PER_REPLY is the largest that does not exceed the target",
+                c["rpd"] * R.TOKENS_PER_REPLY <= R.TARGET_TOKENS_PER_DAY < (c["rpd"] + 1) * R.TOKENS_PER_REPLY,
+                "%r x %r vs %r" % (c["rpd"], R.TOKENS_PER_REPLY, R.TARGET_TOKENS_PER_DAY)))
+    out.append(("a grant in tokens and every other daily-shaped figure are capped at the target",
+                c["tokens"] == c["figure"] == R.TARGET_TOKENS_PER_DAY, "%r" % (c,)))
+    out.append(("the measurement line sits under the target", 0 < G.DAILY_NEEDS_MEASUREMENT_ABOVE < R.TARGET_TOKENS_PER_DAY,
+                "%r" % (G.DAILY_NEEDS_MEASUREMENT_ABOVE,)))
+    out.append(("every static ceiling in LIMIT_KEYS is a positive integer and the daily ones are None, read from the target",
+                all((v is None) == (k in G.DAILY_KEYS) and (v is None or (isinstance(v, int) and v > 0))
+                    for k, v in G.LIMIT_KEYS.items()), "%r" % (G.LIMIT_KEYS,)))
+    # The states the gate does not count as a second reading are the ones states.py calls not a verdict.
+    if (HERE / "states.py").exists():
+        out.append(("UPTIME_NOT_A_VERDICT equals states.NOT_A_VERDICT", set(S.NOT_A_VERDICT) == G.UPTIME_NOT_A_VERDICT,
+                    "%r vs %r" % (sorted(S.NOT_A_VERDICT), sorted(G.UPTIME_NOT_A_VERDICT))))
+    # The archive's buckets and readings are reliability.py's, pinned to its source since it states them inline.
+    rel_src = (HERE / "reliability.py").read_text(encoding="utf-8")
+    for k in G.RELIABILITY_COUNTS:
+        out.append(("reliability.py counts %r" % k, ('"%s"' % k) in rel_src, ""))
+    for floor, sentence in G.RELIABILITY_READINGS:
+        out.append(("reliability.py writes %r" % sentence, sentence in rel_src, ""))
+        out.append(("reliability.py's floor %s is in its source" % floor, floor == 0.0 or ("%.2f" % floor) in rel_src, ""))
+    # The request bound is above every real burst row and above the fastest a slot could plausibly answer.
+    out.append(("MAX_REQUESTS_PER_SLOT_SECOND is a small positive integer", isinstance(G.MAX_REQUESTS_PER_SLOT_SECOND, int)
+                and 1 <= G.MAX_REQUESTS_PER_SLOT_SECOND <= 20, "%r" % (G.MAX_REQUESTS_PER_SLOT_SECOND,)))
+    # Every declared notice host is a bare registrable domain, and every operator headstone is lowercased.
+    out.append(("KNOWN_NEWS_HOSTS and KNOWN_OPERATOR_HOSTS hold bare registrable domains under lowercased names",
+                all(G.registrable(h) == h for h in G.KNOWN_NEWS_HOSTS)
+                and all(k == k.lower() and all(G.registrable(h) == h for h in v) for k, v in G.KNOWN_OPERATOR_HOSTS.items()), ""))
     # The gate's idea of a throughput row is exactly the row the meter writes, optional fields included.
     out.append(("THROUGHPUT_FIELDS plus the optional ones equal throughput.ROW_FIELDS",
                 set(G.THROUGHPUT_FIELDS) | set(G.THROUGHPUT_OPTIONAL_FIELDS) == set(T.ROW_FIELDS),
@@ -1230,6 +1706,10 @@ SECTIONS = [
     ("key bindings against the registry that MUST pass", BINDINGS_MUST_PASS, check_bindings, False),
     ("juries that MUST be refused", JUDGES_MUST_REFUSE, check_judges_list, True),
     ("juries that MUST pass", JUDGES_MUST_PASS, check_judges_list, False),
+    ("juries against the benchmarked families that MUST be refused", JURY_MUST_REFUSE, check_jury_against, True),
+    ("juries against the benchmarked families that MUST pass", JURY_MUST_PASS, check_jury_against, False),
+    ("scoped juries that MUST be refused", JURY_SCOPED_MUST_REFUSE, check_jury_scoped, True),
+    ("scoped juries that MUST pass", JURY_SCOPED_MUST_PASS, check_jury_scoped, False),
     ("privacy claims that MUST be refused", PRIVACY_MUST_REFUSE, check_privacy_entry, True),
     ("privacy claims that MUST pass", PRIVACY_MUST_PASS, check_privacy_entry, False),
     ("one-time and monthly bundles that MUST be refused", ONE_TIME_MUST_REFUSE, check_limits_entry, True),
@@ -1246,6 +1726,8 @@ SECTIONS = [
     ("draw rows that MUST pass", DRAWN_MUST_PASS, check_drawn_rows, False),
     ("retirement notices that MUST be refused", DEATHS_MUST_REFUSE, check_deaths, True),
     ("retirement notices that MUST pass", DEATHS_MUST_PASS, check_deaths, False),
+    ("archived runs that MUST be refused", RELIABILITY_MUST_REFUSE, check_reliability_doc, True),
+    ("archived runs that MUST pass", RELIABILITY_MUST_PASS, check_reliability_doc, False),
 ]
 
 

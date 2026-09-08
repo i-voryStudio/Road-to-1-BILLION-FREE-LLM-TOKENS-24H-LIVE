@@ -4,7 +4,10 @@
   "",
   "The rule that matters: a judge must come from a DIFFERENT model family than the models being judged.",
   "A model scoring its own family is a conflict of interest, and no amount of prompt wording fixes it.",
-  "Neither Anthropic nor z.ai models appear in providers.json, so neither judge is scoring a relative.",
+  "Neither Anthropic nor z.ai models appear in the archived run the jury scored (results/2026-09-06), so",
+  "neither judge scored a relative. The main ranking imports official scores and has no jury; `scope`",
+  "below names the runs this jury scored, and the contribution gate checks the families against the",
+  "models in exactly those runs, not against whatever providers.json lists today.",
   "",
   "More than one judge, from more than one family, is what makes the score arguable instead of an",
   "opinion. bench/agreement.py measures how much they agree and publishes it - including, deliberately,",
@@ -15,6 +18,10 @@
   "  manual - scored by hand through a chat interface. NOT reproducible by a stranger, and METHOD.md says so.",
   "Prefer api. A manual judge is acceptable only alongside at least one api judge."
  ],
+ "scope": {
+  "runs": ["2026-09-06"],
+  "why": "The jury belongs to the archived Romanian benchmark under results/. A judge must come from a different family than the models in the runs it scored; models added to providers.json later are ranked on imported official scores and never meet this jury."
+ },
  "judges": [
   {
    "name": "glm",

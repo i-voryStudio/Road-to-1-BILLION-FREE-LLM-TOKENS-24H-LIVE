@@ -100,9 +100,11 @@ tool traces from every common vendor, first-person statements about the state of
 its rate-limit headers, a rate limit multiplied across keys, and text hidden in files that look binary,
 deflated archives included. Two things about it are worth knowing:
 
-- **The private names it hunts are not in the repo.** They live in a local, git-ignored `.gate-private`;
-  the repo ships only truncated fingerprints in `bench/private_fingerprints.json`, so CI can still catch a
-  name it cannot read. `.gate-private.example` shows the format.
+- **The private names it hunts are not in the repo, and neither are their hashes.** They live in a local,
+  git-ignored `.gate-private`, and the fingerprints are computed from it at runtime. Publishing truncated
+  hashes would confirm a guess for anyone holding a candidate list, and a short name falls to an offline
+  search, so nothing about that list ships. The rule runs where the list is, which is the machine that
+  pushes, and every run says on its summary line whether it was on. `.gate-private.example` shows the format.
 - **`--history` scans every commit ever made, messages and authors included.** The working-tree mode runs
   in CI on every push and pull request; the history mode runs in CI on every pull request as well, on a
   full-depth checkout, so a key or an account state in a contributor's commit message, author or

@@ -45,12 +45,37 @@ GOLD = FIX / "golden"
 RANK = HERE / "rank.py"
 sys.path.insert(0, str(HERE))
 import rank   # noqa: E402  the constants under test; the pages are produced by running rank.py as a process
+import draw_day   # noqa: E402  the meter's own constants, so the page's "most it can register" is pinned to them
 
 README_TEMPLATE = "# fixture README\n\n" + "".join("<!--%s-->\n<!--/%s-->\n\n" % (m, m) for m in rank.MARKERS)
 
 OUTPUTS = ["README.md", "RESULTS.md", "ALL-ENDPOINTS.md", "LIMITS.md",
            "data/ranking.json", "data/ranking.csv", "data/capacity.json"]
 EVIDENCE = ("MEASURED", "DECLARED")
+# The sentence every DRAWN figure travels with, for the fixture's epsilon draw: 120 requests over 60 minutes at a
+# planned 2 a minute is a realised 2.0, and the figure is a floor for the hour measured, not for a day.
+DRAWN_CAVEAT = ("drawn at a planned pace of 2 requests a minute and a realised 2.0 (120 launched over 60 minutes, at most "
+                "%d in flight) x %d tokens a call: a floor for the hour measured, times 24, not their ceiling"
+                % (draw_day.MAX_IN_FLIGHT, draw_day.MAX_TOKENS_PER_CALL))
+TIER_NOTE = "read on a free trial key; may be that tier's allowance, not a standing free tier"
+
+
+def meter_max_per_hour():
+    """What bench/draw_day.py can state at most, from its own constants: the pace cap times the tokens a call,
+    or the token cap spread over the shortest capped run that may state a rate, whichever is smaller."""
+    return min(draw_day.MAX_PACE_RPM * draw_day.MAX_TOKENS_PER_CALL * 60,
+               draw_day.TOKEN_CAP // draw_day.CAP_STOP_MIN_MINUTES * 60)
+
+
+def comparable(entry):
+    """The per-minute figure one provider's limits.json block may set against the output target: the output side
+    of a published split, else the bare tpm; the largest per-model figure counts, as the page shows the largest."""
+    am = entry.get("all_models") or {}
+    tops = {k: am.get(k) or 0 for k in ("tpm", "tpm_input", "tpm_output")}
+    for m in (entry.get("models") or {}).values():
+        for k in tops:
+            tops[k] = max(tops[k], (m or {}).get(k) or 0)
+    return tops["tpm_output"] if (tops["tpm_input"] or tops["tpm_output"]) else tops["tpm"]
 
 
 def run_rank(out):
@@ -246,8 +271,11 @@ def main():
         check(ranked["gamma-chat:free"]["answered_rate"] == 0.0 and ranked["gamma-chat:free"]["value"] == 0.0
               and ranked["gamma-chat:free"]["answers"] == "0 of 2 in 14 days",
               "gamma: two empty 200s are 0 of 2, value 0.0, printed as a measurement")
-        check(unranked["delta-70b"]["answered_rate"] is None and unranked["delta-70b"]["answers"] == "not probed yet",
-              "delta-70b: never probed, says so")
+        check(unranked["delta-70b"]["answered_rate"] is None
+              and unranked["delta-70b"]["answers"] == "not on the radar yet; the provider answered the 30-second burst on 2026-09-01 with `delta-7b`",
+              "delta-70b: not on the radar, says so, and names the burst the provider did answer, with the model it called")
+        check(unranked["alpha-mini"]["answers"] == "0 of 1 in 14 days" and ranked["delta-7b"]["answers"] == "1 of 1 in 14 days",
+              "an endpoint the radar reached prints the radar tally alone: the other instruments never replace it")
         check(ranked["alpha-large"]["radar_probes"] == [2, 2],
               "alpha-large: the row from 2026-08-01 is outside the window and ignored")
         check(ranked["beta-coder"]["answered_rate"] == 0.5, "beta: 1 of 2 in the window")
@@ -262,7 +290,13 @@ def main():
         check(ranked["gamma-chat:free"]["cost"] == "region-restricted; $1 top-up unlocks the daily quota",
               "gamma: Cost carries the region flag and the unlock condition")
         check(ranked["alpha-large"]["cost"] == "**trains on your prompts**", "alpha: Cost carries the privacy flag")
-        check(ranked["beta-coder"]["cost"] == "privacy terms not read yet", "beta: unread terms say so in plain words")
+        check(ranked["beta-coder"]["cost"] == "-" and ranked["delta-7b"]["cost"] == "-",
+              "beta, delta: nothing on file (no privacy term read, no unlock) prints a dash, not a sentence")
+        check(ranked["alpha-large"]["measured_on_tier"] == "free trial"
+              and ranked["alpha-large"]["tier_note"] == "read on a free trial key; may be that tier's allowance, not a standing free tier"
+              and "Read on a free trial key" in ranked["alpha-large"]["volume_evidence"]
+              and ranked["beta-coder"]["measured_on_tier"] is None and ranked["beta-coder"]["tier_note"] is None,
+              "alpha: a MEASURED figure read on a free-trial key carries the tier from limits.json; beta carries none")
         check(ranked["alpha-large"]["returned_empty_200"] == 1, "alpha: archived empty-200 is carried, as a count")
         check(rk["ranking_formula"] == rank.FORMULA == "coding_index x log10(1 + daily_tokens / 500) x answered_rate x 1.25 if no key x 0.5 if degraded",
               "the formula string is the agreed one")
@@ -297,9 +331,11 @@ def main():
         check(sh["drawn"]["tokens_per_day"] == 480000 and sh["drawn"]["providers"] == ["epsilon"],
               "drawn shelf: epsilon 20,000/h x 24, and NOT alpha, which has a measured figure")
         check(cap["per_provider"]["alpha"]["confidence"] == "MEASURED", "alpha keeps MEASURED over DRAWN")
-        check("drawn at our pace of 2 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling"
-              in cap["per_provider"]["epsilon"]["evidence"],
-              "epsilon: the DRAWN evidence carries the pace, the tokens a call and the floor caveat")
+        check(DRAWN_CAVEAT in cap["per_provider"]["epsilon"]["evidence"],
+              "epsilon: the DRAWN evidence carries the planned pace, the realised pace, the tokens a call and the floor caveat")
+        check(cap["per_provider"]["alpha"]["measured_on_tier"] == "free trial" and cap["per_provider"]["gamma"]["unlock"] == "$1 top-up unlocks the daily quota"
+              and cap["per_provider"]["beta"]["measured_on_tier"] is None and cap["per_provider"]["beta"]["unlock"] is None,
+              "capacity.json per_provider carries the tier and the unlock condition next to the figure")
         check(cap["defensible_tokens_per_day"] == 2030000 and cap["share_of_target_pct"] == 0.2
               and cap["multiple_still_needed"] == 492.6,
               "defensible = 2,030,000 = 0.2%% of 1e9, 492.6x still needed")
@@ -357,7 +393,9 @@ def main():
               and not any(l.split("|")[answers_col].strip() == "?" for l in table),
               "ALL-ENDPOINTS: 0% prints as 0%, and no Answers cell is ever ?")
         d70 = [l for l in alle.split("\n") if l.startswith("| `delta-70b`")][0]
-        check("| not probed yet |" in d70 and "unit price is not on file" in d70, "ALL-ENDPOINTS: never probed says so; the UNKNOWN reason is in the note")
+        check("| not on the radar yet; the provider answered the 30-second burst on 2026-09-01 with `delta-7b` |" in d70
+              and "unit price is not on file" in d70,
+              "ALL-ENDPOINTS: not on the radar says so, with the burst the provider answered; the UNKNOWN reason is in the note")
         top5 = block(readme, "TOP5")
         check(top5 is not None and top5.count("[get a key](") == 3 and "no key needed: [docs](https://delta.example/pricing)" in top5,
               "TOP5: every row has a door, and the keyless one points at the docs")
@@ -385,10 +423,79 @@ def main():
               and "capped at %d requests a minute" % rank.MAX_PACE_RPM in road,
               "ROAD: the distance paragraph is computed from the shelf and the meter's constants")
         capacity = block(readme, "CAPACITY")
-        check("| DRAWN; drawn at our pace of 2 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling |" in capacity,
-              "CAPACITY: the DRAWN row carries the caveat")
-        check("| **[beta](https://inference.beta.example/)** | 8,000 |  | 400,000 in / 50,000 out | 60 | 300,000 | DECLARED | $5 in credits | - | yes | **yes** | ? |" in capacity,
+        check("| DRAWN; %s |" % DRAWN_CAVEAT in capacity, "CAPACITY: the DRAWN row carries the caveat")
+        check("| **[beta](https://inference.beta.example/)** | 8,000 |  | 800,000 in / 50,000 out | 60 | 300,000 | DECLARED | $5 in credits | - | yes | **yes** | ? |" in capacity,
               "CAPACITY: a sign-up page that was read and does not say prints ?")
+        check("| 1,000,000 | MEASURED; %s |" % TIER_NOTE in capacity and "| 20,000 in+out |" in capacity
+              and "| 6,000, scope unspecified (per model, largest) |" in capacity,
+              "CAPACITY: the tier travels with alpha's MEASURED figure; a bare tpm prints in+out only where the provider says so, "
+              "and scope unspecified where it does not")
+
+        # ---- the sentences the review found refuting the page they sat on, pinned to the fixture and the meter
+        print("\n=== the ROAD paragraph: ceilings and the meter ===")
+        check(rank.comparable_ceiling({"tpm": 4000000, "tpm_input": 4000000, "tpm_output": 100000}) == 100000
+              and rank.comparable_ceiling({"tpm_input": 4000000}) == 0
+              and rank.comparable_ceiling({"tpm": 5000000}) == 5000000
+              and rank.comparable_ceiling({}) == 0,
+              "comparable_ceiling: the output side of a split, else the bare tpm; an input figure alone compares as nothing")
+        target_min = rank.TARGET_TOKENS_PER_DAY / 1440.0
+        fix_lim = json.loads((FIX / "limits.json").read_text(encoding="utf-8"))["providers"]
+        check(fix_lim["beta"]["all_models"]["tpm_input"] > target_min > fix_lim["beta"]["all_models"]["tpm_output"],
+              "the fixture's beta publishes a split whose input sits above the target's rate and whose output sits under it")
+        check(dist["ceilings_at_or_above_target_rate"] == [] and "beta" not in road.split("*What it would take.*")[-1].split("The draw meter")[0]
+              and "No provider publishes a per-minute ceiling at or above the %s a minute the target works out to, counting the "
+                  "output ceiling where a split is published and the bare figure where it is not." % "{:,}".format(round(target_min)) in road,
+              "ROAD: beta's 800,000 INPUT ceiling never qualifies it as at or above the output target, and the sentence states the rule")
+        meter = dist["meter"]
+        check(meter["max_registrable_tokens_per_hour"] == meter_max_per_hour()
+              and meter["max_registrable_tokens_per_day"] == meter_max_per_hour() * 24
+              and meter["max_registrable_tokens_per_hour"] < draw_day.MAX_PACE_RPM * draw_day.MAX_TOKENS_PER_CALL * 60
+              and meter["cap_stop_min_minutes"] == draw_day.CAP_STOP_MIN_MINUTES and meter["token_cap_per_run"] == draw_day.TOKEN_CAP,
+              "capacity.json meter: the most the meter can register is min(pace x tokens x 60, cap / %d min x 60) = %s an hour, "
+              "from draw_day's own constants, under the pace-only figure" % (draw_day.CAP_STOP_MIN_MINUTES, "{:,}".format(meter_max_per_hour())))
+        check(("stopping at %s tokens, and a run the cap stops states a rate only after %d minutes, so the most it can register from "
+               "one provider is %s tokens an hour, %s a day." % ("{:,}".format(draw_day.TOKEN_CAP), draw_day.CAP_STOP_MIN_MINUTES,
+                                                                  "{:,}".format(meter_max_per_hour()), "{:,}".format(meter_max_per_hour() * 24))) in road
+              and "{:,}".format(draw_day.MAX_PACE_RPM * draw_day.MAX_TOKENS_PER_CALL * 60) not in road,
+              "ROAD: the meter maximum printed is the one the meter can produce, and the pace-only figure is nowhere on the page")
+        check("(alpha says in+out; epsilon does not say which)" in road,
+              "ROAD: a combined ceiling is called in+out only for the provider whose words say so")
+
+        print("\n=== conditions travel with the figure ===")
+        check("1,000,000 measured from response headers or usage endpoints (1 provider; alpha: 1,000,000 %s)" % TIER_NOTE in road
+              and "(2 providers; gamma: 50,000 only after a one-time $1 top-up)" in road,
+              "ROAD: the measured shelf carries alpha's trial tier and the derived shelf carries gamma's unlock")
+        hb = block(readme, "HEADLINE")
+        check("| measured by us from headers or usage endpoints | 1,000,000 (alpha: 1,000,000 %s) |" % TIER_NOTE in hb
+              and "| 250,000 (gamma: 50,000 only after a one-time $1 top-up) |" in hb,
+              "HEADLINE: the same two qualifiers on the same two rows")
+        check("| 1,000,000 | MEASURED; %s |" % TIER_NOTE in top5 and top5.count("MEASURED; ") == 1,
+              "TOP5: alpha's Volume cell carries the tier, and no other row carries one")
+        check("| 300,000 | DECLARED | 1 of 2 in 14 days | - |" in top5 and "| region-restricted; $1 top-up unlocks the daily quota |" in top5,
+              "TOP5: a Cost cell with nothing on file is a dash; gamma keeps its flag and its unlock")
+        check("| **3 of 5 measured** |" in hb and "| no burst row yet | none |" in hb
+              and "**3 of the 5 providers measured handed us" in road
+              and "1 measured with no rate to state (epsilon: five failures in a row: HTTP 403: the endpoint refused the caller)" in road
+              and b["providers_measured"] == 5 and b["providers_without_a_burst_row"] == [],
+              "bursts: N of M counts the providers with a burst row, the no-rate rows are named apart, and none is missing")
+        check("| `gemini-3.5-flash-lite`" not in limits_md and "| `epsilon-pro` | 20 | 1,000 | 6,000 | 100,000 | PAID-PLAN |" in limits_md,
+              "LIMITS.md: the per-model 'Daily figure is' column prints the label the list uses for that model")
+        check("| [alpha](https://console.alpha.example/keys) | 10 | 20,000 | input+output | MEASURED |" in limits_md
+              and "| [epsilon](https://console.epsilon.example/) | 20 | 6,000 | unspecified | DECLARED; per model, largest shown |" in limits_md
+              and "input+output, or unspecified" not in limits_md,
+              "LIMITS.md: the denomination column says input+output only where the provider says so, else unspecified")
+        check("(MEASURED; %s), on `alpha-large`" % TIER_NOTE in limits_md, "LIMITS.md: the daily figure line carries the tier")
+        kr = block(readme, "KEYLESS-RADAR")
+        check("latest row per endpoint (2026-09-07)" in kr
+              and "delta, 2 tracked endpoints: 1 answered with text (HTTP 200); 1 not on the radar yet" in kr
+              and "[`data/uptime.jsonl`](data/uptime.jsonl)" in kr,
+              "KEYLESS-RADAR: the keyless tally is generated from the radar's file, per provider, with the date")
+        check("Rows are sorted by value, highest first; a tie is broken by provider name, then model id." in results
+              and "A `-` under Cost means nothing is on file yet" in results,
+              "RESULTS.md: the sort order and the dash are defined on the page")
+        check("a documentation host declared in `bench/gate_contributions.py`" in alle
+              and "`not on the radar yet` is the absence of one" in alle,
+              "ALL-ENDPOINTS: the door rule names the declared hosts, and the Answers legend names the radar")
         for name in ("alpha", "beta", "gamma", "delta", "epsilon"):
             check("## [%s](" % name in limits_md, "LIMITS.md has a section for %s" % name)
         check("| [beta](https://inference.beta.example/) | $5 in credits | monthly |" in limits_md, "LIMITS.md monthly table")
@@ -580,6 +687,84 @@ def main():
         check(not re.search(r"\b(?:three|four|five|six|seven)\s+(?:different\s+)?labels\b", contributing, re.I)
               and "first three" not in contributing,
               "CONTRIBUTING.md states no label count of its own; the vocabulary lives in rank.py")
+
+        # the sentences a stranger reads first, recomputed from the raw files with arithmetic written here
+        print("\n=== the committed ROAD, COUNTS, RELIABILITY and LIMITS sentences, against the raw files ===")
+        target_min = cap["target_tokens_per_day"] / 1440.0
+        want_above = sorted(n for n, e in (lim.get("providers") or {}).items() if comparable(e) >= target_min)
+        got_above = [entry.split(" (")[0] for entry in cap["distance"]["ceilings_at_or_above_target_rate"]]
+        check(got_above == want_above, "the providers listed at or above the target's rate are exactly those whose output ceiling "
+                                       "(or bare tpm) reaches it: %s" % want_above)
+        input_only = [n for n, e in (lim.get("providers") or {}).items()
+                      if comparable(e) < target_min and max([(e.get("all_models") or {}).get("tpm_input") or 0]
+                                                            + [(m or {}).get("tpm_input") or 0 for m in (e.get("models") or {}).values()]) >= target_min]
+        check(all(n not in got_above for n in input_only),
+              "no provider qualifies on an input ceiling alone (today: %s)" % (input_only or "none on file"))
+        meter = cap["distance"]["meter"]
+        check(meter["max_registrable_tokens_per_hour"] == meter_max_per_hour() and meter["max_registrable_tokens_per_day"] == meter_max_per_hour() * 24,
+              "the committed meter maximum is min(pace x tokens x 60, cap / cap-stop minutes x 60) from draw_day's constants")
+        road_text = block(readme_text, "ROAD") or ""
+        check("{:,}".format(meter_max_per_hour()) + " tokens an hour" in road_text
+              and "{:,}".format(draw_day.MAX_PACE_RPM * draw_day.MAX_TOKENS_PER_CALL * 60) not in road_text,
+              "the committed ROAD prints the meter maximum the meter can produce and not the pace-only figure")
+        counts_text = block(readme_text, "COUNTS") or ""
+        silent = cap.get("providers_with_no_daily_figure", [])
+        why = cap.get("why_no_daily_figure", {})
+        check("publish none" not in counts_text and all(n in why and why[n] and ("%s (%s)" % (n, why[n])) in counts_text for n in silent),
+              "the committed COUNTS names why each provider off the shelf is off it, from its own data, never 'publish none'")
+        burst_rows = read_jsonl(ROOT / "data" / "throughput.jsonl")
+        burst_ok = {r["provider"] for r in burst_rows if (r.get("requests_ok") or 0) > 0}
+        draw_ok = {r["provider"] for r in drawn_rows if (r.get("requests_ok") or 0) > 0}
+        measured = {r["provider"] for r in burst_rows if r.get("provider")}
+        check(cap["burst"]["providers_measured"] == len(measured)
+              and set(cap["burst"]["providers_without_a_burst_row"]) == {p["name"] for p in providers["providers"]} - measured
+              and ("**%d of %d measured**" % (len(cap["burst"]["providers_delivered"]), len(measured))) in (block(readme_text, "HEADLINE") or ""),
+              "the burst denominator is the providers with a burst row, and the rest are named as having none")
+        bad_answers = []
+        for r in rk["ranked"] + rk["unranked"]:
+            a = r["answers"]
+            if not a.startswith("not on the radar yet"):
+                continue
+            if r["provider"] in burst_ok and "answered the 30-second burst on" not in a:
+                bad_answers.append((r["provider"], r["model"], a))
+            elif r["provider"] not in burst_ok and r["provider"] in draw_ok and "answered the %d-minute draw on" % draw_day.MINUTES not in a:
+                bad_answers.append((r["provider"], r["model"], a))
+            elif r["provider"] not in burst_ok | draw_ok and a != "not on the radar yet":
+                bad_answers.append((r["provider"], r["model"], a))
+        check(not bad_answers, "every 'not on the radar yet' cell names the burst or the draw the provider did answer, and nothing else%s"
+              % ("" if not bad_answers else ": %s" % bad_answers[:3]))
+        rel_text = block(readme_text, "RELIABILITY") or ""
+        bad_rel = [l for l in rel_text.split("\n") if "not on the radar yet" in l
+                   and ((re.search(r"\[([^\]]+)\]", l).group(1) in burst_ok) != ("answered the 30-second burst on" in l))]
+        check(not bad_rel, "RELIABILITY says which providers off the radar answered the burst, and only those%s"
+              % ("" if not bad_rel else ": %s" % bad_rel[:2]))
+        limits_text = (ROOT / "LIMITS.md").read_text(encoding="utf-8") if (ROOT / "LIMITS.md").exists() else ""
+        prov, bad_tags, n_tags = None, [], 0
+        for l in limits_text.split("\n"):
+            m = re.match(r"## \[([^\]]+)\]", l)
+            if m:
+                prov = m.group(1)
+            m = re.match(r"\| `([^`]+)` \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| ([A-Z-]+) \|$", l)
+            if m and prov:
+                n_tags += 1
+                want = ref_volume(lim, prov, m.group(1), consts[0] if consts else rank.TOKENS_PER_REPLY)[1]
+                if m.group(2) != want:
+                    bad_tags.append((prov, m.group(1), m.group(2), want))
+        check(n_tags > 0 and not bad_tags, "LIMITS.md's per-model 'Daily figure is' column carries the label the list uses for that "
+                                           "model, recomputed from limits.json (%d rows)%s" % (n_tags, "" if not bad_tags else ": %s" % bad_tags[:3]))
+        for name, e in (lim.get("providers") or {}).items():
+            am = e.get("all_models") or {}
+            if am.get("tpm") and not (am.get("tpm_input") or am.get("tpm_output")):
+                said = am.get("tpm_scope") == "in+out"
+                row = next((l for l in limits_text.split("\n") if l.startswith("| [%s](" % name) and "| %s |" % ("input+output" if said else "unspecified") in l), None)
+                check(row is not None, "LIMITS.md denominates %s's bare tpm as %s, as limits.json's tpm_scope says" % (name, "input+output" if said else "unspecified"))
+        for name, e in (lim.get("providers") or {}).items():
+            tier = e.get("measured_on_tier")
+            if tier and name in cap["per_provider"] and cap["per_provider"][name]["confidence"] == "MEASURED":
+                note = "read on a %s key" % tier
+                check(note in (block(readme_text, "HEADLINE") or "") and note in (block(readme_text, "CAPACITY") or "")
+                      and all(note in r["answers"] or note in ("%s" % r.get("tier_note")) for r in rk["ranked"] if r["provider"] == name),
+                      "%s's MEASURED figure carries its tier (%s) on the headline, the capacity table and every ranked row" % (name, tier))
 
     print("\n%d failure(s)" % len(failures))
     for f in failures:

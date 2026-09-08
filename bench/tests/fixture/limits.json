@@ -5,11 +5,13 @@
    "scope": "account",
    "confidence": "MEASURED",
    "measured_on": "2026-09-01",
-   "measured_how": "rate-limit response headers on 2026-09-01",
+   "measured_how": "rate-limit response headers on 2026-09-01, read on a free-trial key",
+   "measured_on_tier": "free trial",
    "caveat": "A token cap and a request cap; the token cap binds.",
    "all_models": {
     "rpm": 10,
     "tpm": 20000,
+    "tpm_scope": "in+out",
     "rpd": 4000,
     "tpd": 1000000
    },
@@ -35,10 +37,10 @@
    "confidence": "DECLARED",
    "source": "https://beta.example/limits",
    "read_on": "2026-09-01",
-   "caveat": "Publishes a daily token figure and a split per-minute ceiling.",
+   "caveat": "Publishes a daily token figure and a split per-minute ceiling whose INPUT side sits above the target's rate and whose OUTPUT side sits far under it: it must never be listed as at or above the target.",
    "all_models": {
     "rpm": 60,
-    "tpm_input": 400000,
+    "tpm_input": 800000,
     "tpm_output": 50000,
     "rpd": null,
     "tpd": 300000

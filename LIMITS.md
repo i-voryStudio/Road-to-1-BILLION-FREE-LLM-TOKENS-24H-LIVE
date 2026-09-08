@@ -9,7 +9,7 @@ Six labels, and the difference matters more than the numbers. A row is ranked on
 - **DERIVED** - arithmetic done here on figures the provider publishes, with the arithmetic shown: a request cap times 500 tokens a reply, or a unit price divided into an allowance.
 - **PAID-PLAN** - the only published number belongs to a paid tier, so it is not free capacity at all. Never ranked, never summed.
 - **UNKNOWN** - nobody publishes it and we have not measured it. It stays unknown. We do not borrow a number from another list to fill the hole, and unknown does not mean unlimited.
-- **DRAWN** - tokens actually pulled over a 60-minute draw at the provider's published pace, times 24. An extrapolation and a floor at our pace, labelled as both everywhere it appears; used only where a provider has no MEASURED, DECLARED or DERIVED daily figure.
+- **DRAWN** - tokens actually pulled over a 60-minute draw at the provider's published pace, times 24: a floor for the hour measured, extrapolated to a day, and labelled as both everywhere it appears; used only where a provider has no MEASURED, DECLARED or DERIVED daily figure.
 
 ## Monthly grants, kept apart from the daily numbers
 
@@ -37,16 +37,16 @@ Output-only ceilings can be compared with an output target; combined in+out ceil
 | Provider | Req/min | Tokens/min | Denominated in | How we know |
 |---|---|---|---|---|
 | [aihubmix](https://aihubmix.com/) | 10 | - | - | DECLARED |
-| [alibaba](https://modelstudio.console.alibabacloud.com) | 600 | 5,000,000 | input+output, or unspecified | DECLARED; per model, largest shown |
+| [alibaba](https://modelstudio.console.alibabacloud.com) | 600 | 5,000,000 | input+output | DECLARED; per model, largest shown |
 | [cerebras](https://cloud.cerebras.ai) | 5 | - | - | MEASURED |
 | [cloudflare](https://dash.cloudflare.com/profile/api-tokens) | 300 | - | - | DECLARED |
-| [google](https://aistudio.google.com/apikey) | 15 | 250,000 | input+output, or unspecified | DECLARED; per model, largest shown |
-| [groq](https://console.groq.com/keys) | 30 | 8,000 | input+output, or unspecified | DECLARED; per model, largest shown |
+| [google](https://aistudio.google.com/apikey) | 15 | 250,000 | unspecified | DECLARED; per model, largest shown |
+| [groq](https://console.groq.com/keys) | 30 | 8,000 | unspecified | DECLARED; per model, largest shown |
 | [hetzner](https://console.hetzner.com/) | 10 | 4,000,000 in / 100,000 out | input and output, separately | DECLARED |
 | [kenari](https://kenari.id/) | 5 | - | - | DECLARED |
 | [openrouter](https://openrouter.ai/keys) | 20 | - | - | DECLARED |
 | [ovhcloud](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities) | 2 | - | - | MEASURED |
-| [siliconflow](https://siliconflow.com) | 1,000 | 40,000 | input+output, or unspecified | DECLARED |
+| [siliconflow](https://siliconflow.com) | 1,000 | 40,000 | unspecified | DECLARED |
 | [uncloseai](https://ai.unturf.com) | 180 | - | - | DECLARED |
 | [unorouter](https://unorouter.com/) | 1 | - | - | DECLARED |
 
@@ -79,7 +79,7 @@ Sign-up requirements: not read yet.
 - **Source:** https://inference-docs.cerebras.ai/support/pricing (read 2026-09-06)
 - **Measured:** 2026-09-07, rate-limit response headers on a free-trial key, read 2026-09-02 and again 2026-09-07: x-ratelimit-limit-requests-day 2400, x-ratelimit-limit-tokens-day 1000000, 5 requests/minute. The figures held across five days.
 - **The limit that actually bites:** 5 requests per minute. Two calls inside the same minute need roughly 13 s between them.
-- **Daily figure this list uses:** 1,000,000 tokens (MEASURED), on `qwen-3.8-27b`.
+- **Daily figure this list uses:** 1,000,000 tokens (MEASURED; read on a free trial key; may be that tier's allowance, not a standing free tier), on `qwen-3.8-27b`.
 
 Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the response headers of a free-trial key reported between 2026-09-02 and 2026-09-07. They may be trial allowance rather than a standing free tier. Re-measure before relying on them.
 
@@ -104,7 +104,7 @@ The public docs page no longer prints the per-model table; it points you at aist
 | `gemini-3.8-flash` | 5 | - | - | - | UNKNOWN |
 | | | | | | The console screen read on 2026-09-06 showed 20 requests a day for 3.7 Flash and no row for 3.8 Flash, so no daily figure is recorded here. The 5/min WAS measured: a sixth call inside six seconds returned HTTP 429 with 'limit: 5'. |
 | | | | | | Daily volume UNKNOWN: the 20 requests a day on the screen read 2026-09-06 belonged to gemini-3.7-flash; no daily figure for gemini-3.8-flash has been read. |
-| `gemini-3.5-flash-lite` | 15 | 500 | 250,000 | - | DECLARED |
+| `gemini-3.5-flash-lite` | 15 | 500 | 250,000 | - | DERIVED |
 | `gemma-4-31b-it` | - | - | - | - | UNKNOWN |
 | | | | | | Not published on the screen we read, and not measured. |
 
@@ -277,7 +277,7 @@ Sign-up requires: card no, phone no - No account at all. (read 2026-09-07).
 
 - **Confidence:** MEASURED
 - **Limit applies per:** ANONYMOUS, AND SHARED
-- **Source:** https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities (read 2026-09-08)
+- **Source:** https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities (read 2026-09-07)
 - **Measured:** 2026-09-07, Response headers on an anonymous POST: ratelimit-limit 2, x-ratelimit-limit-minute 2, the per-minute allowance header at 0, ratelimit-reset 44. Two attempts 90 seconds apart, both HTTP 429, both showing 0 left in the minute: the anonymous bucket is shared with every caller and was already empty both times.
 - **The limit that actually bites:** Requests per minute, at 2, shared with everyone. This is what a free tier with no sign-up actually costs: you are queueing behind the whole internet.
 - **Daily figure this list uses:** none. UNKNOWN is not unlimited.
@@ -405,7 +405,7 @@ Sign-up requires: card no, phone not stated (read 2026-09-07).
 - **Limit applies per:** API KEY
 - **Source:** https://docs.hetzner.com/general/company-and-policy/experiments/inference/ (read 2026-09-07)
 - **The limit that actually bites:** Output tokens per minute, at 100,000 - and, today, whether any capacity answers at all.
-- **Daily figure this list uses:** 5,581,224 tokens (DRAWN), on `Qwen3.8-27B`: extrapolated from a 60-minute draw on 2026-09-07; drawn at our pace of 10 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling. The same day's 30-second burst received nothing: five failures in a row: no response: timeout or connection failure.
+- **Daily figure this list uses:** 5,581,224 tokens (DRAWN), on `Qwen3.8-27B`: extrapolated from a 60-minute draw on 2026-09-07; drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling. The same day's 30-second burst received nothing: five failures in a row: no response: timeout or connection failure.
 
 Their limits table publishes ONE timeframe, 60 seconds, and no daily row: 4M input tokens, 100k output tokens, 10 requests. Read from the page's raw HTML on 2026-09-07 because lists elsewhere quote a 24-hour row of 500M input and 5M output that is not on the page. Free only while the service stays experimental, and they say they will email before that changes. Measured the same day: both models returned 503 'failed to find endpoint candidates for serving the request', so the ceiling is generous and the capacity behind it is not there yet.
 

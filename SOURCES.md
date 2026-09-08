@@ -12,8 +12,8 @@ number here has no source, it is a bug — tell us.
 | **[OpenRouter](https://openrouter.ai)** `/api/v1/models` | the live model catalogue, and the two score sets above | public, no key, no scraping |
 
 We do not modify, recompute or re-weight any score. Every fetch is dated in
-[`data/scores.json`](data/scores.json). A model with no published score is marked UNSCORED, never
-estimated.
+[`data/scores.json`](data/scores.json). A model with no published score prints `?` in every score column
+and the words the pages print, `no official benchmark score published for this model`, never an estimate.
 
 ## The provider catalogue we cross-check against
 
@@ -29,8 +29,8 @@ and why:
 - **Their headline provider count.** It contains measured duplicates: `naga-ai` and `naga-ac`
   are the same host, `sparkdesk` is an alias over `iflytek`, `doubao` takes its key from the same
   console as `volcengine`.
-- **Their `hasFree: true` boolean.** It covers both a recurring quota and credits that run out — the
-  same flag sits on a provider giving 1M requests a month and one giving a single grant.
+- **Their `hasFree: true` boolean.** It covers both a recurring quota and a one-time grant: the same
+  flag sits on a provider giving 1M requests a month and one giving a single sign-up bundle.
 - **Classification by absence.** In their frontier-labs file, 9 of the 11 entries read as paid because a
   flag is missing, not because anything says so. Absence is not evidence.
 - **Providers reached by reverse-engineered protocols or a browser session**, and anything requiring
@@ -62,20 +62,13 @@ repo re-counts them, and the block they sit in says so.
 ### What re-testing those lists actually returns
 
 Their tables are the best-organised in this field and their credit-card column is a genuinely useful
-idea we did not have. What their numbers are not is current. On 2026-09-07 we called every endpoint
-that three separate published lists describe as needing **no API key**, with no `Authorization` header,
-exactly as a reader would:
-
-| Endpoint | Published as | Answered with |
-|---|---|---|
-| `api.llm7.io` | 30 requests/minute, no signup | `401 Missing API key` |
-| `text.pollinations.ai` | ~1 request/15s, anonymous | `402 Payment Required` |
-| `inference-api.nousresearch.com` | no key | model retired, `404` |
-| `api.inference.net` | no key | `401 Missing Authorization Bearer token` |
-| `inference.api.nscale.com` | no key | `401 Unauthorized` |
-| `api.aionlabs.ai` | no key | `401 credentials were not provided` |
-
-Every one of them.
+idea we did not have. What their numbers are not is current, and that is measured rather than typed: the
+keyless endpoints this list tracks were each called with no `Authorization` header before they were
+listed, the radar calls them again every day, and the tally is generated on the front page from
+[`data/uptime.jsonl`](data/uptime.jsonl), under "What that catches, concretely" in
+[README.md](README.md). A catalogue entry that answers a keyless call with a demand for a credential or
+for payment is not listed here and is not counted anywhere: nothing on these pages tallies an endpoint no
+file records.
 
 And it is not only the keyless rows. A directory with thousands of stars, updated on 2026-09-06, still lists
 **GitHub Models** as available with no registration required. GitHub retired it on 30 July 2026 — their

@@ -83,6 +83,7 @@
    "all_models": {
     "rpm": 30,
     "tpm": 8000,
+    "tpm_scope": "unspecified",
     "rpd": null,
     "tpd": null,
     "note": "per model; the largest is shown"
@@ -99,6 +100,7 @@
    "confidence": "MEASURED",
    "measured_on": "2026-09-07",
    "measured_how": "rate-limit response headers on a free-trial key, read 2026-09-02 and again 2026-09-07: x-ratelimit-limit-requests-day 2400, x-ratelimit-limit-tokens-day 1000000, 5 requests/minute. The figures held across five days.",
+   "measured_on_tier": "free trial",
    "volatile": false,
    "caveat": "Their pricing page on 2026-09-06 describes free access only as 'Free Trial: $5 in free credits after making an account' and publishes no daily free-tier ceiling at all. The numbers below are what the response headers of a free-trial key reported between 2026-09-02 and 2026-09-07. They may be trial allowance rather than a standing free tier. Re-measure before relying on them.",
    "source": "https://inference-docs.cerebras.ai/support/pricing",
@@ -151,6 +153,7 @@
    "all_models": {
     "rpm": 15,
     "tpm": 250000,
+    "tpm_scope": "unspecified",
     "rpd": null,
     "tpd": null,
     "note": "per model; the largest is shown"
@@ -293,6 +296,7 @@
     "tpd": null,
     "rpm": 600,
     "tpm": 5000000,
+    "tpm_scope": "in+out",
     "note": "per model; the largest is shown"
    },
    "one_time": {
@@ -348,6 +352,7 @@
     "tpd": null,
     "rpm": 1000,
     "tpm": 40000,
+    "tpm_scope": "unspecified",
     "note": "rpd is null on purpose: see unverified_accounts."
    },
    "unverified_accounts": {
@@ -409,7 +414,7 @@
    "confidence": "MEASURED",
    "measured_on": "2026-09-07",
    "source": "https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities",
-   "read_on": "2026-09-08",
+   "read_on": "2026-09-07",
    "measured_how": "Response headers on an anonymous POST: ratelimit-limit 2, x-ratelimit-limit-minute 2, the per-minute allowance header at 0, ratelimit-reset 44. Two attempts 90 seconds apart, both HTTP 429, both showing 0 left in the minute: the anonymous bucket is shared with every caller and was already empty both times.",
    "caveat": "2 requests a minute is the anonymous tier and it is what a reader without an account gets. The authenticated tier is 400 a minute but needs a Public Cloud project with a payment method on file, so it is not a free tier. No daily or monthly cap is published for either.",
    "all_models": {

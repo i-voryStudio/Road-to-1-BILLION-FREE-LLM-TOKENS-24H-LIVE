@@ -2,23 +2,25 @@
 
 A live, measured list of every free LLM API we can find, ranked by what you can actually get done with
 it: quality from official benchmarks, volume from response headers and pricing pages, and every figure
-labelled by how we know it.
-
-<!--QUALITY-->
-**Quality has a number here: an official coding index of at least 45**, imported from Artificial Analysis and never run by us. The lowest-scoring endpoints that still clear it today, so you can see where the floor sits: `mistral-medium-3-5:free` at kenari (46.9), `gemini-3.5-flash-lite` at google (49.3), `nemotron-3-ultra-550b-a55b:free` at kenari (49.3), `nvidia/nemotron-3-ultra-550b-a55b:free` at openrouter (49.3). 14 ranked endpoints clear it; 22 scored endpoints sit under it and are listed in [RESULTS.md](RESULTS.md), never ranked, with none of their tokens on the bar.
-<!--/QUALITY-->
+labelled by how we know it. Free here means no money spent, and a figure that needs a top-up first, or
+that was read on a trial tier, says so wherever it is printed; quality here means an official coding
+index at or above the floor printed under the table.
 
 ## The five best free endpoints today
 
 <!--TOP5-->
 | # | Model | Provider | Value | Coding | Tokens/day | Volume | Answers | Cost | Get key |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 | MEASURED | 2 of 2 in 14 days | privacy terms not read yet | [get a key](https://xkiro.com) |
-| 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 | MEASURED | 2 of 2 in 14 days; returned an empty reply once in the archived run | privacy terms not read yet | [get a key](https://cloud.cerebras.ai) |
-| 3 | `gemini-3.8-flash-free` | aihubmix | **152.9** | 76.3 | 50,000 | DERIVED | not probed yet | privacy terms not read yet; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
-| 4 | `coding-kimi-k3-free` | aihubmix | **152.7** | 76.2 | 50,000 | DERIVED | not probed yet | privacy terms not read yet; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
-| 5 | `coding-glm-5.3-free` | aihubmix | **149.9** | 74.8 | 50,000 | DERIVED | not probed yet | privacy terms not read yet; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
+| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 | MEASURED | 2 of 2 in 14 days | - | [get a key](https://xkiro.com) |
+| 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 | MEASURED; read on a free trial key; may be that tier's allowance, not a standing free tier | 2 of 2 in 14 days; returned an empty reply once in the archived run | - | [get a key](https://cloud.cerebras.ai) |
+| 3 | `gemini-3.8-flash-free` | aihubmix | **152.9** | 76.3 | 50,000 | DERIVED | not on the radar yet; answered the 30-second burst on 2026-09-07 | $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
+| 4 | `coding-kimi-k3-free` | aihubmix | **152.7** | 76.2 | 50,000 | DERIVED | not on the radar yet; the provider answered the 30-second burst on 2026-09-07 with `gemini-3.8-flash-free` | $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
+| 5 | `coding-glm-5.3-free` | aihubmix | **149.9** | 74.8 | 50,000 | DERIVED | not on the radar yet; the provider answered the 30-second burst on 2026-09-07 with `gemini-3.8-flash-free` | $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
 <!--/TOP5-->
+
+<!--QUALITY-->
+**Quality has a number here: an official coding index of at least 45**, imported from Artificial Analysis and never run by us. The lowest-scoring endpoints that still clear it today, so you can see where the floor sits: `mistral-medium-3-5:free` at kenari (46.9), `gemini-3.5-flash-lite` at google (49.3), `nemotron-3-ultra-550b-a55b:free` at kenari (49.3), `nvidia/nemotron-3-ultra-550b-a55b:free` at openrouter (49.3). 14 ranked endpoints clear it; 22 scored endpoints sit under it and are listed in [RESULTS.md](RESULTS.md), never ranked, with none of their tokens on the bar.
+<!--/QUALITY-->
 
 **Value = quality x volume x how often it actually answers**, and the exact formula is printed on every
 page, from the same constants the code runs on:
@@ -28,11 +30,16 @@ page, from the same constants the code runs on:
 <!--/FORMULA-->
 
 Volume is in **tokens**, not requests, because a request cap and a token cap are the same shelf in
-different units and the smaller one is your real ceiling. **Volume** says how we know that figure,
-**Answers** is the last 14 days of our own daily probe, **Cost** is what the free tier costs you that is
-not money plus anything you must pay once to unlock it, and **Get key** is the provider's own sign-up
-page, or its documentation page where no key is needed, checked against its API domain so it cannot
-point at a lookalike.
+different units and the smaller one is your real ceiling. Rows are sorted by value, highest first; a tie
+is broken by provider name, then model id. **Volume** says how we know that figure, and a MEASURED figure
+read on a tier that may not be the standing free tier says so in the same cell. **Answers** is the radar:
+our own probe, one per endpoint per day, over the last 14 days; the 30-second burst and the 60-minute
+draw are other instruments, and an endpoint the radar has not reached yet says `not on the radar yet`,
+with what those instruments saw. **Cost** is what the free tier costs you that is not money plus anything
+you must pay once to unlock it, and a `-` means nothing is on file yet, neither a privacy term read nor an
+unlock condition. **Get key** is the provider's own sign-up page, or its documentation page where no key
+is needed, checked against its API domain, or against a sign-up host or, for a keyless provider, a
+documentation host declared in `bench/gate_contributions.py`, so it cannot point at a lookalike.
 
 <!--EXAMPLE-->
 The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`, `gemini-3.8-flash-free`, and the score alone decides nothing: at aihubmix it sits at #3 with a value of 152.9: 50,000 tokens a day (DERIVED); at google it is not ranked: daily volume unknown: the 20 requests a day on the screen read 2026-09-06 belonged to gemini-3.7-flash; no daily figure for gemini-3.8-flash has been read - see LIMITS.md.
@@ -43,23 +50,23 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 <!--ROAD-->
 `░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **~1.2%**
 
-**Roughly 11,931,224 quality tokens a day** is what this list can defend on 2026-09-07: 6,000,000 measured from response headers or usage endpoints (2 providers); nothing counted as published by a provider as a daily token figure (aihubmix publishes 1,000,000 a day, but 100 requests bind first, so those are counted under derived); 350,000 derived from a published request cap at 500 tokens a reply or from the model's own published unit price (4 providers); 5,581,224 extrapolated from a 60-minute draw (hetzner: 232,551 tokens an hour, drawn at our pace of 10 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling). The target is 1,000,000,000 a day by 2026-11-07, 83.8 times that. Nothing here is a burst multiplied out to a day.
+**Roughly 11,931,224 quality tokens a day** is what this list can defend on 2026-09-07: 6,000,000 measured from response headers or usage endpoints (2 providers; cerebras: 1,000,000 read on a free trial key; may be that tier's allowance, not a standing free tier); nothing counted as published by a provider as a daily token figure (aihubmix publishes 1,000,000 a day, but 100 requests bind first, so those are counted under derived); 350,000 derived from a published request cap at 500 tokens a reply or from the model's own published unit price (4 providers; aihubmix: 50,000 only after a one-time $1 top-up); 5,581,224 extrapolated from a 60-minute draw (hetzner: 232,551 tokens an hour, drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling). The target is 1,000,000,000 a day by 2026-11-07, 83.8 times that. Nothing here is a burst multiplied out to a day.
 
-*Bursts are a different thing.* In 30-second bursts, latest reading per provider, **11 of 18 providers handed us 140,850 tokens a minute** added together on 2026-09-07; 3 delivered nothing (hetzner: five failures in a row: no response: timeout or connection failure; mistral: rate limit reached; ovhcloud: rate limit reached). A burst is a rate: 100,000 tokens a minute is a fact and 144,000,000 a day is a number nobody will be allowed to spend, so the bar above is built from the daily shelf and never from this rate. Free tiers move, throttle without warning and close; one provider here dropped 46-fold between two readings taken the same day. Nothing on this page is guaranteed to you by anyone, us included.
+*Bursts are a different thing.* In 30-second bursts, latest reading per provider, **11 of the 17 providers measured handed us 140,850 tokens a minute** added together on 2026-09-07; 3 delivered nothing (hetzner: five failures in a row: no response: timeout or connection failure; mistral: rate limit reached; ovhcloud: rate limit reached); 3 measured with no rate to state (groq: five failures in a row: HTTP 403: the endpoint refused the caller; siliconflow: five failures in a row: HTTP 402: the endpoint stops serving until a top-up; unorouter: five failures in a row: HTTP 503: no capacity behind the endpoint); 1 provider has no burst row yet: google. A burst is a rate: 100,000 tokens a minute is a fact and 144,000,000 a day is a number nobody will be allowed to spend, so the bar above is built from the daily shelf and never from this rate. Free tiers move, throttle without warning and close; one provider here dropped 46-fold between two readings taken the same day. Nothing on this page is guaranteed to you by anyone, us included.
 
-*What they allow.* The only output-only ceiling published (hetzner: 100,000 output tokens a minute) is 14% of the 694,444 a minute the target works out to. Ceilings published as input-plus-output, or without saying which, add up to 5,298,000 a minute across 4 providers and cannot be compared with an output target, so they are not.
+*What they allow.* The only output-only ceiling published (hetzner: 100,000 output tokens a minute) is 14% of the 694,444 a minute the target works out to. Ceilings published as input-plus-output, or without saying which, add up to 5,298,000 a minute across 4 providers (alibaba says in+out; google, groq and siliconflow do not say which) and cannot be compared with an output target, so they are not.
 
-*What it would take.* The shelf above is 11,931,224 tokens a day across 7 providers with any daily figure; the median figure among them is 250,000 a day. The gap to 1,000,000,000 is 988,068,776 a day, which is 3,953 more providers at that median. Two providers publish a per-minute ceiling at or above the 694,444 a minute the target works out to: alibaba (5,000,000 in+out a minute) drew 699,585 tokens an hour at 30 requests a minute x 700 tokens a call, against a one-time grant, so nothing of it is on the shelf; hetzner (4,000,000 in / 100,000 out a minute) drew 232,551 tokens an hour at 10 requests a minute x 700 tokens a call, and the same day's 30-second burst received nothing: five failures in a row: no response: timeout or connection failure. The draw meter runs once, for 60 minutes, at the provider's published pace capped at 120 requests a minute, asking for 700 tokens a call and stopping at 250,000 tokens, so the most it can register from one provider is 5,040,000 tokens an hour, 120,960,000 a day. A longer draw, a faster published pace, or more providers with a daily figure are the only things that move the bar; nothing else on this page will.
+*What it would take.* The shelf above is 11,931,224 tokens a day across 7 providers with any daily figure; the median figure among them is 250,000 a day. The gap to 1,000,000,000 is 988,068,776 a day, which is 3,953 more providers at that median. One provider publishes a per-minute ceiling at or above the 694,444 a minute the target works out to, counting the output ceiling where a split is published and the bare figure where it is not: alibaba (5,000,000 in+out a minute) drew 699,585 tokens an hour at a planned 30 requests a minute (29.0 realised) x 700 tokens a call, against a one-time grant, so nothing of it is on the shelf. The draw meter runs once, for 60 minutes, at the provider's published pace capped at 120 requests a minute, asking for 700 tokens a call and stopping at 250,000 tokens, and a run the cap stops states a rate only after 5 minutes, so the most it can register from one provider is 3,000,000 tokens an hour, 72,000,000 a day. A longer draw, a faster published pace, or more providers with a daily figure are the only things that move the bar; nothing else on this page will.
 <!--/ROAD-->
 
 <!--HEADLINE-->
 | The daily shelf, one figure per provider | |
 |---|---|
 | **Tokens a day this list can defend** | **11,931,224** |
-| measured by us from headers or usage endpoints | 6,000,000 |
+| measured by us from headers or usage endpoints | 6,000,000 (cerebras: 1,000,000 read on a free trial key; may be that tier's allowance, not a standing free tier) |
 | published by the provider in tokens | 0 (aihubmix publishes 1,000,000 a day, but 100 requests bind first, so counted under derived) |
-| derived from a published request cap at 500 tokens each, or the model's own published unit price | 350,000 |
-| drawn: extrapolated from a 60-minute draw, where nothing above exists | 5,581,224 (hetzner: 232,551 tokens an hour, drawn at our pace of 10 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling) |
+| derived from a published request cap at 500 tokens each, or the model's own published unit price | 350,000 (aihubmix: 50,000 only after a one-time $1 top-up) |
+| drawn: extrapolated from a 60-minute draw, where nothing above exists | 5,581,224 (hetzner: 232,551 tokens an hour, drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling) |
 | The target | 1,000,000,000 quality tokens a day by 2026-11-07 |
 | **Share of it** | **1.2%** |
 | Providers with a daily figure on this shelf | 7 of 18 |
@@ -67,8 +74,10 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 | Per minute: a rate, never a day | |
 |---|---|
 | 30-second burst, per provider, latest reading, added up | 140,850 a minute |
-| Providers that delivered anything in the burst | **11 of 18** |
+| Providers that delivered anything in the burst | **11 of 17 measured** |
 | measured, delivered nothing | hetzner (five failures in a row: no response: timeout or connection failure), mistral (rate limit reached), ovhcloud (rate limit reached) |
+| measured, no rate to state | groq (five failures in a row: HTTP 403: the endpoint refused the caller), siliconflow (five failures in a row: HTTP 402: the endpoint stops serving until a top-up), unorouter (five failures in a row: HTTP 503: no capacity behind the endpoint) |
+| no burst row yet | google |
 | Endpoints answering today | **30 of 37 tested** |
 | Output-only ceilings published, added up | 100,000 (hetzner) |
 | Combined in+out ceilings, or unspecified, added up; never added to the row above | 5,298,000 (4 providers) |
@@ -89,20 +98,20 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 <!--RANKING-->
 | # | Model | Provider | Value | Coding | Tokens/day | Volume | Answers | Cost | Get key |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 | MEASURED | 2 of 2 in 14 days | privacy terms not read yet | [get a key](https://xkiro.com) |
-| 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 | MEASURED | 2 of 2 in 14 days; returned an empty reply once in the archived run | privacy terms not read yet | [get a key](https://cloud.cerebras.ai) |
-| 3 | `gemini-3.8-flash-free` | aihubmix | **152.9** | 76.3 | 50,000 | DERIVED | not probed yet | privacy terms not read yet; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
-| 4 | `coding-kimi-k3-free` | aihubmix | **152.7** | 76.2 | 50,000 | DERIVED | not probed yet | privacy terms not read yet; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
-| 5 | `coding-glm-5.3-free` | aihubmix | **149.9** | 74.8 | 50,000 | DERIVED | not probed yet | privacy terms not read yet; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
+| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 | MEASURED | 2 of 2 in 14 days | - | [get a key](https://xkiro.com) |
+| 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 | MEASURED; read on a free trial key; may be that tier's allowance, not a standing free tier | 2 of 2 in 14 days; returned an empty reply once in the archived run | - | [get a key](https://cloud.cerebras.ai) |
+| 3 | `gemini-3.8-flash-free` | aihubmix | **152.9** | 76.3 | 50,000 | DERIVED | not on the radar yet; answered the 30-second burst on 2026-09-07 | $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
+| 4 | `coding-kimi-k3-free` | aihubmix | **152.7** | 76.2 | 50,000 | DERIVED | not on the radar yet; the provider answered the 30-second burst on 2026-09-07 with `gemini-3.8-flash-free` | $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
+| 5 | `coding-glm-5.3-free` | aihubmix | **149.9** | 74.8 | 50,000 | DERIVED | not on the radar yet; the provider answered the 30-second burst on 2026-09-07 with `gemini-3.8-flash-free` | $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
 | 6 | `gemini-3.5-flash-lite` | google | **133.1** | 49.3 | 250,000 | DERIVED | 1 of 1 in 14 days | **trains on your prompts**; human review; region-restricted | [get a key](https://aistudio.google.com/apikey) |
-| 7 | `coding-minimax-m3-free` | aihubmix | **117.5** | 58.6 | 50,000 | DERIVED | not probed yet | privacy terms not read yet; $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
-| 8 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | 52.6 | 5,000,000 | MEASURED | 1 of 2 in 14 days | privacy terms not read yet | [get a key](https://xkiro.com) |
-| 9 | `minimax/minimax-m3:free` | openrouter | **100.1** | 58.6 | 25,000 | DERIVED | 2 of 2 in 14 days | privacy terms not read yet | [get a key](https://openrouter.ai/keys) |
-| 10 | `mimo-v2-5:free` | kenari | **97.0** | 56.8 | 25,000 | DERIVED | not probed yet | privacy terms not read yet | [get a key](https://kenari.id/) |
-| 11 | `nemotron-3-ultra-550b-a55b:free` | kenari | **84.2** | 49.3 | 25,000 | DERIVED | not probed yet | privacy terms not read yet | [get a key](https://kenari.id/) |
-| 12 | `mistral-medium-3-5:free` | kenari | **80.1** | 46.9 | 25,000 | DERIVED | not probed yet | privacy terms not read yet | [get a key](https://kenari.id/) |
-| 13 | `minimax/minimax-m2.7:free` | openrouter | **0.0** (no answer in 14 days, so no value) | 52.6 | 25,000 | DERIVED | 0 of 2 in 14 days | privacy terms not read yet | [get a key](https://openrouter.ai/keys) |
-| 14 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** (no answer in 14 days, so no value) | 49.3 | 25,000 | DERIVED | 0 of 2 in 14 days | privacy terms not read yet | [get a key](https://openrouter.ai/keys) |
+| 7 | `coding-minimax-m3-free` | aihubmix | **117.5** | 58.6 | 50,000 | DERIVED | not on the radar yet; the provider answered the 30-second burst on 2026-09-07 with `gemini-3.8-flash-free` | $1 top-up unlocks the daily quota | [get a key](https://aihubmix.com/) |
+| 8 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | 52.6 | 5,000,000 | MEASURED | 1 of 2 in 14 days | - | [get a key](https://xkiro.com) |
+| 9 | `minimax/minimax-m3:free` | openrouter | **100.1** | 58.6 | 25,000 | DERIVED | 2 of 2 in 14 days | - | [get a key](https://openrouter.ai/keys) |
+| 10 | `mimo-v2-5:free` | kenari | **97.0** | 56.8 | 25,000 | DERIVED | not on the radar yet; the provider answered the 30-second burst on 2026-09-07 with `nemotron-3-ultra-550b-a55b:free` | - | [get a key](https://kenari.id/) |
+| 11 | `nemotron-3-ultra-550b-a55b:free` | kenari | **84.2** | 49.3 | 25,000 | DERIVED | not on the radar yet; answered the 30-second burst on 2026-09-07 | - | [get a key](https://kenari.id/) |
+| 12 | `mistral-medium-3-5:free` | kenari | **80.1** | 46.9 | 25,000 | DERIVED | not on the radar yet; the provider answered the 30-second burst on 2026-09-07 with `nemotron-3-ultra-550b-a55b:free` | - | [get a key](https://kenari.id/) |
+| 13 | `minimax/minimax-m2.7:free` | openrouter | **0.0** (no answer in 14 days, so no value) | 52.6 | 25,000 | DERIVED | 0 of 2 in 14 days | - | [get a key](https://openrouter.ai/keys) |
+| 14 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** (no answer in 14 days, so no value) | 49.3 | 25,000 | DERIVED | 0 of 2 in 14 days | - | [get a key](https://openrouter.ai/keys) |
 <!--/RANKING-->
 
 Every endpoint we track, ranked or not, scored or not: **[ALL-ENDPOINTS.md](ALL-ENDPOINTS.md)**. All the
@@ -110,7 +119,7 @@ tables, including quality alone and privacy cost: [RESULTS.md](RESULTS.md). Ever
 source and the date we read it: [LIMITS.md](LIMITS.md).
 
 <!--COUNTS-->
-18 providers and 63 endpoints are tracked. 14 endpoints are ranked; 49 are listed with what is missing. 35 endpoints have a radar verdict in the last 14 days, 5 were probed and only ever refused (429 or 402), and 23 have not been probed yet. 7 endpoints need no key. 7 providers have a daily figure this list can defend; 11 publish none and are counted as nothing: alibaba, cloudflare, groq, inferx, mistral, nvidia, ollama, ovhcloud, siliconflow, uncloseai, unorouter.
+18 providers and 63 endpoints are tracked. 14 endpoints are ranked; 49 are listed with what is missing. 35 endpoints have a radar verdict in the last 14 days, 5 were probed and only ever refused (429 or 402), and 23 are not on the radar yet. 7 endpoints need no key. 7 providers have a daily figure this list can defend; 11 have no figure this list can defend and are counted as nothing, each for the reason in its own data: alibaba (publishes only a one-time grant of 1,000,000 tokens per model); cloudflare (has a DERIVED figure of 48,826 on `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, and that model scores 11.9, under the quality floor of 45); groq (publishes a daily figure only for a paid plan); inferx (publishes no figure at all); mistral (publishes only a monthly grant of $10 in credits); nvidia (publishes no figure at all); ollama (publishes only a monthly grant, size not published); ovhcloud (publishes only a per-minute ceiling); siliconflow (publishes only a one-time grant of $1 in credits); uncloseai (publishes only a per-minute ceiling); unorouter (publishes only a per-minute ceiling).
 <!--/COUNTS-->
 
 ---
@@ -173,7 +182,7 @@ number:
 | **DERIVED** | arithmetic done here on figures the provider publishes, with the arithmetic shown: a request cap times 500 tokens a reply, or a unit price divided into an allowance |
 | **PAID-PLAN** | the only published number belongs to a paid tier, so it is not free capacity at all. Never ranked, never summed |
 | **UNKNOWN** | nobody publishes it and we have not measured it. It stays unknown. We do not borrow a number from another list to fill the hole, and unknown does not mean unlimited |
-| **DRAWN** | tokens actually pulled over a 60-minute draw at the provider's published pace, times 24. An extrapolation and a floor at our pace, labelled as both everywhere it appears; used only where a provider has no MEASURED, DECLARED or DERIVED daily figure |
+| **DRAWN** | tokens actually pulled over a 60-minute draw at the provider's published pace, times 24: a floor for the hour measured, extrapolated to a day, and labelled as both everywhere it appears; used only where a provider has no MEASURED, DECLARED or DERIVED daily figure |
 <!--/LABELS-->
 
 ### Every provider, and what it actually gives you
@@ -194,12 +203,12 @@ publishes per-model ceilings, the largest is shown and the cell says so.
 | **[kenari](https://kenari.id/)** | 2,799 |  | - | 5 | 25,000 | DERIVED | - | - | yes | no | no |
 | **[ollama](https://ollama.com/settings/keys)** | 1,850 |  | - | - | - | UNKNOWN | size not published | - | yes | ? | ? |
 | **[xkiro](https://xkiro.com)** | 1,446 (was 66,197) |  | - | - | 5,000,000 | MEASURED | - | - | yes | not read | not read |
-| **[cerebras](https://cloud.cerebras.ai)** | 1,206 |  | - | 5 | 1,000,000 | MEASURED | - | $5 in credits | yes | not read | not read |
+| **[cerebras](https://cloud.cerebras.ai)** | 1,206 |  | - | 5 | 1,000,000 | MEASURED; read on a free trial key; may be that tier's allowance, not a standing free tier | - | $5 in credits | yes | not read | not read |
 | **[uncloseai](https://ai.unturf.com)** | 700 |  | - | 180 | - | UNKNOWN | - | - | **no key** | no | no |
-| **[google](https://aistudio.google.com/apikey)** | - | not measured yet | 250,000 in+out (per model, largest) | 15 | 250,000 | DERIVED | - | - | yes | not read | not read |
-| **[hetzner](https://console.hetzner.com/)** | 0 | five failures in a row: no response: timeout or connection failure; the same day's 60-minute draw at 10 requests a minute received 333 replies of up to 700 tokens, which is the Per day figure | 4,000,000 in / 100,000 out | 10 | 5,581,224 | DRAWN; drawn at our pace of 10 requests a minute x 700 tokens a call for 60 minutes: a floor at that pace, not their ceiling | - | - | yes | or ID | optional |
-| **[siliconflow](https://siliconflow.com)** | - | no rate: HTTP 402: the endpoint stops serving until a top-up | 40,000 in+out | 1,000 | - | UNKNOWN | - | $1 in credits | yes | ? | ? |
-| **[groq](https://console.groq.com/keys)** | - | no rate: HTTP 403: the endpoint refused the caller | 8,000 in+out (per model, largest) | 30 | - | PAID-PLAN, not counted | - | - | yes | not read | not read |
+| **[google](https://aistudio.google.com/apikey)** | - | not measured yet | 250,000, scope unspecified (per model, largest) | 15 | 250,000 | DERIVED | - | - | yes | not read | not read |
+| **[hetzner](https://console.hetzner.com/)** | 0 | five failures in a row: no response: timeout or connection failure; the same day's 60-minute draw at a planned 10 requests a minute received 333 replies of up to 700 tokens, which is the Per day figure | 4,000,000 in / 100,000 out | 10 | 5,581,224 | DRAWN; drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling | - | - | yes | or ID | optional |
+| **[siliconflow](https://siliconflow.com)** | - | no rate: HTTP 402: the endpoint stops serving until a top-up | 40,000, scope unspecified | 1,000 | - | UNKNOWN | - | $1 in credits | yes | ? | ? |
+| **[groq](https://console.groq.com/keys)** | - | no rate: HTTP 403: the endpoint refused the caller | 8,000, scope unspecified (per model, largest) | 30 | - | PAID-PLAN, not counted | - | - | yes | not read | not read |
 | **[mistral](https://console.mistral.ai/)** | 0 | rate limit reached | - | - | - | UNKNOWN | $10 in credits | - | yes | no | ? |
 | **[ovhcloud](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities)** | 0 | rate limit reached | - | 2 | - | UNKNOWN | - | - | **no key** | **yes** | ? |
 | **[unorouter](https://unorouter.com/)** | - | no rate: HTTP 503: no capacity behind the endpoint | - | 1 | - | UNKNOWN | - | - | yes | no | ? |
@@ -220,8 +229,8 @@ on their page; we read the raw HTML to be sure, because other lists quote a 24-h
 there. Counting a provider like that as zero, which a daily-only total does, understates this list, so
 that per-minute ceiling gets its own line, on its own terms, and the ceiling is never multiplied out into
 a day. What a provider like that can get on the daily shelf is a DRAWN figure: what a 60-minute draw at
-its published pace actually returned, times 24, labelled as an extrapolation and as a floor at our pace,
-and reconciled on the same row with what the 30-second burst received the same day.
+its published pace actually returned, times 24, labelled as an extrapolation and as a floor for the hour
+measured, and reconciled on the same row with what the 30-second burst received the same day.
 
 <!--BAR-->
 **The daily shelf is the only thing the bar is built from, and it is an undercount by construction.** One figure per provider, the largest among its models that clear the quality floor of 45, and only four of the six labels may be on it: MEASURED, DECLARED, DERIVED and DRAWN. PAID-PLAN and UNKNOWN are shown and never counted, and a provider that publishes nothing counts as nothing. The shelves are separated by code, in [`data/capacity.json`](data/capacity.json), and the legend above says what each label means.
@@ -235,8 +244,9 @@ sits behind a usage endpoint nobody had thought to call.
 One probe per endpoint per day, every day, appended to [`data/uptime.jsonl`](data/uptime.jsonl). The
 rate over the last fourteen days multiplies into the ranking, per endpoint. A provider that refuses a
 third of your calls is worth a third less than its paper number, and ranking on advertised figures
-alone rewards whoever advertises hardest. An endpoint we have not probed yet is not penalised: we do not
-punish what we did not test, and the table says `not probed yet` rather than pretending.
+alone rewards whoever advertises hardest. An endpoint the radar has not reached yet is not penalised: we do
+not punish what we did not test, and the table says `not on the radar yet` rather than pretending, with
+what the burst or the draw saw where one of them got an answer.
 
 <!--RELIABILITY-->
 | Provider | Answered, last 14 days | Endpoints with a verdict | Endpoints probed | Endpoints tracked |
@@ -252,13 +262,13 @@ punish what we did not test, and the table says `not probed yet` rather than pre
 | [xkiro](https://xkiro.com) | 3 of 4 (75%) | 2 | 2 | 2 |
 | [google](https://aistudio.google.com/apikey) | 2 of 3 (67%) | 3 | 3 | 3 |
 | [openrouter](https://openrouter.ai/keys) | 2 of 6 (33%) | 3 | 3 | 3 |
-| [aihubmix](https://aihubmix.com/) | not probed yet | 0 | 0 | 5 |
-| [hetzner](https://console.hetzner.com/) | not probed yet | 0 | 0 | 2 |
-| [inferx](https://model.inferx.net/) | not probed yet | 0 | 0 | 4 |
-| [kenari](https://kenari.id/) | not probed yet | 0 | 0 | 5 |
-| [mistral](https://console.mistral.ai/) | not probed yet | 0 | 0 | 4 |
+| [aihubmix](https://aihubmix.com/) | not on the radar yet; answered the 30-second burst on 2026-09-07 | 0 | 0 | 5 |
+| [hetzner](https://console.hetzner.com/) | not on the radar yet; answered the 60-minute draw on 2026-09-07 | 0 | 0 | 2 |
+| [inferx](https://model.inferx.net/) | not on the radar yet; answered the 30-second burst on 2026-09-07 | 0 | 0 | 4 |
+| [kenari](https://kenari.id/) | not on the radar yet; answered the 30-second burst on 2026-09-07 | 0 | 0 | 5 |
+| [mistral](https://console.mistral.ai/) | not on the radar yet | 0 | 0 | 4 |
 | [siliconflow](https://siliconflow.com) | probed, no verdict yet: only 429 or 402 in the window | 0 | 1 | 1 |
-| [unorouter](https://unorouter.com/) | not probed yet | 0 | 0 | 3 |
+| [unorouter](https://unorouter.com/) | not on the radar yet | 0 | 0 | 3 |
 <!--/RELIABILITY-->
 
 A `200` with no text in it counts as *not answered* here and as *alive* for the fourteen-day rule in
@@ -370,19 +380,18 @@ not money, we measure ourselves, and every number carries how we know it. UNKNOW
 never fill a hole with someone else's number.
 
 **What that catches, concretely.** OmniRoute's registry marks a set of endpoints as needing no key or
-treating it as optional. Eight of those are ordinary HTTP APIs, and on 2026-09-07 we called all eight
-with no `Authorization` header, exactly as a reader would:
+treating it as optional. The ones this list tracks were each called with no `Authorization` header before
+they were listed, and the radar calls them again every day; an entry from those catalogues that answers a
+keyless call with a demand for a credential or for payment is not listed and not counted, because a
+public catalogue is not a free inference API. What the radar sees, from its own file rather than from a
+tally typed by hand:
 
-| What we found | How many |
-|---|---|
-| Returned a real completion with no key | **1**: `hermes.ai.unturf.com`; where it sits today is generated in the list above |
-| No key required, but the shared anonymous bucket was empty both times | **1**: OVHcloud, 2 requests a minute; where it sits today is generated in the list above |
-| Answered `401`: the catalogue is public, the inference is not | 3 |
-| Answered `402 Payment Required` | 3 |
+<!--KEYLESS-RADAR-->
+What the radar's own file says about the keyless endpoints this list tracks, latest row per endpoint (2026-09-07), every call sent with no `Authorization` header: uncloseai, 1 tracked endpoint: 1 answered with text (HTTP 200); ovhcloud, 6 tracked endpoints: 2 answered with text (HTTP 200); 4 answered HTTP 429: rate limited. The file is [`data/uptime.jsonl`](data/uptime.jsonl); a `200` with no text counts as not answered here, and `bench/states.py` says why.
+<!--/KEYLESS-RADAR-->
 
-So of the eight we could call without a key, one answered with text. That is not a criticism of
-anyone: free endpoints close quietly, and a list nobody re-runs is a list that decays. It is the reason
-this one gets re-run.
+That is not a criticism of anyone: free endpoints close quietly, and a list nobody re-runs is a list that
+decays. It is the reason this one gets re-run.
 
 **And it is re-run every day.** A scheduled job re-reads the public catalogues, re-imports the official
 scores, recomputes the ranking, applies the fourteen-day death rule, and commits the difference:
@@ -411,7 +420,8 @@ agreement: [agreement.md](results/2026-09-06/agreement.md)
 ## Run it yourself
 
 ```bash
-python bench/scores.py --out data/scores.json --date $(date -u +%F)   # import official scores
+python bench/scores.py --out /tmp/scores-new.json --date $(date -u +%F)   # import official scores to a temp file
+python bench/gate_drift.py --previous data/scores.json --current /tmp/scores-new.json --apply --date $(date -u +%F)   # the drift gate applies them, or refuses
 python bench/rank.py --date $(date -u +%F) --out .                     # rebuild every table
 python bench/test_rank.py                                              # the generator against its fixture
 ```

@@ -63,8 +63,10 @@ sys.path.insert(0, str(HERE))
 from states import ANSWERED, NOT_ANSWERED                                   # noqa: E402
 from gate_contributions import KNOWN_SIGNUP_HOSTS, KNOWN_TERMS_HOSTS, host_of, registrable     # noqa: E402
 # The sustained-draw meter's own limits, read from the script that runs it so a page can never describe
-# a draw the meter did not make: the pace cap, the tokens asked for per call, the token cap per run.
-from draw_day import MAX_TOKENS_PER_CALL, MAX_PACE_RPM, TOKEN_CAP, MINUTES as DRAW_MINUTES  # noqa: E402
+# a draw the meter did not make: the pace cap, the tokens asked for per call, the token cap per run, the
+# shortest capped run that may state a rate, and how many calls it keeps in flight.
+from draw_day import (MAX_TOKENS_PER_CALL, MAX_PACE_RPM, TOKEN_CAP, CAP_STOP_MIN_MINUTES,   # noqa: E402
+                      MAX_IN_FLIGHT, MINUTES as DRAW_MINUTES)
 
 NOAUTH_BONUS = 1.25
 DEGRADED_PENALTY = 0.5
@@ -95,9 +97,9 @@ LABELS = {
                  "all. Never ranked, never summed",
     "UNKNOWN": "nobody publishes it and we have not measured it. It stays unknown. We do not borrow "
                "a number from another list to fill the hole, and unknown does not mean unlimited",
-    "DRAWN": "tokens actually pulled over a %d-minute draw at the provider's published pace, times 24. "
-             "An extrapolation and a floor at our pace, labelled as both everywhere it appears; used "
-             "only where a provider has no MEASURED, DECLARED or DERIVED daily figure" % DRAW_MINUTES,
+    "DRAWN": "tokens actually pulled over a %d-minute draw at the provider's published pace, times 24: "
+             "a floor for the hour measured, extrapolated to a day, and labelled as both everywhere it "
+             "appears; used only where a provider has no MEASURED, DECLARED or DERIVED daily figure" % DRAW_MINUTES,
 }
 # A ROW is ranked on a figure that belongs to the model: these three.
 RANKABLE = ("MEASURED", "DECLARED", "DERIVED")
@@ -131,7 +133,7 @@ __doc__ = __doc__ % {"labels": "\n".join("    %-10s %s" % (k, v) for k, v in LAB
 # EVERY MARKER this file writes into README.md, so bench/gate_claims.py can refuse any other <!--X--> block
 # there as an unknown generated block: a marker nobody regenerates is where a hand-typed number would hide.
 MARKERS = ("QUALITY", "TOP5", "FORMULA", "EXAMPLE", "ROAD", "HEADLINE", "RANKING-HEAD", "RANKING", "COUNTS",
-           "LABELS", "BAR", "CAPACITY", "RELIABILITY", "TRAP", "KEYLESS")
+           "LABELS", "BAR", "CAPACITY", "RELIABILITY", "TRAP", "KEYLESS", "KEYLESS-RADAR")
 
 # THE ONE FORMULA STRING, built from the constants value_of() uses. Printed identically in
 # data/ranking.json, RESULTS.md, ALL-ENDPOINTS.md and README.
@@ -279,6 +281,8 @@ def volume_of(provider, model, limits):
         conf = "PAID-PLAN"
         bits.append("This figure is the provider's %s plan, not its free tier: it is shown and it is not "
                     "ranked or summed." % (p.get("rpd_plan") or "paid"))
+    if conf == "MEASURED" and tier_note(p):
+        bits.append(tier_note(p)[0].upper() + tier_note(p)[1:] + ".")
     if entry.get("note"):
         bits.append(entry["note"])
     if p.get("binding_limit"):
@@ -308,7 +312,19 @@ def ceiling_of(entry):
                 out[k] = max(out[k] or 0, v[k])
     out["per_model"] = per_model or "per model" in (am.get("note") or "")
     out["confidence"] = entry.get("confidence", "UNKNOWN")
+    # What a bare `tpm` counts, from the provider's own words: `tpm_scope` is "in+out", "output" or
+    # "unspecified", and a figure with no scope on file is printed as unspecified, never as combined.
+    out["tpm_scope"] = am.get("tpm_scope") if am.get("tpm_scope") in TPM_SCOPES else "unspecified"
     return out
+
+
+TPM_SCOPES = {"in+out": ("in+out", "input+output"), "output": ("out", "output only"),
+              "unspecified": ("scope unspecified", "unspecified")}
+
+
+def scope_words(c, long=False):
+    """The denomination of a bare `tpm`, short for a cell ("in+out") or long for a column ("input+output")."""
+    return TPM_SCOPES.get(c.get("tpm_scope") or "unspecified", TPM_SCOPES["unspecified"])[1 if long else 0]
 
 
 def ceiling_text(c):
@@ -318,8 +334,27 @@ def ceiling_text(c):
     if c.get("tpm_output"):
         return num(c["tpm_output"]) + " out"
     if c.get("tpm"):
-        return num(c["tpm"]) + " in+out"
+        w = scope_words(c)
+        return num(c["tpm"]) + (", " if w == "scope unspecified" else " ") + w
     return "-"
+
+
+def comparable_ceiling(c):
+    """The per-minute figure that may be set against the OUTPUT target: the output ceiling where the
+    provider publishes a split, the bare figure where it publishes only one number. An input ceiling is
+    never compared with an output target, so a 4,000,000-in / 100,000-out split compares as 100,000."""
+    if c.get("tpm_input") or c.get("tpm_output"):
+        return c.get("tpm_output") or 0
+    return c.get("tpm") or 0
+
+
+def tier_note(entry):
+    """The sentence that travels with a MEASURED figure read on a tier that may not be the standing free
+    tier, from `measured_on_tier` in limits.json: printed wherever that figure prints."""
+    tier = (entry or {}).get("measured_on_tier")
+    if not tier:
+        return None
+    return "read on a %s key; may be that tier's allowance, not a standing free tier" % tier
 
 
 HTTP_PHRASES = {
@@ -360,24 +395,49 @@ def plain_reason(text):
     return "stopped: see data/throughput.jsonl"
 
 
-def unlock_text(entry):
+def unlock_of(entry):
+    """The unlock block from limits.json, when the daily figure exists only after money changes hands."""
     u = (entry or {}).get("unlock") or {}
-    if not u.get("costs_usd"):
+    return u if u.get("costs_usd") else None
+
+
+def unlock_text(entry):
+    u = unlock_of(entry)
+    if not u:
         return None
     return ("%s top-up unlocks the daily quota" if u.get("one_time") else
             "%s a month unlocks the daily quota") % money(u["costs_usd"])
 
 
+def unlock_short(entry):
+    """The same condition as a noun phrase, for a shelf line: "a one-time $1 top-up" or "$1 a month"."""
+    u = unlock_of(entry)
+    if not u:
+        return None
+    return ("a one-time %s top-up" % money(u["costs_usd"])) if u.get("one_time") else "%s a month" % money(u["costs_usd"])
+
+
+def drawn_pace(row):
+    """(planned requests a minute, realised requests a minute, launches, minutes) from a draw row. The
+    planned pace is the provider's published figure capped by the meter; the realised pace is what the
+    meter actually launched, which sits under the plan whenever MAX_IN_FLIGHT holds launches back."""
+    minutes = row.get("minutes_run", row.get("minutes"))
+    launched = sum(int(row.get(k) or 0) for k in ("requests_ok", "requests_failed", "requests_429"))
+    realised = (launched / minutes) if minutes else None
+    return row.get("pace_rpm"), realised, launched, minutes
+
+
 def drawn_caveat(row):
     """The sentence that travels with every DRAWN figure, built from the draw's own row and the meter's
-    constant: the pace is the provider's published requests a minute (capped by the meter), the tokens a
-    call are what the meter asked for, and the figure is a floor at that pace, not the provider's ceiling."""
-    pace = row.get("pace_rpm")
-    minutes = row.get("minutes_run", row.get("minutes"))
-    return ("drawn at our pace of %s requests a minute x %d tokens a call for %s minutes: a floor at that "
-            "pace, not their ceiling"
-            % (num(pace) if pace is not None else "an unrecorded number of", MAX_TOKENS_PER_CALL,
-               "%d" % round(minutes) if minutes is not None else "?"))
+    constants: the planned pace (the provider's published requests a minute, capped by the meter), the pace
+    the meter realised, the tokens a call it asked for, and what the figure is: a floor for the hour
+    measured, times 24, not the provider's ceiling."""
+    pace, realised, launched, minutes = drawn_pace(row)
+    return ("drawn at a planned pace of %s requests a minute and a realised %s (%s launched over %s minutes, "
+            "at most %d in flight) x %d tokens a call: a floor for the hour measured, times 24, not their ceiling"
+            % (num(pace) if pace is not None else "an unrecorded number of",
+               "%.1f" % realised if realised is not None else "?", num(launched),
+               "%d" % round(minutes) if minutes is not None else "?", MAX_IN_FLIGHT, MAX_TOKENS_PER_CALL))
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -417,11 +477,33 @@ def answered_from_uptime(path, today):
     return tally, probed
 
 
-def answers_text(rate, yes_total, was_probed):
+NOT_ON_RADAR = "not on the radar yet"
+
+
+def answers_text(rate, yes_total, was_probed, elsewhere=None):
+    """The Answers cell is the radar and nothing else. An endpoint the radar has not reached says so, and
+    when another instrument (the 30-second burst, the 60-minute draw) got an answer from the provider the
+    same cell says that too, named as that instrument, so a reader never sees "not probed" beside a
+    provider the same page shows answering."""
     if rate is None:
-        return "probed, no verdict yet" if was_probed else "not probed yet"
+        if was_probed:
+            return "probed, no verdict yet"
+        return NOT_ON_RADAR + ("; " + elsewhere if elsewhere else "")
     yes, total = yes_total
     return "%d of %d in %d days" % (yes, total, UPTIME_WINDOW_DAYS)
+
+
+def answered_elsewhere(prov, model, burst_latest, draw_latest):
+    """"answered the 30-second burst on <date>" (or the draw) when data/throughput.jsonl or
+    data/drawn.jsonl holds a row with successful requests for the provider; the model is named when the
+    instrument called a different one. None when neither instrument got an answer."""
+    for row, what in ((burst_latest.get(prov), "30-second burst"),
+                      (draw_latest.get(prov), "%d-minute draw" % DRAW_MINUTES)):
+        if row and (row.get("requests_ok") or 0) > 0:
+            same = model is None or row.get("model") == model
+            return "%sanswered the %s on %s%s" % ("" if same else "the provider ", what, row.get("date"),
+                                                  "" if same else " with `%s`" % row.get("model"))
+    return None
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -482,14 +564,23 @@ def privacy_flags(r):
         flags.append("human review")
     if r["region_restriction"] not in ("UNKNOWN", None):
         flags.append("region-restricted")
-    return "; ".join(flags) if flags else "privacy terms not read yet"
+    return flags
+
+
+NOTHING_ON_FILE = "-"
 
 
 def cost_text(r):
-    parts = [privacy_flags(r)]
-    if r.get("unlock"):
-        parts.append(r["unlock"])
-    return "; ".join(parts)
+    """What the free tier costs that is not money, plus what must be paid once to unlock it. A dash means
+    nothing is on file yet: neither a privacy term read nor an unlock condition."""
+    parts = privacy_flags(r) + ([r["unlock"]] if r.get("unlock") else [])
+    return "; ".join(parts) if parts else NOTHING_ON_FILE
+
+
+def volume_cell(r):
+    """The label, and next to it the tier a MEASURED figure was read on when that tier may not be the
+    standing free tier: the qualifier prints wherever the figure prints."""
+    return r["volume_confidence"] + ("; " + r["tier_note"] if r.get("tier_note") else "")
 
 
 def signup_cell(sg, field, mapping):
@@ -556,6 +647,23 @@ def main():
     by_model = {(r["provider"], r["model"]): r for r in scores.get("matched", [])}
     doors = {p["name"]: door_of(p, LP.get(p["name"]))[0] for p in providers["providers"]}
 
+    # THE OTHER TWO INSTRUMENTS, read before the rows so an Answers cell can name them. Bursts: what
+    # bench/throughput.py received in 30-second windows, LATEST reading per provider, every reading kept
+    # for the holds-up check; rows from the older script lack `first_error`, and missing is null. Draws:
+    # data/drawn.jsonl from bench/draw_day.py, latest row per provider whatever it stated, and separately
+    # the rows that stated an hourly rate, which are the only ones a DRAWN figure can come from.
+    latest, all_rows = {}, {}
+    for r in read_jsonl(out / "data" / "throughput.jsonl"):
+        if r.get("provider"):
+            latest[r["provider"]] = r
+            all_rows.setdefault(r["provider"], []).append(r)
+    drawn_any, drawn = {}, {}
+    for r in read_jsonl(out / "data" / "drawn.jsonl"):
+        if r.get("provider"):
+            drawn_any[r["provider"]] = r
+            if r.get("tokens_per_hour_drawn") is not None:
+                drawn[r["provider"]] = r
+
     rows, unranked, buried = [], [], []
     for p in providers["providers"]:
         needs_key = bool(p.get("key_env"))
@@ -570,6 +678,7 @@ def main():
             vol = volume_of(p["name"], m["id"], limits)
             state, days = viab.get(key, (None, None))
             rate = answered.get(key)
+            tier = (LP.get(p["name"]) or {}).get("measured_on_tier") if vol["confidence"] == "MEASURED" else None
             row = {
                 "provider": p["name"], "model": m["id"],
                 "auth": "KEY" if needs_key else "NO KEY",
@@ -586,6 +695,8 @@ def main():
                 "volume_evidence": vol["evidence"],
                 "volume_unknown_reason": vol["reason"],
                 "tpd_bound_by_requests": vol["tpd_bound_by_requests"],
+                "measured_on_tier": tier,
+                "tier_note": tier_note(LP.get(p["name"])) if tier else None,
                 "trains_on_free_tier": priv.get("trains_on_free_tier", "UNKNOWN"),
                 "human_review": priv.get("human_review", "UNKNOWN"),
                 "region_restriction": priv.get("region_restriction", "UNKNOWN"),
@@ -593,7 +704,8 @@ def main():
                 "unlock": unlock_text(LP.get(p["name"])),
                 "answered_rate": rate,
                 "radar_probes": list(tally[key]) if key in tally else None,
-                "answers": answers_text(rate, tally.get(key), key in probed),
+                "answers": answers_text(rate, tally.get(key), key in probed,
+                                        answered_elsewhere(p["name"], m["id"], latest, drawn_any)),
                 "answered_rate_archive": (archive.get(p["name"]) or {}).get("answered_rate"),
                 "returned_empty_200": trapped.get(key, 0),
                 "thinking_switch": m.get("extra_body") if key in switched else None,
@@ -672,14 +784,10 @@ def main():
     bound_phrase = ("; ".join("%s publishes %s a day, but %s requests bind first" % (n, num(t), num(q))
                               for n, t, q in bound_by_requests))
 
-    # BURSTS: what bench/throughput.py actually received, 30-second windows, LATEST reading per
-    # provider. A rate, never a day. Rows from the older script lack `first_error`: missing is null.
-    latest, all_rows = {}, {}
-    for r in read_jsonl(out / "data" / "throughput.jsonl"):
-        if r.get("provider"):
-            latest[r["provider"]] = r
-            all_rows.setdefault(r["provider"], []).append(r)
+    # BURSTS: a rate, never a day. "N of M" counts M as the providers with a burst row, and the providers
+    # without one are named apart: an unmeasured provider is not one that delivered nothing.
     burst_min, burst_who, burst_zero, burst_norate = 0, [], [], []
+    no_burst = sorted(set(rows_by_prov) - set(latest))
     for name, r in sorted(latest.items()):
         rate = r.get("tokens_per_minute_measured")
         hist = [x.get("tokens_per_minute_measured") for x in all_rows.get(name, [])
@@ -705,13 +813,9 @@ def main():
             drop = max(drop or 0, f)
     got = {w["provider"]: w for w in burst_who + burst_zero + burst_norate}
 
-    # DRAWN: data/drawn.jsonl, written by bench/draw_day.py where it exists. tokens_per_hour_drawn x 24,
-    # latest reading per provider, labelled as an extrapolation from a 60-minute draw AND as a floor at
-    # our pace, and reconciled with the same provider's burst reading where one exists.
-    drawn = {}
-    for r in read_jsonl(out / "data" / "drawn.jsonl"):
-        if r.get("provider") and r.get("tokens_per_hour_drawn") is not None:
-            drawn[r["provider"]] = r
+    # DRAWN: tokens_per_hour_drawn x 24, latest row per provider that stated a rate, labelled as an
+    # extrapolation from a 60-minute draw AND as a floor for the hour measured, and reconciled with the
+    # same provider's burst reading where one exists.
     drawn_who = []
     for name, r in sorted(drawn.items()):
         per_day = int(r["tokens_per_hour_drawn"] * 24)
@@ -784,20 +888,64 @@ def main():
     target_min = TARGET_TOKENS_PER_DAY / 1440.0
     drawn_phrase = "; ".join("%s: %s tokens an hour, %s" % (n, num(drawn[n]["tokens_per_hour_drawn"]), drawn_caveat(drawn[n]))
                              for n in drawn_names)
+    ceilings = {name: ceiling_of(e) for name, e in LP.items()}
+
+    # A provider off the shelf is not one that "publishes none": the reason is in its own data, and the
+    # page prints that reason rather than a word the variable does not mean.
+    def why_no_figure(name):
+        rows_here = rows_by_prov.get(name, [])
+        entry = LP.get(name) or {}
+        with_figure = [r for r in rows_here if r["daily_tokens"] and r["volume_confidence"] in RANKABLE]
+        if with_figure:
+            r = max(with_figure, key=lambda x: x["daily_tokens"])
+            return ("has a %s figure of %s on `%s`, and that model %s"
+                    % (r["volume_confidence"], num(r["daily_tokens"]), r["model"],
+                       "has no official benchmark score" if r["coding_index"] is None else
+                       "scores %s, under the quality floor of %g" % (r["coding_index"], QUALITY_FLOOR)))
+        if name in paid_excluded:
+            return "publishes a daily figure only for a paid plan"
+        reasons = sorted({r["volume_unknown_reason"] for r in rows_here if r.get("volume_unknown_reason")})
+        if reasons:
+            return "; ".join(reasons)
+        ot, mo = entry.get("one_time") or {}, entry.get("monthly") or {}
+        if ot.get("confidence") in EVIDENCE_LABELS and (ot.get("tokens") or ot.get("credits_usd")):
+            return "publishes only a one-time grant of %s" % grant_size(ot)
+        if mo.get("confidence") in EVIDENCE_LABELS:
+            return ("publishes only a monthly grant of %s" % grant_size(mo)) if (mo.get("tokens") or mo.get("credits_usd")) \
+                else "publishes only a monthly grant, size not published"
+        c = ceilings.get(name) or {}
+        if any(c.get(k) for k in ("rpm", "tpm", "tpm_input", "tpm_output")):
+            return "publishes only a per-minute ceiling"
+        return "publishes no figure at all"
+
+    # A figure's conditions travel with it onto every shelf line: a MEASURED figure read on a tier that may
+    # not be the standing free tier says so, and a figure that exists only after money changes hands says so.
+    def shelf_qualifiers(who):
+        q = []
+        for n in who:
+            e = LP.get(n) or {}
+            pp = per_provider[n]
+            if pp["confidence"] == "MEASURED" and tier_note(e):
+                q.append("%s: %s %s" % (n, num(pp["daily_tokens"]), tier_note(e)))
+            if unlock_short(e):
+                q.append("%s: %s only after %s" % (n, num(pp["daily_tokens"]), unlock_short(e)))
+        return q
 
     # -----------------------------------------------------------------------------------------------
     # CEILINGS: two shelves that never add. Output-only figures may be compared with the output
     # target; combined in+out figures (or ones that do not say) may not, and are not.
     # -----------------------------------------------------------------------------------------------
     out_only, out_who, combined, combined_who, req_min, any_min = 0, [], 0, [], 0, []
-    ceilings = {name: ceiling_of(e) for name, e in LP.items()}
+    combined_said, combined_unsaid = [], []       # a bare tpm the provider says is in+out, and one it does not
     for name, c in sorted(ceilings.items()):
         if not any(c.get(k) for k in ("rpm", "tpm", "tpm_input", "tpm_output")):
             continue
         any_min.append({"provider": name, "requests_per_minute": c["rpm"],
                         "tokens_per_minute_combined": c["tpm"],
+                        "tokens_per_minute_combined_scope": scope_words(c, long=True) if c["tpm"] else None,
                         "tokens_per_minute_input": c["tpm_input"],
                         "tokens_per_minute_output": c["tpm_output"],
+                        "comparable_with_output_target": comparable_ceiling(c) or None,
                         "per_model_largest_shown": c["per_model"], "confidence": c["confidence"]})
         req_min += c["rpm"] or 0
         if c["tpm_output"]:
@@ -806,6 +954,7 @@ def main():
         if c["tpm"]:
             combined += c["tpm"]
             combined_who.append(name)
+            (combined_said if c.get("tpm_scope") == "in+out" else combined_unsaid).append(name)
 
     # -----------------------------------------------------------------------------------------------
     # GRANTS: once, and monthly. Money stays money.
@@ -862,20 +1011,22 @@ def main():
     median = int(statistics.median(figures)) if figures else None
     gap = TARGET_TOKENS_PER_DAY - defensible
     at_median = math.ceil(gap / median) if median else None
-    meter_hour_max = MAX_PACE_RPM * MAX_TOKENS_PER_CALL * 60
+    # What the meter can state at most: its pace cap times its tokens a call, or the token cap spread over
+    # the shortest capped run that may state a rate, whichever is smaller. Both from draw_day's constants.
+    meter_hour_max = min(MAX_PACE_RPM * MAX_TOKENS_PER_CALL * 60, TOKEN_CAP // CAP_STOP_MIN_MINUTES * 60)
     meter_day_max = meter_hour_max * 24
     above = []
     for name, c in sorted(ceilings.items()):
-        top = max(c.get("tpm") or 0, c.get("tpm_input") or 0, c.get("tpm_output") or 0)
-        if top < target_min:
+        if comparable_ceiling(c) < target_min:
             continue
         d = drawn.get(name)
         g = got.get(name)
         if d:
             dr = next(x for x in drawn_who if x["provider"] == name)
-            delivered = "drew %s tokens an hour at %s requests a minute x %d tokens a call%s" % (
-                num(d["tokens_per_hour_drawn"]), num(d.get("pace_rpm")) if d.get("pace_rpm") is not None else "?",
-                MAX_TOKENS_PER_CALL,
+            planned, realised, _, _ = drawn_pace(d)
+            delivered = "drew %s tokens an hour at a planned %s requests a minute (%s realised) x %d tokens a call%s" % (
+                num(d["tokens_per_hour_drawn"]), num(planned) if planned is not None else "?",
+                "%.1f" % realised if realised is not None else "?", MAX_TOKENS_PER_CALL,
                 (", against a one-time grant, so nothing of it is on the shelf" if not dr["counted"] and "one-time" in dr["note"]
                  else (", and " + ("the same day's" if g and g.get("date") == d.get("date") else "its")
                        + " 30-second burst received nothing: " + g["why"]) if g and g["tokens_per_minute"] == 0
@@ -892,18 +1043,22 @@ def main():
         "the median figure among them is %s a day. The gap to %s is %s a day, which is %s more providers at "
         "that median. %s The draw meter runs once, "
         "for %d minutes, at the provider's published pace capped at %d requests a minute, asking for %d "
-        "tokens a call and stopping at %s tokens, so the most it can register from one provider is %s tokens "
-        "an hour, %s a day. A longer draw, a faster published pace, or more providers with a daily figure are "
-        "the only things that move the bar; nothing else on this page will."
+        "tokens a call and stopping at %s tokens, and a run the cap stops states a rate only after %d minutes, "
+        "so the most it can register from one provider is %s tokens an hour, %s a day. A longer draw, a faster "
+        "published pace, or more providers with a daily figure are the only things that move the bar; nothing "
+        "else on this page will."
         % (num(defensible), len(per_provider), "" if len(per_provider) == 1 else "s",
            num(median) if median is not None else "?", num(TARGET_TOKENS_PER_DAY), num(gap),
            num(at_median) if at_median is not None else "?",
-           ("%s publish%s a per-minute ceiling at or above the %s a minute the target works out to: %s."
+           ("%s publish%s a per-minute ceiling at or above the %s a minute the target works out to, counting "
+            "the output ceiling where a split is published and the bare figure where it is not: %s."
             % (numword(len(above)).capitalize() + (" provider" if len(above) == 1 else " providers"),
                "es" if len(above) == 1 else "", num(round(target_min)), "; ".join(above)))
            if above else "No provider publishes a per-minute ceiling at or above the %s a minute the target "
-                         "works out to." % num(round(target_min)),
-           DRAW_MINUTES, MAX_PACE_RPM, MAX_TOKENS_PER_CALL, num(TOKEN_CAP), num(meter_hour_max), num(meter_day_max)))
+                         "works out to, counting the output ceiling where a split is published and the bare "
+                         "figure where it is not." % num(round(target_min)),
+           DRAW_MINUTES, MAX_PACE_RPM, MAX_TOKENS_PER_CALL, num(TOKEN_CAP), CAP_STOP_MIN_MINUTES,
+           num(meter_hour_max), num(meter_day_max)))
 
     # =============================================================================================
     # data/ranking.json and data/ranking.csv
@@ -954,8 +1109,13 @@ def main():
     for i, r in enumerate(rows, 1):
         L.append("| %d | `%s` | %s | %s | %s | %s | %s | %s | %s | %s |"
                  % (i, r["model"], r["provider"], value_cell(r), cell(r["coding_index"]),
-                    num(r["daily_tokens"]), r["volume_confidence"], r["answers"], r["cost"],
+                    num(r["daily_tokens"]), volume_cell(r), r["answers"], r["cost"],
                     door_cell(r)))
+    L += ["", "Rows are sorted by value, highest first; a tie is broken by provider name, then model id. "
+              "Answers is the radar (one probe per endpoint per day, the last %d days); the 30-second burst and "
+              "the %d-minute draw are other instruments, and an endpoint the radar has not reached says `%s`, "
+              "with what those instruments saw. A `%s` under Cost means nothing is on file yet: neither a "
+              "privacy term read nor an unlock condition." % (UPTIME_WINDOW_DAYS, DRAW_MINUTES, NOT_ON_RADAR, NOTHING_ON_FILE)]
 
     L += ["", "## 2. By quality alone (official benchmark scores)", "",
           "| Model | Provider | Coding | Intelligence | Agentic | Arena ELO | Scored as |",
@@ -977,7 +1137,7 @@ def main():
                     key=lambda x: (-x["daily_tokens"], x["provider"], x["model"])):
         L.append("| `%s` | %s | **%s** | %s | %s | %s | %s |"
                  % (r["model"], provider_link(r["provider"], doors), num(r["daily_tokens"]), num(r["requests_per_day"], "-"),
-                    r["volume_confidence"], r["value"] if r["value"] is not None else "not ranked",
+                    volume_cell(r), r["value"] if r["value"] is not None else "not ranked",
                     r["volume_evidence"].replace("|", "/")))
 
     L += ["", "## 4. Needs no key at all", ""]
@@ -985,7 +1145,7 @@ def main():
         L += ["| Model | Provider | Coding | Tokens/day | Volume | Where |", "|---|---|---|---|---|---|"]
         for r in noauth:
             L.append("| `%s` | %s | %s | %s | %s | %s |" % (r["model"], r["provider"], cell(r["coding_index"]),
-                                                            num(r["daily_tokens"]), r["volume_confidence"],
+                                                            num(r["daily_tokens"]), volume_cell(r),
                                                             door_cell(r)))
     else:
         L.append("**None yet.** Every provider we measure today wants a key.")
@@ -1010,7 +1170,7 @@ def main():
           "One probe per endpoint per day from `bench/probe_alive.py`, history in `data/uptime.jsonl`. "
           "Answered means HTTP 200 with text in it; a `200` with no text counts as not answered here "
           "and as alive for the fourteen-day rule, and `bench/states.py` says why both are right. "
-          "Endpoints with no row have not been probed yet and are not penalised.", "",
+          "Endpoints with no row are not on the radar yet and are not penalised.", "",
           "| Model | Provider | Answered | Rate |", "|---|---|---|---|"]
     for (prov, model), (yes, total) in sorted(tally.items()):
         L.append("| `%s` | %s | %d of %d | %.0f%% |" % (model, provider_link(prov, doors), yes, total, 100.0 * yes / total))
@@ -1074,9 +1234,15 @@ def main():
         "DERIVED": "a published request cap x %d tokens a reply, or this model's published unit price "
                    "divided into a published allowance; the arithmetic is in each row's volume_evidence" % TOKENS_PER_REPLY,
         "DRAWN": "tokens_per_hour_drawn x 24 from data/drawn.jsonl: extrapolated from a %d-minute draw at the "
-                 "published pace, a floor at our pace and not the provider's ceiling, used only where nothing "
-                 "above exists" % DRAW_MINUTES,
+                 "published pace, a floor for the hour measured and not the provider's ceiling, used only where "
+                 "nothing above exists" % DRAW_MINUTES,
     }
+    per_provider_out = {}
+    for k in sorted(per_provider):
+        e = dict(per_provider[k])
+        e["measured_on_tier"] = (LP.get(k) or {}).get("measured_on_tier") if e["confidence"] == "MEASURED" else None
+        e["unlock"] = unlock_text(LP.get(k))
+        per_provider_out[k] = e
     (out / "data" / "capacity.json").write_text(json.dumps({
         "date": a.date,
         "target_tokens_per_day": TARGET_TOKENS_PER_DAY,
@@ -1090,26 +1256,33 @@ def main():
                         for k in SUMMABLE},
         "published_token_figure_bound_by_requests": [
             {"provider": n, "tokens_per_day_published": t, "requests_per_day": q} for n, t, q in bound_by_requests],
-        "per_provider": {k: per_provider[k] for k in sorted(per_provider)},
+        "per_provider": per_provider_out,
         "paid_plan_tokens_per_day_excluded": paid,
         "paid_plan_per_provider": paid_excluded,
         "providers_tracked": n_providers,
         "endpoints_tracked": n_endpoints,
         "endpoints_ranked": len(rows),
         "providers_with_no_daily_figure": silent,
+        "why_no_daily_figure": {n: why_no_figure(n) for n in silent},
         "distance": {
             "gap_tokens_per_day": gap,
             "providers_with_a_daily_figure": len(per_provider),
             "median_daily_figure": median,
             "providers_at_median_to_close_gap": at_median,
             "ceilings_at_or_above_target_rate": above,
+            "ceilings_compared_as": "the output ceiling where a split is published, the bare tpm where it is not; "
+                                    "an input ceiling is never compared with the output target",
             "meter": {"minutes": DRAW_MINUTES, "max_pace_rpm": MAX_PACE_RPM, "max_tokens_per_call": MAX_TOKENS_PER_CALL,
-                      "token_cap_per_run": TOKEN_CAP, "max_registrable_tokens_per_hour": meter_hour_max,
-                      "max_registrable_tokens_per_day": meter_day_max},
+                      "token_cap_per_run": TOKEN_CAP, "cap_stop_min_minutes": CAP_STOP_MIN_MINUTES,
+                      "max_registrable_tokens_per_hour": meter_hour_max,
+                      "max_registrable_tokens_per_day": meter_day_max,
+                      "how": "min(max_pace_rpm x max_tokens_per_call x 60, token_cap_per_run / cap_stop_min_minutes x 60)"},
         },
         "burst": {
             "what": "30-second burst, per provider, latest reading; bench/throughput.py; a rate, never a day",
             "tokens_per_minute_added_up": burst_min,
+            "providers_measured": len(latest),
+            "providers_without_a_burst_row": no_burst,
             "providers_delivered": [w["provider"] for w in burst_who],
             "providers_measured_zero": [w["provider"] for w in burst_zero],
             "providers_no_rate": [w["provider"] for w in burst_norate],
@@ -1166,7 +1339,9 @@ def main():
     def shelf_phrase(total, who, what):
         if not who:
             return "nothing " + what
-        return "%s %s (%d provider%s)" % (num(total), what, len(who), "" if len(who) == 1 else "s")
+        q = shelf_qualifiers(who)
+        return "%s %s (%d provider%s%s)" % (num(total), what, len(who), "" if len(who) == 1 else "s",
+                                            ("; " + "; ".join(q)) if q else "")
 
     shelf_bits = [shelf_phrase(measured, measured_who, "measured from response headers or usage endpoints"),
                   shelf_phrase(declared, declared_who, "counted as published by a provider as a daily token figure")
@@ -1175,43 +1350,61 @@ def main():
                                                      "reply or from the model's own published unit price" % TOKENS_PER_REPLY)]
     shelf_bits.append("%s extrapolated from a %d-minute draw (%s)" % (num(drawn_total), DRAW_MINUTES, drawn_phrase)
                       if drawn_names else "nothing yet from a sustained draw")
+
+    def scope_phrase():
+        """Which combined ceilings the provider itself calls in+out, and which it does not say."""
+        bits = []
+        if combined_said:
+            bits.append("%s say%s in+out" % (words(combined_said), "s" if len(combined_said) == 1 else ""))
+        if combined_unsaid:
+            bits.append("%s do%s not say which" % (words(combined_unsaid), "es" if len(combined_unsaid) == 1 else ""))
+        return "; ".join(bits)
+
     R = ["`%s`  **~%.1f%%**" % (bar, pct), "",
          "**Roughly %s quality tokens a day** is what this list can defend on %s: %s. The target is "
          "%s a day by %s, %s times that. Nothing here is a burst multiplied out to a day."
          % (num(defensible), a.date, "; ".join(shelf_bits), num(TARGET_TOKENS_PER_DAY), TARGET_DATE,
             "%.1f" % multiple if multiple else "?"), "",
          "*Bursts are a different thing.* In 30-second bursts, latest reading per provider, "
-         "**%d of %d providers handed us %s tokens a minute** added together on %s%s. "
+         "**%d of the %d providers measured handed us %s tokens a minute** added together on %s%s%s%s. "
          "A burst is a rate: 100,000 tokens a minute is a fact and 144,000,000 a day is a number "
          "nobody will be allowed to spend, so the bar above is built from the daily shelf and never "
          "from this rate.%s Nothing on this page is guaranteed to you by anyone, us included."
-         % (len(burst_who), n_providers, num(burst_min),
+         % (len(burst_who), len(latest), num(burst_min),
             max([w["date"] for w in burst_who if w.get("date")] or [a.date]),
             ("; %d delivered nothing (%s)" % (len(burst_zero), "; ".join("%s: %s" % (w["provider"], w["why"]) for w in burst_zero))
              if burst_zero else ""),
+            ("; %d measured with no rate to state (%s)" % (len(burst_norate), "; ".join("%s: %s" % (w["provider"], w["why"]) for w in burst_norate))
+             if burst_norate else ""),
+            ("; %d provider%s no burst row yet: %s" % (len(no_burst), " has" if len(no_burst) == 1 else "s have", ", ".join(no_burst))
+             if no_burst else ""),
             (" Free tiers move, throttle without warning and close; one provider here dropped "
              "%d-fold between two readings taken the same day." % round(drop) if drop and drop >= 2 else
              " Free tiers move, throttle without warning and close.")), "",
          "*What they allow.* %s Ceilings published as input-plus-output, or without saying which, add "
-         "up to %s a minute across %d providers and cannot be compared with an output target, so they "
+         "up to %s a minute across %d providers%s and cannot be compared with an output target, so they "
          "are not."
          % (("The only output-only ceiling%s published (%s: %s output tokens a minute) %s %.0f%% of the "
              "%s a minute the target works out to."
              % ("s" if len(out_who) > 1 else "", ", ".join(out_who), num(out_only),
                 "add up to" if len(out_who) > 1 else "is", 100.0 * out_only / target_min, num(round(target_min))))
             if out_who else "No provider publishes an output-only ceiling.",
-            num(combined), len(combined_who)), "",
+            num(combined), len(combined_who), (" (%s)" % scope_phrase()) if combined_who else ""), "",
          distance]
     put("ROAD", R)
 
     # HEADLINE: three tables, one unit each. The daily shelf and the target; per-minute rates and
     # ceilings; grants, shown and never counted.
+    def qualified(total, who):
+        q = shelf_qualifiers(who)
+        return num(total) + ((" (%s)" % "; ".join(q)) if q else "")
+
     H = ["| The daily shelf, one figure per provider | |", "|---|---|",
          "| **Tokens a day this list can defend** | **%s** |" % num(defensible),
-         "| measured by us from headers or usage endpoints | %s |" % num(measured),
-         "| published by the provider in tokens | %s%s |" % (num(declared), " (%s, so counted under derived)" % bound_phrase if bound_phrase else ""),
+         "| measured by us from headers or usage endpoints | %s |" % qualified(measured, measured_who),
+         "| published by the provider in tokens | %s%s |" % (qualified(declared, declared_who), " (%s, so counted under derived)" % bound_phrase if bound_phrase else ""),
          "| derived from a published request cap at %d tokens each, or the model's own published unit price | %s |"
-         % (TOKENS_PER_REPLY, num(derived)),
+         % (TOKENS_PER_REPLY, qualified(derived, derived_who)),
          "| drawn: extrapolated from a %d-minute draw, where nothing above exists | %s%s |"
          % (DRAW_MINUTES, num(drawn_total), " (%s)" % drawn_phrase if drawn_names else ""),
          "| The target | %s quality tokens a day by %s |" % (num(TARGET_TOKENS_PER_DAY), TARGET_DATE),
@@ -1220,8 +1413,10 @@ def main():
          "",
          "| Per minute: a rate, never a day | |", "|---|---|",
          "| 30-second burst, per provider, latest reading, added up | %s a minute |" % num(burst_min),
-         "| Providers that delivered anything in the burst | **%d of %d** |" % (len(burst_who), n_providers),
+         "| Providers that delivered anything in the burst | **%d of %d measured** |" % (len(burst_who), len(latest)),
          "| measured, delivered nothing | %s |" % (", ".join("%s (%s)" % (w["provider"], w["why"]) for w in burst_zero) or "none"),
+         "| measured, no rate to state | %s |" % (", ".join("%s (%s)" % (w["provider"], w["why"]) for w in burst_norate) or "none"),
+         "| no burst row yet | %s |" % (", ".join(no_burst) or "none"),
          "| Endpoints answering today | **%d of %d tested** |" % (today_alive, today_total),
          "| Output-only ceilings published, added up | %s (%s) |" % (num(out_only), ", ".join(out_who) or "none"),
          "| Combined in+out ceilings, or unspecified, added up; never added to the row above | %s (%d providers) |" % (num(combined), len(combined_who)),
@@ -1248,7 +1443,7 @@ def main():
     def rank_row(i, r):
         return ("| %d | `%s` | %s | %s | %s | %s | %s | %s | %s | %s |"
                 % (i, r["model"], r["provider"], value_cell(r), cell(r["coding_index"]),
-                   num(r["daily_tokens"]), r["volume_confidence"],
+                   num(r["daily_tokens"]), volume_cell(r),
                    r["answers"] + ("; returned an empty reply %s in the archived run" % times(r["returned_empty_200"])
                                    if r["returned_empty_200"] else ""),
                    r["cost"], door_cell(r)))
@@ -1298,7 +1493,7 @@ def main():
             # parallel burst. Both are true; the row says both.
             if pp and pp["confidence"] == "DRAWN":
                 d = drawn[name]
-                why += ("; %s %d-minute draw at %s requests a minute received %s replies of up to %d tokens, "
+                why += ("; %s %d-minute draw at a planned %s requests a minute received %s replies of up to %d tokens, "
                         "which is the Per day figure"
                         % ("the same day's" if d.get("date") == g.get("date") else "a %s" % d.get("date"),
                            DRAW_MINUTES, num(d.get("pace_rpm")) if d.get("pace_rpm") is not None else "?",
@@ -1317,7 +1512,8 @@ def main():
         phone = signup_cell(sg, "phone", {"no": "no", "yes": "**yes**", "optional": "optional"})
         how = ("PAID-PLAN, not counted" if (not pp and name in paid_excluded) else
                "UNKNOWN" if not pp else
-               "DRAWN; " + drawn_caveat(drawn[name]) if pp["confidence"] == "DRAWN" else pp["confidence"])
+               "DRAWN; " + drawn_caveat(drawn[name]) if pp["confidence"] == "DRAWN" else
+               pp["confidence"] + ("; " + tier_note(entry) if (pp["confidence"] == "MEASURED" and tier_note(entry)) else ""))
         C.append("| **%s** | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
                  % (provider_link(name, doors), recv, why.replace("|", "/").strip(), tok_min, req,
                     num(pp["daily_tokens"]) if pp else "-", how,
@@ -1338,9 +1534,11 @@ def main():
             RL.append("| %s | %d of %d (%.0f%%) | %d | %d | %d |"
                       % (provider_link(name, doors), y, t, 100.0 * y / t, n_ep, touched, tracked_by_prov[name]))
         else:
+            elsewhere = answered_elsewhere(name, None, latest, drawn_any)
             RL.append("| %s | %s | 0 | %d | %d |"
                       % (provider_link(name, doors),
-                         "probed, no verdict yet: only 429 or 402 in the window" if touched else "not probed yet",
+                         "probed, no verdict yet: only 429 or 402 in the window" if touched else
+                         NOT_ON_RADAR + ("; " + elsewhere if elsewhere else ""),
                          touched, tracked_by_prov[name]))
     put("RELIABILITY", RL)
 
@@ -1349,13 +1547,14 @@ def main():
     put("COUNTS", [
         "%d providers and %d endpoints are tracked. %d endpoints are ranked; %d are listed with what is "
         "missing. %d endpoints have a radar verdict in the last %d days, %d were probed and only ever "
-        "refused (429 or 402), and %d have not been probed yet. "
-        "%d endpoint%s need%s no key. %d providers have a daily figure this list can defend; %d "
-        "publish none and are counted as nothing: %s."
+        "refused (429 or 402), and %d are not on the radar yet. "
+        "%d endpoint%s need%s no key. %d providers have a daily figure this list can defend; %d have no "
+        "figure this list can defend and are counted as nothing, each for the reason in its own data: %s."
         % (n_providers, n_endpoints, len(rows), len(unranked) + len(buried), probed_eps,
            UPTIME_WINDOW_DAYS, len(probed) - probed_eps, n_endpoints - len(probed), len(noauth),
            "" if len(noauth) == 1 else "s", "s" if len(noauth) == 1 else "",
-           len(per_provider), len(silent), ", ".join(silent) or "none")])
+           len(per_provider), len(silent),
+           "; ".join("%s (%s)" % (n, why_no_figure(n)) for n in silent) or "none")])
 
     # EXAMPLE: the best coding score in the list and where every endpoint carrying it actually sits,
     # each with the cause taken from its own row. Written by hand, this sentence once explained a 0.0
@@ -1421,6 +1620,51 @@ def main():
                         p.get("auth_measured_on", "an unrecorded date"), status))
     put("KEYLESS", K or ["None yet. Every provider we measure today wants a key."])
 
+    # KEYLESS-RADAR: what the radar's own file says about the keyless endpoints this list tracks, latest
+    # row per endpoint, tallied by what the endpoint returned. The one source for the sentence that used to
+    # be typed by hand on two pages with two different tallies.
+    latest_probe = {}
+    for r in read_jsonl(out / "data" / "uptime.jsonl"):
+        k = (r.get("provider"), r.get("model"))
+        if r.get("date") and r.get("state") != "no_key" and (k not in latest_probe or r["date"] >= latest_probe[k]["date"]):
+            latest_probe[k] = r
+
+    def probe_phrase(state, http):
+        if state == "alive":
+            return "answered with text (HTTP 200)"
+        if state == "empty":
+            return "answered HTTP 200 with no text in it"
+        return "answered " + HTTP_PHRASES.get(str(http if http is not None else 0), "HTTP %s" % http)
+
+    KR, kr_dates = [], set()
+    for p in providers["providers"]:
+        if p.get("auth") != "none":
+            continue
+        counts, unseen = {}, 0
+        for m in p["models"]:
+            r = latest_probe.get((p["name"], m["id"]))
+            if r is None:
+                unseen += 1
+                continue
+            kr_dates.add(r["date"])
+            key = probe_phrase(r.get("state"), r.get("http"))
+            counts[key] = counts.get(key, 0) + 1
+        bits = ["%d %s" % (n, k) for k, n in sorted(counts.items(), key=lambda kv: (kv[0] != "answered with text (HTTP 200)", kv[0]))]
+        if unseen:
+            bits.append("%d %s" % (unseen, NOT_ON_RADAR))
+        KR.append("%s, %d tracked endpoint%s: %s" % (p["name"], len(p["models"]), "" if len(p["models"]) == 1 else "s",
+                                                     "; ".join(bits) or "no radar row yet"))
+    if KR:
+        when = sorted(kr_dates)
+        put("KEYLESS-RADAR", ["What the radar's own file says about the keyless endpoints this list tracks, latest row per "
+                              "endpoint%s, every call sent with no `Authorization` header: %s. The file is "
+                              "[`data/uptime.jsonl`](data/uptime.jsonl); a `200` with no text counts as not answered here, "
+                              "and `bench/states.py` says why."
+                              % ((" (%s)" % (when[0] if len(when) == 1 else "%s to %s" % (when[0], when[-1]))) if when else "",
+                                 "; ".join(KR))])
+    else:
+        put("KEYLESS-RADAR", ["No keyless endpoint is tracked yet, so the radar has nothing to say about one."])
+
     # =============================================================================================
     # ALL-ENDPOINTS.md: never filters
     # =============================================================================================
@@ -1428,7 +1672,7 @@ def main():
          "All %d of them, ranked or not, scored or not, alive or not, across %d providers. The tables in "
          "[RESULTS.md](RESULTS.md) filter and sort; this one never does. %d of the %d have an answered-or-not "
          "verdict from the radar in the last %d days; %d were probed and only ever refused (429 or 402), "
-         "which is not a verdict either way; %d have not been probed yet. [GRAVEYARD.md](GRAVEYARD.md) "
+         "which is not a verdict either way; %d are not on the radar yet. [GRAVEYARD.md](GRAVEYARD.md) "
          "counts every endpoint the radar has probed."
          % (n_endpoints, n_providers, probed_eps, n_endpoints, UPTIME_WINDOW_DAYS,
             len(probed) - probed_eps, n_endpoints - len(probed)),
@@ -1457,21 +1701,25 @@ def main():
                     door_cell(r),
                     cell(r["coding_index"]), cell(r["intelligence_index"]), cell(r["agentic_index"]),
                     cell(r["arena_elo"]), num(r["daily_tokens"]), num(r["requests_per_day"]),
-                    r["volume_confidence"], ans, r["trains_on_free_tier"], "; ".join(note) or ""))
+                    volume_cell(r), ans, r["trains_on_free_tier"], "; ".join(note) or ""))
     A += ["", "## What the columns mean", "",
           "- **Value** - `%s`. Blank where we lack a score or a rankable daily figure: a row needs "
           "both halves, and half a fact is not a rank." % FORMULA,
           "- **Get key** - the provider's own sign-up page, or its documentation page where no key is needed, "
-          "or its API host where it publishes neither; the link's domain is checked against the API host, so "
-          "it cannot point at a lookalike.",
+          "or its API host where it publishes neither; the link's domain is checked against the API host, or "
+          "against a sign-up host or, for a keyless provider, a documentation host declared in "
+          "`bench/gate_contributions.py`, so it cannot point at a lookalike.",
           "- **Coding / Intelligence / Agentic / Arena** - imported from official benchmarks, never run "
           "by us. `?` means that model has no published score.",
           "- **Tokens/day** - the smaller of the token cap and the request cap times %d, for THIS model." % TOKENS_PER_REPLY,
           "- **Volume** - how we know that figure. %s" % LABEL_RULE]
     for k, v in LABELS.items():
         A.append("  - **%s** - %s." % (k, v))
-    A += ["- **Answers** - radar probes in the last %d days that came back with text, `yes of total`. "
-          "0%% is a measurement; `not probed yet` is the absence of one." % UPTIME_WINDOW_DAYS,
+    A += ["- **Answers** - the radar: one probe per endpoint per day, the last %d days, `yes of total` that came "
+          "back with text. 0%% is a measurement; `%s` is the absence of one, and when the 30-second burst or "
+          "the %d-minute draw, which are other instruments, got an answer from the provider the cell says so, "
+          "named as that instrument. A MEASURED figure read on a tier that may not be the standing free tier "
+          "carries that tier in its Volume cell." % (UPTIME_WINDOW_DAYS, NOT_ON_RADAR, DRAW_MINUTES),
           "- **Trains on prompts** - from the provider's own terms. `UNKNOWN` means nobody has read "
           "them yet, and that is the honest default.", ""]
     (out / "ALL-ENDPOINTS.md").write_text(chr(10).join(A) + chr(10), encoding="utf-8", newline=chr(10))
@@ -1524,7 +1772,9 @@ def main():
         elif e["tokens_per_minute_output"]:
             tok, denom = num(e["tokens_per_minute_output"]), "output only"
         elif e["tokens_per_minute_combined"]:
-            tok, denom = num(e["tokens_per_minute_combined"]), "input+output, or unspecified"
+            # The scope is the provider's own word from limits.json, and a figure with no scope on file
+            # prints as unspecified: the page never upgrades a bare number into a combined one.
+            tok, denom = num(e["tokens_per_minute_combined"]), e["tokens_per_minute_combined_scope"]
         else:
             tok, denom = "-", "-"
         M.append("| %s | %s | %s | %s | %s%s |"
@@ -1549,7 +1799,9 @@ def main():
         if name in per_provider:
             pp = per_provider[name]
             M.append("- **Daily figure this list uses:** %s tokens (%s), on `%s`%s."
-                     % (num(pp["daily_tokens"]), pp["confidence"], pp["model"],
+                     % (num(pp["daily_tokens"]),
+                        pp["confidence"] + ("; " + tier_note(p) if (pp["confidence"] == "MEASURED" and tier_note(p)) else ""),
+                        pp["model"],
                         ": %s" % pp["evidence"].split("x 24: ", 1)[-1].rstrip(".") if pp["confidence"] == "DRAWN" else ""))
         elif name in paid_excluded:
             M.append("- **Daily figure:** %s tokens is published only for a paid plan, so it is shown and "
@@ -1561,8 +1813,10 @@ def main():
         if p.get("models"):
             M += ["", "| Model | RPM | RPD | TPM | TPD | Daily figure is |", "|---|---|---|---|---|---|"]
             for mid, v in p["models"].items():
-                tag = ("PAID-PLAN" if v.get("rpd_is_paid_plan") else
-                       v.get("rpd_confidence") or p.get("confidence", "UNKNOWN")) if (v.get("rpd") or v.get("tpd")) else "UNKNOWN"
+                # The label of the daily figure the LIST uses for this model, from the same function the
+                # ranking uses, so a request cap x tokens a reply reads DERIVED here as it does on every
+                # other page, and never the request cap's own confidence.
+                tag = volume_of(name, mid, limits)["confidence"]
                 M.append("| `%s` | %s | %s | %s | %s | %s |"
                          % (mid, num(v.get("rpm"), "-"), num(v.get("rpd"), "-"), num(v.get("tpm"), "-"),
                             num(v.get("tpd"), "-"), tag))

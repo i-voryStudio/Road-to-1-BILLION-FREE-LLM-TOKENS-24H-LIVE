@@ -13,8 +13,9 @@ quality comes from independent sources rather than from whoever publishes the ra
 
 Both are fetched from `https://openrouter.ai/api/v1/models`, which requires no key and no scraping.
 We do not modify, recompute or re-weight the scores. Every fetch is dated in
-[`data/scores.json`](data/scores.json), and a model with no published score is marked UNSCORED rather
-than estimated.
+[`data/scores.json`](data/scores.json), and a model with no published score prints `?` in every score
+column and the words the pages print, `no official benchmark score published for this model`, rather
+than an estimate.
 
 If you maintain either benchmark and want the attribution changed, or want us to stop republishing
 your numbers, open an issue and we will act on it.
@@ -28,7 +29,7 @@ privacy claim in this repo is either measured by us or read from the provider's 
 date beside it.
 
 Two things we deliberately did **not** take from it: their `hasFree` boolean, which covers both a
-recurring quota and credits that run out, and their headline provider count, which contains
+recurring quota and a one-time sign-up bundle, and their headline provider count, which contains
 duplicates.
 
 ## The Romanian language benchmark

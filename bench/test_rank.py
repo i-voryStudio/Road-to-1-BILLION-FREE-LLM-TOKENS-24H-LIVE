@@ -18,7 +18,7 @@ the fixture has no such provider and the regeneration check compares the generat
   row; a burst row from the older script with no `first_error`; a buried endpoint; a sign-up link on a
   lookalike domain that must fall back to the API host. data/ranking.json fields are asserted one by one,
   one row's value is recomputed by hand from the numbers in the published formula string, the ROAD,
-  HEADLINE and CAPACITY blocks are compared BYTE FOR BYTE with golden files, and rank.py is run twice with
+  BARS, HEADLINE and CAPACITY blocks are compared BYTE FOR BYTE with golden files, and rank.py is run twice with
   every output identical, because a generator that is not idempotent makes the daily job commit noise.
 
   PART TWO, THE ORACLE, on the COMMITTED data and pages of this repo, not on the fixture: every ranked
@@ -550,7 +550,7 @@ def main():
         # ---- golden blocks, byte for byte
         print("\n=== golden blocks ===")
         GOLD.mkdir(exist_ok=True)
-        for marker in ("ROAD", "HEADLINE", "CAPACITY"):
+        for marker in ("BARS", "ROAD", "HEADLINE", "CAPACITY"):
             got = block(readme, marker)
             g = GOLD / ("%s.md" % marker)
             if record:

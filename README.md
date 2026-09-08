@@ -6,6 +6,18 @@ labelled by how we know it. Free here means no money spent, and a figure that ne
 that was read on a trial tier, says so wherever it is printed; quality here means an official coding
 index at or above the floor printed under the table.
 
+## How far this is from a billion a day
+
+<!--BARS-->
+**Everything free, whatever the quality**  
+`████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **20.3%** of the target rate: **140,850 tokens a minute** measured across 11 of the 17 providers tested, against the 694,444 a minute that 1,000,000,000 a day works out to.
+
+**Quality only, an official coding index at or above 45**  
+`██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **6.0%** of the target rate: **41,995 tokens a minute** from 6 providers whose measured model clears the floor: aihubmix, inferx, kenari, openrouter, uncloseai, xkiro.
+
+Both bars are **rates**, read in 30-second bursts, latest reading per provider, against the target converted to a rate. A rate held for thirty seconds is not a rate held for a day, so nothing here is multiplied into a day: the daily shelf further down is counted from published and measured daily figures only, and it is the conservative number.
+<!--/BARS-->
+
 ## The five best free endpoints today
 
 <!--TOP5-->
@@ -48,8 +60,6 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 ## Where this is going, out loud: one billion free tokens a day
 
 <!--ROAD-->
-`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **~1.2%**
-
 **Roughly 11,931,224 quality tokens a day** is what this list can defend on 2026-09-07: 6,000,000 measured from response headers or usage endpoints (2 providers; cerebras: 1,000,000 read on a free trial key; may be that tier's allowance, not a standing free tier); nothing counted as published by a provider as a daily token figure (aihubmix publishes 1,000,000 a day, but 100 requests bind first, so those are counted under derived); 350,000 derived from a published request cap at 500 tokens a reply or from the model's own published unit price (4 providers; aihubmix: 50,000 only after a one-time $1 top-up); 5,581,224 extrapolated from a 60-minute draw (hetzner: 232,551 tokens an hour, drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling). The target is 1,000,000,000 a day by 2026-11-07, 83.8 times that. Nothing here is a burst multiplied out to a day.
 
 *Bursts are a different thing.* In 30-second bursts, latest reading per provider, **11 of the 17 providers measured handed us 140,850 tokens a minute** added together on 2026-09-07; 3 delivered nothing (hetzner: five failures in a row: no response: timeout or connection failure; mistral: rate limit reached; ovhcloud: rate limit reached); 3 measured with no rate to state (groq: five failures in a row: HTTP 403: the endpoint refused the caller; siliconflow: five failures in a row: HTTP 402: the endpoint stops serving until a top-up; unorouter: five failures in a row: HTTP 503: no capacity behind the endpoint); 1 provider has no burst row yet: google. A burst is a rate: 100,000 tokens a minute is a fact and 144,000,000 a day is a number nobody will be allowed to spend, so the bar above is built from the daily shelf and never from this rate. Free tiers move, throttle without warning and close; one provider here dropped 46-fold between two readings taken the same day. Nothing on this page is guaranteed to you by anyone, us included.
@@ -137,9 +147,11 @@ of about thirty seconds with a small token budget, counting the output tokens th
 provider's own rate limit stops it, and then the number reported is the whole minute's allowance rather
 than a rate scaled up from two seconds; requests already in flight are allowed to finish, which is why a
 row can show up to a minute. A `0` means we got nothing, and the `Why 0` column says what the endpoint
-returned instead. The probe behind the Answers column and this burst meter run once a day, and the
-60-minute draw behind the DRAWN label once a week, all from one machine that holds the keys; the CI job
-never holds a key and only checks and regenerates.
+returned instead. The probe behind the Answers column, this burst meter and the 60-minute draw behind
+the DRAWN label all run on the same visit, once every fourteen days, from one machine that holds the
+keys; the CI job never holds a key and only checks and regenerates. Fourteen days is a deliberate
+choice: a free endpoint that has to be re-tested more often than that is not stable enough to plan
+with, and the cost of testing it is real.
 
 **0b. Does the rate hold?** Sometimes, and sometimes not at all. One provider gave sixty thousand tokens
 a minute on its first burst and under two thousand on the second, the same day, most of the second burst
@@ -241,8 +253,12 @@ sits behind a usage endpoint nobody had thought to call.
 
 ## And a quota you cannot draw on is not a quota
 
-One probe per endpoint per day, every day, appended to [`data/uptime.jsonl`](data/uptime.jsonl). The
-rate over the last fourteen days multiplies into the ranking, per endpoint. A provider that refuses a
+One probe per endpoint per visit, once every fourteen days, appended to
+[`data/uptime.jsonl`](data/uptime.jsonl). The rate over the last fourteen days multiplies into the
+ranking, per endpoint, so each endpoint carries one or two probes in the window and the cell prints how
+many days are actually on file. An endpoint that dies the day after a visit is listed as answering for
+up to two weeks: that is the price of not hammering free tiers, and the date on every row says when it
+was last true. A provider that refuses a
 third of your calls is worth a third less than its paper number, and ranking on advertised figures
 alone rewards whoever advertises hardest. An endpoint the radar has not reached yet is not penalised: we do
 not punish what we did not test, and the table says `not on the radar yet` rather than pretending, with

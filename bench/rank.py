@@ -132,7 +132,7 @@ __doc__ = __doc__ % {"labels": "\n".join("    %-10s %s" % (k, v) for k, v in LAB
 
 # EVERY MARKER this file writes into README.md, so bench/gate_claims.py can refuse any other <!--X--> block
 # there as an unknown generated block: a marker nobody regenerates is where a hand-typed number would hide.
-MARKERS = ("QUALITY", "TOP5", "FORMULA", "EXAMPLE", "ROAD", "HEADLINE", "RANKING-HEAD", "RANKING", "COUNTS",
+MARKERS = ("BARS", "QUALITY", "TOP5", "FORMULA", "EXAMPLE", "ROAD", "HEADLINE", "RANKING-HEAD", "RANKING", "COUNTS",
            "LABELS", "BAR", "CAPACITY", "RELIABILITY", "TRAP", "KEYLESS", "KEYLESS-RADAR")
 
 # THE ONE FORMULA STRING, built from the constants value_of() uses. Printed identically in
@@ -812,6 +812,14 @@ def main():
             f = w["best_seen"] / w["tokens_per_minute"]
             drop = max(drop or 0, f)
     got = {w["provider"]: w for w in burst_who + burst_zero + burst_norate}
+    # The same burst, counted twice: everything that answered, and only the endpoints whose model clears
+    # the quality floor. Two bars, because "free tokens" and "free tokens worth using" are two questions.
+    burst_quality, burst_quality_who = 0, []
+    for w in burst_who:
+        c = (by_model.get((w["provider"], w.get("model")), {}).get("artificial_analysis") or {}).get("coding_index")
+        if c is not None and c >= QUALITY_FLOOR:
+            burst_quality += w["tokens_per_minute"]
+            burst_quality_who.append(w["provider"])
 
     # DRAWN: tokens_per_hour_drawn x 24, latest row per provider that stated a rate, labelled as an
     # extrapolation from a 60-minute draw AND as a floor for the hour measured, and reconciled with the
@@ -1333,8 +1341,11 @@ def main():
         path.write_text(text, encoding="utf-8", newline=chr(10))
 
     # ROAD: the bar is the daily shelf over the target. A burst is a rate and never becomes a day.
-    filled = int(round(min(pct, 100.0) / 100.0 * 40))
-    bar = "█" * max(0, min(40, filled)) + "░" * max(0, 40 - filled)
+    def bar_of(share):
+        filled = int(round(min(share, 100.0) / 100.0 * 40))
+        return "█" * max(0, min(40, filled)) + "░" * max(0, 40 - filled)
+
+    bar = bar_of(pct)
 
     def shelf_phrase(total, who, what):
         if not who:
@@ -1360,7 +1371,31 @@ def main():
             bits.append("%s do%s not say which" % (words(combined_unsaid), "es" if len(combined_unsaid) == 1 else ""))
         return "; ".join(bits)
 
-    R = ["`%s`  **~%.1f%%**" % (bar, pct), "",
+    # BARS: the first thing on the page. The target is a day; nobody can hold a key open for a day, so it
+    # is converted to the rate it works out to and compared with the rate we actually measured. Rate
+    # against rate, never a rate multiplied into a day: that multiplication is what the daily shelf below
+    # exists to refuse.
+    burst_pct = 100.0 * burst_min / target_min
+    quality_pct = 100.0 * burst_quality / target_min
+    put("BARS", [
+        "**Everything free, whatever the quality**  ",
+        "`%s`  **%.1f%%** of the target rate: **%s tokens a minute** measured across %d of the %d "
+        "providers tested, against the %s a minute that %s a day works out to."
+        % (bar_of(burst_pct), burst_pct, num(burst_min), len(burst_who), len(latest),
+           num(round(target_min)), num(TARGET_TOKENS_PER_DAY)), "",
+        "**Quality only, an official coding index at or above %g**  " % QUALITY_FLOOR,
+        "`%s`  **%.1f%%** of the target rate: **%s tokens a minute** from %s."
+        % (bar_of(quality_pct), quality_pct, num(burst_quality),
+           ("%d provider%s whose measured model clears the floor: %s"
+            % (len(burst_quality_who), "" if len(burst_quality_who) == 1 else "s", ", ".join(sorted(burst_quality_who))))
+           if burst_quality_who else "no provider whose measured model clears the floor"), "",
+        "Both bars are **rates**, read in 30-second bursts, latest reading per provider, against the "
+        "target converted to a rate. A rate held for thirty seconds is not a rate held for a day, so "
+        "nothing here is multiplied into a day: the daily shelf further down is counted from published "
+        "and measured daily figures only, and it is the conservative number.",
+    ])
+
+    R = [
          "**Roughly %s quality tokens a day** is what this list can defend on %s: %s. The target is "
          "%s a day by %s, %s times that. Nothing here is a burst multiplied out to a day."
          % (num(defensible), a.date, "; ".join(shelf_bits), num(TARGET_TOKENS_PER_DAY), TARGET_DATE,

@@ -114,8 +114,8 @@ deflated archives included. Two things about it are worth knowing:
 ## Where the measurements come from
 
 Nothing that measures runs in CI, because CI never holds a key. The liveness probe behind the Answers
-column and the 30-second burst meter run once a day, and the 60-minute draw behind the DRAWN label once
-a week, all from one machine that holds the keys; the archived benchmark runs under `results/` were made
+column, the 30-second burst meter and the 60-minute draw behind the DRAWN label all run on the same
+visit, once every fourteen days, from one machine that holds the keys; the archived benchmark runs under `results/` were made
 the same way. That machine pushes what it measured to `main`. The dates inside those files are the only
 record of when a meter actually ran; a cadence stated here and absent there is a promise, not a fact.
 The daily job in `.github/workflows/daily-catalog.yml` holds no key either: it re-reads the public

@@ -97,15 +97,16 @@ LABELS = {
                  "all. Never ranked, never summed",
     "UNKNOWN": "nobody publishes it and we have not measured it. It stays unknown. We do not borrow "
                "a number from another list to fill the hole, and unknown does not mean unlimited",
-    "DRAWN": "tokens actually pulled over a %d-minute draw at the provider's published pace, times 24: "
-             "a floor for the hour measured, extrapolated to a day, and labelled as both everywhere it "
-             "appears; used only where a provider has no MEASURED, DECLARED or DERIVED daily figure" % DRAW_MINUTES,
+    "DRAWN": "tokens actually pulled over a %d-minute draw at the provider's published pace. One measured "
+             "hour is a fact; the same hour twenty-four times over is not, so the day it would make is "
+             "printed with that condition attached and never added to the shelf" % DRAW_MINUTES,
 }
 # A ROW is ranked on a figure that belongs to the model: these three.
 RANKABLE = ("MEASURED", "DECLARED", "DERIVED")
-# The DAILY SHELF, one figure per provider, sums these four. DRAWN is a provider-level reading, so it is
-# on the shelf and not on a row; PAID-PLAN and UNKNOWN are on neither.
-SUMMABLE = ("MEASURED", "DECLARED", "DERIVED", "DRAWN")
+# The DAILY SHELF, one figure per provider, sums these three. DRAWN is one measured hour multiplied by 24,
+# which is the arithmetic this page refuses everywhere else, so it is shown on its own line and never
+# summed; PAID-PLAN and UNKNOWN are shown and never summed either.
+SUMMABLE = ("MEASURED", "DECLARED", "DERIVED")
 NEVER_COUNTED = tuple(k for k in LABELS if k not in SUMMABLE)
 assert set(RANKABLE) <= set(SUMMABLE) <= set(LABELS)
 
@@ -132,7 +133,8 @@ __doc__ = __doc__ % {"labels": "\n".join("    %-10s %s" % (k, v) for k, v in LAB
 
 # EVERY MARKER this file writes into README.md, so bench/gate_claims.py can refuse any other <!--X--> block
 # there as an unknown generated block: a marker nobody regenerates is where a hand-typed number would hide.
-MARKERS = ("BARS", "QUALITY", "TOP5", "FORMULA", "EXAMPLE", "ROAD", "HEADLINE", "RANKING-HEAD", "RANKING", "COUNTS",
+MARKERS = ("BARS", "QUALITY", "TOP5", "FORMULA", "EXAMPLE", "ROAD", "HEADLINE", "RANKING-HEAD", "RANKING",
+           "UNLOCK", "COUNTS",
            "LABELS", "BAR", "CAPACITY", "RELIABILITY", "TRAP", "KEYLESS", "KEYLESS-RADAR")
 
 # THE ONE FORMULA STRING, built from the constants value_of() uses. Printed identically in
@@ -345,7 +347,9 @@ def comparable_ceiling(c):
     never compared with an output target, so a 4,000,000-in / 100,000-out split compares as 100,000."""
     if c.get("tpm_input") or c.get("tpm_output"):
         return c.get("tpm_output") or 0
-    return c.get("tpm") or 0
+    # A bare figure the provider itself calls input-plus-output, or does not describe at all, cannot be
+    # set against an output target: the page says so two lines earlier, so it compares as nothing.
+    return (c.get("tpm") or 0) if c.get("tpm_scope") == "output" else 0
 
 
 def tier_note(entry):
@@ -407,6 +411,13 @@ def unlock_text(entry):
         return None
     return ("%s top-up unlocks the daily quota" if u.get("one_time") else
             "%s a month unlocks the daily quota") % money(u["costs_usd"])
+
+
+def paywalled_label_of(rows):
+    """The label the paywalled figure carries on its own row, so the capacity cell says DERIVED or
+    DECLARED rather than inventing a word for it."""
+    with_fig = [r for r in rows if r.get("behind_payment") and r.get("daily_tokens")]
+    return max(with_fig, key=lambda r: r["daily_tokens"])["volume_confidence"] if with_fig else "?"
 
 
 def unlock_short(entry):
@@ -702,6 +713,7 @@ def main():
                 "region_restriction": priv.get("region_restriction", "UNKNOWN"),
                 "privacy_source": priv.get("source"),
                 "unlock": unlock_text(LP.get(p["name"])),
+                "behind_payment": bool(unlock_of(LP.get(p["name"]))),
                 "answered_rate": rate,
                 "radar_probes": list(tally[key]) if key in tally else None,
                 "answers": answers_text(rate, tally.get(key), key in probed,
@@ -721,7 +733,7 @@ def main():
                 buried.append(row)
                 continue
             if (coding is not None and coding >= QUALITY_FLOOR and vol["daily_tokens"]
-                    and vol["confidence"] in RANKABLE):
+                    and vol["confidence"] in RANKABLE and not row["behind_payment"]):
                 row["value"] = value_of(coding, vol["daily_tokens"], rate, needs_key, state == "degraded")
                 row["noauth_bonus_applied"] = not needs_key
                 row["reliability_applied"] = 1.0 if rate is None else rate
@@ -730,7 +742,11 @@ def main():
                 rows.append(row)
             else:
                 row["value"] = None
-                row["why_unranked"] = ("no official benchmark score published for this model"
+                row["why_unranked"] = ("the daily figure exists only after %s, and free here means no money "
+                                       "spent, so this row is listed under the ranking and never in it"
+                                       % unlock_short(LP.get(p["name"]))
+                                       if row["behind_payment"] and vol["daily_tokens"] else
+                                       "no official benchmark score published for this model"
                                        if coding is None else
                                        "below the quality floor: coding index %s, the floor is %g"
                                        % (coding, QUALITY_FLOOR)
@@ -760,12 +776,17 @@ def main():
     # -----------------------------------------------------------------------------------------------
     per_provider = {}
     paid_excluded = {}
+    paywalled = {}
     for r in everything:
         v = r.get("daily_tokens")
         if not v:
             continue
         clears = r.get("coding_index") is not None and r["coding_index"] >= QUALITY_FLOOR
-        if r["volume_confidence"] in RANKABLE:
+        if r.get("behind_payment"):
+            # A quota that begins after a payment is not free capacity, whatever its label says. It is
+            # shown under the ranking with its condition, like a paid plan, and never on the shelf.
+            paywalled[r["provider"]] = max(paywalled.get(r["provider"], 0), v)
+        elif r["volume_confidence"] in RANKABLE:
             # Only quality tokens go on the bar: a provider counts through a model that clears the floor.
             if clears and v > per_provider.get(r["provider"], {"daily_tokens": 0})["daily_tokens"]:
                 per_provider[r["provider"]] = {"daily_tokens": v, "confidence": r["volume_confidence"],
@@ -857,26 +878,20 @@ def main():
                "requests_ok": r.get("requests_ok"),
                "stopped_because": plain_reason(r.get("stopped_because")),
                "caveat": caveat,
-               "counted": pot is None and quality_ok and name not in per_provider,
-               "note": (("extrapolated from a %d-minute draw; %s" % (DRAW_MINUTES, caveat)
-                         if (name not in per_provider and quality_ok) else
-                         "not on the shelf: a %s daily figure already exists" % per_provider[name]["confidence"]
-                         if name in per_provider else
-                         "not counted: the drawn model has no official coding index at or above the quality "
-                         "floor of %g" % QUALITY_FLOOR)
-                        if pot is None else
-                        "not counted: the only free capacity here is a one-time grant of %s tokens%s, and at "
-                        "the drawn rate it lasts about %.1f hours; a grant is not a day"
-                        % (num(pot), " for this model" if ot.get("per_model") else "", hours))}
+               "counted": False,
+               "note": ("%s drew %s tokens in one measured hour on %s. If that hour repeated 24 times it "
+                        "would be %s a day, and nobody has measured that, so the figure is printed here "
+                        "and never added to the shelf. %s%s"
+                        % (name, num(int(r["tokens_per_hour_drawn"])), r.get("date"), num(per_day),
+                           caveat[0].upper() + caveat[1:] + ".",
+                           (" The only free capacity here is a one-time grant of %s tokens%s, which at this "
+                            "rate lasts about %.1f hours."
+                            % (num(pot), " for this model" if ot.get("per_model") else "", hours)) if pot else
+                           (" The drawn model has no official coding index at or above the quality floor "
+                            "of %g." % QUALITY_FLOOR) if not quality_ok else
+                           (" %s also publishes a %s daily figure, and that is the one on the shelf."
+                            % (name, per_provider[name]["confidence"])) if name in per_provider else ""))}
         drawn_who.append(row)
-        if row["counted"]:
-            per_provider[name] = {"daily_tokens": per_day, "confidence": "DRAWN", "model": r.get("model"),
-                                  "pace_rpm": r.get("pace_rpm"), "requests_ok": r.get("requests_ok"),
-                                  "evidence": "%s tokens drawn per hour x 24: extrapolated from a %d-minute draw "
-                                              "on %s; %s.%s"
-                                              % (num(r["tokens_per_hour_drawn"]), DRAW_MINUTES, r.get("date"),
-                                                 caveat, (" " + same_day_burst[0].upper() + same_day_burst[1:] + ".")
-                                                 if same_day_burst else "")}
 
     def shelf(kind):
         who = [n for n, e in per_provider.items() if e["confidence"] == kind]
@@ -886,7 +901,9 @@ def main():
     measured, measured_who = shelves["MEASURED"]
     declared, declared_who = shelves["DECLARED"]
     derived, derived_who = shelves["DERIVED"]
-    drawn_total, drawn_names = shelves["DRAWN"]
+    # Shown, never summed: what each measured hour would make if it repeated all day.
+    drawn_names = sorted(w["provider"] for w in drawn_who)
+    drawn_total = sum(w["tokens_per_day_extrapolated"] for w in drawn_who)
     defensible = sum(t for t, _ in shelves.values())
     assert defensible == sum(e["daily_tokens"] for e in per_provider.values() if e["confidence"] in SUMMABLE)
     paid = sum(paid_excluded.values())
@@ -1267,6 +1284,14 @@ def main():
         "per_provider": per_provider_out,
         "paid_plan_tokens_per_day_excluded": paid,
         "paid_plan_per_provider": paid_excluded,
+        "behind_payment": {
+            "tokens_per_day_excluded": sum(paywalled.values()),
+            "per_provider": paywalled,
+            "conditions": {n: unlock_short(LP.get(n)) for n in paywalled},
+            "note": "a real recurring quota that begins only after money changes hands. Free here means no "
+                    "money spent, so these figures are shown with their condition and are never ranked and "
+                    "never summed.",
+        },
         "providers_tracked": n_providers,
         "endpoints_tracked": n_endpoints,
         "endpoints_ranked": len(rows),
@@ -1318,7 +1343,9 @@ def main():
         "drawn": drawn_who,
         "radar_today": {"alive": today_alive, "tested": today_total},
         "note": "defensible_tokens_per_day = %s, largest figure per provider, and it is the only number the "
-                "bar and the distance use. %s shown and never counted. Bursts and ceilings are per minute "
+                "daily shelf and the distance use. %s shown and never counted. A drawn hour is one measured "
+                "hour: the day it would make if it repeated 24 times is printed with that condition and is "
+                "never added. A quota that starts after a payment is not free capacity and is never added. Bursts and ceilings are per minute "
                 "and are never multiplied out to a day. Money is never converted into tokens."
                 % (" + ".join(SUMMABLE), words(NEVER_COUNTED) + (" are" if len(NEVER_COUNTED) > 1 else " is")),
     }, indent=1, ensure_ascii=False) + chr(10), encoding="utf-8", newline=chr(10))
@@ -1359,8 +1386,6 @@ def main():
                   + (" (%s, so those are counted under derived)" % bound_phrase if bound_phrase else ""),
                   shelf_phrase(derived, derived_who, "derived from a published request cap at %d tokens a "
                                                      "reply or from the model's own published unit price" % TOKENS_PER_REPLY)]
-    shelf_bits.append("%s extrapolated from a %d-minute draw (%s)" % (num(drawn_total), DRAW_MINUTES, drawn_phrase)
-                      if drawn_names else "nothing yet from a sustained draw")
 
     def scope_phrase():
         """Which combined ceilings the provider itself calls in+out, and which it does not say."""
@@ -1400,6 +1425,8 @@ def main():
          "%s a day by %s, %s times that. Nothing here is a burst multiplied out to a day."
          % (num(defensible), a.date, "; ".join(shelf_bits), num(TARGET_TOKENS_PER_DAY), TARGET_DATE,
             "%.1f" % multiple if multiple else "?"), "",
+         ("*One measured hour is not a day.* " + " ".join(w["note"] for w in drawn_who))
+         if drawn_who else "*No provider has been drawn for a sustained hour yet.*", "",
          "*Bursts are a different thing.* In 30-second bursts, latest reading per provider, "
          "**%d of the %d providers measured handed us %s tokens a minute** added together on %s%s%s%s. "
          "A burst is a rate: 100,000 tokens a minute is a fact and 144,000,000 a day is a number "
@@ -1440,8 +1467,6 @@ def main():
          "| published by the provider in tokens | %s%s |" % (qualified(declared, declared_who), " (%s, so counted under derived)" % bound_phrase if bound_phrase else ""),
          "| derived from a published request cap at %d tokens each, or the model's own published unit price | %s |"
          % (TOKENS_PER_REPLY, qualified(derived, derived_who)),
-         "| drawn: extrapolated from a %d-minute draw, where nothing above exists | %s%s |"
-         % (DRAW_MINUTES, num(drawn_total), " (%s)" % drawn_phrase if drawn_names else ""),
          "| The target | %s quality tokens a day by %s |" % (num(TARGET_TOKENS_PER_DAY), TARGET_DATE),
          "| **Share of it** | **%.1f%%** |" % pct,
          "| Providers with a daily figure on this shelf | %d of %d |" % (len(per_provider), n_providers),
@@ -1460,6 +1485,13 @@ def main():
          "| Shown, and never counted above | |", "|---|---|",
          "| Published only for a PAID plan | %s a day (%s) |"
          % (num(paid), ", ".join(sorted(paid_excluded)) or "none"),
+         "| Behind a payment before the free quota starts | %s |"
+         % (", ".join("%s a day (%s, after %s)" % (num(v), n, unlock_short(LP.get(n)))
+                      for n, v in sorted(paywalled.items())) or "none"),
+         "| One measured hour x 24, never added to the shelf | %s |"
+         % (", ".join("%s (%s, from %s an hour)"
+                      % (num(w["tokens_per_day_extrapolated"]), w["provider"], num(w["tokens_per_hour_drawn"]))
+                      for w in drawn_who) or "none"),
          "| Once, at sign-up, in tokens | %s |"
          % (", ".join("%s%s (%s)" % (num(g["tokens"]), " per model" if g["per_model"] else "", g["provider"])
                       for g in one_time_who if g["tokens"]) or "none"),
@@ -1526,10 +1558,10 @@ def main():
             recv, why = "0", g["why"]
             # The same provider on the same day may have answered a slow, paced draw and nothing in a
             # parallel burst. Both are true; the row says both.
-            if pp and pp["confidence"] == "DRAWN":
+            if name in drawn:
                 d = drawn[name]
                 why += ("; %s %d-minute draw at a planned %s requests a minute received %s replies of up to %d tokens, "
-                        "which is the Per day figure"
+                        "which is where the drawn hour comes from and is not on the shelf"
                         % ("the same day's" if d.get("date") == g.get("date") else "a %s" % d.get("date"),
                            DRAW_MINUTES, num(d.get("pace_rpm")) if d.get("pace_rpm") is not None else "?",
                            num(d.get("requests_ok"), "?"), MAX_TOKENS_PER_CALL))
@@ -1537,6 +1569,7 @@ def main():
             recv, why = "%s (was %s)" % (num(g["tokens_per_minute"]), num(g["best_seen"])), ""
         else:
             recv, why = num(g["tokens_per_minute"]), ""
+        paywalled_label = lambda n: paywalled_label_of(rows_by_prov.get(n, []))
         ot = entry.get("one_time") or {}
         mo = entry.get("monthly") or {}
         once = grant_size(ot) if ot.get("confidence") in EVIDENCE_LABELS else "-"
@@ -1545,13 +1578,16 @@ def main():
         sg = entry.get("signup_requires") or {}
         card = signup_cell(sg, "card", {"no": "no", "yes": "**yes**", "either": "or ID"})
         phone = signup_cell(sg, "phone", {"no": "no", "yes": "**yes**", "optional": "optional"})
+        # A provider off the shelf is off it for a reason the cell has to name: a paid plan, a quota that
+        # starts after a payment, or nothing published at all. UNKNOWN means nobody publishes it.
         how = ("PAID-PLAN, not counted" if (not pp and name in paid_excluded) else
+               "%s, not counted: the quota starts after %s" % (paywalled_label(name), unlock_short(entry))
+               if (not pp and name in paywalled) else
                "UNKNOWN" if not pp else
-               "DRAWN; " + drawn_caveat(drawn[name]) if pp["confidence"] == "DRAWN" else
                pp["confidence"] + ("; " + tier_note(entry) if (pp["confidence"] == "MEASURED" and tier_note(entry)) else ""))
         C.append("| **%s** | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
                  % (provider_link(name, doors), recv, why.replace("|", "/").strip(), tok_min, req,
-                    num(pp["daily_tokens"]) if pp else "-", how,
+                    num(pp["daily_tokens"]) if pp else num(paywalled[name]) if name in paywalled else "-", how,
                     month, once, "yes" if needs_key else "**no key**", card, phone))
     put("CAPACITY", C)
     print("capacity table: %d providers" % len(rows_by_prov))
@@ -1579,6 +1615,18 @@ def main():
 
     # COUNTS: every number the prose used to type by hand.
     probed_eps = len(tally)
+    paywalled_rows = [r for r in unranked if r.get("behind_payment") and r.get("daily_tokens")]
+    paywalled_rows.sort(key=lambda r: (-(r["coding_index"] or 0), r["provider"], r["model"]))
+    if paywalled_rows:
+        put("UNLOCK", ["| Model | Provider | Coding | Tokens/day | Volume | What unlocks it | Get key |",
+                       "|---|---|---|---|---|---|---|"]
+            + ["| `%s` | %s | %s | %s | %s | %s | %s |"
+               % (r["model"], r["provider"], cell(r["coding_index"]), num(r["daily_tokens"]),
+                  r["volume_confidence"], unlock_short(LP.get(r["provider"])) or "?", door_cell(r))
+               for r in paywalled_rows])
+    else:
+        put("UNLOCK", ["Nothing on this list needs a payment before its free quota starts."])
+
     put("COUNTS", [
         "%d providers and %d endpoints are tracked. %d endpoints are ranked; %d are listed with what is "
         "missing. %d endpoints have a radar verdict in the last %d days, %d were probed and only ever "

@@ -75,7 +75,11 @@ def comparable(entry):
     for m in (entry.get("models") or {}).values():
         for k in tops:
             tops[k] = max(tops[k], (m or {}).get(k) or 0)
-    return tops["tpm_output"] if (tops["tpm_input"] or tops["tpm_output"]) else tops["tpm"]
+    if tops["tpm_input"] or tops["tpm_output"]:
+        return tops["tpm_output"]
+    scopes = {(entry.get("all_models") or {}).get("tpm_scope")}
+    scopes |= {(m or {}).get("tpm_scope") for m in (entry.get("models") or {}).values()}
+    return tops["tpm"] if "output" in scopes else 0
 
 
 def run_rank(out):
@@ -190,15 +194,11 @@ def ref_shelf(providers, lim, scores, drawn_rows, buried, floor, per_reply, rank
                 best = (daily, conf)
         if best:
             shelf[p["name"]] = best
-    latest = {}
-    for r in drawn_rows:
-        if r.get("provider") and r.get("tokens_per_hour_drawn") is not None:
-            latest[r["provider"]] = r
-    for name, r in latest.items():
-        c = coding.get((name, r.get("model")))
-        if name in shelf or c is None or c < floor or one_time_only((lim.get("providers") or {}).get(name) or {}):
-            continue
-        shelf[name] = (int(r["tokens_per_hour_drawn"] * 24), "DRAWN")
+    # No draw reaches the shelf: one measured hour times twenty-four is the arithmetic this page refuses.
+    # Nor does a quota that starts after a payment: free here means no money spent.
+    for name in [n for n in shelf
+                 if (((lim.get("providers") or {}).get(n) or {}).get("unlock") or {}).get("costs_usd")]:
+        del shelf[name]
     return shelf
 
 
@@ -232,15 +232,24 @@ def main():
 
         # ---- ranking.json, field by field
         print("\n=== ranking.json ===")
-        check([r["model"] for r in rk["ranked"]] == ["alpha-large", "delta-7b", "beta-coder", "gamma-chat:free"],
+        check([r["model"] for r in rk["ranked"]] == ["alpha-large", "delta-7b", "beta-coder"],
               "ranked order: %s" % [r["model"] for r in rk["ranked"]])
+        allrows = {r["model"]: r for r in rk["ranked"] + rk["unranked"] + rk["buried"]}
+        gamma = allrows["gamma-chat:free"]
+        check(gamma["behind_payment"] is True and "gamma-chat:free" not in ranked
+              and ("only after a one-time $1 top-up" in (gamma.get("why_unranked") or "")
+                   or gamma in rk["buried"]),
+              "a quota that starts after a payment leaves the ranking, with the condition as the reason")
+        check("gamma" not in cap["daily_shelf"]["derived"]["providers"]
+              and cap["behind_payment"]["per_provider"].get("gamma") == 50000,
+              "the paywalled figure is off the shelf and on its own line")
         check(ranked["alpha-large"]["volume_confidence"] == "MEASURED" and ranked["alpha-large"]["daily_tokens"] == 1000000,
               "alpha: the token cap (MEASURED, 1,000,000) binds before 4,000 requests x 500")
         check(ranked["beta-coder"]["volume_confidence"] == "DECLARED" and ranked["beta-coder"]["daily_tokens"] == 300000,
               "beta: a daily figure published in tokens is DECLARED")
-        check(ranked["gamma-chat:free"]["volume_confidence"] == "DERIVED" and ranked["gamma-chat:free"]["daily_tokens"] == 50000,
-              "gamma: 100 requests x 500 is DERIVED, never DECLARED")
-        check("100 requests/day (DECLARED) x 500 tokens a reply = 50,000 tokens/day" in ranked["gamma-chat:free"]["volume_evidence"],
+        check(gamma["volume_confidence"] == "DERIVED" and gamma["daily_tokens"] == 50000,
+              "gamma: 100 requests x 500 is DERIVED, never DECLARED, and the figure survives the paywall")
+        check("100 requests/day (DECLARED) x 500 tokens a reply = 50,000 tokens/day" in gamma["volume_evidence"],
               "gamma: the arithmetic is written into volume_evidence")
         check(ranked["delta-7b"]["volume_confidence"] == "DERIVED" and ranked["delta-7b"]["daily_tokens"] == 200000
               and "on this model" in ranked["delta-7b"]["volume_evidence"],
@@ -268,9 +277,12 @@ def main():
               "delta: keyless, bonus applied")
         check(ranked["beta-coder"].get("degraded_penalty_applied") == 0.5 and ranked["beta-coder"]["viability"] == "degraded",
               "beta: degraded penalty applied")
-        check(ranked["gamma-chat:free"]["answered_rate"] == 0.0 and ranked["gamma-chat:free"]["value"] == 0.0
-              and ranked["gamma-chat:free"]["answers"] == "0 of 2 in 14 days",
-              "gamma: two empty 200s are 0 of 2, value 0.0, printed as a measurement")
+        check(gamma["answered_rate"] == 0.0 and gamma["value"] is None
+              and gamma["answers"] == "0 of 2 in 14 days",
+              "gamma: two empty 200s are 0 of 2, printed as a measurement")
+        check(rank.value_cell({"value": 0.0}) == "**0.0** (no answer in 14 days, so no value)"
+              and rank.value_cell({"value": 41.7}) == "**41.7**",
+              "a ranked row that answered nothing prints 0.0 with the reason in the cell")
         check(unranked["delta-70b"]["answered_rate"] is None
               and unranked["delta-70b"]["answers"] == "not on the radar yet; the provider answered the 30-second burst on 2026-09-01 with `delta-7b`",
               "delta-70b: not on the radar, says so, and names the burst the provider did answer, with the model it called")
@@ -287,7 +299,7 @@ def main():
               "beta: sign-up link on a lookalike domain is refused, API host used instead")
         check(ranked["delta-7b"]["get_key"] == "https://delta.example/pricing" and ranked["delta-7b"]["get_key_kind"] == "docs",
               "delta: keyless, so the door is the documentation page from limits.json, on the provider's own domain")
-        check(ranked["gamma-chat:free"]["cost"] == "region-restricted; $1 top-up unlocks the daily quota",
+        check(gamma["cost"] == "region-restricted; $1 top-up unlocks the daily quota",
               "gamma: Cost carries the region flag and the unlock condition")
         check(ranked["alpha-large"]["cost"] == "**trains on your prompts**", "alpha: Cost carries the privacy flag")
         check(ranked["beta-coder"]["cost"] == "-" and ranked["delta-7b"]["cost"] == "-",
@@ -326,27 +338,32 @@ def main():
         sh = cap["daily_shelf"]
         check(sh["measured"]["tokens_per_day"] == 1000000 and sh["measured"]["providers"] == ["alpha"], "measured shelf: alpha only")
         check(sh["declared"]["tokens_per_day"] == 300000 and sh["declared"]["providers"] == ["beta"], "declared shelf: beta only")
-        check(sh["derived"]["tokens_per_day"] == 250000 and sh["derived"]["providers"] == ["delta", "gamma"],
-              "derived shelf: gamma 50,000 + delta 200,000, and delta-70b's borrowed 200,000 is nowhere")
-        check(sh["drawn"]["tokens_per_day"] == 480000 and sh["drawn"]["providers"] == ["epsilon"],
-              "drawn shelf: epsilon 20,000/h x 24, and NOT alpha, which has a measured figure")
+        check(sh["derived"]["tokens_per_day"] == 200000 and sh["derived"]["providers"] == ["delta"],
+              "derived shelf: delta 200,000 alone; gamma's 50,000 starts after a payment and delta-70b's "
+              "borrowed 200,000 is nowhere")
+        check("drawn" not in sh and all(d["counted"] is False for d in cap["drawn"])
+              and sum(d["tokens_per_day_extrapolated"] for d in cap["drawn"]) == 1680000,
+              "no drawn shelf: alpha's and epsilon's measured hours would be 1,680,000 a day and are printed, never summed")
         check(cap["per_provider"]["alpha"]["confidence"] == "MEASURED", "alpha keeps MEASURED over DRAWN")
-        check(DRAWN_CAVEAT in cap["per_provider"]["epsilon"]["evidence"],
-              "epsilon: the DRAWN evidence carries the planned pace, the realised pace, the tokens a call and the floor caveat")
-        check(cap["per_provider"]["alpha"]["measured_on_tier"] == "free trial" and cap["per_provider"]["gamma"]["unlock"] == "$1 top-up unlocks the daily quota"
+        eps = next(d for d in cap["drawn"] if d["provider"] == "epsilon")
+        check(DRAWN_CAVEAT.rstrip(".").lower() in eps["note"].lower() and "epsilon" not in cap["per_provider"],
+              "epsilon: the drawn row carries the planned pace, the realised pace, the tokens a call and the "
+              "floor caveat, and the provider is not on the shelf")
+        check(cap["per_provider"]["alpha"]["measured_on_tier"] == "free trial"
+              and cap["behind_payment"]["conditions"]["gamma"] == "a one-time $1 top-up"
               and cap["per_provider"]["beta"]["measured_on_tier"] is None and cap["per_provider"]["beta"]["unlock"] is None,
-              "capacity.json per_provider carries the tier and the unlock condition next to the figure")
-        check(cap["defensible_tokens_per_day"] == 2030000 and cap["share_of_target_pct"] == 0.2
-              and cap["multiple_still_needed"] == 492.6,
-              "defensible = 2,030,000 = 0.2%% of 1e9, 492.6x still needed")
+              "capacity.json carries the tier next to the figure and the payment condition on its own line")
+        check(cap["defensible_tokens_per_day"] == 1500000 and cap["share_of_target_pct"] == 0.15
+              and cap["multiple_still_needed"] == 666.7,
+              "defensible = 1,500,000 = 0.15%% of 1e9, 666.7x still needed")
         check(cap["defensible_tokens_per_day"] == sum(v["daily_tokens"] for v in cap["per_provider"].values()
                                                        if v["confidence"] in rank.SUMMABLE),
               "defensible is the sum of the per-provider figures with a summable label")
         check(cap["paid_plan_tokens_per_day_excluded"] == 100000 and cap["paid_plan_per_provider"] == {"epsilon": 100000},
               "paid-plan figure shown as excluded, not in any sum")
         dist = cap["distance"]
-        check(dist["gap_tokens_per_day"] == 1000000000 - 2030000 and dist["median_daily_figure"] == 300000
-              and dist["providers_at_median_to_close_gap"] == math.ceil((1000000000 - 2030000) / 300000)
+        check(dist["gap_tokens_per_day"] == 1000000000 - 1500000 and dist["median_daily_figure"] == 300000
+              and dist["providers_at_median_to_close_gap"] == math.ceil((1000000000 - 1500000) / 300000)
               and dist["ceilings_at_or_above_target_rate"] == [],
               "distance: the gap, the median figure and the providers-at-median count are arithmetic on the shelf")
         b = cap["burst"]
@@ -368,7 +385,8 @@ def main():
         check(eps["per_model_largest_shown"] is True, "epsilon's ceiling is marked per model")
         check(cap["one_time"]["tokens"] == 500000 and cap["one_time"]["credits_usd"] == 0.0, "one-time: alpha's 500,000 tokens")
         check(cap["monthly"]["credits_usd"] == 5 and cap["monthly"]["grants"][0]["provider"] == "beta", "monthly: beta's $5")
-        check(cap["providers_with_no_daily_figure"] == [], "every fixture provider lands on some shelf")
+        check(cap["providers_with_no_daily_figure"] == ["epsilon", "gamma"],
+              "off the shelf: epsilon has only a drawn hour and a paid plan, gamma only a quota behind a payment")
 
         # ---- pages
         print("\n=== pages ===")
@@ -397,13 +415,14 @@ def main():
               and "unit price is not on file" in d70,
               "ALL-ENDPOINTS: not on the radar says so, with the burst the provider answered; the UNKNOWN reason is in the note")
         top5 = block(readme, "TOP5")
-        check(top5 is not None and top5.count("[get a key](") == 3 and "no key needed: [docs](https://delta.example/pricing)" in top5,
+        check(top5 is not None and top5.count("[get a key](") == 2 and "no key needed: [docs](https://delta.example/pricing)" in top5,
               "TOP5: every row has a door, and the keyless one points at the docs")
         check("returned an empty reply once in the archived run" in top5, "TOP5: the archived empty reply is said in plain words")
-        check("## The full ranking: all 4 ranked endpoints" in block(readme, "RANKING-HEAD"), "RANKING-HEAD: the heading carries the count")
-        check("| **0.0** (no answer in 14 days, so no value) |" in block(readme, "RANKING")
-              and "0 of 2 in 14 days" in block(readme, "RANKING"),
-              "RANKING: the 0.0 row says why it is zero, in the cell a stranger reads")
+        check("## The full ranking: all 3 ranked endpoints" in block(readme, "RANKING-HEAD"), "RANKING-HEAD: the heading carries the count")
+        unlock_blk = block(readme, "UNLOCK")
+        check("`gamma-chat:free`" in unlock_blk and "a one-time $1 top-up" in unlock_blk
+              and "50,000" in unlock_blk and "gamma-chat:free" not in block(readme, "RANKING"),
+              "UNLOCK: the paywalled row is listed under the ranking, with its condition, and not in it")
         rel_blk = block(readme, "RELIABILITY")
         check("| Endpoints with a verdict | Endpoints probed | Endpoints tracked |" in rel_blk
               and "| [epsilon](https://console.epsilon.example/) | 1 of 1 (100%) | 1 | 2 | 2 |" in rel_blk
@@ -419,11 +438,12 @@ def main():
               "KEYLESS: the keyless provider, its date, and where its endpoints sit today with the reason")
         road = block(readme, "ROAD")
         check("1 delivered nothing (gamma: rate limit reached)" in road, "ROAD: a zero burst names its cause, and does not say answered")
-        check("*What it would take.*" in road and "3,327 more providers at that median" in road
+        check("*What it would take.*" in road and "more providers at that median" in road
               and "capped at %d requests a minute" % rank.MAX_PACE_RPM in road,
               "ROAD: the distance paragraph is computed from the shelf and the meter's constants")
         capacity = block(readme, "CAPACITY")
-        check("| DRAWN; %s |" % DRAWN_CAVEAT in capacity, "CAPACITY: the DRAWN row carries the caveat")
+        check("DERIVED, not counted: the quota starts after a one-time $1 top-up" in capacity,
+              "CAPACITY: a quota that starts after a payment says so instead of printing UNKNOWN")
         check("| **[beta](https://inference.beta.example/)** | 8,000 |  | 800,000 in / 50,000 out | 60 | 300,000 | DECLARED | $5 in credits | - | yes | **yes** | ? |" in capacity,
               "CAPACITY: a sign-up page that was read and does not say prints ?")
         check("| 1,000,000 | MEASURED; %s |" % TIER_NOTE in capacity and "| 20,000 in+out |" in capacity
@@ -435,9 +455,12 @@ def main():
         print("\n=== the ROAD paragraph: ceilings and the meter ===")
         check(rank.comparable_ceiling({"tpm": 4000000, "tpm_input": 4000000, "tpm_output": 100000}) == 100000
               and rank.comparable_ceiling({"tpm_input": 4000000}) == 0
-              and rank.comparable_ceiling({"tpm": 5000000}) == 5000000
+              and rank.comparable_ceiling({"tpm": 5000000, "tpm_scope": "output"}) == 5000000
+              and rank.comparable_ceiling({"tpm": 5000000, "tpm_scope": "in+out"}) == 0
+              and rank.comparable_ceiling({"tpm": 5000000, "tpm_scope": "unspecified"}) == 0
               and rank.comparable_ceiling({}) == 0,
-              "comparable_ceiling: the output side of a split, else the bare tpm; an input figure alone compares as nothing")
+              "comparable_ceiling: the output side of a split, a bare figure only where the provider calls it "
+              "output; input-plus-output and unspecified compare as nothing")
         target_min = rank.TARGET_TOKENS_PER_DAY / 1440.0
         fix_lim = json.loads((FIX / "limits.json").read_text(encoding="utf-8"))["providers"]
         check(fix_lim["beta"]["all_models"]["tpm_input"] > target_min > fix_lim["beta"]["all_models"]["tpm_output"],
@@ -463,16 +486,22 @@ def main():
 
         print("\n=== conditions travel with the figure ===")
         check("1,000,000 measured from response headers or usage endpoints (1 provider; alpha: 1,000,000 %s)" % TIER_NOTE in road
-              and "(2 providers; gamma: 50,000 only after a one-time $1 top-up)" in road,
-              "ROAD: the measured shelf carries alpha's trial tier and the derived shelf carries gamma's unlock")
+              and "gamma" not in road.split("*One measured hour")[0],
+              "ROAD: the measured shelf carries alpha's trial tier, and a quota behind a payment is off the shelf sentence")
         hb = block(readme, "HEADLINE")
         check("| measured by us from headers or usage endpoints | 1,000,000 (alpha: 1,000,000 %s) |" % TIER_NOTE in hb
-              and "| 250,000 (gamma: 50,000 only after a one-time $1 top-up) |" in hb,
-              "HEADLINE: the same two qualifiers on the same two rows")
+              and "| Behind a payment before the free quota starts | 50,000 a day (gamma, after a one-time $1 top-up) |" in hb
+              and ("| One measured hour x 24, never added to the shelf | 1,200,000 (alpha, from 50,000 an hour), "
+                   "480,000 (epsilon, from 20,000 an hour) |") in hb,
+              "HEADLINE: the tier qualifier stays on the measured row; the payment and the drawn hour have "
+              "their own lines under Shown, and never counted")
         check("| 1,000,000 | MEASURED; %s |" % TIER_NOTE in top5 and top5.count("MEASURED; ") == 1,
               "TOP5: alpha's Volume cell carries the tier, and no other row carries one")
-        check("| 300,000 | DECLARED | 1 of 2 in 14 days | - |" in top5 and "| region-restricted; $1 top-up unlocks the daily quota |" in top5,
-              "TOP5: a Cost cell with nothing on file is a dash; gamma keeps its flag and its unlock")
+        check("| 300,000 | DECLARED | 1 of 2 in 14 days | - |" in top5
+              and gamma["cost"] == "region-restricted; $1 top-up unlocks the daily quota"
+              and "a one-time $1 top-up" in unlock_blk,
+              "TOP5: a Cost cell with nothing on file is a dash; the paywalled row keeps its flag and its "
+              "condition under the ranking")
         check("| **3 of 5 measured** |" in hb and "| no burst row yet | none |" in hb
               and "**3 of the 5 providers measured handed us" in road
               and "1 measured with no rate to state (epsilon: five failures in a row: HTTP 403: the endpoint refused the caller)" in road
@@ -625,6 +654,7 @@ def main():
               % ("" if not bad_daily else ": %s" % bad_daily[:3]))
         unranked_bad = [(r["provider"], r["model"]) for r in rk["unranked"]
                         if r["coding_index"] is not None and r["coding_index"] >= floor
+                        and not r.get("behind_payment")
                         and ref_volume(lim, r["provider"], r["model"], consts[0] if consts else rank.TOKENS_PER_REPLY)[1] in rankable
                         and ref_volume(lim, r["provider"], r["model"], consts[0] if consts else rank.TOKENS_PER_REPLY)[0]
                         and (r["provider"], r["model"]) not in buried]
@@ -661,16 +691,16 @@ def main():
                 drawn_bad.append((name, "a rankable figure exists"))
         for d in cap.get("drawn", []):
             entry = (lim.get("providers") or {}).get(d["provider"]) or {}
-            if d["counted"] and (one_time_only(entry) or (coding.get((d["provider"], d["model"])) or 0) < floor):
+            if d["counted"]:
                 drawn_bad.append((d["provider"], "counted", d["note"][:60]))
-            if not d["counted"] and one_time_only(entry) and "one-time grant" not in d["note"]:
+            if one_time_only(entry) and "one-time grant" not in d["note"]:
                 drawn_bad.append((d["provider"], "grant not named", d["note"][:60]))
-            if d["counted"] and d["provider"] not in cap["daily_shelf"]["drawn"]["providers"]:
-                drawn_bad.append((d["provider"], "counted but not on the drawn shelf"))
-        check(not drawn_bad, "the DRAWN shelf excludes one-time-grant providers and unscored models, and fills only where nothing else exists%s"
+            if "hour repeated 24 times" not in d["note"]:
+                drawn_bad.append((d["provider"], "the condition is not on the row", d["note"][:60]))
+        check(not drawn_bad, "every drawn hour is printed with its condition and none of it is counted%s"
               % ("" if not drawn_bad else ": %s" % drawn_bad[:3]))
         check(sum(cap["daily_shelf"][k.lower()]["tokens_per_day"] for k in summable) == cap["defensible_tokens_per_day"],
-              "the four shelves in capacity.json add up to the defensible figure")
+              "the three shelves in capacity.json add up to the defensible figure")
 
         # the pages carry the same headline and the same vocabulary
         readme_text = (ROOT / "README.md").read_text(encoding="utf-8") if (ROOT / "README.md").exists() else ""

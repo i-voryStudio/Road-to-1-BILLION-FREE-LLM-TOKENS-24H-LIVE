@@ -3,14 +3,13 @@
  "target_tokens_per_day": 1000000000,
  "quality_floor_coding_index": 45.0,
  "target_date": "2026-11-07",
- "defensible_tokens_per_day": 11931224,
- "share_of_target_pct": 1.19,
- "multiple_still_needed": 83.8,
+ "defensible_tokens_per_day": 6300000,
+ "share_of_target_pct": 0.63,
+ "multiple_still_needed": 158.7,
  "summable_labels": [
   "MEASURED",
   "DECLARED",
-  "DERIVED",
-  "DRAWN"
+  "DERIVED"
  ],
  "daily_shelf": {
   "measured": {
@@ -24,42 +23,20 @@
   "declared": {
    "tokens_per_day": 0,
    "providers": [],
-   "how": "a daily figure published by the provider in tokens; aihubmix publishes 1,000,000 a day, but 100 requests bind first, so those figures are counted under DERIVED"
+   "how": "a daily figure published by the provider in tokens"
   },
   "derived": {
-   "tokens_per_day": 350000,
+   "tokens_per_day": 300000,
    "providers": [
-    "aihubmix",
     "google",
     "kenari",
     "openrouter"
    ],
    "how": "a published request cap x 500 tokens a reply, or this model's published unit price divided into a published allowance; the arithmetic is in each row's volume_evidence"
-  },
-  "drawn": {
-   "tokens_per_day": 5581224,
-   "providers": [
-    "hetzner"
-   ],
-   "how": "tokens_per_hour_drawn x 24 from data/drawn.jsonl: extrapolated from a 60-minute draw at the published pace, a floor for the hour measured and not the provider's ceiling, used only where nothing above exists"
   }
  },
- "published_token_figure_bound_by_requests": [
-  {
-   "provider": "aihubmix",
-   "tokens_per_day_published": 1000000,
-   "requests_per_day": 100
-  }
- ],
+ "published_token_figure_bound_by_requests": [],
  "per_provider": {
-  "aihubmix": {
-   "daily_tokens": 50000,
-   "confidence": "DERIVED",
-   "model": "gemini-3.8-flash-free",
-   "evidence": "The generous number costs one dollar. A new account gets 10 trial calls and nothing else; a single top-up of $1 switches the account permanently to daily quotas. So the 1,000,000 tokens a day is real, recurring and unlimited in time - but it is not free until you have paid a dollar once, and this row says so rather than printing the big number on its own. 100 requests/day (DECLARED) x 500 tokens a reply = 50,000 tokens/day. The request cap is the provider's figure; the token figure is arithmetic done here, so it is DERIVED, not DECLARED. Binding limit: Requests per day, at 100, long before the million tokens. Applies per ACCOUNT.",
-   "measured_on_tier": null,
-   "unlock": "$1 top-up unlocks the daily quota"
-  },
   "cerebras": {
    "daily_tokens": 1000000,
    "confidence": "MEASURED",
@@ -73,16 +50,6 @@
    "confidence": "DERIVED",
    "model": "gemini-3.5-flash-lite",
    "evidence": "The public docs page no longer prints the per-model table; it points you at aistudio.google.com/rate-limit, which needs a login. The figures below were read off that console screen on 2026-09-06. Free tier means literally 'no billing account linked': linking one moves the project to Tier 1 and off these numbers. Because the limits are per PROJECT, a second API key in the same project buys you nothing. 500 requests/day (DECLARED) x 500 tokens a reply = 250,000 tokens/day. The request cap is the provider's figure; the token figure is arithmetic done here, so it is DERIVED, not DECLARED. Binding limit: Requests per DAY on the Flash models: 500 a day on 3.5 Flash-Lite, and no daily figure has been read for 3.8 Flash. Applies per PROJECT.",
-   "measured_on_tier": null,
-   "unlock": null
-  },
-  "hetzner": {
-   "daily_tokens": 5581224,
-   "confidence": "DRAWN",
-   "model": "Qwen3.8-27B",
-   "pace_rpm": 10,
-   "requests_ok": 333,
-   "evidence": "232,551 tokens drawn per hour x 24: extrapolated from a 60-minute draw on 2026-09-07; drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling. The same day's 30-second burst received nothing: five failures in a row: no response: timeout or connection failure.",
    "measured_on_tier": null,
    "unlock": null
   },
@@ -115,13 +82,25 @@
  "paid_plan_per_provider": {
   "groq": 200000
  },
+ "behind_payment": {
+  "tokens_per_day_excluded": 50000,
+  "per_provider": {
+   "aihubmix": 50000
+  },
+  "conditions": {
+   "aihubmix": "a one-time $1 top-up"
+  },
+  "note": "a real recurring quota that begins only after money changes hands. Free here means no money spent, so these figures are shown with their condition and are never ranked and never summed."
+ },
  "providers_tracked": 18,
  "endpoints_tracked": 63,
- "endpoints_ranked": 14,
+ "endpoints_ranked": 10,
  "providers_with_no_daily_figure": [
+  "aihubmix",
   "alibaba",
   "cloudflare",
   "groq",
+  "hetzner",
   "inferx",
   "mistral",
   "nvidia",
@@ -132,9 +111,11 @@
   "unorouter"
  ],
  "why_no_daily_figure": {
+  "aihubmix": "has a DERIVED figure of 50,000 on `coding-glm-5.3-free`, and that model scores 74.8, under the quality floor of 45",
   "alibaba": "publishes only a one-time grant of 1,000,000 tokens per model",
   "cloudflare": "has a DERIVED figure of 48,826 on `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, and that model scores 11.9, under the quality floor of 45",
   "groq": "publishes a daily figure only for a paid plan",
+  "hetzner": "publishes only a per-minute ceiling",
   "inferx": "publishes no figure at all",
   "mistral": "publishes only a monthly grant of $10 in credits",
   "nvidia": "publishes no figure at all",
@@ -145,13 +126,11 @@
   "unorouter": "publishes only a per-minute ceiling"
  },
  "distance": {
-  "gap_tokens_per_day": 988068776,
-  "providers_with_a_daily_figure": 7,
+  "gap_tokens_per_day": 993700000,
+  "providers_with_a_daily_figure": 5,
   "median_daily_figure": 250000,
-  "providers_at_median_to_close_gap": 3953,
-  "ceilings_at_or_above_target_rate": [
-   "alibaba (5,000,000 in+out a minute) drew 699,585 tokens an hour at a planned 30 requests a minute (29.0 realised) x 700 tokens a call, against a one-time grant, so nothing of it is on the shelf"
-  ],
+  "providers_at_median_to_close_gap": 3975,
+  "ceilings_at_or_above_target_rate": [],
   "ceilings_compared_as": "the output ceiling where a split is published, the bare tpm where it is not; an input ceiling is never compared with the output target",
   "meter": {
    "minutes": 60,
@@ -488,7 +467,7 @@
     "tokens_per_minute_combined_scope": "input+output",
     "tokens_per_minute_input": null,
     "tokens_per_minute_output": null,
-    "comparable_with_output_target": 5000000,
+    "comparable_with_output_target": null,
     "per_model_largest_shown": true,
     "confidence": "DECLARED"
    },
@@ -521,7 +500,7 @@
     "tokens_per_minute_combined_scope": "unspecified",
     "tokens_per_minute_input": null,
     "tokens_per_minute_output": null,
-    "comparable_with_output_target": 250000,
+    "comparable_with_output_target": null,
     "per_model_largest_shown": true,
     "confidence": "DECLARED"
    },
@@ -532,7 +511,7 @@
     "tokens_per_minute_combined_scope": "unspecified",
     "tokens_per_minute_input": null,
     "tokens_per_minute_output": null,
-    "comparable_with_output_target": 8000,
+    "comparable_with_output_target": null,
     "per_model_largest_shown": true,
     "confidence": "DECLARED"
    },
@@ -587,7 +566,7 @@
     "tokens_per_minute_combined_scope": "unspecified",
     "tokens_per_minute_input": null,
     "tokens_per_minute_output": null,
-    "comparable_with_output_target": 40000,
+    "comparable_with_output_target": null,
     "per_model_largest_shown": false,
     "confidence": "DECLARED"
    },
@@ -698,7 +677,7 @@
    "stopped_because": "token cap reached",
    "caveat": "drawn at a planned pace of 30 requests a minute and a realised 29.0 (624 launched over 22 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling",
    "counted": false,
-   "note": "not counted: the only free capacity here is a one-time grant of 1,000,000 tokens for this model, and at the drawn rate it lasts about 1.4 hours; a grant is not a day"
+   "note": "alibaba drew 699,585 tokens in one measured hour on 2026-09-07. If that hour repeated 24 times it would be 16,790,040 a day, and nobody has measured that, so the figure is printed here and never added to the shelf. Drawn at a planned pace of 30 requests a minute and a realised 29.0 (624 launched over 22 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling. The only free capacity here is a one-time grant of 1,000,000 tokens for this model, which at this rate lasts about 1.4 hours."
   },
   {
    "provider": "hetzner",
@@ -711,8 +690,8 @@
    "requests_ok": 333,
    "stopped_because": "window ended",
    "caveat": "drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling",
-   "counted": true,
-   "note": "extrapolated from a 60-minute draw; drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling"
+   "counted": false,
+   "note": "hetzner drew 232,551 tokens in one measured hour on 2026-09-07. If that hour repeated 24 times it would be 5,581,224 a day, and nobody has measured that, so the figure is printed here and never added to the shelf. Drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling."
   },
   {
    "provider": "kenari",
@@ -726,12 +705,12 @@
    "stopped_because": "HTTP 429: rate limited",
    "caveat": "drawn at a planned pace of 5 requests a minute and a realised 2.2 (63 launched over 29 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling",
    "counted": false,
-   "note": "not on the shelf: a DERIVED daily figure already exists"
+   "note": "kenari drew 29,236 tokens in one measured hour on 2026-09-07. If that hour repeated 24 times it would be 701,664 a day, and nobody has measured that, so the figure is printed here and never added to the shelf. Drawn at a planned pace of 5 requests a minute and a realised 2.2 (63 launched over 29 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling. kenari also publishes a DERIVED daily figure, and that is the one on the shelf."
   }
  ],
  "radar_today": {
   "alive": 30,
   "tested": 37
  },
- "note": "defensible_tokens_per_day = MEASURED + DECLARED + DERIVED + DRAWN, largest figure per provider, and it is the only number the bar and the distance use. PAID-PLAN and UNKNOWN are shown and never counted. Bursts and ceilings are per minute and are never multiplied out to a day. Money is never converted into tokens."
+ "note": "defensible_tokens_per_day = MEASURED + DECLARED + DERIVED, largest figure per provider, and it is the only number the daily shelf and the distance use. PAID-PLAN, UNKNOWN and DRAWN are shown and never counted. A drawn hour is one measured hour: the day it would make if it repeated 24 times is printed with that condition and is never added. A quota that starts after a payment is not free capacity and is never added. Bursts and ceilings are per minute and are never multiplied out to a day. Money is never converted into tokens."
 }

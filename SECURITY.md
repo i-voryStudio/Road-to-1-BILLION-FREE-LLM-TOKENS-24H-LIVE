@@ -78,9 +78,9 @@ refuse, next to an honest one it must admit:
 7. **A redirect may not change host, scheme or port.** `bench/http_safe.py` refuses it, because the
    Authorization header would travel with it; the test greps every key-carrying script for the guard.
 8. **A sustained draw is checked against what the program that wrote it could have written.**
-   `data/drawn.jsonl` carries the largest single figure on the front-page bar, multiplied out to a day,
-   and it is committed by the daily job with write rights, so one appended row was the shortest path to
-   a false front page. The gate now reads that file by the rules of `bench/draw_day.py` itself: the
+   `data/drawn.jsonl` is committed by the scheduled job with write rights, and until this gate existed one
+   appended row was the shortest path to a false front page. Its figures are printed and never summed
+   now, and a printed number a stranger reads is worth the same care as a counted one. The gate now reads that file by the rules of `bench/draw_day.py` itself: the
    provider and model must be ones the catalogue knows, the date may not be in the future, the hourly
    rate must follow from the tokens drawn over the minutes actually run, and both the pace and the token
    count must sit under the ceilings the program enforces on itself. A row that `draw_day.py` could not
@@ -144,7 +144,7 @@ generator is run again on the committed data with the demand that it changes not
 |---|---|
 | `bench/gate_pr.py`, first, from the base branch's copy, on pull requests | a line added, changed, moved or deleted in a measurement file (the list is in the section above), or an entry that exists on `main` in `bench/key_bindings.json`, `bench/providers.json` or the host maps of `bench/gate_contributions.py` that is changed or, without a `retire:` title, removed |
 | `bench/test_probes.py`, `test_gate.py`, `test_pr.py`, `test_contributions.py`, `test_scores.py`, `test_jury.py`, `test_drift.py`, `test_viability.py`, `test_rank.py`, `test_draw.py`, `test_claims.py` | a checker or a gate that has drifted, in either direction |
-| `bench/test_shelf.py` | a headline that bench/rank.py computed but bench/limits.json and data/drawn.jsonl cannot justify: the four shelves are re-added here, figure by figure, with the generator out of the loop |
+| `bench/test_shelf.py` | a headline that bench/rank.py computed but bench/limits.json cannot justify: the three shelves are re-added here, figure by figure, with the generator out of the loop, and a drawn hour or a quota behind a payment that reached the sum |
 | `bench/gate_publish.py`, on the tree and, on pull requests, `--history` | an API key, an account's state in the first person, a private path or name, a tool trace, a rate limit multiplied across keys; in history mode the same things in every commit the pull request brings, its message, author and committer included |
 | `bench/gate_contributions.py` | a contributed provider, judge, language pack, limit, privacy claim, retirement notice or data row that the rules above refuse; a key variable that does not match the registry; a daily figure above the project's target, or above 100,000,000 without a measurement; a back-dated or doubled radar or draw row; a burst row with more requests than its slots could complete; a judge from a benchmarked family; and an archived reliability run that does not recompute from results/ |
 | `bench/gate_drift.py --check` | imported scores that are not numeric, outside their scale, dated in the future, flattened to one value across distinct models, older than fourteen days, drifted past the bounds since the committed file, equal to `data/scores.rejected.json`, or not the file the gate last applied |

@@ -399,7 +399,8 @@ def main():
          "on README but not in rank.py: %s" % sorted(on_readme - G.MARKERS))
     case("the label vocabulary is rank.py's, not a copy", G.LABELS == set(rank.LABELS) and G.RANKABLE == set(rank.RANKABLE)
          and G.SUMMABLE == set(rank.SUMMABLE))
-    case("DRAWN is summable and not rankable, in rank.py and therefore here", "DRAWN" in G.SUMMABLE and "DRAWN" not in G.RANKABLE)
+    case("DRAWN is neither rankable nor summable, in rank.py and therefore here",
+     "DRAWN" not in G.SUMMABLE and "DRAWN" not in G.RANKABLE)
     rank_src = (ROOT / "bench" / "rank.py").read_text(encoding="utf-8")
     viab_src = (ROOT / "bench" / "gate_viability.py").read_text(encoding="utf-8")
     for name in sorted(G.GENERATED_PAGES):

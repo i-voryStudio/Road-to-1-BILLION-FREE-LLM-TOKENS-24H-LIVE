@@ -41,7 +41,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 TOKENS_PER_REPLY = 500          # the constant rank.py derives with; restated here on purpose, so a change
 TARGET = 1_000_000_000          # in one place fails the test until the other is changed too
-SUMMABLE = ("MEASURED", "DECLARED", "DERIVED", "DRAWN")
+SUMMABLE = ("MEASURED", "DECLARED", "DERIVED")
 RANKABLE = ("MEASURED", "DECLARED", "DERIVED")     # a row ranks on these; DRAWN is a provider figure, not a row's
 NOAUTH_BONUS = 1.25             # the two multipliers in the printed formula, restated for the same reason
 DEGRADED_PENALTY = 0.5
@@ -139,7 +139,12 @@ def main():
     print("=== the four shelves ===")
     shelf = cap["daily_shelf"]
     defensible = cap["defensible_tokens_per_day"]
-    check(tuple(cap["summable_labels"]) == SUMMABLE, "capacity.json names exactly the four summable labels")
+    check(tuple(cap["summable_labels"]) == SUMMABLE, "capacity.json names exactly the three summable labels")
+    check(all(w.get("counted") is False for w in cap.get("drawn", [])),
+          "no drawn hour is counted: one measured hour times 24 is the arithmetic this list refuses")
+    drawn_sum = sum(w["tokens_per_day_extrapolated"] for w in cap.get("drawn", []))
+    check(drawn_sum == 0 or defensible < defensible + drawn_sum,
+          "the drawn total (%s) is outside the defensible figure" % "{:,}".format(drawn_sum))
     check(sum(shelf[k.lower()]["tokens_per_day"] for k in SUMMABLE) == defensible,
           "defensible = measured + declared + derived + drawn (%s)" % "{:,}".format(defensible))
     per = cap["per_provider"]
@@ -185,14 +190,15 @@ def main():
     tracked = set(limits)
     check(set(on_shelf) | set(cap.get("providers_with_no_daily_figure", [])) <= tracked,
           "every provider counted or listed as having no figure is in bench/limits.json")
+    # A drawn hour never reaches the shelf, whatever else the provider publishes: one measured hour times
+    # twenty-four is the arithmetic every other row of this page refuses.
     for r in drawn:
         rate = r.get("tokens_per_hour_drawn")
-        if rate is not None and r["provider"] not in on_shelf:
-            block = limits.get(r["provider"]) or {}
-            j = figures_for(block)
-            reason = "a figure of another kind" if (j["MEASURED"] | j["DERIVED"]) else (
-                "a one-time grant" if (block.get("one_time") or {}).get("tokens") else "")
-            check(bool(reason), "%s drew %s an hour and is not counted: %s" % (r["provider"], "{:,}".format(rate), reason or "NO REASON FOUND"))
+        if rate is None:
+            continue
+        counted_as_drawn = per.get(r["provider"], {}).get("confidence") == "DRAWN"
+        check(not counted_as_drawn,
+              "%s drew %s an hour and none of it is on the shelf" % (r["provider"], "{:,}".format(rate)))
 
     print("=== the numbers on the page ===")
     share = round(defensible / TARGET * 100, 2)

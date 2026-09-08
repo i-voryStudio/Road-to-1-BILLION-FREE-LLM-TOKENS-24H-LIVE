@@ -308,7 +308,7 @@ RULE_NAMES = [name for name, _, _ in RULES] + COMPUTED_RULE_NAMES
 
 # Rule 1: these are BLANKED OUT of a line, then the rest of the line is still checked.
 ALLOW = [
-    re.compile(r"https://github\.com/i-voryStudio(?:/live-free-llm-apis)?(?![A-Za-z0-9_\-])"),  # our profile, and only that
+    re.compile(r"https://github\.com/i-voryStudio(?:/Road-to-1-BILLION-FREE-LLM-TOKENS-24H-LIVE)?(?![A-Za-z0-9_\-])"),  # our profile, and only that
     re.compile(r"[A-Za-z0-9._%+\-]+(?:@|\s*\[at\]\s*)(?:example\.[a-z]+|users\.noreply\.github\.com)"),  # placeholders
     re.compile(r"\bnoreply@github\.com|user@host|your@email"),
     re.compile(r"export [A-Z_]+=\.\.\."),                              # documenting the shape

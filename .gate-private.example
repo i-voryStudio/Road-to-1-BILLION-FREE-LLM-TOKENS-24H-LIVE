@@ -3,7 +3,9 @@
 #
 # Copy this file to .gate-private (git-ignored), put the real names in, then run
 #     python bench/gate_publish.py --fingerprint .gate-private
-# which writes bench/private_fingerprints.json. Only the fingerprints ship; CI matches against them.
+# Nothing from this list ships, not even a truncated hash: a hash confirms a guess for anyone holding
+# a candidate list. The rule runs where this file is, and every scan says on its summary line
+# whether it was on. CI has no copy, so CI runs the key and phrase rules only.
 # A name is matched whole and normalised (case, hyphens, dots and spaces do not matter), so
 # unicorn-bakery-internal below also catches "Unicorn Bakery Internal" and "unicorn_bakery_internal".
 unicorn-bakery-internal

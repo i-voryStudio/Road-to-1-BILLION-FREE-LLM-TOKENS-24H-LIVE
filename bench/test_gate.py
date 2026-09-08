@@ -430,7 +430,7 @@ MUST_PASS = [
     ("placeholder.md", "Write to noreply@example.com or user@host, someone@users.noreply.github.com, noreply@github.com\n",
      "placeholder addresses and the two GitHub no-reply forms"),
     (".github/workflows/pinned.yml", PINNED, "SHA-pinned actions: 40 hex characters after an @, not after an assignment"),
-    ("url40.md", "https://github.com/i-voryStudio/live-free-llm-apis/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md\n"
+    ("url40.md", "https://github.com/i-voryStudio/Road-to-1-BILLION-FREE-LLM-TOKENS-24H-LIVE/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md\n"
      "https://huggingface.co/x/y/resolve/3d3c42e5aac5ba805825da76410c181273ba90b1/config.json\n",
      "a URL with a 40-hex path segment"),
     ("digest_labelled.md", "sha256: %s\nimage@sha256:%s\n" % (SHA256_HEX, SHA256_HEX),

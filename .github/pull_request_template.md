@@ -29,6 +29,12 @@ paste the command + output, or the source URL + date
 - [ ] `python bench/test_gate.py` exits 0
 - [ ] `python bench/gate_publish.py .` exits 0
 - [ ] `python bench/gate_contributions.py` exits 0
+- [ ] `python bench/gate_pr.py --base origin/main` exits 0. Measurements are made, never contributed: no
+      line added, changed, moved or removed in `data/uptime.jsonl`, `data/throughput.jsonl`,
+      `data/drawn.jsonl`, `data/reliability.json`, `data/scores.json` or anything under `results/` (the
+      full list is `python bench/gate_pr.py --list-walls`), and no entry that exists on `main` in
+      `bench/key_bindings.json`, `bench/providers.json` or the host maps edited. CI refuses either,
+      whatever the line says.
 - [ ] `python bench/test_rank.py` exits 0 if you touched `bench/rank.py`, `bench/limits.json` or a fixture
 - [ ] No new dependency. This repo is standard library only, and that is its main security property.
 - [ ] No API key, token or account state anywhere in the diff — not even an expired one, not even as
@@ -36,18 +42,29 @@ paste the command + output, or the source URL + date
 
 ## If you added a provider
 
-Adding a provider is two edits in one PR, and the gate refuses either one alone:
+Six edits in one PR. The gate refuses the block when 2 or 3 is missing, and when 4 is missing where it
+applies; without 5 and 6 the row prints UNKNOWN.
 
-- [ ] The JSON block in `bench/providers.json`: endpoint, `key_env`, `signup`, models, pacing.
-- [ ] The host is added to `ALLOWED_HOSTS` in `bench/gate_contributions.py` **in this same PR**, so a
+- [ ] 1. The block in `bench/providers.json`: endpoint, `key_env`, `signup`, models, pacing.
+- [ ] 2. Its line in `bench/key_bindings.json`: the one host the key variable may reach, role `provider`.
+- [ ] 3. Its API host in `ALLOWED_HOSTS` in `bench/gate_contributions.py` **in this same PR**, so a
       reviewer sees the new destination. A JSON-only change cannot add one, by design.
-- [ ] If the sign-up page sits on a different domain from the API, that domain is added to
-      `KNOWN_SIGNUP_HOSTS` in the same file: a door is where people type passwords, so it is declared in
-      code too. Without it the gate refuses the `signup` URL and the ranking falls back to the API host.
-- [ ] An entry in `bench/limits.json` with `all_models` (nulls are fine) and one in `bench/privacy.json`
-      (`UNKNOWN` is fine), so the ranking prints a labelled figure rather than a missing one.
-- [ ] `key_env` names your provider and is not already used by another one. An API key is bound to one
-      host, forever: that rule is what stops this benchmark from becoming a credential harvester.
+- [ ] 4. Its sign-up host in `KNOWN_SIGNUP_HOSTS` in the same file, if the sign-up page sits on a different
+      domain from the API: a door is where people type passwords, so it is declared in code too. Without
+      it the gate refuses the `signup` URL.
+- [ ] 5. An entry in `bench/limits.json` with `all_models` (nulls are fine). A bare `tpm` carries `tpm_scope` (`in+out`, `output` or `unspecified`), and a MEASURED figure read
+      on a trial tier carries `measured_on_tier`; both print wherever the figure prints.
+- [ ] 6. An entry in `bench/privacy.json` (`UNKNOWN` is fine).
+- [ ] `key_env` names your provider and is not already used by another one. A key variable is bound to one
+      host for good: an existing line in the registry, in `providers.json` or in the host maps is never
+      edited in a PR, only added next to, and CI refuses the edit before reading it.
+- [ ] If you ran the battery, the figures are in the description above, not in `results/` or `data/`.
+
+## If you retired a provider
+
+- [ ] The title starts with `retire:` and the PR removes that provider and nothing else: its block, its
+      registry line, its hosts, its `limits.json` and `privacy.json` entries. Under that title CI admits the
+      removals; it still refuses an edited entry and any touch on a measurement file.
 
 ## If you added a language
 

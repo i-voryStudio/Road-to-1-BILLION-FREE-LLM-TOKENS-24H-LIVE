@@ -22,6 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, pinned: a tag can be moved, a SHA cannot
+        with:
+          # The rebase at the end needs the history that connects this checkout with whatever landed
+          # on main while the job ran; a shallow clone may not have it.
+          fetch-depth: 0
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0, pinned
         with:
           python-version: '3.12'
@@ -40,6 +44,7 @@ jobs:
         run: |
           python bench/test_probes.py
           python bench/test_gate.py
+          python bench/test_pr.py
           python bench/test_contributions.py
           python bench/test_scores.py
           python bench/test_jury.py
@@ -66,29 +71,62 @@ jobs:
       - name: Published numbers must exist in the data, on the pages just regenerated
         run: python bench/gate_claims.py --root .
 
-      - name: Every page at the root is on the claims gate's list
+      # Same reference as in checks.yml: git's index, not a glob of the tree the gate globbed itself.
+      - name: Every tracked page is on the claims gate's list
         run: |
-          python bench/gate_claims.py --list-pages | sort > /tmp/gate-pages.txt
-          ls -1 *.md | sort > /tmp/root-pages.txt
-          UNCHECKED=$(comm -23 /tmp/root-pages.txt /tmp/gate-pages.txt)
+          python bench/gate_claims.py --list-pages | tr -d '\r' | sort > /tmp/gate-pages.txt
+          git ls-files -- '*.md' | grep -v -E '^(\.github/|bench/tests/|results/)' | sort > /tmp/tracked-pages.txt
+          UNCHECKED=$(comm -23 /tmp/tracked-pages.txt /tmp/gate-pages.txt)
           if [ -n "$UNCHECKED" ]; then
-            echo "at the root, and the claims gate does not open them:"; echo "$UNCHECKED"; exit 1
+            echo "tracked by git, and the claims gate does not open them:"; echo "$UNCHECKED"; exit 1
           fi
 
       - name: Nothing private may ship
         run: python bench/gate_publish.py .
 
+      # This job is the only writer of measurement files that is not the machine holding the keys, so
+      # what it pushes is exactly the files listed here and nothing else: after the commit the tree must
+      # be clean, or something wrote outside the generated set and that is a bug, not a commit.
       - name: Commit the diff, if there is one
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           FILES="data/ README.md RESULTS.md ALL-ENDPOINTS.md LIMITS.md GRAVEYARD.md"
           if git diff --quiet -- $FILES; then
             echo "nothing changed today - no commit. A commit that moves only a timestamp is noise."
-          else
-            git add $FILES
-            git commit -m "daily: $(date -u +%F) catalogue, scores and regenerated pages"
-            # Somebody may have pushed while this job was running; rebase rather than fail.
-            git pull --rebase --autostash origin main
-            git push
+            echo "committed=no" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          git add $FILES
+          git commit -m "daily: $(date -u +%F) catalogue, scores and regenerated pages"
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "files changed outside the generated set; nothing will be pushed:"; git status --porcelain; exit 1
+          fi
+          echo "committed=yes" >> "$GITHUB_OUTPUT"
+
+      # Somebody may have pushed while this job ran: a corrected limit, a radar file from the machine that
+      # holds the keys. Rebase onto it rather than fail, and then run the gates AGAIN on the rebased tree,
+      # because the pages above were generated from the data this job started with and a commit that
+      # landed meanwhile can make them stale. Regeneration must still be a no-op and every gate must still
+      # pass on the exact tree that is about to be pushed; otherwise nothing is pushed and tomorrow's run
+      # starts from the fresh main. No --autostash: the step above proved the tree is clean.
+      - name: Rebase onto whatever landed meanwhile
+        if: steps.commit.outputs.committed == 'yes'
+        run: git pull --rebase origin main
+
+      - name: The gates again, on the rebased tree
+        if: steps.commit.outputs.committed == 'yes'
+        run: |
+          python bench/gate_publish.py .
+          python bench/gate_contributions.py
+          python bench/gate_drift.py --check data/scores.json --today "$(date -u +%F)"
+          DATE=$(python -c 'import json;print(json.load(open("data/ranking.json"))["measured_at"])')
+          python bench/gate_viability.py --today "$DATE"
+          python bench/rank.py --date "$DATE" --out .
+          git diff --exit-code -- README.md RESULTS.md ALL-ENDPOINTS.md LIMITS.md GRAVEYARD.md data/ranking.json data/ranking.csv data/capacity.json data/viability.json
+          python bench/gate_claims.py --root .
+
+      - name: Push the one commit this job made
+        if: steps.commit.outputs.committed == 'yes'
+        run: git push origin HEAD:main

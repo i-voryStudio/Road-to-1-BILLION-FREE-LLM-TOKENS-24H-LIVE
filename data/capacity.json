@@ -1,5 +1,5 @@
 {
- "date": "2026-09-07",
+ "date": "2026-09-09",
  "target_tokens_per_day": 1000000000,
  "quality_floor_coding_index": 45.0,
  "target_date": "2026-11-07",
@@ -729,8 +729,8 @@
   }
  ],
  "radar_today": {
-  "alive": 30,
-  "tested": 37
+  "alive": 0,
+  "tested": 0
  },
  "note": "defensible_tokens_per_day = MEASURED + DECLARED + DERIVED, largest figure per provider, and it is the only number the daily shelf and the distance use. PAID-PLAN, UNKNOWN and DRAWN are shown and never counted. A drawn hour is one measured hour: the day it would make if it repeated 24 times is printed with that condition and is never added. A quota that starts after a payment is not free capacity and is never added. Bursts and ceilings are per minute and are never multiplied out to a day. Money is never converted into tokens."
 }

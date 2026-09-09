@@ -1,5 +1,5 @@
 {
- "fetched_on": "2026-09-07",
+ "fetched_on": "2026-09-09",
  "source": "https://openrouter.ai/api/v1/models",
  "source_note": "Scores are republished by OpenRouter from Artificial Analysis and Design Arena. We do not run them ourselves and do not modify them. See CREDITS.md.",
  "benchmarks": {
@@ -12,24 +12,24 @@
    "model": "gemini-3.8-flash",
    "matched_as": "google/gemini-3.8-flash:batch",
    "artificial_analysis": {
-    "intelligence_index": 47.1,
+    "intelligence_index": 41.2,
     "coding_index": 76.3,
-    "agentic_index": 41.2
+    "agentic_index": 41.1
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1321,
-     "win_rate": 57.5,
-     "rank": 6
+     "elo": 1323,
+     "win_rate": 56,
+     "rank": 7
     },
     "gamedev": {
-     "elo": 1346,
-     "win_rate": 60.5,
+     "elo": 1345,
+     "win_rate": 58.9,
      "rank": 6
     },
     "website": {
-     "elo": 1311,
-     "win_rate": 56.3,
+     "elo": 1314,
+     "win_rate": 55.1,
      "rank": 8
     }
    }
@@ -39,9 +39,9 @@
    "model": "gemini-3.5-flash-lite",
    "matched_as": "google/gemini-3.5-flash-lite:batch",
    "artificial_analysis": {
-    "intelligence_index": 27.6,
+    "intelligence_index": 22.7,
     "coding_index": 49.3,
-    "agentic_index": 16.1
+    "agentic_index": 15.9
    }
   },
   {
@@ -49,8 +49,9 @@
    "model": "gemma-4-31b-it",
    "matched_as": "google/gemma-4-31b-it:batch",
    "artificial_analysis": {
+    "intelligence_index": 15.4,
     "coding_index": 43.4,
-    "agentic_index": 6.8
+    "agentic_index": 6.7
    }
   },
   {
@@ -58,8 +59,9 @@
    "model": "gemma-4-31b",
    "matched_as": "google/gemma-4-31b-it:batch",
    "artificial_analysis": {
+    "intelligence_index": 15.4,
     "coding_index": 43.4,
-    "agentic_index": 6.8
+    "agentic_index": 6.7
    }
   },
   {
@@ -67,25 +69,25 @@
    "model": "gpt-oss-120b",
    "matched_as": "openai/gpt-oss-120b:batch",
    "artificial_analysis": {
-    "intelligence_index": 15.6,
+    "intelligence_index": 12.3,
     "coding_index": 30.4,
-    "agentic_index": 6.3
+    "agentic_index": 6.2
    },
    "design_arena": {
     "codecategories": {
-     "elo": 980,
+     "elo": 979,
      "win_rate": 33.4,
-     "rank": 112
+     "rank": 115
     },
     "gamedev": {
-     "elo": 1021,
+     "elo": 1015,
      "win_rate": 40.5,
-     "rank": 103
+     "rank": 104
     },
     "website": {
      "elo": 981,
      "win_rate": 32.5,
-     "rank": 115
+     "rank": 116
     }
    }
   },
@@ -94,9 +96,9 @@
    "model": "qwen-3.8-27b",
    "matched_as": "qwen/qwen3.8-27b",
    "artificial_analysis": {
-    "intelligence_index": 41.4,
+    "intelligence_index": 33.9,
     "coding_index": 68.1,
-    "agentic_index": 46.8
+    "agentic_index": 46.5
    }
   },
   {
@@ -104,9 +106,9 @@
    "model": "qwen/qwen3.8-27b",
    "matched_as": "qwen/qwen3.8-27b",
    "artificial_analysis": {
-    "intelligence_index": 41.4,
+    "intelligence_index": 33.9,
     "coding_index": 68.1,
-    "agentic_index": 46.8
+    "agentic_index": 46.5
    }
   },
   {
@@ -114,25 +116,25 @@
    "model": "openai/gpt-oss-120b",
    "matched_as": "openai/gpt-oss-120b:batch",
    "artificial_analysis": {
-    "intelligence_index": 15.6,
+    "intelligence_index": 12.3,
     "coding_index": 30.4,
-    "agentic_index": 6.3
+    "agentic_index": 6.2
    },
    "design_arena": {
     "codecategories": {
-     "elo": 980,
+     "elo": 979,
      "win_rate": 33.4,
-     "rank": 112
+     "rank": 115
     },
     "gamedev": {
-     "elo": 1021,
+     "elo": 1015,
      "win_rate": 40.5,
-     "rank": 103
+     "rank": 104
     },
     "website": {
      "elo": 981,
      "win_rate": 32.5,
-     "rank": 115
+     "rank": 116
     }
    }
   },
@@ -141,6 +143,7 @@
    "model": "openai/gpt-oss-20b",
    "matched_as": "openai/gpt-oss-20b:batch",
    "artificial_analysis": {
+    "intelligence_index": 9,
     "coding_index": 20.7,
     "agentic_index": 1.4
    },
@@ -148,7 +151,7 @@
     "website": {
      "elo": 866,
      "win_rate": 27.9,
-     "rank": 123
+     "rank": 124
     }
    }
   },
@@ -157,6 +160,7 @@
    "model": "qwen/qwen3.6-27b",
    "matched_as": "qwen/qwen3.6-27b",
    "artificial_analysis": {
+    "intelligence_index": 21.9,
     "coding_index": 53.7,
     "agentic_index": 20.1
    }
@@ -166,50 +170,52 @@
    "model": "minimax/minimax-m3:free",
    "matched_as": "minimax/minimax-m3:batch",
    "artificial_analysis": {
-    "intelligence_index": 35.7,
+    "intelligence_index": 29.6,
     "coding_index": 58.6,
-    "agentic_index": 31
+    "agentic_index": 30.8
    },
    "design_arena": {
     "codecategories": {
      "elo": 1267,
      "win_rate": 52.3,
-     "rank": 28
+     "rank": 29
     },
     "gamedev": {
-     "elo": 1241,
-     "win_rate": 47.7,
-     "rank": 35
+     "elo": 1236,
+     "win_rate": 47.5,
+     "rank": 36
     },
     "website": {
-     "elo": 1272,
+     "elo": 1273,
      "win_rate": 52.8,
-     "rank": 26
+     "rank": 27
     }
    }
   },
   {
    "provider": "openrouter",
    "model": "minimax/minimax-m2.7:free",
-   "matched_as": "minimax/minimax-m2.7:free",
+   "matched_as": "minimax/minimax-m2.7",
    "artificial_analysis": {
-    "coding_index": 52.6
+    "intelligence_index": 23.2,
+    "coding_index": 52.6,
+    "agentic_index": 16.8
    },
    "design_arena": {
     "codecategories": {
      "elo": 1251,
-     "win_rate": 52,
-     "rank": 35
+     "win_rate": 51.9,
+     "rank": 36
     },
     "gamedev": {
-     "elo": 1237,
-     "win_rate": 51.4,
-     "rank": 37
+     "elo": 1231,
+     "win_rate": 51.3,
+     "rank": 38
     },
     "website": {
      "elo": 1258,
      "win_rate": 52.4,
-     "rank": 33
+     "rank": 34
     }
    }
   },
@@ -218,24 +224,25 @@
    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
    "matched_as": "nvidia/nemotron-3-ultra-550b-a55b:free",
    "artificial_analysis": {
+    "intelligence_index": 23.4,
     "coding_index": 49.3,
     "agentic_index": 21.7
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1153,
+     "elo": 1154,
      "win_rate": 36.2,
-     "rank": 76
+     "rank": 77
     },
     "gamedev": {
-     "elo": 1156,
-     "win_rate": 36.9,
-     "rank": 69
+     "elo": 1153,
+     "win_rate": 37,
+     "rank": 70
     },
     "website": {
-     "elo": 1142,
+     "elo": 1143,
      "win_rate": 34.3,
-     "rank": 81
+     "rank": 82
     }
    }
   },
@@ -244,25 +251,25 @@
    "model": "@cf/openai/gpt-oss-120b",
    "matched_as": "openai/gpt-oss-120b:batch",
    "artificial_analysis": {
-    "intelligence_index": 15.6,
+    "intelligence_index": 12.3,
     "coding_index": 30.4,
-    "agentic_index": 6.3
+    "agentic_index": 6.2
    },
    "design_arena": {
     "codecategories": {
-     "elo": 980,
+     "elo": 979,
      "win_rate": 33.4,
-     "rank": 112
+     "rank": 115
     },
     "gamedev": {
-     "elo": 1021,
+     "elo": 1015,
      "win_rate": 40.5,
-     "rank": 103
+     "rank": 104
     },
     "website": {
      "elo": 981,
      "win_rate": 32.5,
-     "rank": 115
+     "rank": 116
     }
    }
   },
@@ -287,9 +294,9 @@
    "model": "@cf/qwen/qwen3.8-27b",
    "matched_as": "qwen/qwen3.8-27b",
    "artificial_analysis": {
-    "intelligence_index": 41.4,
+    "intelligence_index": 33.9,
     "coding_index": 68.1,
-    "agentic_index": 46.8
+    "agentic_index": 46.5
    }
   },
   {
@@ -297,8 +304,9 @@
    "model": "nvidia/nemotron-3-super-120b-a12b",
    "matched_as": "nvidia/nemotron-3-super-120b-a12b:free",
    "artificial_analysis": {
+    "intelligence_index": 13.6,
     "coding_index": 37.7,
-    "agentic_index": 4.2
+    "agentic_index": 4.1
    }
   },
   {
@@ -306,24 +314,25 @@
    "model": "nvidia/nemotron-3-ultra-550b-a55b",
    "matched_as": "nvidia/nemotron-3-ultra-550b-a55b:free",
    "artificial_analysis": {
+    "intelligence_index": 23.4,
     "coding_index": 49.3,
     "agentic_index": 21.7
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1153,
+     "elo": 1154,
      "win_rate": 36.2,
-     "rank": 76
+     "rank": 77
     },
     "gamedev": {
-     "elo": 1156,
-     "win_rate": 36.9,
-     "rank": 69
+     "elo": 1153,
+     "win_rate": 37,
+     "rank": 70
     },
     "website": {
-     "elo": 1142,
+     "elo": 1143,
      "win_rate": 34.3,
-     "rank": 81
+     "rank": 82
     }
    }
   },
@@ -340,7 +349,9 @@
    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
    "matched_as": "nvidia/nemotron-3.5-lightning:free",
    "artificial_analysis": {
-    "coding_index": 26.8
+    "intelligence_index": 13.6,
+    "coding_index": 26.8,
+    "agentic_index": 6.1
    }
   },
   {
@@ -348,9 +359,9 @@
    "model": "moonshotai/kimi-k3",
    "matched_as": "moonshotai/kimi-k3:batch",
    "artificial_analysis": {
-    "intelligence_index": 50.2,
+    "intelligence_index": 43.8,
     "coding_index": 76.2,
-    "agentic_index": 50.9
+    "agentic_index": 50.6
    },
    "design_arena": {
     "codecategories": {
@@ -359,14 +370,14 @@
      "rank": 1
     },
     "gamedev": {
-     "elo": 1422,
-     "win_rate": 66,
+     "elo": 1416,
+     "win_rate": 65.7,
      "rank": 2
     },
     "website": {
-     "elo": 1357,
+     "elo": 1358,
      "win_rate": 61.6,
-     "rank": 1
+     "rank": 2
     }
    }
   },
@@ -375,8 +386,9 @@
    "model": "gemma4:31b",
    "matched_as": "google/gemma-4-31b-it:batch",
    "artificial_analysis": {
+    "intelligence_index": 15.4,
     "coding_index": 43.4,
-    "agentic_index": 6.8
+    "agentic_index": 6.7
    }
   },
   {
@@ -384,25 +396,25 @@
    "model": "gpt-oss:120b",
    "matched_as": "openai/gpt-oss-120b:batch",
    "artificial_analysis": {
-    "intelligence_index": 15.6,
+    "intelligence_index": 12.3,
     "coding_index": 30.4,
-    "agentic_index": 6.3
+    "agentic_index": 6.2
    },
    "design_arena": {
     "codecategories": {
-     "elo": 980,
+     "elo": 979,
      "win_rate": 33.4,
-     "rank": 112
+     "rank": 115
     },
     "gamedev": {
-     "elo": 1021,
+     "elo": 1015,
      "win_rate": 40.5,
-     "rank": 103
+     "rank": 104
     },
     "website": {
      "elo": 981,
      "win_rate": 32.5,
-     "rank": 115
+     "rank": 116
     }
    }
   },
@@ -411,6 +423,7 @@
    "model": "gpt-oss:20b",
    "matched_as": "openai/gpt-oss-20b:batch",
    "artificial_analysis": {
+    "intelligence_index": 9,
     "coding_index": 20.7,
     "agentic_index": 1.4
    },
@@ -418,32 +431,34 @@
     "website": {
      "elo": 866,
      "win_rate": 27.9,
-     "rank": 123
+     "rank": 124
     }
    }
   },
   {
    "provider": "xkiro",
    "model": "minimax/minimax-m2.7:free",
-   "matched_as": "minimax/minimax-m2.7:free",
+   "matched_as": "minimax/minimax-m2.7",
    "artificial_analysis": {
-    "coding_index": 52.6
+    "intelligence_index": 23.2,
+    "coding_index": 52.6,
+    "agentic_index": 16.8
    },
    "design_arena": {
     "codecategories": {
      "elo": 1251,
-     "win_rate": 52,
-     "rank": 35
+     "win_rate": 51.9,
+     "rank": 36
     },
     "gamedev": {
-     "elo": 1237,
-     "win_rate": 51.4,
-     "rank": 37
+     "elo": 1231,
+     "win_rate": 51.3,
+     "rank": 38
     },
     "website": {
      "elo": 1258,
      "win_rate": 52.4,
-     "rank": 33
+     "rank": 34
     }
    }
   },
@@ -452,25 +467,25 @@
    "model": "minimax/minimax-m3:free",
    "matched_as": "minimax/minimax-m3:batch",
    "artificial_analysis": {
-    "intelligence_index": 35.7,
+    "intelligence_index": 29.6,
     "coding_index": 58.6,
-    "agentic_index": 31
+    "agentic_index": 30.8
    },
    "design_arena": {
     "codecategories": {
      "elo": 1267,
      "win_rate": 52.3,
-     "rank": 28
+     "rank": 29
     },
     "gamedev": {
-     "elo": 1241,
-     "win_rate": 47.7,
-     "rank": 35
+     "elo": 1236,
+     "win_rate": 47.5,
+     "rank": 36
     },
     "website": {
-     "elo": 1272,
+     "elo": 1273,
      "win_rate": 52.8,
-     "rank": 26
+     "rank": 27
     }
    }
   },
@@ -483,7 +498,7 @@
     "website": {
      "elo": 1100,
      "win_rate": 57.1,
-     "rank": 94
+     "rank": 95
     }
    }
   },
@@ -492,6 +507,7 @@
    "model": "Lorbus/Qwen3.6-27B-int4-AutoRound",
    "matched_as": "qwen/qwen3.6-27b",
    "artificial_analysis": {
+    "intelligence_index": 21.9,
     "coding_index": 53.7,
     "agentic_index": 20.1
    }
@@ -501,25 +517,25 @@
    "model": "gpt-oss-120b",
    "matched_as": "openai/gpt-oss-120b:batch",
    "artificial_analysis": {
-    "intelligence_index": 15.6,
+    "intelligence_index": 12.3,
     "coding_index": 30.4,
-    "agentic_index": 6.3
+    "agentic_index": 6.2
    },
    "design_arena": {
     "codecategories": {
-     "elo": 980,
+     "elo": 979,
      "win_rate": 33.4,
-     "rank": 112
+     "rank": 115
     },
     "gamedev": {
-     "elo": 1021,
+     "elo": 1015,
      "win_rate": 40.5,
-     "rank": 103
+     "rank": 104
     },
     "website": {
      "elo": 981,
      "win_rate": 32.5,
-     "rank": 115
+     "rank": 116
     }
    }
   },
@@ -528,6 +544,7 @@
    "model": "Qwen3.5-397B-A17B",
    "matched_as": "qwen/qwen3.5-397b-a17b",
    "artificial_analysis": {
+    "intelligence_index": 19.1,
     "coding_index": 48.2,
     "agentic_index": 10.6
    },
@@ -535,17 +552,17 @@
     "codecategories": {
      "elo": 1196,
      "win_rate": 52.6,
-     "rank": 52
+     "rank": 53
     },
     "gamedev": {
-     "elo": 1169,
+     "elo": 1163,
      "win_rate": 50.1,
-     "rank": 60
+     "rank": 61
     },
     "website": {
      "elo": 1204,
      "win_rate": 52.5,
-     "rank": 53
+     "rank": 54
     }
    }
   },
@@ -566,7 +583,7 @@
     "website": {
      "elo": 1100,
      "win_rate": 57.1,
-     "rank": 94
+     "rank": 95
     }
    }
   },
@@ -577,19 +594,19 @@
    "artificial_analysis": {},
    "design_arena": {
     "codecategories": {
-     "elo": 924,
+     "elo": 923,
      "win_rate": 39.8,
-     "rank": 117
+     "rank": 118
     },
     "gamedev": {
-     "elo": 918,
+     "elo": 912,
      "win_rate": 39.4,
-     "rank": 118
+     "rank": 119
     },
     "website": {
      "elo": 909,
      "win_rate": 38.3,
-     "rank": 120
+     "rank": 121
     }
    }
   },
@@ -598,9 +615,9 @@
    "model": "Qwen3.8-27B",
    "matched_as": "qwen/qwen3.8-27b",
    "artificial_analysis": {
-    "intelligence_index": 41.4,
+    "intelligence_index": 33.9,
     "coding_index": 68.1,
-    "agentic_index": 46.8
+    "agentic_index": 46.5
    }
   },
   {
@@ -608,7 +625,9 @@
    "model": "mistral-small-2603",
    "matched_as": "mistralai/mistral-small-2603",
    "artificial_analysis": {
-    "coding_index": 26.6
+    "intelligence_index": 11.5,
+    "coding_index": 26.6,
+    "agentic_index": 1.4
    }
   },
   {
@@ -620,17 +639,17 @@
     "codecategories": {
      "elo": 1024,
      "win_rate": 38.5,
-     "rank": 107
+     "rank": 108
     },
     "gamedev": {
-     "elo": 997,
+     "elo": 991,
      "win_rate": 36.3,
-     "rank": 109
+     "rank": 110
     },
     "website": {
      "elo": 1026,
      "win_rate": 37.8,
-     "rank": 110
+     "rank": 111
     }
    }
   },
@@ -639,24 +658,25 @@
    "model": "nemotron-3-ultra-550b-a55b:free",
    "matched_as": "nvidia/nemotron-3-ultra-550b-a55b:free",
    "artificial_analysis": {
+    "intelligence_index": 23.4,
     "coding_index": 49.3,
     "agentic_index": 21.7
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1153,
+     "elo": 1154,
      "win_rate": 36.2,
-     "rank": 76
+     "rank": 77
     },
     "gamedev": {
-     "elo": 1156,
-     "win_rate": 36.9,
-     "rank": 69
+     "elo": 1153,
+     "win_rate": 37,
+     "rank": 70
     },
     "website": {
-     "elo": 1142,
+     "elo": 1143,
      "win_rate": 34.3,
-     "rank": 81
+     "rank": 82
     }
    }
   },
@@ -665,8 +685,9 @@
    "model": "nemotron-3-super-120b-a12b:free",
    "matched_as": "nvidia/nemotron-3-super-120b-a12b:free",
    "artificial_analysis": {
+    "intelligence_index": 13.6,
     "coding_index": 37.7,
-    "agentic_index": 4.2
+    "agentic_index": 4.1
    }
   },
   {
@@ -678,17 +699,17 @@
     "codecategories": {
      "elo": 1194,
      "win_rate": 53.1,
-     "rank": 53
+     "rank": 54
     },
     "gamedev": {
-     "elo": 1164,
+     "elo": 1158,
      "win_rate": 49.7,
-     "rank": 64
+     "rank": 65
     },
     "website": {
      "elo": 1207,
      "win_rate": 54,
-     "rank": 50
+     "rank": 51
     }
    }
   },
@@ -697,23 +718,25 @@
    "model": "mimo-v2-5:free",
    "matched_as": "xiaomi/mimo-v2.5",
    "artificial_analysis": {
-    "coding_index": 56.8
+    "intelligence_index": 22.3,
+    "coding_index": 56.8,
+    "agentic_index": 17.4
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1277,
-     "win_rate": 54.4,
-     "rank": 24
+     "elo": 1276,
+     "win_rate": 54.3,
+     "rank": 25
     },
     "gamedev": {
-     "elo": 1275,
-     "win_rate": 54.7,
-     "rank": 26
+     "elo": 1270,
+     "win_rate": 54.6,
+     "rank": 27
     },
     "website": {
      "elo": 1280,
      "win_rate": 54.4,
-     "rank": 24
+     "rank": 25
     }
    }
   },
@@ -722,6 +745,7 @@
    "model": "mistral-medium-3-5:free",
    "matched_as": "mistralai/mistral-medium-3-5:batch",
    "artificial_analysis": {
+    "intelligence_index": 14.9,
     "coding_index": 46.9,
     "agentic_index": 9.4
    }
@@ -731,24 +755,24 @@
    "model": "gemini-3.8-flash-free",
    "matched_as": "google/gemini-3.8-flash:batch",
    "artificial_analysis": {
-    "intelligence_index": 47.1,
+    "intelligence_index": 41.2,
     "coding_index": 76.3,
-    "agentic_index": 41.2
+    "agentic_index": 41.1
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1321,
-     "win_rate": 57.5,
-     "rank": 6
+     "elo": 1323,
+     "win_rate": 56,
+     "rank": 7
     },
     "gamedev": {
-     "elo": 1346,
-     "win_rate": 60.5,
+     "elo": 1345,
+     "win_rate": 58.9,
      "rank": 6
     },
     "website": {
-     "elo": 1311,
-     "win_rate": 56.3,
+     "elo": 1314,
+     "win_rate": 55.1,
      "rank": 8
     }
    }
@@ -756,11 +780,11 @@
   {
    "provider": "aihubmix",
    "model": "coding-glm-5.3-free",
-   "matched_as": "z-ai/glm-5.3",
+   "matched_as": "z-ai/glm-5.3:batch",
    "artificial_analysis": {
-    "intelligence_index": 48.6,
+    "intelligence_index": 44.9,
     "coding_index": 74.8,
-    "agentic_index": 53.6
+    "agentic_index": 53.4
    }
   },
   {
@@ -768,9 +792,9 @@
    "model": "coding-kimi-k3-free",
    "matched_as": "moonshotai/kimi-k3:batch",
    "artificial_analysis": {
-    "intelligence_index": 50.2,
+    "intelligence_index": 43.8,
     "coding_index": 76.2,
-    "agentic_index": 50.9
+    "agentic_index": 50.6
    },
    "design_arena": {
     "codecategories": {
@@ -779,14 +803,14 @@
      "rank": 1
     },
     "gamedev": {
-     "elo": 1422,
-     "win_rate": 66,
+     "elo": 1416,
+     "win_rate": 65.7,
      "rank": 2
     },
     "website": {
-     "elo": 1357,
+     "elo": 1358,
      "win_rate": 61.6,
-     "rank": 1
+     "rank": 2
     }
    }
   },
@@ -795,25 +819,25 @@
    "model": "coding-minimax-m3-free",
    "matched_as": "minimax/minimax-m3:batch",
    "artificial_analysis": {
-    "intelligence_index": 35.7,
+    "intelligence_index": 29.6,
     "coding_index": 58.6,
-    "agentic_index": 31
+    "agentic_index": 30.8
    },
    "design_arena": {
     "codecategories": {
      "elo": 1267,
      "win_rate": 52.3,
-     "rank": 28
+     "rank": 29
     },
     "gamedev": {
-     "elo": 1241,
-     "win_rate": 47.7,
-     "rank": 35
+     "elo": 1236,
+     "win_rate": 47.5,
+     "rank": 36
     },
     "website": {
-     "elo": 1272,
+     "elo": 1273,
      "win_rate": 52.8,
-     "rank": 26
+     "rank": 27
     }
    }
   },
@@ -830,9 +854,9 @@
    "model": "Qwen3.8-27B-FP8",
    "matched_as": "qwen/qwen3.8-27b",
    "artificial_analysis": {
-    "intelligence_index": 41.4,
+    "intelligence_index": 33.9,
     "coding_index": 68.1,
-    "agentic_index": 46.8
+    "agentic_index": 46.5
    }
   },
   {
@@ -840,7 +864,9 @@
    "model": "Qwen3-Coder-Next-FP8",
    "matched_as": "qwen/qwen3-coder-next",
    "artificial_analysis": {
-    "coding_index": 36.2
+    "intelligence_index": 10.1,
+    "coding_index": 36.2,
+    "agentic_index": 3.6
    }
   },
   {
@@ -848,7 +874,8 @@
    "model": "Qwen3.6-35B-A3B-FP8",
    "matched_as": "qwen/qwen3.6-35b-a3b",
    "artificial_analysis": {
-    "coding_index": 41.9
+    "coding_index": 41.9,
+    "agentic_index": 15
    }
   },
   {
@@ -856,24 +883,25 @@
    "model": "deepseek-v4-flash",
    "matched_as": "deepseek/deepseek-v4-flash",
    "artificial_analysis": {
-    "coding_index": 56.2,
-    "agentic_index": 23.8
+    "intelligence_index": 24.8,
+    "coding_index": 52,
+    "agentic_index": 27.9
    },
    "design_arena": {
     "codecategories": {
      "elo": 1222,
      "win_rate": 48.9,
-     "rank": 44
+     "rank": 45
     },
     "gamedev": {
-     "elo": 1226,
+     "elo": 1220,
      "win_rate": 50.2,
-     "rank": 40
+     "rank": 41
     },
     "website": {
      "elo": 1221,
      "win_rate": 49.1,
-     "rank": 45
+     "rank": 46
     }
    }
   },
@@ -882,24 +910,25 @@
    "model": "deepseek-v4-flash:free",
    "matched_as": "deepseek/deepseek-v4-flash",
    "artificial_analysis": {
-    "coding_index": 56.2,
-    "agentic_index": 23.8
+    "intelligence_index": 24.8,
+    "coding_index": 52,
+    "agentic_index": 27.9
    },
    "design_arena": {
     "codecategories": {
      "elo": 1222,
      "win_rate": 48.9,
-     "rank": 44
+     "rank": 45
     },
     "gamedev": {
-     "elo": 1226,
+     "elo": 1220,
      "win_rate": 50.2,
-     "rank": 40
+     "rank": 41
     },
     "website": {
      "elo": 1221,
      "win_rate": 49.1,
-     "rank": 45
+     "rank": 46
     }
    }
   },
@@ -908,24 +937,25 @@
    "model": "deepseek-v4-pro:free",
    "matched_as": "deepseek/deepseek-v4-pro",
    "artificial_analysis": {
+    "intelligence_index": 30.9,
     "coding_index": 59.4,
-    "agentic_index": 27.9
+    "agentic_index": 27.7
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1258,
-     "win_rate": 52.3,
-     "rank": 32
+     "elo": 1257,
+     "win_rate": 52.2,
+     "rank": 33
     },
     "gamedev": {
-     "elo": 1261,
-     "win_rate": 53.3,
-     "rank": 29
+     "elo": 1253,
+     "win_rate": 52.9,
+     "rank": 30
     },
     "website": {
      "elo": 1249,
      "win_rate": 50.9,
-     "rank": 36
+     "rank": 37
     }
    }
   },
@@ -934,9 +964,9 @@
    "model": "Qwen3.8-27B",
    "matched_as": "qwen/qwen3.8-27b",
    "artificial_analysis": {
-    "intelligence_index": 41.4,
+    "intelligence_index": 33.9,
     "coding_index": 68.1,
-    "agentic_index": 46.8
+    "agentic_index": 46.5
    }
   },
   {
@@ -944,7 +974,8 @@
    "model": "Qwen/Qwen3.6-35B-A3B-FP8",
    "matched_as": "qwen/qwen3.6-35b-a3b",
    "artificial_analysis": {
-    "coding_index": 41.9
+    "coding_index": 41.9,
+    "agentic_index": 15
    }
   }
  ],

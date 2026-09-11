@@ -78,6 +78,59 @@
    "unlock": null
   }
  },
+ "promised": {
+  "per_minute_times_1440_tokens_per_day": 13389120000,
+  "published_daily_figures_tokens_per_day": 7975000,
+  "times_the_defensible_figure": 2125.3,
+  "per_provider": [
+   {
+    "provider": "aihubmix",
+    "published_daily": 1000000,
+    "per_minute_times_1440": null
+   },
+   {
+    "provider": "alibaba",
+    "published_daily": null,
+    "per_minute_times_1440": 7200000000
+   },
+   {
+    "provider": "cerebras",
+    "published_daily": 1200000,
+    "per_minute_times_1440": null
+   },
+   {
+    "provider": "google",
+    "published_daily": 250000,
+    "per_minute_times_1440": 360000000
+   },
+   {
+    "provider": "groq",
+    "published_daily": 500000,
+    "per_minute_times_1440": 11520000
+   },
+   {
+    "provider": "hetzner",
+    "published_daily": null,
+    "per_minute_times_1440": 5760000000
+   },
+   {
+    "provider": "kenari",
+    "published_daily": 25000,
+    "per_minute_times_1440": null
+   },
+   {
+    "provider": "siliconflow",
+    "published_daily": null,
+    "per_minute_times_1440": 57600000
+   },
+   {
+    "provider": "xkiro",
+    "published_daily": 5000000,
+    "per_minute_times_1440": null
+   }
+  ],
+  "note": "what the providers advertise, added up the way most lists add it. Not a measurement and never on the shelf: a per-minute ceiling is what a provider refuses to exceed in one minute, not a rate it will serve for 1,440 of them."
+ },
  "paid_plan_tokens_per_day_excluded": 200000,
  "paid_plan_per_provider": {
   "groq": 200000

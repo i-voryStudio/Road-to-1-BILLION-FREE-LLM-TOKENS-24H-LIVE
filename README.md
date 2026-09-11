@@ -22,6 +22,16 @@ was obtained.
 `██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`  **6.0%** of the target rate: **41,995 tokens a minute** from 6 providers whose measured model clears the floor: aihubmix, inferx, kenari, openrouter, uncloseai, xkiro.
 
 Both bars are **rates**, read in 30-second bursts, latest reading per provider, against the target converted to a rate. A rate held for thirty seconds is not a rate held for a day, so nothing here is multiplied into a day: the daily shelf further down is counted from published and measured daily figures only, and it is the conservative number.
+
+### What they promise, and what arrived
+
+| | |
+|---|---|
+| Advertised, if you take every per-minute ceiling times 1440, the way most lists do | **13,389,120,000 a day** |
+| Advertised, counting only the daily figures providers actually publish | 7,975,000 a day |
+| Measured by us and defensible today | **6,300,000 a day** |
+
+The first row is their arithmetic, not ours, and it is here so you can see the size of it: **2,125 times** the last row, from the same 18 providers, on the same day. A per-minute ceiling is what a provider will refuse to exceed in any one minute, not a promise it will serve that rate for 1,440 minutes, and every provider on this list that we pushed for an hour proved the difference. The gap between the first row and the last is what this page is a list of.
 <!--/BARS-->
 
 ## The five best free endpoints today

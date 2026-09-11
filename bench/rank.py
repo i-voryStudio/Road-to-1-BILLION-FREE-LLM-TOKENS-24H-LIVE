@@ -917,6 +917,25 @@ def main():
     drawn_phrase = "; ".join("%s: %s tokens an hour, %s" % (n, num(drawn[n]["tokens_per_hour_drawn"]), drawn_caveat(drawn[n]))
                              for n in drawn_names)
     ceilings = {name: ceiling_of(e) for name, e in LP.items()}
+    # CE PROMIT EI. Orice altă listă adună cifrele publicate și publică suma. Se poate face și aici, cu
+    # aceleași date, în două feluri: numai figurile ZILNICE publicate, sau plafoanele pe MINUT înmulțite
+    # cu 1440. Al doilea e felul care produce miliardele pe care le vezi pe alte liste. Niciunul nu
+    # intră în raftul de mai jos și niciunul nu e o măsurătoare: sunt promisiunea, numărată corect.
+    promised_daily, promised_from_minute, promised_who = 0, 0, []
+    for name, e in sorted(LP.items()):
+        c = ceilings.get(name) or {}
+        per_min = max(c.get("tpm") or 0, c.get("tpm_input") or 0, c.get("tpm_output") or 0)
+        day = 0
+        for shelf in ((e.get("all_models") or {}),) + tuple((e.get("models") or {}).values()):
+            if not isinstance(shelf, dict):
+                continue
+            day = max(day, shelf.get("tpd") or 0, (shelf.get("rpd") or 0) * TOKENS_PER_REPLY)
+        promised_daily += day
+        promised_from_minute += per_min * 1440
+        if day or per_min:
+            promised_who.append({"provider": name, "published_daily": day or None,
+                                 "per_minute_times_1440": per_min * 1440 or None})
+    promised_ratio = (promised_from_minute / defensible) if defensible else None
 
     # A provider off the shelf is not one that "publishes none": the reason is in its own data, and the
     # page prints that reason rather than a word the variable does not mean.
@@ -1293,6 +1312,15 @@ def main():
         "published_token_figure_bound_by_requests": [
             {"provider": n, "tokens_per_day_published": t, "requests_per_day": q} for n, t, q in bound_by_requests],
         "per_provider": per_provider_out,
+        "promised": {
+            "per_minute_times_1440_tokens_per_day": promised_from_minute,
+            "published_daily_figures_tokens_per_day": promised_daily,
+            "times_the_defensible_figure": round(promised_ratio, 1) if promised_ratio else None,
+            "per_provider": promised_who,
+            "note": "what the providers advertise, added up the way most lists add it. Not a measurement "
+                    "and never on the shelf: a per-minute ceiling is what a provider refuses to exceed in "
+                    "one minute, not a rate it will serve for 1,440 of them.",
+        },
         "paid_plan_tokens_per_day_excluded": paid,
         "paid_plan_per_provider": paid_excluded,
         "behind_payment": {
@@ -1414,6 +1442,7 @@ def main():
     # exists to refuse.
     burst_pct = 100.0 * burst_min / target_min
     quality_pct = 100.0 * burst_quality / target_min
+
     put("BARS", [
         "**Everything free, whatever the quality**  ",
         "`%s`  **%.1f%%** of the target rate: **%s tokens a minute** measured across %d of the %d "
@@ -1429,7 +1458,20 @@ def main():
         "Both bars are **rates**, read in 30-second bursts, latest reading per provider, against the "
         "target converted to a rate. A rate held for thirty seconds is not a rate held for a day, so "
         "nothing here is multiplied into a day: the daily shelf further down is counted from published "
-        "and measured daily figures only, and it is the conservative number.",
+        "and measured daily figures only, and it is the conservative number.", "",
+        "### What they promise, and what arrived", "",
+        "| | |",
+        "|---|---|",
+        "| Advertised, if you take every per-minute ceiling times 1440, the way most lists do | **%s a day** |"
+        % num(promised_from_minute),
+        "| Advertised, counting only the daily figures providers actually publish | %s a day |" % num(promised_daily),
+        "| Measured by us and defensible today | **%s a day** |" % num(defensible),
+        "", "The first row is their arithmetic, not ours, and it is here so you can see the size of it: "
+        "**%s times** the last row, from the same %d providers, on the same day. A per-minute ceiling is "
+        "what a provider will refuse to exceed in any one minute, not a promise it will serve that rate "
+        "for 1,440 minutes, and every provider on this list that we pushed for an hour proved the "
+        "difference. The gap between the first row and the last is what this page is a list of."
+        % (num(int(promised_ratio)) if promised_ratio else "?", len(LP)),
     ])
 
     R = [

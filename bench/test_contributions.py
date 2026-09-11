@@ -1565,10 +1565,15 @@ RELIABILITY_MUST_PASS = [
 
 
 def check_reliability_real(fixture):
-    """The real data/reliability.json against the real results/ tree."""
+    """The real data/reliability.json against the real results/ tree.
+
+    The REAL clock here, not the fixture one: this file is rewritten by the scheduled job, so its date
+    moves with the calendar while TODAY stays where the synthetic rows need it. A test that checks live
+    data against a frozen day fails on the first day the job runs, which is a bug in the test.
+    """
     problems = []
-    G.check_reliability(HERE.parent / "data" / "reliability.json", problems, REAL_PROVIDERS, today=TODAY,
-                        results=HERE.parent / "results")
+    G.check_reliability(HERE.parent / "data" / "reliability.json", problems, REAL_PROVIDERS,
+                        today=date.today(), results=HERE.parent / "results")
     return problems
 
 

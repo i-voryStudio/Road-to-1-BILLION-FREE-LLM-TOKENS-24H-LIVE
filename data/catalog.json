@@ -1,5 +1,5 @@
 {
- "checked_on": "2026-09-12",
+ "checked_on": "2026-09-13",
  "providers": {
   "openrouter": {
    "total": 445,
@@ -26,16 +26,10 @@
     "thinkingmachines/inkling:free"
    ],
    "source": "https://openrouter.ai/api/v1/models",
-   "fetched_on": "2026-09-12",
+   "fetched_on": "2026-09-13",
    "stale": false
   }
  },
- "changes_since_last_check": [
-  {
-   "provider": "openrouter",
-   "model": "inclusionai/ling-3.0-flash-vl:free",
-   "change": "appeared"
-  }
- ],
+ "changes_since_last_check": [],
  "problems": []
 }

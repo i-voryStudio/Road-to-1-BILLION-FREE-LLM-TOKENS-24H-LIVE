@@ -1,64 +1,64 @@
 provider,model,value,auth,get_key,coding_index,intelligence_index,arena_elo,daily_tokens,requests_per_day,volume_confidence,answered_rate,trains_on_free_tier,region_restriction,measured_at
-xkiro,minimax/minimax-m3:free,234.4,KEY,https://xkiro.com,58.6,29.6,1265,5000000,,MEASURED,1.0,UNKNOWN,UNKNOWN,2026-09-13
-cerebras,qwen-3.8-27b,224.8,KEY,https://cloud.cerebras.ai,68.1,33.9,,1000000,2400,MEASURED,1.0,UNKNOWN,UNKNOWN,2026-09-13
-google,gemini-3.5-flash-lite,133.1,KEY,https://aistudio.google.com/apikey,49.3,22.7,,250000,500,DERIVED,1.0,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-13
-xkiro,minimax/minimax-m2.7:free,105.2,KEY,https://xkiro.com,52.6,23.2,1249,5000000,,MEASURED,0.5,UNKNOWN,UNKNOWN,2026-09-13
-openrouter,minimax/minimax-m3:free,100.1,KEY,https://openrouter.ai/keys,58.6,29.6,1265,25000,50,DERIVED,1.0,UNKNOWN,UNKNOWN,2026-09-13
-kenari,mimo-v2-5:free,97.0,KEY,https://kenari.id/,56.8,22.3,1275,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
-kenari,nemotron-3-ultra-550b-a55b:free,84.2,KEY,https://kenari.id/,49.3,23.4,1154,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
-kenari,mistral-medium-3-5:free,80.1,KEY,https://kenari.id/,46.9,14.9,,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
-openrouter,minimax/minimax-m2.7:free,0.0,KEY,https://openrouter.ai/keys,52.6,23.2,1249,25000,50,DERIVED,0.0,UNKNOWN,UNKNOWN,2026-09-13
-openrouter,nvidia/nemotron-3-ultra-550b-a55b:free,0.0,KEY,https://openrouter.ai/keys,49.3,23.4,1154,25000,50,DERIVED,0.0,UNKNOWN,UNKNOWN,2026-09-13
-cloudflare,@cf/meta/llama-3.3-70b-instruct-fp8-fast,,KEY,https://dash.cloudflare.com/profile/api-tokens,11.9,,,48826,,DERIVED,1.0,UNKNOWN,UNKNOWN,2026-09-13
-ovhcloud,Meta-Llama-3_3-70B-Instruct,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,11.9,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-nvidia,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning,,KEY,https://build.nvidia.com,13.8,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-groq,openai/gpt-oss-20b,,KEY,https://console.groq.com/keys,20.7,9,,200000,1000,PAID-PLAN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-ollama,gpt-oss:20b,,KEY,https://ollama.com/settings/keys,20.7,9,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-mistral,mistral-small-2603,,KEY,https://console.mistral.ai/,26.6,11.5,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-nvidia,nvidia/nemotron-3.5-lightning-30b-a3b,,KEY,https://build.nvidia.com,26.8,13.6,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-cerebras,gpt-oss-120b,,KEY,https://cloud.cerebras.ai,30.4,12.3,978,1000000,2400,MEASURED,1.0,UNKNOWN,UNKNOWN,2026-09-13
-cloudflare,@cf/openai/gpt-oss-120b,,KEY,https://dash.cloudflare.com/profile/api-tokens,30.4,12.3,978,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-groq,openai/gpt-oss-120b,,KEY,https://console.groq.com/keys,30.4,12.3,978,200000,1000,PAID-PLAN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-ollama,gpt-oss:120b,,KEY,https://ollama.com/settings/keys,30.4,12.3,978,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-ovhcloud,gpt-oss-120b,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,30.4,12.3,978,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-inferx,Qwen3-Coder-Next-FP8,,KEY,https://model.inferx.net/,36.2,10.1,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-kenari,nemotron-3-super-120b-a12b:free,,KEY,https://kenari.id/,37.7,13.6,,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
-nvidia,nvidia/nemotron-3-super-120b-a12b,,KEY,https://build.nvidia.com,37.7,13.6,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-cloudflare,@cf/google/gemma-4-26b-a4b-it,,KEY,https://dash.cloudflare.com/profile/api-tokens,39.3,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-hetzner,Qwen/Qwen3.6-35B-A3B-FP8,,KEY,https://console.hetzner.com/,41.9,18.8,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-inferx,Qwen3.6-35B-A3B-FP8,,KEY,https://model.inferx.net/,41.9,18.8,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-cerebras,gemma-4-31b,,KEY,https://cloud.cerebras.ai,43.4,15.4,,1000000,2400,MEASURED,1.0,UNKNOWN,UNKNOWN,2026-09-13
-google,gemma-4-31b-it,,KEY,https://aistudio.google.com/apikey,43.4,15.4,,,,UNKNOWN,1.0,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-13
-ollama,gemma4:31b,,KEY,https://ollama.com/settings/keys,43.4,15.4,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-hetzner,Qwen3.8-27B,,KEY,https://console.hetzner.com/,68.1,33.9,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-inferx,Qwen3.8-27B-FP8,,KEY,https://model.inferx.net/,68.1,33.9,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-inferx,deepseek-v4-flash,,KEY,https://model.inferx.net/,52,24.8,1220,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-nvidia,moonshotai/kimi-k3,,KEY,https://build.nvidia.com,76.2,43.8,1388,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-nvidia,nvidia/nemotron-3-ultra-550b-a55b,,KEY,https://build.nvidia.com,49.3,23.4,1154,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-ovhcloud,Qwen3.5-397B-A17B,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,48.2,19.1,1195,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-ovhcloud,Qwen3.8-27B,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,68.1,33.9,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-uncloseai,Lorbus/Qwen3.6-27B-int4-AutoRound,,NO KEY,https://ai.unturf.com,53.7,21.9,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-unorouter,deepseek-v4-flash:free,,KEY,https://unorouter.com/,52,24.8,1220,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-unorouter,deepseek-v4-pro:free,,KEY,https://unorouter.com/,59.4,30.9,1255,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-google,gemini-3.8-flash,,KEY,https://aistudio.google.com/apikey,76.3,41.2,1322,,,UNKNOWN,0.0,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-13
-cloudflare,@cf/qwen/qwen3.8-27b,,KEY,https://dash.cloudflare.com/profile/api-tokens,68.1,33.9,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-alibaba,qwen-flash,,KEY,https://modelstudio.console.alibabacloud.com,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-alibaba,qwen-plus,,KEY,https://modelstudio.console.alibabacloud.com,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-alibaba,qwen-turbo,,KEY,https://modelstudio.console.alibabacloud.com,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-alibaba,qwen3.5-flash,,KEY,https://modelstudio.console.alibabacloud.com,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-cloudflare,@cf/mistralai/mistral-small-3.1-24b-instruct,,KEY,https://dash.cloudflare.com/profile/api-tokens,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-kenari,glm-4-7-flash:free,,KEY,https://kenari.id/,,,1192,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
-mistral,codestral-2508,,KEY,https://console.mistral.ai/,,,1022,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-mistral,magistral-small-latest,,KEY,https://console.mistral.ai/,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-mistral,mistral-medium-latest,,KEY,https://console.mistral.ai/,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-ovhcloud,Mistral-Small-3.2-24B-Instruct-2506,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,,,922,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-ovhcloud,Qwen3-Coder-30B-A3B-Instruct,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-siliconflow,Qwen/Qwen3-Coder-30B-A3B-Instruct,,KEY,https://siliconflow.com,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-unorouter,aion-2.0:free,,KEY,https://unorouter.com/,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-13
-groq,qwen/qwen3.6-27b,,KEY,https://console.groq.com/keys,53.7,21.9,,200000,1000,PAID-PLAN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-groq,qwen/qwen3.8-27b,,KEY,https://console.groq.com/keys,68.1,33.9,,200000,1000,PAID-PLAN,1.0,UNKNOWN,UNKNOWN,2026-09-13
-aihubmix,coding-glm-5.3-free,,KEY,https://aihubmix.com/,74.8,44.9,1331,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
-aihubmix,coding-kimi-k3-free,,KEY,https://aihubmix.com/,76.2,43.8,1388,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
-aihubmix,coding-minimax-m3-free,,KEY,https://aihubmix.com/,58.6,29.6,1265,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
-aihubmix,gemini-3.8-flash-free,,KEY,https://aihubmix.com/,76.3,41.2,1322,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
-aihubmix,gemma-4-26b-a4b-it-free,,KEY,https://aihubmix.com/,39.3,,,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-13
+xkiro,minimax/minimax-m3:free,234.4,KEY,https://xkiro.com,58.6,29.6,1265,5000000,,MEASURED,1.0,UNKNOWN,UNKNOWN,2026-09-14
+cerebras,qwen-3.8-27b,224.8,KEY,https://cloud.cerebras.ai,68.1,33.9,,1000000,2400,MEASURED,1.0,UNKNOWN,UNKNOWN,2026-09-14
+google,gemini-3.5-flash-lite,133.1,KEY,https://aistudio.google.com/apikey,49.3,22.7,,250000,500,DERIVED,1.0,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-14
+xkiro,minimax/minimax-m2.7:free,105.2,KEY,https://xkiro.com,52.6,23.2,1249,5000000,,MEASURED,0.5,UNKNOWN,UNKNOWN,2026-09-14
+openrouter,minimax/minimax-m3:free,100.1,KEY,https://openrouter.ai/keys,58.6,29.6,1265,25000,50,DERIVED,1.0,UNKNOWN,UNKNOWN,2026-09-14
+kenari,mimo-v2-5:free,97.0,KEY,https://kenari.id/,56.8,22.3,1275,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14
+kenari,nemotron-3-ultra-550b-a55b:free,84.2,KEY,https://kenari.id/,49.3,23.4,1155,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14
+kenari,mistral-medium-3-5:free,80.1,KEY,https://kenari.id/,46.9,14.9,,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14
+openrouter,minimax/minimax-m2.7:free,0.0,KEY,https://openrouter.ai/keys,52.6,23.2,1249,25000,50,DERIVED,0.0,UNKNOWN,UNKNOWN,2026-09-14
+openrouter,nvidia/nemotron-3-ultra-550b-a55b:free,0.0,KEY,https://openrouter.ai/keys,49.3,23.4,1155,25000,50,DERIVED,0.0,UNKNOWN,UNKNOWN,2026-09-14
+cloudflare,@cf/meta/llama-3.3-70b-instruct-fp8-fast,,KEY,https://dash.cloudflare.com/profile/api-tokens,11.9,,,48826,,DERIVED,1.0,UNKNOWN,UNKNOWN,2026-09-14
+ovhcloud,Meta-Llama-3_3-70B-Instruct,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,11.9,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+nvidia,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning,,KEY,https://build.nvidia.com,13.8,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+groq,openai/gpt-oss-20b,,KEY,https://console.groq.com/keys,20.7,9,,200000,1000,PAID-PLAN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+ollama,gpt-oss:20b,,KEY,https://ollama.com/settings/keys,20.7,9,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+mistral,mistral-small-2603,,KEY,https://console.mistral.ai/,26.6,11.5,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+nvidia,nvidia/nemotron-3.5-lightning-30b-a3b,,KEY,https://build.nvidia.com,26.8,13.6,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+cerebras,gpt-oss-120b,,KEY,https://cloud.cerebras.ai,30.4,12.3,978,1000000,2400,MEASURED,1.0,UNKNOWN,UNKNOWN,2026-09-14
+cloudflare,@cf/openai/gpt-oss-120b,,KEY,https://dash.cloudflare.com/profile/api-tokens,30.4,12.3,978,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+groq,openai/gpt-oss-120b,,KEY,https://console.groq.com/keys,30.4,12.3,978,200000,1000,PAID-PLAN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+ollama,gpt-oss:120b,,KEY,https://ollama.com/settings/keys,30.4,12.3,978,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+ovhcloud,gpt-oss-120b,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,30.4,12.3,978,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+inferx,Qwen3-Coder-Next-FP8,,KEY,https://model.inferx.net/,36.2,10.1,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+kenari,nemotron-3-super-120b-a12b:free,,KEY,https://kenari.id/,37.7,13.6,,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14
+nvidia,nvidia/nemotron-3-super-120b-a12b,,KEY,https://build.nvidia.com,37.7,13.6,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+cloudflare,@cf/google/gemma-4-26b-a4b-it,,KEY,https://dash.cloudflare.com/profile/api-tokens,39.3,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+hetzner,Qwen/Qwen3.6-35B-A3B-FP8,,KEY,https://console.hetzner.com/,41.9,18.8,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+inferx,Qwen3.6-35B-A3B-FP8,,KEY,https://model.inferx.net/,41.9,18.8,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+cerebras,gemma-4-31b,,KEY,https://cloud.cerebras.ai,43.4,15.4,,1000000,2400,MEASURED,1.0,UNKNOWN,UNKNOWN,2026-09-14
+google,gemma-4-31b-it,,KEY,https://aistudio.google.com/apikey,43.4,15.4,,,,UNKNOWN,1.0,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-14
+ollama,gemma4:31b,,KEY,https://ollama.com/settings/keys,43.4,15.4,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+hetzner,Qwen3.8-27B,,KEY,https://console.hetzner.com/,68.1,33.9,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+inferx,Qwen3.8-27B-FP8,,KEY,https://model.inferx.net/,68.1,33.9,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+inferx,deepseek-v4-flash,,KEY,https://model.inferx.net/,52,24.8,1220,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+nvidia,moonshotai/kimi-k3,,KEY,https://build.nvidia.com,76.2,43.8,1388,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+nvidia,nvidia/nemotron-3-ultra-550b-a55b,,KEY,https://build.nvidia.com,49.3,23.4,1155,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+ovhcloud,Qwen3.5-397B-A17B,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,48.2,19.1,1195,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+ovhcloud,Qwen3.8-27B,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,68.1,33.9,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+uncloseai,Lorbus/Qwen3.6-27B-int4-AutoRound,,NO KEY,https://ai.unturf.com,53.7,21.9,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+unorouter,deepseek-v4-flash:free,,KEY,https://unorouter.com/,52,24.8,1220,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+unorouter,deepseek-v4-pro:free,,KEY,https://unorouter.com/,59.4,30.9,1255,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+google,gemini-3.8-flash,,KEY,https://aistudio.google.com/apikey,76.3,41.2,1323,,,UNKNOWN,0.0,yes,"May not be used for apps serving users in the EEA, Switzerland or the UK",2026-09-14
+cloudflare,@cf/qwen/qwen3.8-27b,,KEY,https://dash.cloudflare.com/profile/api-tokens,68.1,33.9,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+alibaba,qwen-flash,,KEY,https://modelstudio.console.alibabacloud.com,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+alibaba,qwen-plus,,KEY,https://modelstudio.console.alibabacloud.com,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+alibaba,qwen-turbo,,KEY,https://modelstudio.console.alibabacloud.com,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+alibaba,qwen3.5-flash,,KEY,https://modelstudio.console.alibabacloud.com,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+cloudflare,@cf/mistralai/mistral-small-3.1-24b-instruct,,KEY,https://dash.cloudflare.com/profile/api-tokens,,,,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+kenari,glm-4-7-flash:free,,KEY,https://kenari.id/,,,1192,25000,50,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14
+mistral,codestral-2508,,KEY,https://console.mistral.ai/,,,1022,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+mistral,magistral-small-latest,,KEY,https://console.mistral.ai/,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+mistral,mistral-medium-latest,,KEY,https://console.mistral.ai/,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+ovhcloud,Mistral-Small-3.2-24B-Instruct-2506,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,,,922,,,UNKNOWN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+ovhcloud,Qwen3-Coder-30B-A3B-Instruct,,NO KEY,https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+siliconflow,Qwen/Qwen3-Coder-30B-A3B-Instruct,,KEY,https://siliconflow.com,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+unorouter,aion-2.0:free,,KEY,https://unorouter.com/,,,,,,UNKNOWN,,UNKNOWN,UNKNOWN,2026-09-14
+groq,qwen/qwen3.6-27b,,KEY,https://console.groq.com/keys,53.7,21.9,,200000,1000,PAID-PLAN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+groq,qwen/qwen3.8-27b,,KEY,https://console.groq.com/keys,68.1,33.9,,200000,1000,PAID-PLAN,1.0,UNKNOWN,UNKNOWN,2026-09-14
+aihubmix,coding-glm-5.3-free,,KEY,https://aihubmix.com/,74.8,44.9,1331,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14
+aihubmix,coding-kimi-k3-free,,KEY,https://aihubmix.com/,76.2,43.8,1388,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14
+aihubmix,coding-minimax-m3-free,,KEY,https://aihubmix.com/,58.6,29.6,1265,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14
+aihubmix,gemini-3.8-flash-free,,KEY,https://aihubmix.com/,76.3,41.2,1323,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14
+aihubmix,gemma-4-26b-a4b-it-free,,KEY,https://aihubmix.com/,39.3,,,50000,100,DERIVED,,UNKNOWN,UNKNOWN,2026-09-14

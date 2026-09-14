@@ -1,5 +1,5 @@
 {
- "fetched_on": "2026-09-13",
+ "fetched_on": "2026-09-14",
  "source": "https://openrouter.ai/api/v1/models",
  "source_note": "Scores are republished by OpenRouter from Artificial Analysis and Design Arena. We do not run them ourselves and do not modify them. See CREDITS.md.",
  "benchmarks": {
@@ -18,19 +18,19 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1322,
-     "win_rate": 54.4,
+     "elo": 1323,
+     "win_rate": 53.5,
      "rank": 8
     },
     "gamedev": {
-     "elo": 1342,
-     "win_rate": 56.1,
+     "elo": 1343,
+     "win_rate": 55.5,
      "rank": 8
     },
     "website": {
-     "elo": 1315,
-     "win_rate": 54,
-     "rank": 7
+     "elo": 1314,
+     "win_rate": 53,
+     "rank": 8
     }
    }
   },
@@ -230,7 +230,7 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1154,
+     "elo": 1155,
      "win_rate": 36.3,
      "rank": 77
     },
@@ -320,7 +320,7 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1154,
+     "elo": 1155,
      "win_rate": 36.3,
      "rank": 77
     },
@@ -370,8 +370,8 @@
      "rank": 1
     },
     "gamedev": {
-     "elo": 1406,
-     "win_rate": 63.4,
+     "elo": 1404,
+     "win_rate": 63.1,
      "rank": 2
     },
     "website": {
@@ -664,7 +664,7 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1154,
+     "elo": 1155,
      "win_rate": 36.3,
      "rank": 77
     },
@@ -761,19 +761,19 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1322,
-     "win_rate": 54.4,
+     "elo": 1323,
+     "win_rate": 53.5,
      "rank": 8
     },
     "gamedev": {
-     "elo": 1342,
-     "win_rate": 56.1,
+     "elo": 1343,
+     "win_rate": 55.5,
      "rank": 8
     },
     "website": {
-     "elo": 1315,
-     "win_rate": 54,
-     "rank": 7
+     "elo": 1314,
+     "win_rate": 53,
+     "rank": 8
     }
    }
   },
@@ -798,7 +798,7 @@
      "rank": 3
     },
     "website": {
-     "elo": 1319,
+     "elo": 1318,
      "win_rate": 56.3,
      "rank": 6
     }
@@ -820,8 +820,8 @@
      "rank": 1
     },
     "gamedev": {
-     "elo": 1406,
-     "win_rate": 63.4,
+     "elo": 1404,
+     "win_rate": 63.1,
      "rank": 2
     },
     "website": {
@@ -972,7 +972,7 @@
     },
     "website": {
      "elo": 1247,
-     "win_rate": 50.5,
+     "win_rate": 50.6,
      "rank": 39
     }
    }

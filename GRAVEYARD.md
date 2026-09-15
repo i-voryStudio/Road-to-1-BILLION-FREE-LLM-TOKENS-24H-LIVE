@@ -4,7 +4,7 @@ Endpoints removed from the main ranking after **14 consecutive days** with no an
 
 Free endpoints die in months, not years, and usually without an announcement. A list that never removes anything is a list of things that used to work.
 
-History so far: **9 day(s)** of measurements, 40 endpoints probed by the radar.
+History so far: **10 day(s)** of measurements, 40 endpoints probed by the radar.
 
 **Nothing buried yet.** Either everything is answering, or there is not yet 14 days of history to bury anything with. The counts below say which.
 

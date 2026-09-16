@@ -1,9 +1,9 @@
 {
- "checked_on": "2026-09-15",
+ "checked_on": "2026-09-16",
  "providers": {
   "openrouter": {
-   "total": 445,
-   "free": 19,
+   "total": 443,
+   "free": 20,
    "free_models": [
     "cohere/north-mini-code:free",
     "dots-studio/dots-3-note-preview:free",
@@ -23,13 +23,20 @@
     "poolside/laguna-s-2.1:free",
     "poolside/laguna-xs-2.1:free",
     "thinkingmachines/inkling-small:free",
-    "thinkingmachines/inkling:free"
+    "thinkingmachines/inkling:free",
+    "z-ai/glm-5.2:free"
    ],
    "source": "https://openrouter.ai/api/v1/models",
-   "fetched_on": "2026-09-15",
+   "fetched_on": "2026-09-16",
    "stale": false
   }
  },
- "changes_since_last_check": [],
+ "changes_since_last_check": [
+  {
+   "provider": "openrouter",
+   "model": "z-ai/glm-5.2:free",
+   "change": "appeared"
+  }
+ ],
  "problems": []
 }

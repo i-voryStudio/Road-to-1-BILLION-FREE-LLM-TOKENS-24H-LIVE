@@ -1,5 +1,5 @@
 {
- "fetched_on": "2026-09-15",
+ "fetched_on": "2026-09-16",
  "source": "https://openrouter.ai/api/v1/models",
  "source_note": "Scores are republished by OpenRouter from Artificial Analysis and Design Arena. We do not run them ourselves and do not modify them. See CREDITS.md.",
  "benchmarks": {
@@ -19,12 +19,12 @@
    "design_arena": {
     "codecategories": {
      "elo": 1324,
-     "win_rate": 53,
-     "rank": 8
+     "win_rate": 52.8,
+     "rank": 9
     },
     "gamedev": {
-     "elo": 1342,
-     "win_rate": 54.7,
+     "elo": 1340,
+     "win_rate": 54,
      "rank": 8
     },
     "website": {
@@ -47,7 +47,7 @@
   {
    "provider": "google",
    "model": "gemma-4-31b-it",
-   "matched_as": "google/gemma-4-31b-it:batch",
+   "matched_as": "google/gemma-4-31b-it:free",
    "artificial_analysis": {
     "intelligence_index": 15.4,
     "coding_index": 43.4,
@@ -57,7 +57,7 @@
   {
    "provider": "cerebras",
    "model": "gemma-4-31b",
-   "matched_as": "google/gemma-4-31b-it:batch",
+   "matched_as": "google/gemma-4-31b-it:free",
    "artificial_analysis": {
     "intelligence_index": 15.4,
     "coding_index": 43.4,
@@ -141,7 +141,7 @@
   {
    "provider": "groq",
    "model": "openai/gpt-oss-20b",
-   "matched_as": "openai/gpt-oss-20b:batch",
+   "matched_as": "openai/gpt-oss-20b",
    "artificial_analysis": {
     "intelligence_index": 9,
     "coding_index": 20.7,
@@ -182,7 +182,7 @@
     },
     "gamedev": {
      "elo": 1237,
-     "win_rate": 47.1,
+     "win_rate": 47.2,
      "rank": 37
     },
     "website": {
@@ -203,18 +203,18 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1249,
+     "elo": 1250,
      "win_rate": 51.7,
-     "rank": 38
+     "rank": 37
     },
     "gamedev": {
      "elo": 1231,
-     "win_rate": 51,
+     "win_rate": 50.9,
      "rank": 40
     },
     "website": {
      "elo": 1257,
-     "win_rate": 52.3,
+     "win_rate": 52.2,
      "rank": 36
     }
    }
@@ -384,7 +384,7 @@
   {
    "provider": "ollama",
    "model": "gemma4:31b",
-   "matched_as": "google/gemma-4-31b-it:batch",
+   "matched_as": "google/gemma-4-31b-it:free",
    "artificial_analysis": {
     "intelligence_index": 15.4,
     "coding_index": 43.4,
@@ -421,7 +421,7 @@
   {
    "provider": "ollama",
    "model": "gpt-oss:20b",
-   "matched_as": "openai/gpt-oss-20b:batch",
+   "matched_as": "openai/gpt-oss-20b",
    "artificial_analysis": {
     "intelligence_index": 9,
     "coding_index": 20.7,
@@ -446,18 +446,18 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1249,
+     "elo": 1250,
      "win_rate": 51.7,
-     "rank": 38
+     "rank": 37
     },
     "gamedev": {
      "elo": 1231,
-     "win_rate": 51,
+     "win_rate": 50.9,
      "rank": 40
     },
     "website": {
      "elo": 1257,
-     "win_rate": 52.3,
+     "win_rate": 52.2,
      "rank": 36
     }
    }
@@ -479,7 +479,7 @@
     },
     "gamedev": {
      "elo": 1237,
-     "win_rate": 47.1,
+     "win_rate": 47.2,
      "rank": 37
     },
     "website": {
@@ -552,7 +552,7 @@
     "codecategories": {
      "elo": 1195,
      "win_rate": 52.6,
-     "rank": 55
+     "rank": 56
     },
     "gamedev": {
      "elo": 1163,
@@ -697,7 +697,7 @@
    "artificial_analysis": {},
    "design_arena": {
     "codecategories": {
-     "elo": 1192,
+     "elo": 1193,
      "win_rate": 53.1,
      "rank": 57
     },
@@ -707,7 +707,7 @@
      "rank": 68
     },
     "website": {
-     "elo": 1206,
+     "elo": 1207,
      "win_rate": 54,
      "rank": 53
     }
@@ -725,17 +725,17 @@
    "design_arena": {
     "codecategories": {
      "elo": 1275,
-     "win_rate": 54.2,
-     "rank": 27
+     "win_rate": 54.1,
+     "rank": 28
     },
     "gamedev": {
-     "elo": 1269,
+     "elo": 1268,
      "win_rate": 54,
      "rank": 29
     },
     "website": {
      "elo": 1279,
-     "win_rate": 54.3,
+     "win_rate": 54.2,
      "rank": 26
     }
    }
@@ -762,12 +762,12 @@
    "design_arena": {
     "codecategories": {
      "elo": 1324,
-     "win_rate": 53,
-     "rank": 8
+     "win_rate": 52.8,
+     "rank": 9
     },
     "gamedev": {
-     "elo": 1342,
-     "win_rate": 54.7,
+     "elo": 1340,
+     "win_rate": 54,
      "rank": 8
     },
     "website": {
@@ -789,17 +789,17 @@
    "design_arena": {
     "codecategories": {
      "elo": 1330,
-     "win_rate": 57.7,
+     "win_rate": 57.6,
      "rank": 5
     },
     "gamedev": {
      "elo": 1376,
-     "win_rate": 64.1,
+     "win_rate": 64.2,
      "rank": 3
     },
     "website": {
      "elo": 1317,
-     "win_rate": 55.8,
+     "win_rate": 55.7,
      "rank": 6
     }
    }
@@ -848,7 +848,7 @@
     },
     "gamedev": {
      "elo": 1237,
-     "win_rate": 47.1,
+     "win_rate": 47.2,
      "rank": 37
     },
     "website": {
@@ -907,7 +907,7 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1220,
+     "elo": 1221,
      "win_rate": 48.9,
      "rank": 47
     },
@@ -934,7 +934,7 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1220,
+     "elo": 1221,
      "win_rate": 48.9,
      "rank": 47
     },
@@ -961,7 +961,7 @@
    },
    "design_arena": {
     "codecategories": {
-     "elo": 1255,
+     "elo": 1256,
      "win_rate": 51.9,
      "rank": 35
     },

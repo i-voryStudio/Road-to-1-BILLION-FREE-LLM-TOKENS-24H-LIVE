@@ -1,8 +1,8 @@
 {
- "checked_on": "2026-09-16",
+ "checked_on": "2026-09-17",
  "providers": {
   "openrouter": {
-   "total": 443,
+   "total": 444,
    "free": 20,
    "free_models": [
     "cohere/north-mini-code:free",
@@ -27,16 +27,10 @@
     "z-ai/glm-5.2:free"
    ],
    "source": "https://openrouter.ai/api/v1/models",
-   "fetched_on": "2026-09-16",
+   "fetched_on": "2026-09-17",
    "stale": false
   }
  },
- "changes_since_last_check": [
-  {
-   "provider": "openrouter",
-   "model": "z-ai/glm-5.2:free",
-   "change": "appeared"
-  }
- ],
+ "changes_since_last_check": [],
  "problems": []
 }

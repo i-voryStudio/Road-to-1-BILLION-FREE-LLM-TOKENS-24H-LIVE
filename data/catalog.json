@@ -1,12 +1,11 @@
 {
- "checked_on": "2026-09-19",
+ "checked_on": "2026-09-20",
  "providers": {
   "openrouter": {
-   "total": 447,
-   "free": 22,
+   "total": 446,
+   "free": 21,
    "free_models": [
     "cohere/north-mini-code:free",
-    "deepseek/deepseek-v4-flash-0731:free",
     "dots-studio/dots-3-note-preview:free",
     "google/gemma-4-26b-a4b-it:free",
     "google/gemma-4-31b-it:free",
@@ -29,10 +28,16 @@
     "z-ai/glm-5.2:free"
    ],
    "source": "https://openrouter.ai/api/v1/models",
-   "fetched_on": "2026-09-19",
+   "fetched_on": "2026-09-20",
    "stale": false
   }
  },
- "changes_since_last_check": [],
+ "changes_since_last_check": [
+  {
+   "provider": "openrouter",
+   "model": "deepseek/deepseek-v4-flash-0731:free",
+   "change": "disappeared"
+  }
+ ],
  "problems": []
 }

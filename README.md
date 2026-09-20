@@ -39,11 +39,11 @@ The first row is their arithmetic, not ours, and it is here so you can see the s
 <!--TOP5-->
 | # | Model | Provider | Value | Coding | Tokens/day | Volume | Answers | Cost | Get key |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 | MEASURED | 2 of 2 in 14 days | - | [get a key](https://xkiro.com) |
-| 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 | MEASURED; read on a free trial key; may be that tier's allowance, not a standing free tier | 2 of 2 in 14 days; returned an empty reply once in the archived run | - | [get a key](https://cloud.cerebras.ai) |
-| 3 | `gemini-3.5-flash-lite` | google | **133.1** | 49.3 | 250,000 | DERIVED | 1 of 1 in 14 days | **trains on your prompts**; human review; region-restricted | [get a key](https://aistudio.google.com/apikey) |
-| 4 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | 52.6 | 5,000,000 | MEASURED | 1 of 2 in 14 days | - | [get a key](https://xkiro.com) |
-| 5 | `minimax/minimax-m3:free` | openrouter | **100.1** | 58.6 | 25,000 | DERIVED | 2 of 2 in 14 days | - | [get a key](https://openrouter.ai/keys) |
+| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 | MEASURED | 1 of 1 in 14 days | - | [get a key](https://xkiro.com) |
+| 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 | MEASURED; read on a free trial key; may be that tier's allowance, not a standing free tier | 1 of 1 in 14 days; returned an empty reply once in the archived run | - | [get a key](https://cloud.cerebras.ai) |
+| 3 | `minimax/minimax-m2.7:free` | xkiro | **210.4** | 52.6 | 5,000,000 | MEASURED | 1 of 1 in 14 days | - | [get a key](https://xkiro.com) |
+| 4 | `gemini-3.5-flash-lite` | google | **133.1** | 49.3 | 250,000 | DERIVED | not on the radar yet | **trains on your prompts**; human review; region-restricted | [get a key](https://aistudio.google.com/apikey) |
+| 5 | `minimax/minimax-m3:free` | openrouter | **100.1** | 58.6 | 25,000 | DERIVED | 1 of 1 in 14 days | - | [get a key](https://openrouter.ai/keys) |
 <!--/TOP5-->
 
 <!--QUALITY-->
@@ -76,7 +76,7 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 ## Where this is going, out loud: one billion free tokens a day
 
 <!--ROAD-->
-**Roughly 6,300,000 quality tokens a day** is what this list can defend on 2026-09-19: 6,000,000 measured from response headers or usage endpoints (2 providers; cerebras: 1,000,000 read on a free trial key; may be that tier's allowance, not a standing free tier); nothing counted as published by a provider as a daily token figure; 300,000 derived from a published request cap at 500 tokens a reply or from the model's own published unit price (3 providers). The target is 1,000,000,000 a day by 2026-11-07, 158.7 times that. Nothing here is a burst multiplied out to a day.
+**Roughly 6,300,000 quality tokens a day** is what this list can defend on 2026-09-20: 6,000,000 measured from response headers or usage endpoints (2 providers; cerebras: 1,000,000 read on a free trial key; may be that tier's allowance, not a standing free tier); nothing counted as published by a provider as a daily token figure; 300,000 derived from a published request cap at 500 tokens a reply or from the model's own published unit price (3 providers). The target is 1,000,000,000 a day by 2026-11-07, 158.7 times that. Nothing here is a burst multiplied out to a day.
 
 *One measured hour is not a day.* alibaba drew 699,585 tokens in one measured hour on 2026-09-07. If that hour repeated 24 times it would be 16,790,040 a day, and nobody has measured that, so the figure is printed here and never added to the shelf. Drawn at a planned pace of 30 requests a minute and a realised 29.0 (624 launched over 22 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling. The only free capacity here is a one-time grant of 1,000,000 tokens for this model, which at this rate lasts about 1.4 hours. hetzner drew 232,551 tokens in one measured hour on 2026-09-07. If that hour repeated 24 times it would be 5,581,224 a day, and nobody has measured that, so the figure is printed here and never added to the shelf. Drawn at a planned pace of 10 requests a minute and a realised 5.6 (338 launched over 60 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling. kenari drew 29,236 tokens in one measured hour on 2026-09-07. If that hour repeated 24 times it would be 701,664 a day, and nobody has measured that, so the figure is printed here and never added to the shelf. Drawn at a planned pace of 5 requests a minute and a realised 2.2 (63 launched over 29 minutes, at most 2 in flight) x 700 tokens a call: a floor for the hour measured, times 24, not their ceiling. kenari also publishes a DERIVED daily figure, and that is the one on the shelf.
 
@@ -127,16 +127,16 @@ The best coding score in the whole list, **76.3**, belongs to `gemini-3.8-flash`
 <!--RANKING-->
 | # | Model | Provider | Value | Coding | Tokens/day | Volume | Answers | Cost | Get key |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 | MEASURED | 2 of 2 in 14 days | - | [get a key](https://xkiro.com) |
-| 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 | MEASURED; read on a free trial key; may be that tier's allowance, not a standing free tier | 2 of 2 in 14 days; returned an empty reply once in the archived run | - | [get a key](https://cloud.cerebras.ai) |
-| 3 | `gemini-3.5-flash-lite` | google | **133.1** | 49.3 | 250,000 | DERIVED | 1 of 1 in 14 days | **trains on your prompts**; human review; region-restricted | [get a key](https://aistudio.google.com/apikey) |
-| 4 | `minimax/minimax-m2.7:free` | xkiro | **105.2** | 52.6 | 5,000,000 | MEASURED | 1 of 2 in 14 days | - | [get a key](https://xkiro.com) |
-| 5 | `minimax/minimax-m3:free` | openrouter | **100.1** | 58.6 | 25,000 | DERIVED | 2 of 2 in 14 days | - | [get a key](https://openrouter.ai/keys) |
+| 1 | `minimax/minimax-m3:free` | xkiro | **234.4** | 58.6 | 5,000,000 | MEASURED | 1 of 1 in 14 days | - | [get a key](https://xkiro.com) |
+| 2 | `qwen-3.8-27b` | cerebras | **224.8** | 68.1 | 1,000,000 | MEASURED; read on a free trial key; may be that tier's allowance, not a standing free tier | 1 of 1 in 14 days; returned an empty reply once in the archived run | - | [get a key](https://cloud.cerebras.ai) |
+| 3 | `minimax/minimax-m2.7:free` | xkiro | **210.4** | 52.6 | 5,000,000 | MEASURED | 1 of 1 in 14 days | - | [get a key](https://xkiro.com) |
+| 4 | `gemini-3.5-flash-lite` | google | **133.1** | 49.3 | 250,000 | DERIVED | not on the radar yet | **trains on your prompts**; human review; region-restricted | [get a key](https://aistudio.google.com/apikey) |
+| 5 | `minimax/minimax-m3:free` | openrouter | **100.1** | 58.6 | 25,000 | DERIVED | 1 of 1 in 14 days | - | [get a key](https://openrouter.ai/keys) |
 | 6 | `mimo-v2-5:free` | kenari | **97.0** | 56.8 | 25,000 | DERIVED | not on the radar yet; the provider answered the 30-second burst on 2026-09-07 with `nemotron-3-ultra-550b-a55b:free` | - | [get a key](https://kenari.id/) |
 | 7 | `nemotron-3-ultra-550b-a55b:free` | kenari | **84.2** | 49.3 | 25,000 | DERIVED | not on the radar yet; answered the 30-second burst on 2026-09-07 | - | [get a key](https://kenari.id/) |
 | 8 | `mistral-medium-3-5:free` | kenari | **80.1** | 46.9 | 25,000 | DERIVED | not on the radar yet; the provider answered the 30-second burst on 2026-09-07 with `nemotron-3-ultra-550b-a55b:free` | - | [get a key](https://kenari.id/) |
-| 9 | `minimax/minimax-m2.7:free` | openrouter | **0.0** (no answer in 14 days, so no value) | 52.6 | 25,000 | DERIVED | 0 of 2 in 14 days | - | [get a key](https://openrouter.ai/keys) |
-| 10 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** (no answer in 14 days, so no value) | 49.3 | 25,000 | DERIVED | 0 of 2 in 14 days | - | [get a key](https://openrouter.ai/keys) |
+| 9 | `minimax/minimax-m2.7:free` | openrouter | **0.0** (no answer in 14 days, so no value) | 52.6 | 25,000 | DERIVED | 0 of 1 in 14 days | - | [get a key](https://openrouter.ai/keys) |
+| 10 | `nvidia/nemotron-3-ultra-550b-a55b:free` | openrouter | **0.0** (no answer in 14 days, so no value) | 49.3 | 25,000 | DERIVED | 0 of 1 in 14 days | - | [get a key](https://openrouter.ai/keys) |
 <!--/RANKING-->
 
 ### Listed, never ranked: the quota starts after a payment
@@ -160,7 +160,7 @@ tables, including quality alone and privacy cost: [RESULTS.md](RESULTS.md). Ever
 source and the date we read it: [LIMITS.md](LIMITS.md).
 
 <!--COUNTS-->
-18 providers and 63 endpoints are tracked. 10 endpoints are ranked; 53 are listed with what is missing. 35 endpoints have a radar verdict in the last 14 days, 5 were probed and only ever refused (429 or 402), and 23 are not on the radar yet. 7 endpoints need no key. 5 providers have a daily figure this list can defend; 13 have no figure this list can defend and are counted as nothing, each for the reason in its own data: aihubmix (has a DERIVED figure of 50,000 on `coding-glm-5.3-free`, and that model scores 74.8, under the quality floor of 45); alibaba (publishes only a one-time grant of 1,000,000 tokens per model); cloudflare (has a DERIVED figure of 48,826 on `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, and that model scores 11.9, under the quality floor of 45); groq (publishes a daily figure only for a paid plan); hetzner (publishes only a per-minute ceiling); inferx (publishes no figure at all); mistral (publishes only a monthly grant of $10 in credits); nvidia (publishes no figure at all); ollama (publishes only a monthly grant, size not published); ovhcloud (publishes only a per-minute ceiling); siliconflow (publishes only a one-time grant of $1 in credits); uncloseai (publishes only a per-minute ceiling); unorouter (publishes only a per-minute ceiling).
+18 providers and 63 endpoints are tracked. 10 endpoints are ranked; 53 are listed with what is missing. 32 endpoints have a radar verdict in the last 14 days, 5 were probed and only ever refused (429 or 402), and 26 are not on the radar yet. 7 endpoints need no key. 5 providers have a daily figure this list can defend; 13 have no figure this list can defend and are counted as nothing, each for the reason in its own data: aihubmix (has a DERIVED figure of 50,000 on `coding-glm-5.3-free`, and that model scores 74.8, under the quality floor of 45); alibaba (publishes only a one-time grant of 1,000,000 tokens per model); cloudflare (has a DERIVED figure of 48,826 on `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, and that model scores 11.9, under the quality floor of 45); groq (publishes a daily figure only for a paid plan); hetzner (publishes only a per-minute ceiling); inferx (publishes no figure at all); mistral (publishes only a monthly grant of $10 in credits); nvidia (publishes no figure at all); ollama (publishes only a monthly grant, size not published); ovhcloud (publishes only a per-minute ceiling); siliconflow (publishes only a one-time grant of $1 in credits); uncloseai (publishes only a per-minute ceiling); unorouter (publishes only a per-minute ceiling).
 <!--/COUNTS-->
 
 ---
@@ -300,18 +300,18 @@ what the burst or the draw saw where one of them got an answer.
 <!--RELIABILITY-->
 | Provider | Answered, last 14 days | Endpoints with a verdict | Endpoints probed | Endpoints tracked |
 |---|---|---|---|---|
-| [alibaba](https://modelstudio.console.alibabacloud.com) | 8 of 8 (100%) | 4 | 4 | 4 |
-| [cerebras](https://cloud.cerebras.ai) | 6 of 6 (100%) | 3 | 3 | 3 |
-| [cloudflare](https://dash.cloudflare.com/profile/api-tokens) | 10 of 10 (100%) | 5 | 5 | 5 |
-| [groq](https://console.groq.com/keys) | 8 of 8 (100%) | 4 | 4 | 4 |
-| [nvidia](https://build.nvidia.com) | 10 of 10 (100%) | 5 | 5 | 5 |
-| [ollama](https://ollama.com/settings/keys) | 6 of 6 (100%) | 3 | 3 | 3 |
+| [alibaba](https://modelstudio.console.alibabacloud.com) | 4 of 4 (100%) | 4 | 4 | 4 |
+| [cerebras](https://cloud.cerebras.ai) | 3 of 3 (100%) | 3 | 3 | 3 |
+| [cloudflare](https://dash.cloudflare.com/profile/api-tokens) | 5 of 5 (100%) | 5 | 5 | 5 |
+| [groq](https://console.groq.com/keys) | 4 of 4 (100%) | 4 | 4 | 4 |
+| [nvidia](https://build.nvidia.com) | 5 of 5 (100%) | 5 | 5 | 5 |
+| [ollama](https://ollama.com/settings/keys) | 3 of 3 (100%) | 3 | 3 | 3 |
 | [ovhcloud](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities) | 2 of 2 (100%) | 2 | 6 | 6 |
 | [uncloseai](https://ai.unturf.com) | 1 of 1 (100%) | 1 | 1 | 1 |
-| [xkiro](https://xkiro.com) | 3 of 4 (75%) | 2 | 2 | 2 |
-| [google](https://aistudio.google.com/apikey) | 2 of 3 (67%) | 3 | 3 | 3 |
-| [openrouter](https://openrouter.ai/keys) | 2 of 6 (33%) | 3 | 3 | 3 |
+| [xkiro](https://xkiro.com) | 2 of 2 (100%) | 2 | 2 | 2 |
+| [openrouter](https://openrouter.ai/keys) | 1 of 3 (33%) | 3 | 3 | 3 |
 | [aihubmix](https://aihubmix.com/) | not on the radar yet; answered the 30-second burst on 2026-09-07 | 0 | 0 | 5 |
+| [google](https://aistudio.google.com/apikey) | not on the radar yet | 0 | 0 | 3 |
 | [hetzner](https://console.hetzner.com/) | not on the radar yet; answered the 60-minute draw on 2026-09-07 | 0 | 0 | 2 |
 | [inferx](https://model.inferx.net/) | not on the radar yet; answered the 30-second burst on 2026-09-07 | 0 | 0 | 4 |
 | [kenari](https://kenari.id/) | not on the radar yet; answered the 30-second burst on 2026-09-07 | 0 | 0 | 5 |

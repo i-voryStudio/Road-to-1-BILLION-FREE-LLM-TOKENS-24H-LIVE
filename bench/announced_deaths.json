@@ -17,7 +17,7 @@
    "source": "https://github.blog/changelog/2026-07-30-github-models-is-now-retired/",
    "notice_from": "operator",
    "read_on": "2026-09-07",
-   "endpoint_today": "HTTP 410 github_models_retirement_brownout on models.github.ai/inference/chat/completions, measured 2026-09-07"
+   "endpoint_today": "HTTP 200 with a plain-text body reading OK, for any model name, on models.github.ai/inference/chat/completions and on /catalog/models, measured 2026-09-22 from two networks; it answered HTTP 410 on 2026-09-07. A client that checks only the status code now reads a dead endpoint as a working one"
   },
   {
    "provider": "Llama API (Meta)",

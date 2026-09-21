@@ -27,7 +27,7 @@ Notice from: the operator, in its own words.
 
 Source: https://github.blog/changelog/2026-07-30-github-models-is-now-retired/ (read 2026-09-07).
 
-Today: HTTP 410 github_models_retirement_brownout on models.github.ai/inference/chat/completions, measured 2026-09-07
+Today: HTTP 200 with a plain-text body reading OK, for any model name, on models.github.ai/inference/chat/completions and on /catalog/models, measured 2026-09-22 from two networks; it answered HTTP 410 on 2026-09-07. A client that checks only the status code now reads a dead endpoint as a working one
 
 ### Llama API (Meta), retired 2026-07-06
 

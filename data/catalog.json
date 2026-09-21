@@ -1,5 +1,5 @@
 {
- "checked_on": "2026-09-20",
+ "checked_on": "2026-09-21",
  "providers": {
   "openrouter": {
    "total": 446,
@@ -28,16 +28,10 @@
     "z-ai/glm-5.2:free"
    ],
    "source": "https://openrouter.ai/api/v1/models",
-   "fetched_on": "2026-09-20",
+   "fetched_on": "2026-09-21",
    "stale": false
   }
  },
- "changes_since_last_check": [
-  {
-   "provider": "openrouter",
-   "model": "deepseek/deepseek-v4-flash-0731:free",
-   "change": "disappeared"
-  }
- ],
+ "changes_since_last_check": [],
  "problems": []
 }
